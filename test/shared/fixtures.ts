@@ -20,13 +20,15 @@ export async function fixture(l2ChainId: BigNumber): Promise<IFixture> {
     messengerWrapperArtifact
   } = getL2SpecificArtifact(l2ChainId)
   const accounts = await ethers.getSigners()
-  const user = accounts[0]
-  const liquidityProvider = accounts[1]
-  const bonder = accounts[2]
-  const challenger = accounts[3]
-  const governance = accounts[4]
-  const relayer = accounts[5]
-  const otherAccount = accounts[6]
+  const [
+    user,
+    liquidityProvider,
+    bonder,
+    challenger,
+    governance,
+    relayer,
+    otherAccount
+  ] = accounts
 
   // Factories
   const L1_CanonicalBridge = await ethers.getContractFactory('contracts/test/Mock_L1_CanonicalBridge.sol:Mock_L1_CanonicalBridge')

@@ -20,16 +20,16 @@ const contracts = require('contracts');
 | L1 Messenger         | 1 | No  | [`0x77eeDe6CC8B46C76e50979Ce3b4163253979c519`](https://kovan.etherscan.io/address/0x77eeDe6CC8B46C76e50979Ce3b4163253979c519)
 | L1 Bridge            | 1 | Yes | [`0xe74EFb19BBC46DbE28b7BaB1F14af6eB7158B4BE`](https://kovan.etherscan.io/address/0xe74EFb19BBC46DbE28b7BaB1F14af6eB7158B4BE)
 | L1 Messenger Wrapper | 1 | Yes | [`0x2673a37B287b9896fbc9fB8E29Ed1d899BD4281E`](https://kovan.etherscan.io/address/0x2673a37B287b9896fbc9fB8E29Ed1d899BD4281E)
-| L2 DAI               | 2 | No  | [`0x57eaeE3D9C99b93D8FD1b50EF274579bFEC8e14B`](https://todo/0x57eaeE3D9C99b93D8FD1b50EF274579bFEC8e14B)
-| L2 Messenger         | 2 | No  | [`0x61cBe9766fe7392A4DE03A54b2069c103AE674eb`](https://todo/0x61cBe9766fe7392A4DE03A54b2069c103AE674eb)
-| L2 Bridge            | 2 | Yes | [`0x6d2f304CFF4e0B67dA4ab38C6A5C8184a2424D05`](https://todo/0x6d2f304CFF4e0B67dA4ab38C6A5C8184a2424D05)
-| L2 Uniswap Factory   | 2 | Yes | [`0x3e4CFaa8730092552d9425575E49bB542e329981`](https://todo/0x3e4CFaa8730092552d9425575E49bB542e329981)
-| L2 Uniswap Router    | 2 | Yes | [`0x3C67B82D67B4f31A54C0A516dE8d3e93D010EDb3`](https://todo/0x3C67B82D67B4f31A54C0A516dE8d3e93D010EDb3)
-| L2 Uniswap Exchange  | 2 | Yes | [`0x65F72DF8a668BC6272B059BB7F53ADc91066540C`](https://todo/0x65F72DF8a668BC6272B059BB7F53ADc91066540C)
+| L2 DAI               | 2 | No  | `0x57eaeE3D9C99b93D8FD1b50EF274579bFEC8e14B`
+| L2 Messenger         | 2 | No  | `0x61cBe9766fe7392A4DE03A54b2069c103AE674eb`
+| L2 Bridge            | 2 | Yes | `0x6d2f304CFF4e0B67dA4ab38C6A5C8184a2424D05`
+| L2 Uniswap Factory   | 2 | Yes | `0x3e4CFaa8730092552d9425575E49bB542e329981`
+| L2 Uniswap Router    | 2 | Yes | `0x3C67B82D67B4f31A54C0A516dE8d3e93D010EDb3`
+| L2 Uniswap Exchange  | 2 | Yes | `0x65F72DF8a668BC6272B059BB7F53ADc91066540C`
 
 ### Arbitrum Testnet 3
 
-| Contract Name | Network | Hop Protocol Contract | Address |
+| Contract Name | Layer | Hop Protocol Contract | Address |
 |---|---|---|---|
 | L1 DAI               | 1 | No  | [`0x7d669A64deb8a4A51eEa755bb0E19FD39CE25Ae9`](https://kovan.etherscan.io/address/0x7d669A64deb8a4A51eEa755bb0E19FD39CE25Ae9)
 | L1 Messenger         | 1 | No  | [`0xE681857DEfE8b454244e701BA63EfAa078d7eA85`](https://kovan.etherscan.io/address/0xE681857DEfE8b454244e701BA63EfAa078d7eA85)
@@ -44,7 +44,7 @@ const contracts = require('contracts');
 
 ### Arbitrum Testnet 2
 
-| Contract Name | Network | Hop Protocol Contract | Address |
+| Contract Name | Layer | Hop Protocol Contract | Address |
 |---|---|---|---|
 | L1 DAI               | 1 | No  | [`0x7d669A64deb8a4A51eEa755bb0E19FD39CE25Ae9`](https://kovan.etherscan.io/address/0x7d669A64deb8a4A51eEa755bb0E19FD39CE25Ae9)
 | L1 Messenger         | 1 | No  | [`0xE681857DEfE8b454244e701BA63EfAa078d7eA85`](https://kovan.etherscan.io/address/0xE681857DEfE8b454244e701BA63EfAa078d7eA85)

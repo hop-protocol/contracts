@@ -15,16 +15,25 @@ export default {
     },
     kovan : {
       url: "https://kovan.rpc.authereum.com",
-      accounts: [process.env.USER_PRIVATE_KEY, process.env.LIQUIDITY_PROVIDER_PRIVATE_KEY]
+      accounts: [
+        process.env.BONDER_PRIVATE_KEY,
+        process.env.USER_PRIVATE_KEY
+      ]
     },
     arbitrum: {
       url: "https://kovan3.arbitrum.io/rpc",
-      accounts: [process.env.USER_PRIVATE_KEY, process.env.LIQUIDITY_PROVIDER_PRIVATE_KEY],
+      accounts: [
+        process.env.BONDER_PRIVATE_KEY,
+        process.env.USER_PRIVATE_KEY
+      ],
       gasPrice: 0
     },
     optimism: {
       url: "https://kovan.optimism.rpc.hop.exchange",
-      accounts: [process.env.USER_PRIVATE_KEY, process.env.LIQUIDITY_PROVIDER_PRIVATE_KEY],
+      accounts: [
+        process.env.BONDER_PRIVATE_KEY,
+        process.env.USER_PRIVATE_KEY
+      ],
       gasPrice: 0,
       gas: 9000000
     }
