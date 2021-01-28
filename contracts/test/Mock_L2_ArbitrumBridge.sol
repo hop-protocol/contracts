@@ -15,10 +15,11 @@ contract Mock_L2_ArbitrumBridge is L2_ArbitrumBridge {
         IERC20 _canonicalToken,
         address _l1BridgeAddress,
         uint256[] memory _supportedChainIds,
-        address _bonder
+        address _bonder,
+        address _exchangeAddress
     )
         public
-        L2_ArbitrumBridge(_messenger, _l1Governance, _canonicalToken, _l1BridgeAddress, _supportedChainIds,  _bonder)
+        L2_ArbitrumBridge(_messenger, _l1Governance, _canonicalToken, _l1BridgeAddress, _supportedChainIds,  _bonder, _exchangeAddress)
     {
         _chainId = chainId_;
     }

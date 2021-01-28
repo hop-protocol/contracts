@@ -56,6 +56,11 @@ export async function fixture(l2ChainId: BigNumber): Promise<IFixture> {
   // Deploy canonical bridges
   const l1_canonicalBridge = await L1_CanonicalBridge.deploy(l1_canonicalToken.address, l1_messenger.address)
 
+  // Deploy Uniswap contracts
+  const weth = await MockERC20.deploy('WETH', 'WETH')
+  const l2_uniswapFactory = await UniswapFactory.deploy(await user.getAddress())
+  const l2_uniswapRouter = await UniswapRouter.deploy(l2_uniswapFactory.address, weth.address)
+
   // Deploy Hop L1 contracts
   const l1_bridge = await L1_Bridge.deploy(l1_canonicalToken.address, await bonder.getAddress())
 
@@ -66,17 +71,13 @@ export async function fixture(l2ChainId: BigNumber): Promise<IFixture> {
     l2_canonicalToken.address,
     l1_bridge.address,
     [CHAIN_IDS.MAINNET],
-    bonder.getAddress()
+    bonder.getAddress(),
+    l2_uniswapRouter.address
   )
 
   // Deploy Messenger Wrapper
   const messengerWrapperDefaults: IGetMessengerWrapperDefaults[] = getMessengerWrapperDefaults(l2ChainId, l1_bridge.address, l2_bridge.address, l1_messenger.address)
   const messengerWrapper = await MessengerWrapper.deploy(...messengerWrapperDefaults)
-
-  // Deploy auxiliary contracts
-  const weth = await MockERC20.deploy('WETH', 'WETH')
-  const l2_uniswapFactory = await UniswapFactory.deploy(await user.getAddress())
-  const l2_uniswapRouter = await UniswapRouter.deploy(l2_uniswapFactory.address, weth.address)
 
   // Mocks
   const accounting = await MockAccounting.deploy(await bonder.getAddress())

@@ -50,8 +50,7 @@ abstract contract L2_Bridge is ERC20, Bridge {
         IERC20 _l2CanonicalToken,
         address _l1BridgeAddress,
         uint256[] memory _supportedChainIds,
-        address _bonder,
-        address _exchangeAddress
+        address _bonder
     )
         public
         Bridge(_bonder)
@@ -60,7 +59,6 @@ abstract contract L2_Bridge is ERC20, Bridge {
         l1Governance = _l1Governance;
         l2CanonicalToken = _l2CanonicalToken;
         l1BridgeAddress = _l1BridgeAddress;
-        exchangeAddress = _exchangeAddress;
 
         for (uint256 i = 0; i < _supportedChainIds.length; i++) {
             supportedChainIds[_supportedChainIds[i]] = true;
