@@ -1,21 +1,24 @@
 require('dotenv').config()
 
-import { network, ethers as evmEthers, l2ethers as ovmEthers } from 'hardhat'
 import { ContractFactory, Signer, Contract, BigNumber } from 'ethers'
-
+import {
+  network,
+  ethers as evmEthers,
+  l2ethers as ovmEthers
+} from 'hardhat'
 import {
   getContractFactories,
   getValidEthersObject,
   verifyDeployment,
   isChainIdOptimism,
   isChainIdArbitrum
-} from './utils'
+} from '../utils'
 import {
   ZERO_ADDRESS,
   CHAIN_IDS
 } from '../../test/shared/constants'
 
-async function deployAndSetupL2 () {
+async function deployL2 () {
 
   // Network setup
   const chainId: BigNumber = BigNumber.from(network.config.chainId)
@@ -195,5 +198,5 @@ const deployNetworkSpecificContracts = async (
 
 /* tslint:disable-next-line */
 (async () => {
-  await deployAndSetupL2()
+  await deployL2()
 })()

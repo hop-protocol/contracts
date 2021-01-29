@@ -77,10 +77,10 @@ async function deployArbitrum () {
   l2_uniswapFactory = UniswapFactory.attach('0x3e4CFaa8730092552d9425575E49bB542e329981')
   l2_uniswapRouter = UniswapRouter.attach('0xf3af9B1Edc17c1FcA2b85dd64595F914fE2D3Dde')
 
-  let cdmw = await l1_bridge.getCrossDomainMessengerWrapper(CHAIN_IDS.OPTIMISM_HOP_TESTNET)
+  let cdmw = await l1_bridge.getCrossDomainMessengerWrapper(CHAIN_IDS.OPTIMISM.HOP_TESTNET)
   console.log('aa', cdmw)
-  await l1_bridge.setCrossDomainMessengerWrapper(CHAIN_IDS.OPTIMISM_HOP_TESTNET, '0x2673a37B287b9896fbc9fB8E29Ed1d899BD4281E')
-  cdmw = await l1_bridge.getCrossDomainMessengerWrapper(CHAIN_IDS.OPTIMISM_HOP_TESTNET)
+  await l1_bridge.setCrossDomainMessengerWrapper(CHAIN_IDS.OPTIMISM.HOP_TESTNET, '0x2673a37B287b9896fbc9fB8E29Ed1d899BD4281E')
+  cdmw = await l1_bridge.getCrossDomainMessengerWrapper(CHAIN_IDS.OPTIMISM.HOP_TESTNET)
   console.log('aa', cdmw)
   
 
@@ -91,13 +91,13 @@ async function deployArbitrum () {
   // const b = await l2_oDai.balanceOf('0x023fFdC1530468eb8c8EEbC3e38380b5bc19Cc5d')
   // console.log('L2 Canonical Dai')
   // console.log('L2 Canonical Dai', b.toString())
-  // await l2_bridge.addSupportedChainId(CHAIN_IDS.MAINNET)
+  // await l2_bridge.addSupportedChainId(CHAIN_IDS.ETHEREUM.MAINNET)
   // console.log('3')
-  // await l2_bridge.addSupportedChainId(CHAIN_IDS.OPTIMISM_HOP_TESTNET)
+  // await l2_bridge.addSupportedChainId(CHAIN_IDS.OPTIMISM.HOP_TESTNET)
   // console.log('4')
-  // await l2_bridge.addSupportedChainId(CHAIN_IDS.KOVAN)
+  // await l2_bridge.addSupportedChainId(CHAIN_IDS.ETHEREUM.KOVAN)
   // console.log('5')
-  // const isSupport = await l2_bridge.supportedChainIds(CHAIN_IDS.OPTIMISM_HOP_TESTNET)
+  // const isSupport = await l2_bridge.supportedChainIds(CHAIN_IDS.OPTIMISM.HOP_TESTNET)
   // console.log(isSupport)
   // // Other
   // // tokenOne = await TokenOne.deploy('Optimism Dai', 'Dai')
@@ -137,7 +137,7 @@ async function deployArbitrum () {
   // let test = await l2_oDai.balanceOf(await user.getAddress())
   // console.log('222', test.toString())
   // // await l2_bridge.setExchangeAddress(l2_uniswapRouter.address)
-  // const _chainId = CHAIN_IDS.ARBITRUM_TESTNET_3
+  // const _chainId = CHAIN_IDS.ARBITRUM.TESTNET_3
   // const _recipient = await user.getAddress()
   // const _amount = BigNumber.from('1000000000000000000')
   // const _transferNonce = 0

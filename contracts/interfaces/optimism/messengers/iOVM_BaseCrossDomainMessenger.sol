@@ -34,4 +34,10 @@ interface iOVM_BaseCrossDomainMessenger {
         bytes calldata _message,
         uint32 _gasLimit
     ) external;
+
+    function deposit(
+        address _depositor,
+        uint256 _amount,
+        bool _send
+    ) external;
 }

@@ -15,8 +15,12 @@
     "publish-module": "npm publish --tag beta --access public",
     "release": "npm run clean && npm run publish-module",
     "clean": "rimraf cache artifacts",
+    "deploy:l1-kovan": "hardhat run scripts/deployments/deployL1.ts --network kovan",
     "deploy:l2-arbitrum": "hardhat run scripts/deployments/deployL2.ts --network arbitrum",
-    "deploy:l2-optimism": "hardhat run scripts/deployments/deployL2.ts --network optimism"
+    "deploy:l2-optimism": "hardhat run scripts/deployments/deployL2.ts --network optimism",
+    "setup:l1-kovan": "hardhat run scripts/setup/setupL1.ts --network kovan",
+    "setup:l2-arbitrum": "hardhat run scripts/setup/setupL2.ts --network arbitrum",
+    "setup:l2-optimism": "hardhat run scripts/setup/setupL2.ts --network optimism"
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.0",

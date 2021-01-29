@@ -70,7 +70,7 @@ async function deployArbitrum () {
   console.log('444')
   await l1_poolToken.approve(l1_bridge.address, USER_INITIAL_BALANCE)
   console.log('555')
-  await l1_bridge.sendToL2(l2ChainId,  await user.getAddress(), USER_INITIAL_BALANCE)
+  await l1_bridge.sendToL2(l2ChainId, await user.getAddress(), USER_INITIAL_BALANCE)
 }
 
 /* tslint:disable-next-line */

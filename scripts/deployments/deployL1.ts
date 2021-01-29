@@ -1,13 +1,20 @@
 require('dotenv').config()
 
-import { ethers } from 'hardhat'
-import { ContractFactory, Contract, Signer } from 'ethers'
-import { getContractFactories } from './utils'
+import { network, ethers } from 'hardhat'
+import { ContractFactory, Contract, Signer, BigNumber } from 'ethers'
+import { getContractFactories } from '../utils'
 
 async function deployL1 () {
 
+  // Network setup
+  const chainId: BigNumber = BigNumber.from(network.config.chainId)
+
   // Addresses
-  const l1_canonicalTokenAddress = '0x7d669A64deb8a4A51eEa755bb0E19FD39CE25Ae9'
+  const l1_canonicalTokenAddress = ''
+
+  if (!l1_canonicalTokenAddress) {
+    throw new Error('Addresses must be defined')
+  }
 
   // Signers
   const accounts: Signer[] = await ethers.getSigners()
@@ -21,7 +28,7 @@ async function deployL1 () {
 
   ;({ 
     L1_Bridge
-  } = await getContractFactories(ethers))
+  } = await getContractFactories(chainId, ethers, bonder))
 
   /**
    * Deployments
