@@ -70,7 +70,7 @@ export async function fixture(l2ChainId: BigNumber): Promise<IFixture> {
     governance.getAddress(),
     l2_canonicalToken.address,
     l1_bridge.address,
-    [CHAIN_IDS.MAINNET],
+    [CHAIN_IDS.ETHEREUM.MAINNET],
     bonder.getAddress(),
     l2_uniswapRouter.address
   )
@@ -86,7 +86,7 @@ export async function fixture(l2ChainId: BigNumber): Promise<IFixture> {
   // Transfers
   const transfers: Transfer[] = [
       new Transfer({
-        chainId: CHAIN_IDS.ARBITRUM_TESTNET_3,
+        chainId: CHAIN_IDS.ARBITRUM.TESTNET_3,
         sender: await user.getAddress(),
         recipient: await otherAccount.getAddress(),
         amount: TRANSFER_AMOUNT,
@@ -96,7 +96,7 @@ export async function fixture(l2ChainId: BigNumber): Promise<IFixture> {
         deadline: BigNumber.from(DEFAULT_DEADLINE)
       }),
       new Transfer({
-        chainId: CHAIN_IDS.ARBITRUM_TESTNET_3,
+        chainId: CHAIN_IDS.ARBITRUM.TESTNET_3,
         sender: await liquidityProvider.getAddress(),
         recipient: await liquidityProvider.getAddress(),
         amount: TRANSFER_AMOUNT,
@@ -148,14 +148,14 @@ const getL2SpecificArtifact = (l2ChainId: BigNumber) => {
   let messengerWrapperArtifact: string
 
   if (
-    l2ChainId === CHAIN_IDS.ARBITRUM_TESTNET_2 ||
-    l2ChainId === CHAIN_IDS.ARBITRUM_TESTNET_3
+    l2ChainId === CHAIN_IDS.ARBITRUM.TESTNET_2 ||
+    l2ChainId === CHAIN_IDS.ARBITRUM.TESTNET_3
   ) {
     l2BridgeArtifact = 'L2_ArbitrumBridge.sol:L2_ArbitrumBridge'
     messengerWrapperArtifact = 'ArbitrumMessengerWrapper.sol:ArbitrumMessengerWrapper'
   } else if (
-    l2ChainId === CHAIN_IDS.OPTIMISM_TESTNET_1 ||
-    l2ChainId === CHAIN_IDS.OPTIMISM_SYNTHETIX_DEMO
+    l2ChainId === CHAIN_IDS.OPTIMISM.TESTNET_1 ||
+    l2ChainId === CHAIN_IDS.OPTIMISM.SYNTHETIX_DEMO
   ) {
     l2BridgeArtifact = 'L2_OptimismBridge.sol:L2_OptimismBridge'
     messengerWrapperArtifact = 'OptimismMessengerWrapper.sol:OptimismMessengerWrapper'

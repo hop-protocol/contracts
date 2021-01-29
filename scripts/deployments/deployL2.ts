@@ -145,10 +145,10 @@ const deployBridge = async (
     l2_canonicalToken.address,
     l1_bridge.address,
     [
-      CHAIN_IDS.MAINNET,
-      CHAIN_IDS.KOVAN,
-      CHAIN_IDS.OPTIMISM_HOP_TESTNET,
-      CHAIN_IDS.ARBITRUM_TESTNET_3
+      CHAIN_IDS.ETHEREUM.MAINNET,
+      CHAIN_IDS.ETHEREUM.KOVAN,
+      CHAIN_IDS.OPTIMISM.HOP_TESTNET,
+      CHAIN_IDS.ARBITRUM.TESTNET_3
     ],
     await bonder.getAddress(),
     l2_uniswapRouter.address

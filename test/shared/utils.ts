@@ -181,8 +181,8 @@ export const getMessengerWrapperDefaults = (
   )
 
   if (
-    l2ChainId === CHAIN_IDS.ARBITRUM_TESTNET_2 ||
-    l2ChainId === CHAIN_IDS.ARBITRUM_TESTNET_3
+    l2ChainId === CHAIN_IDS.ARBITRUM.TESTNET_2 ||
+    l2ChainId === CHAIN_IDS.ARBITRUM.TESTNET_3
   ) {
     defaults.push(
       ARB_CHAIN_ADDRESS,
@@ -191,9 +191,9 @@ export const getMessengerWrapperDefaults = (
       DEFAULT_MESSENGER_WRAPPER_GAS_CALL_VALUE
     )
   } else if (
-    l2ChainId === CHAIN_IDS.OPTIMISM_TESTNET_1 ||
-    l2ChainId === CHAIN_IDS.OPTIMISM_SYNTHETIX_DEMO ||
-    l2ChainId === CHAIN_IDS.OPTIMISM_HOP_TESTNET
+    l2ChainId === CHAIN_IDS.OPTIMISM.TESTNET_1 ||
+    l2ChainId === CHAIN_IDS.OPTIMISM.SYNTHETIX_DEMO ||
+    l2ChainId === CHAIN_IDS.OPTIMISM.HOP_TESTNET
   ) {
     // Nothing unique here. This function exists for consistency.
   }

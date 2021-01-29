@@ -52,7 +52,7 @@ async function deployArbitrum () {
   l2_bridge = L2_Bridge.attach('0xf3af9B1Edc17c1FcA2b85dd64595F914fE2D3Dde')
 
   // Set up bridges
-  const l2ChainId: BigNumber = CHAIN_IDS.OPTIMISM_HOP_TESTNET
+  const l2ChainId: BigNumber = CHAIN_IDS.OPTIMISM.HOP_TESTNET
   // await l1_bridge.setCrossDomainMessengerWrapper(l2ChainId, messengerWrapper.address)
 
   // Send canonical token to the user on L2

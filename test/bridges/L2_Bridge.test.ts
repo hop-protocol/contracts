@@ -45,7 +45,7 @@ describe("L2_Bridge", () => {
   let sendTokenInitialBalance: BigNumber
 
   beforeEach(async () => {
-    l2ChainId = CHAIN_IDS.OPTIMISM_TESTNET_1
+    l2ChainId = CHAIN_IDS.OPTIMISM.TESTNET_1
     _fixture = await fixture(l2ChainId)
     await setUpDefaults(_fixture, l2ChainId)
 
@@ -79,7 +79,7 @@ describe("L2_Bridge", () => {
     const l1GovernanceAddress = await l2_bridge.l1Governance()
     const l2CanonicalTokenAddress = await l2_bridge.l2CanonicalToken()
     const l1BridgeAddress = await l2_bridge.l1BridgeAddress()
-    const isChainIdSupported = await l2_bridge.supportedChainIds(CHAIN_IDS.MAINNET)
+    const isChainIdSupported = await l2_bridge.supportedChainIds(CHAIN_IDS.ETHEREUM.MAINNET)
     const bonderAddress = await l2_bridge.getBonder()
 
     expect(expectedL1GovernanceAddress).to.eq(l1GovernanceAddress)
@@ -106,7 +106,7 @@ describe("L2_Bridge", () => {
   })
 
   it('Should add support for a new chainId', async () => {
-    const newChainId = CHAIN_IDS.KOVAN
+    const newChainId = CHAIN_IDS.ETHEREUM.KOVAN
 
     let isChainIdSupported = await l2_bridge.supportedChainIds(newChainId)
     expect(isChainIdSupported).to.eq(false)
@@ -118,7 +118,7 @@ describe("L2_Bridge", () => {
   })
 
   it('Should add support for a new chainId then remove it', async () => {
-    const newChainId = CHAIN_IDS.KOVAN
+    const newChainId = CHAIN_IDS.ETHEREUM.KOVAN
 
     let isChainIdSupported = await l2_bridge.supportedChainIds(newChainId)
     expect(isChainIdSupported).to.eq(false)

@@ -4,6 +4,8 @@ import "@nomiclabs/hardhat-waffle"
 import '@eth-optimism/plugins/hardhat/compiler'
 import '@eth-optimism/plugins/hardhat/ethers'
 
+import { CHAIN_IDS} from './test/shared/constants'
+
 // You have to export an object to set up your config
 // This object can have the following optional entries:
 // defaultNetwork, networks, solc, and paths.
@@ -18,7 +20,8 @@ export default {
       accounts: [
         process.env.BONDER_PRIVATE_KEY,
         process.env.USER_PRIVATE_KEY
-      ]
+      ],
+      chainId: CHAIN_IDS.ETHEREUM.KOVAN.toNumber()
     },
     arbitrum: {
       url: "https://kovan3.arbitrum.io/rpc",
@@ -26,7 +29,8 @@ export default {
         process.env.BONDER_PRIVATE_KEY,
         process.env.USER_PRIVATE_KEY
       ],
-      gasPrice: 0
+      gasPrice: 0,
+      chainId: CHAIN_IDS.ARBITRUM.TESTNET_3.toNumber()
     },
     optimism: {
       url: "https://kovan.optimism.rpc.hop.exchange",
@@ -35,7 +39,8 @@ export default {
         process.env.USER_PRIVATE_KEY
       ],
       gasPrice: 0,
-      gas: 9000000
+      gas: 9000000,
+      chainId: CHAIN_IDS.OPTIMISM.HOP_TESTNET.toNumber()
     }
   },
   solidity: {
