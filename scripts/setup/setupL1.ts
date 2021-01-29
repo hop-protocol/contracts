@@ -14,7 +14,7 @@ async function setupL1 () {
   const chainId: BigNumber = BigNumber.from(network.config.chainId)
 
   // Target L2
-  const l2ChainId: BigNumber = // TODO
+  const l2ChainId: BigNumber = BigNumber.from('0')
   if (!l2ChainId) {
     throw new Error('Target L2 chain ID must be defined')
   }
