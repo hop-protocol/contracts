@@ -14,7 +14,9 @@
     "build": "hardhat compile",
     "publish-module": "npm publish --tag beta --access public",
     "release": "npm run clean && npm run publish-module",
-    "clean": "rimraf cache artifacts"
+    "clean": "rimraf cache artifacts",
+    "deploy:l2-arbitrum": "hardhat run scripts/deployments/deployL2.ts --network arbitrum",
+    "deploy:l2-optimism": "hardhat run scripts/deployments/deployL2.ts --network optimism"
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.0",

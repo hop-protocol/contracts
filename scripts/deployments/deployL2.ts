@@ -1,9 +1,15 @@
 require('dotenv').config()
 
-import { ethers, l2ethers } from 'hardhat'
-import { ContractFactory, Signer, Contract } from 'ethers'
+import { network, ethers as evmEthers, l2ethers as ovmEthers } from 'hardhat'
+import { ContractFactory, Signer, Contract, BigNumber } from 'ethers'
 
-import { verifyDeployment } from './utils'
+import {
+  getContractFactories,
+  getValidEthersObject,
+  verifyDeployment,
+  isChainIdOptimism,
+  isChainIdArbitrum
+} from './utils'
 import {
   ZERO_ADDRESS,
   CHAIN_IDS
@@ -11,10 +17,14 @@ import {
 
 async function deployAndSetupL2 () {
 
+  // Network setup
+  const chainId: BigNumber = BigNumber.from(network.config.chainId)
+  const ethers = getValidEthersObject(chainId, evmEthers, ovmEthers)
+
   // Addresses
-  const l1_bridgeAddress: string = '0xe74EFb19BBC46DbE28b7BaB1F14af6eB7158B4BE'
-  const l2_canonicalTokenAddress: string = '0x7d669A64deb8a4A51eEa755bb0E19FD39CE25Ae9'
-  const l2_messengerAddress: string = '0x0000000000000000000000000000000000000064'
+  const l1_bridgeAddress: string = ''
+  const l2_canonicalTokenAddress: string = ''
+  const l2_messengerAddress: string = ''
 
   if (!l1_bridgeAddress || !l2_canonicalTokenAddress || !l2_messengerAddress) {
     throw new Error('Addresses must be defined')
@@ -47,12 +57,14 @@ async function deployAndSetupL2 () {
   user = accounts[1]
 
   // Get the contract Factories
-  MockERC20 = await ethers.getContractFactory('contracts/test/MockERC20.sol:MockERC20', { signer: bonder })
-  L1_Bridge = await ethers.getContractFactory('contracts/bridges/L1_Bridge.sol:L1_Bridge', { signer: bonder })
-  L2_Bridge = await ethers.getContractFactory('contracts/bridges/L2_OptimismBridge.sol:L2_OptimismBridge', { signer: bonder })
-  UniswapFactory = await ethers.getContractFactory('contracts/test/UniswapFactoryFlat.sol:UniswapV2Factory', { signer: bonder })
-  UniswapRouter = await ethers.getContractFactory('contracts/test/UniswapRouterFlat.sol:UniswapV2Router02', { signer: bonder })
-  UniswapPair = await ethers.getContractFactory('contracts/test/UniswapPairV2OVM/UniswapV2Pair.sol:UniswapV2Pair', { signer: bonder })
+  ;({ 
+    MockERC20,
+    L1_Bridge,
+    L2_Bridge,
+    UniswapFactory,
+    UniswapRouter,
+    UniswapPair
+  } = await getContractFactories(chainId, ethers, bonder))
 
   // Attach already deployed contracts
   l1_bridge = L1_Bridge.attach(l1_bridgeAddress)
@@ -64,21 +76,20 @@ async function deployAndSetupL2 () {
 
   ;({ 
     l2_uniswapFactory,
-    l2_uniswapRouter,
-    l2_uniswapPair
+    l2_uniswapRouter
   } = await deployUniswap(
+    ethers,
     user,
     UniswapFactory,
     UniswapRouter,
-    UniswapPair,
     l2_uniswapFactory,
-    l2_uniswapRouter,
-    l2_uniswapPair
+    l2_uniswapRouter
   ))
 
   ;({ 
     l2_bridge
   } = await deployBridge(
+    ethers,
     user,
     bonder,
     L2_Bridge,
@@ -89,6 +100,14 @@ async function deployAndSetupL2 () {
     l2_messengerAddress
   ))
 
+  await deployNetworkSpecificContracts(
+    chainId,
+    ethers,
+    UniswapPair,
+    l2_uniswapFactory,
+    l2_uniswapPair
+  )
+
   console.log('Deployments Complete')
   console.log('L2 Bridge           :', l2_bridge.address)
   console.log('L2 Uniswap Factory  :', l2_uniswapFactory.address)
@@ -96,13 +115,12 @@ async function deployAndSetupL2 () {
 }
 
 const deployUniswap = async (
+  ethers: any,
   user: Signer,
   UniswapFactory: ContractFactory,
   UniswapRouter: ContractFactory,
-  UniswapPair: ContractFactory,
   l2_uniswapFactory: Contract,
   l2_uniswapRouter: Contract,
-  l2_uniswapPair: Contract
 ) => {
   l2_uniswapFactory = await UniswapFactory.deploy(await user.getAddress())
   await l2_uniswapFactory.deployed()
@@ -112,24 +130,14 @@ const deployUniswap = async (
   await l2_uniswapRouter.deployed()
   await verifyDeployment('L2 Uniswap Router', l2_uniswapRouter, ethers)
 
-  l2_uniswapPair = await UniswapPair.deploy(l2_uniswapFactory.address)
-  l2_uniswapPair.deployed()
-  verifyDeployment('L2 Uniswap Pair', l2_uniswapPair, ethers)
-
-  await l2_uniswapFactory.setPair(l2_uniswapPair.address)
-  const realPair = await l2_uniswapFactory.realPair()
-  if (l2_uniswapPair.address !== realPair) {
-    throw new Error('Pair did not get set on the factory.')
-  }
-
   return {
     l2_uniswapFactory,
     l2_uniswapRouter,
-    l2_uniswapPair
   }
 }
 
 const deployBridge = async (
+  ethers: any,
   user: Signer,
   bonder: Signer,
   L2_Bridge: ContractFactory,
@@ -158,6 +166,30 @@ const deployBridge = async (
 
   return {
     l2_bridge
+  }
+}
+
+const deployNetworkSpecificContracts = async (
+  chainId: BigNumber,
+  ethers: any,
+  UniswapPair: ContractFactory,
+  l2_uniswapFactory: Contract,
+  l2_uniswapPair: Contract
+) => {
+  if (isChainIdArbitrum(chainId)) {
+    // No network specific deployments
+  }
+
+  if (isChainIdOptimism(chainId)) {
+    l2_uniswapPair = await UniswapPair.deploy(l2_uniswapFactory.address)
+    l2_uniswapPair.deployed()
+    verifyDeployment('L2 Uniswap Pair', l2_uniswapPair, ethers)
+
+    await l2_uniswapFactory.setPair(l2_uniswapPair.address)
+    const realPair = await l2_uniswapFactory.realPair()
+    if (l2_uniswapPair.address !== realPair) {
+      throw new Error('Pair did not get set on the factory.')
+    }
   }
 }
 

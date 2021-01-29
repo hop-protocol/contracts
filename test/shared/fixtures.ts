@@ -148,14 +148,14 @@ const getL2SpecificArtifact = (l2ChainId: BigNumber) => {
   let messengerWrapperArtifact: string
 
   if (
-    l2ChainId === CHAIN_IDS.ARBITRUM.TESTNET_2 ||
-    l2ChainId === CHAIN_IDS.ARBITRUM.TESTNET_3
+    l2ChainId.eq(CHAIN_IDS.ARBITRUM.TESTNET_2) ||
+    l2ChainId.eq(CHAIN_IDS.ARBITRUM.TESTNET_3)
   ) {
     l2BridgeArtifact = 'L2_ArbitrumBridge.sol:L2_ArbitrumBridge'
     messengerWrapperArtifact = 'ArbitrumMessengerWrapper.sol:ArbitrumMessengerWrapper'
   } else if (
-    l2ChainId === CHAIN_IDS.OPTIMISM.TESTNET_1 ||
-    l2ChainId === CHAIN_IDS.OPTIMISM.SYNTHETIX_DEMO
+    l2ChainId.eq(CHAIN_IDS.OPTIMISM.TESTNET_1) ||
+    l2ChainId.eq(CHAIN_IDS.OPTIMISM.SYNTHETIX_DEMO)
   ) {
     l2BridgeArtifact = 'L2_OptimismBridge.sol:L2_OptimismBridge'
     messengerWrapperArtifact = 'OptimismMessengerWrapper.sol:OptimismMessengerWrapper'
