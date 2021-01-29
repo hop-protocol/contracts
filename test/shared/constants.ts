@@ -1,23 +1,23 @@
 import { BigNumber, ContractFactory, Signer, Contract } from 'ethers'
-
+import { parseEther } from 'ethers/lib/utils'
 import Transfer from '../../lib/Transfer'
 
 export const CHAIN_IDS = {
-  MAINNET: BigNumber.from(1),
-  GOERLI: BigNumber.from(5),
-  KOVAN: BigNumber.from(42),
-  OPTIMISM_SYNTHETIX_DEMO: BigNumber.from(10),
-  OPTIMISM_TESTNET_1: BigNumber.from(420),
-  OPTIMISM_HOP_TESTNET: BigNumber.from(69),
-  ARBITRUM_TESTNET_2: BigNumber.from(152709604825713),
-  ARBITRUM_TESTNET_3: BigNumber.from(79377087078960)
+  MAINNET: BigNumber.from('1'),
+  GOERLI: BigNumber.from('5'),
+  KOVAN: BigNumber.from('42'),
+  OPTIMISM_SYNTHETIX_DEMO: BigNumber.from('10'),
+  OPTIMISM_TESTNET_1: BigNumber.from('420'),
+  OPTIMISM_HOP_TESTNET: BigNumber.from('69'),
+  ARBITRUM_TESTNET_2: BigNumber.from('152709604825713'),
+  ARBITRUM_TESTNET_3: BigNumber.from('79377087078960')
 }
 
-export const USER_INITIAL_BALANCE = BigNumber.from('100')
-export const LIQUIDITY_PROVIDER_INITIAL_BALANCE = BigNumber.from('1000000')
-export const LIQUIDITY_PROVIDER_UNISWAP_BALANCE = LIQUIDITY_PROVIDER_INITIAL_BALANCE.div(2)
-export const COMMITTEE_INITIAL_BALANCE = BigNumber.from('1000000')
-export const CHALLENGER_INITIAL_BALANCE = BigNumber.from('10')
+export const USER_INITIAL_BALANCE = BigNumber.from(parseEther('10'))
+export const LIQUIDITY_PROVIDER_INITIAL_BALANCE = BigNumber.from(parseEther('1000000'))
+export const LIQUIDITY_PROVIDER_UNISWAP_AMOUNT = LIQUIDITY_PROVIDER_INITIAL_BALANCE.div(2)
+export const COMMITTEE_INITIAL_BALANCE = BigNumber.from(parseEther('10000'))
+export const CHALLENGER_INITIAL_BALANCE = BigNumber.from(parseEther('10'))
 
 export const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
 export const ONE_ADDRESS = '0x0000000000000000000000000000000000000001'
@@ -28,8 +28,8 @@ export const DEFAULT_MESSENGER_WRAPPER_GAS_PRICE = 0
 export const DEFAULT_MESSENGER_WRAPPER_GAS_CALL_VALUE = 0
 export const DEFAULT_MESSENGER_WRAPPER_SUB_MESSAGE_TYPE = '0x01'
 
-export const TRANSFER_AMOUNT = BigNumber.from('10')
-export const RELAYER_FEE = BigNumber.from('1')
+export const TRANSFER_AMOUNT = BigNumber.from(parseEther('10'))
+export const RELAYER_FEE = BigNumber.from(parseEther('1'))
 
 export const DEFAULT_AMOUNT_OUT_MIN = 0
 export const DEFAULT_DEADLINE = 9999999999

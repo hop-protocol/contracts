@@ -6,7 +6,7 @@ import {
   IGetMessengerWrapperDefaults,
   USER_INITIAL_BALANCE,
   LIQUIDITY_PROVIDER_INITIAL_BALANCE,
-  LIQUIDITY_PROVIDER_UNISWAP_BALANCE,
+  LIQUIDITY_PROVIDER_UNISWAP_AMOUNT,
   COMMITTEE_INITIAL_BALANCE,
   CHALLENGER_INITIAL_BALANCE,
   CHAIN_IDS,
@@ -35,7 +35,7 @@ export const setUpDefaults = async (fixture: IFixture, l2ChainId: BigNumber) => 
 
   const setUpL2UniswapMarketOpts = {
     l2ChainId: l2ChainId,
-    liquidityProviderBalance: LIQUIDITY_PROVIDER_UNISWAP_BALANCE
+    liquidityProviderBalance: LIQUIDITY_PROVIDER_UNISWAP_AMOUNT
   }
 
   await setUpL1AndL2Bridges(fixture, setUpL1AndL2BridgesOpts)
