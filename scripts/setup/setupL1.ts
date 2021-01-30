@@ -15,6 +15,7 @@ async function setupL1 () {
   const chainId: BigNumber = BigNumber.from(network.config.chainId)
 
   // Target L2
+  const l2ChainId: BigNumber = BigNumber.from('0')
   if (l2ChainId.eq(0)) {
     throw new Error('Target L2 chain ID must be defined')
   }
@@ -23,7 +24,7 @@ async function setupL1 () {
   const l1_messengerAddress: string = ''
   const l1_canonicalTokenAddress: string = ''
   const l1_bridgeAddress: string = ''
-  const messengerWrapperAddress: string = ''
+  const l2_bridgeAddress: string = ''
 
   if (!l1_messengerAddress || !l1_canonicalTokenAddress || !l1_bridgeAddress || !l2_bridgeAddress) {
     throw new Error('Addresses must be defined')
@@ -69,7 +70,6 @@ async function setupL1 () {
   /**
    * Setup
    */
-
 
   // Deploy messenger wrapper
   const messengerWrapperDefaults: IGetMessengerWrapperDefaults[] = getMessengerWrapperDefaults(
