@@ -7,10 +7,7 @@ import { getContractFactories, sendChainSpecificBridgeDeposit } from '../shared/
 
 import { getMessengerWrapperDefaults } from '../../config/utils'
 import { IGetMessengerWrapperDefaults } from '../../config/interfaces'
-import { CHAIN_IDS, LIQUIDITY_PROVIDER_INITIAL_BALANCE } from '../../config/constants'
-
-const USER_INITIAL_BALANCE = BigNumber.from('500000000000000000000')
-const LARGE_APPROVAL = BigNumber.from('999999999999999999999999999999999999')
+import { CHAIN_IDS, LIQUIDITY_PROVIDER_INITIAL_BALANCE, MAX_APPROVAL } from '../../config/constants'
 
 async function setupL1 () {
 
@@ -89,7 +86,7 @@ async function setupL1 () {
 
   // Get canonical token to L2
   await l1_canonicalToken.mint(await bonder.getAddress(), LIQUIDITY_PROVIDER_INITIAL_BALANCE)
-  await l1_canonicalToken.approve(l1_messenger.address, LARGE_APPROVAL)
+  await l1_canonicalToken.approve(l1_messenger.address, MAX_APPROVAL)
   await sendChainSpecificBridgeDeposit(
     chainId,
     bonder,

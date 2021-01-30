@@ -20,6 +20,7 @@ export const CHAIN_IDS = {
 
 export const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
 export const ONE_ADDRESS = '0x0000000000000000000000000000000000000001'
+export const MAX_APPROVAL = BigNumber.from('0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff')
 export const ARB_CHAIN_ADDRESS = '0x2e8aF9f74046D3E55202Fcfb893348316B142230'
 
 export const DEFAULT_MESSENGER_WRAPPER_GAS_LIMIT = 8000000

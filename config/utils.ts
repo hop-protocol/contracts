@@ -32,9 +32,7 @@ export const getMessengerWrapperDefaults = (
     l1MessengerAddress
   )
 
-  console.log('000', chainId)
   if (isChainIdArbitrum(chainId)) {
-    console.log('111')
     defaults.push(
       ARB_CHAIN_ADDRESS,
       DEFAULT_MESSENGER_WRAPPER_SUB_MESSAGE_TYPE,
@@ -42,11 +40,9 @@ export const getMessengerWrapperDefaults = (
       DEFAULT_MESSENGER_WRAPPER_GAS_CALL_VALUE
     )
   } else if (isChainIdOptimism(chainId)) {
-    console.log('nooooooooooo')
     // Nothing unique here. This function exists for consistency.
   }
 
-  console.log('defaults', defaults)
   return defaults
 }
 
