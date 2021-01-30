@@ -1,5 +1,13 @@
 import { ContractFactory, Contract, BigNumber, Signer } from 'ethers'
-import { CHAIN_IDS, ARB_CHAIN_ADDRESS } from '../test/shared/constants'
+
+import {
+  isChainIdOptimism,
+  isChainIdArbitrum
+} from '../../config/utils'
+
+import {
+  ARB_CHAIN_ADDRESS
+} from '../../config/constants'
 
 export const verifyDeployment = async (name: string, contract: Contract, ethers) => {
   const isCodeAtAddress = (await ethers.provider.getCode(contract.address)).length > 50
@@ -103,31 +111,7 @@ export const sendChainSpecificBridgeDeposit = async (
   }
 }
 
-
 export const getValidEthersObject = (chainId: BigNumber, evmEthers: any, ovmEthers: any) => {
   const isOptimism: boolean = isChainIdOptimism(chainId)
   return isOptimism ? ovmEthers : evmEthers
-}
-
-export const isChainIdOptimism = (chainId: BigNumber): boolean => {
-  if (
-    chainId.eq(CHAIN_IDS.OPTIMISM.TESTNET_1) ||
-    chainId.eq(CHAIN_IDS.OPTIMISM.SYNTHETIX_DEMO) ||
-    chainId.eq(CHAIN_IDS.OPTIMISM.HOP_TESTNET)
-  ) {
-    return true
-  }
-
-  return false
-}
-
-export const isChainIdArbitrum = (chainId: BigNumber): boolean => {
-  if (
-    chainId.eq(CHAIN_IDS.ARBITRUM.TESTNET_2) ||
-    chainId.eq(CHAIN_IDS.ARBITRUM.TESTNET_3)
-  ) {
-    return true
-  }
-
-  return false
 }

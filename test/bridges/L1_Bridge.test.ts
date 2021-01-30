@@ -1,19 +1,19 @@
 import '@nomiclabs/hardhat-waffle'
 import { expect } from 'chai'
 import { Signer, Contract, BigNumber } from 'ethers'
+
+import { setUpDefaults } from '../shared/utils'
 import { fixture } from '../shared/fixtures'
-import {
-  setUpDefaults,
-  expectBalanceOf
-} from '../shared/utils'
+import { IFixture } from '../shared/interfaces'
+
+import { expectBalanceOf } from '../../config/utils'
 import {
   CHAIN_IDS,
-  IFixture,
-  USER_INITIAL_BALANCE,
-  COMMITTEE_INITIAL_BALANCE,
   DEFAULT_AMOUNT_OUT_MIN,
-  DEFAULT_DEADLINE
-} from '../shared/constants'
+  DEFAULT_DEADLINE,
+  USER_INITIAL_BALANCE,
+  COMMITTEE_INITIAL_BALANCE 
+} from '../../config/constants'
 
 describe("L1_Bridge", () => {
   let _fixture: IFixture
@@ -91,7 +91,7 @@ describe("L1_Bridge", () => {
     )
     await l2_messenger.relayNextMessage()
 
-    const amountAfterSlippage = tokenAmount.sub(1)
+    const amountAfterSlippage = BigNumber.from('332999331997327989311957')
     await expectBalanceOf(l2_canonicalToken, user, amountAfterSlippage)
   })
 })

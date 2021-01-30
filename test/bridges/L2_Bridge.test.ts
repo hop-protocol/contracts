@@ -1,23 +1,21 @@
 import '@nomiclabs/hardhat-waffle'
 import { expect } from 'chai'
 import { Signer, Contract, BigNumber } from 'ethers'
-import { fixture } from '../shared/fixtures'
 import Transfer from '../../lib/Transfer'
 import MerkleTree from '../../lib/MerkleTree'
-import {
-  setUpDefaults,
-  expectBalanceOf,
-  sendTokensAcrossCanonicalBridge,
-  sendTokensAcrossHopBridge
-} from '../shared/utils'
+
+import { fixture } from '../shared/fixtures'
+import { setUpDefaults, sendTestTokensAcrossCanonicalBridge, sendTestTokensAcrossHopBridge } from '../shared/utils'
+import { IFixture } from '../shared/interfaces'
+
+import { expectBalanceOf } from '../../config/utils'
 import {
   CHAIN_IDS,
-  IFixture,
   ONE_ADDRESS,
-  USER_INITIAL_BALANCE,
-  TRANSFER_AMOUNT,
-  DEFAULT_DEADLINE
-} from '../shared/constants'
+  DEFAULT_DEADLINE,
+  LIQUIDITY_PROVIDER_UNISWAP_AMOUNT,
+  TRANSFER_AMOUNT
+} from '../../config/constants'
 
 /**
  * Note: This test uses an implementation of the L2 bridge but only tests the
@@ -31,7 +29,6 @@ describe("L2_Bridge", () => {
   let user: Signer
   let bonder: Signer
   let governance: Signer
-  let otherAccount: Signer
 
   let l1_canonicalBridge: Contract
   let l1_canonicalToken: Contract
@@ -53,7 +50,6 @@ describe("L2_Bridge", () => {
       user,
       bonder,
       governance,
-      otherAccount,
       l1_canonicalBridge,
       l1_canonicalToken,
       l1_bridge,
@@ -63,7 +59,7 @@ describe("L2_Bridge", () => {
       transfers
     } = _fixture);
 
-    sendTokenInitialBalance = USER_INITIAL_BALANCE.div(2)
+    sendTokenInitialBalance = LIQUIDITY_PROVIDER_UNISWAP_AMOUNT
   })
 
   /**
@@ -134,11 +130,11 @@ describe("L2_Bridge", () => {
     expect(isChainIdSupported).to.eq(false)
   })
 
-  it('Should send tokens across the bridge via sendToL2', async () => {
+  it('Should send tokens across the bridge via send', async () => {
     const transfer = transfers[0]
 
     // Add hToken to the users' address on L2
-    await sendTokensAcrossHopBridge(
+    await sendTestTokensAcrossHopBridge(
       l1_canonicalToken,
       l1_bridge,
       l2_bridge,
@@ -185,13 +181,13 @@ describe("L2_Bridge", () => {
     expect(transferSentArgs[4]).to.eq(transfer.relayerFee)
   })
 
-  it('Should send tokens across the bridge via sendToL2', async () => {
+  it('Should send tokens across the bridge via swapAndSend', async () => {
     let transfer: any = transfers[0]
     transfer.destinationAmountOutMin = BigNumber.from(0)
     transfer.destinationDeadline = BigNumber.from(DEFAULT_DEADLINE)
 
     // Add the canonical token to the users' address on L2
-    await sendTokensAcrossCanonicalBridge(
+    await sendTestTokensAcrossCanonicalBridge(
       l1_canonicalToken,
       l1_canonicalBridge,
       l2_canonicalToken,
@@ -219,7 +215,7 @@ describe("L2_Bridge", () => {
     const expectedCurrentCanonicalTokenBal = sendTokenInitialBalance.sub(TRANSFER_AMOUNT)
     await expectBalanceOf(l2_canonicalToken, user, expectedCurrentCanonicalTokenBal)
 
-    const transferAmountAfterSlippage = transfer.amount.sub(1)
+    const transferAmountAfterSlippage = BigNumber.from('9969801202164028849')
     transfer.amount = transferAmountAfterSlippage
     const pendingTransferHash = await l2_bridge.pendingTransfers(0)
     const expectedPendingTransferHash: Buffer = transfer.getTransferHash()
@@ -246,7 +242,7 @@ describe("L2_Bridge", () => {
     const transfer = transfers[0]
 
     // Add hToken to the users' address on L2
-    await sendTokensAcrossHopBridge(
+    await sendTestTokensAcrossHopBridge(
       l1_canonicalToken,
       l1_bridge,
       l2_bridge,
@@ -270,7 +266,7 @@ describe("L2_Bridge", () => {
 
     // Verify state pre-transaction
     let pendingAmountForChainId = await l2_bridge.pendingAmountForChainId(transfer.chainId)
-    expect(pendingAmountForChainId).to.eq(BigNumber.from(10))
+    expect(pendingAmountForChainId).to.eq(BigNumber.from('10000000000000000000'))
     let pendingAmountChainIds = await l2_bridge.pendingAmountChainIds(0)
     expect(pendingAmountChainIds).to.eq(transfer.chainId)
     let pendingTransfers = await l2_bridge.pendingTransfers(0)

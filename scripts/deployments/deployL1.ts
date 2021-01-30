@@ -2,7 +2,8 @@ require('dotenv').config()
 
 import { network, ethers } from 'hardhat'
 import { ContractFactory, Contract, Signer, BigNumber } from 'ethers'
-import { getContractFactories } from '../utils'
+
+import { getContractFactories } from '../shared/utils'
 
 async function deployL1 () {
 

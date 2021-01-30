@@ -1,16 +1,13 @@
 import '@nomiclabs/hardhat-waffle'
 import { expect } from 'chai'
 import { Signer, Contract, BigNumber } from 'ethers'
-import { fixture } from '../shared/fixtures'
 import Transfer from '../../lib/Transfer'
-import {
-  setUpDefaults,
-  generateAmountHash
-} from '../shared/utils'
-import {
-  CHAIN_IDS,
-  IFixture
-} from '../shared/constants'
+
+import { fixture } from '../shared/fixtures'
+import { setUpDefaults, generateAmountHash } from '../shared/utils'
+import { IFixture} from '../shared/interfaces'
+
+import { CHAIN_IDS } from '../../config/constants'
 
 describe("Bridge", () => {
   let _fixture: IFixture

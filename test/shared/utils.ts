@@ -1,21 +1,22 @@
 import { ethers } from 'hardhat'
-import { BigNumber, BigNumberish, Signer, Contract } from 'ethers'
-import { expect } from 'chai'
+import { BigNumber, Signer, Contract } from 'ethers'
 import {
-  IFixture,
-  IGetMessengerWrapperDefaults,
   USER_INITIAL_BALANCE,
   LIQUIDITY_PROVIDER_INITIAL_BALANCE,
   LIQUIDITY_PROVIDER_UNISWAP_AMOUNT,
   COMMITTEE_INITIAL_BALANCE,
   CHALLENGER_INITIAL_BALANCE,
-  CHAIN_IDS,
-  ARB_CHAIN_ADDRESS,
-  DEFAULT_MESSENGER_WRAPPER_GAS_LIMIT,
-  DEFAULT_MESSENGER_WRAPPER_GAS_PRICE,
-  DEFAULT_MESSENGER_WRAPPER_GAS_CALL_VALUE,
-  DEFAULT_MESSENGER_WRAPPER_SUB_MESSAGE_TYPE
-} from './constants'
+} from '../../config/constants'
+
+import {
+  IFixture
+} from './interfaces'
+
+import {
+  expectBalanceOf,
+  isChainIdOptimism,
+  isChainIdArbitrum
+} from '../../config/utils'
 
 /**
  * Initialization functions
@@ -118,7 +119,7 @@ export const setUpL2UniswapMarket = async (fixture: IFixture, opts: any) => {
   } = opts
 
   // liquidityProvider moves funds across the canonical bridge
-  await sendTokensAcrossCanonicalBridge(
+  await sendTestTokensAcrossCanonicalBridge(
     l1_canonicalToken,
     l1_canonicalBridge,
     l2_canonicalToken,
@@ -128,7 +129,7 @@ export const setUpL2UniswapMarket = async (fixture: IFixture, opts: any) => {
   )
 
   // liquidityProvider moves funds across the Hop liquidity bridge
-  await sendTokensAcrossHopBridge(
+  await sendTestTokensAcrossHopBridge(
     l1_canonicalToken,
     l1_bridge,
     l2_bridge,
@@ -156,7 +157,8 @@ export const setUpL2UniswapMarket = async (fixture: IFixture, opts: any) => {
 
   const uniswapPairAddress: string = await l2_uniswapFactory.getPair(l2_canonicalToken.address, l2_bridge.address)
   const uniswapPair = await ethers.getContractAt('@uniswap/v2-core/contracts/UniswapV2Pair.sol:UniswapV2Pair', uniswapPairAddress)
-  await expectBalanceOf(uniswapPair, liquidityProvider, '499000')
+  const expectedLiquidityProviderBalance: BigNumber = BigNumber.from('499999999999999999999000')
+  await expectBalanceOf(uniswapPair, liquidityProvider, expectedLiquidityProviderBalance)
   await expectBalanceOf(l2_canonicalToken, uniswapPair, liquidityProviderBalance)
   await expectBalanceOf(l2_bridge, uniswapPair, liquidityProviderBalance)
 }
@@ -165,46 +167,33 @@ export const setUpL2UniswapMarket = async (fixture: IFixture, opts: any) => {
  * General functions
  */
 
-export const getMessengerWrapperDefaults = (
-  l2ChainId: BigNumber,
-  l1BridgeAddress: string,
-  l2BridgeAddress: string,
-  l1MessengerAddress: string
-): IGetMessengerWrapperDefaults[] => {
-  let defaults: IGetMessengerWrapperDefaults[] = []
-
-  defaults.push(
-    l1BridgeAddress,
-    l2BridgeAddress,
-    DEFAULT_MESSENGER_WRAPPER_GAS_LIMIT,
-    l1MessengerAddress
-  )
-
-  if (
-    l2ChainId.eq(CHAIN_IDS.ARBITRUM.TESTNET_2) ||
-    l2ChainId.eq(CHAIN_IDS.ARBITRUM.TESTNET_3)
-  ) {
-    defaults.push(
-      ARB_CHAIN_ADDRESS,
-      DEFAULT_MESSENGER_WRAPPER_SUB_MESSAGE_TYPE,
-      DEFAULT_MESSENGER_WRAPPER_GAS_PRICE,
-      DEFAULT_MESSENGER_WRAPPER_GAS_CALL_VALUE
-    )
-  } else if (
-    l2ChainId.eq(CHAIN_IDS.OPTIMISM.TESTNET_1) ||
-    l2ChainId.eq(CHAIN_IDS.OPTIMISM.SYNTHETIX_DEMO) ||
-    l2ChainId.eq(CHAIN_IDS.OPTIMISM.HOP_TESTNET)
-  ) {
-    // Nothing unique here. This function exists for consistency.
-  }
-
-  return defaults
+export const sendTestTokensAcrossCanonicalBridge = async (
+  l1_canonicalToken: Contract,
+  l1_canonicalBridge: Contract,
+  l2_canonicalToken: Contract,
+  l2_messenger: Contract,
+  account: Signer,
+  amount: BigNumber
+) => {
+  await l1_canonicalToken.connect(account).approve(l1_canonicalBridge.address, amount)
+  await l1_canonicalBridge.connect(account).sendMessage(l2_canonicalToken.address, await account.getAddress(), amount)
+  await l2_messenger.relayNextMessage()
+  await expectBalanceOf(l2_canonicalToken, account, amount)
 }
 
-export const expectBalanceOf = async (token: Contract, account: Signer | Contract, expectedBalance: BigNumberish) => {
-  const accountAddress = account instanceof Signer ? await account.getAddress() : account.address
-  const balance = await token.balanceOf(accountAddress)
-  expect(balance.toString()).to.eq(BigNumber.from(expectedBalance).toString())
+export const sendTestTokensAcrossHopBridge = async (
+  l1_canonicalToken: Contract,
+  l1_bridge: Contract,
+  l2_bridge: Contract,
+  l2_messenger: Contract,
+  account: Signer,
+  amount: BigNumber,
+  l2ChainId: BigNumber
+) => {
+  await l1_canonicalToken.connect(account).approve(l1_bridge.address, amount)
+  await l1_bridge.connect(account).sendToL2(l2ChainId, await account.getAddress(), amount)
+  await l2_messenger.relayNextMessage()
+  await expectBalanceOf(l2_bridge, account, amount)
 }
 
 export const generateAmountHash = (chainIds: Number[], amounts: Number[]): Buffer => {
@@ -222,31 +211,20 @@ export const generateAmountHash = (chainIds: Number[], amounts: Number[]): Buffe
   return Buffer.from(hash.slice(2), 'hex')
 }
 
-export const sendTokensAcrossCanonicalBridge = async (
-  l1_canonicalToken: Contract,
-  l1_canonicalBridge: Contract,
-  l2_canonicalToken: Contract,
-  l2_messenger: Contract,
-  account: Signer,
-  amount: BigNumber
-) => {
-  await l1_canonicalToken.connect(account).approve(l1_canonicalBridge.address, amount)
-  await l1_canonicalBridge.connect(account).sendMessage(l2_canonicalToken.address, await account.getAddress(), amount)
-  await l2_messenger.relayNextMessage()
-  await expectBalanceOf(l2_canonicalToken, account, amount)
-}
+export const getL2SpecificArtifact = (chainId: BigNumber) => {
+  let l2BridgeArtifact: string
+  let messengerWrapperArtifact: string
 
-export const sendTokensAcrossHopBridge = async (
-  l1_canonicalToken: Contract,
-  l1_bridge: Contract,
-  l2_bridge: Contract,
-  l2_messenger: Contract,
-  account: Signer,
-  amount: BigNumber,
-  l2ChainId: BigNumber
-) => {
-  await l1_canonicalToken.connect(account).approve(l1_bridge.address, amount)
-  await l1_bridge.connect(account).sendToL2(l2ChainId, await account.getAddress(), amount)
-  await l2_messenger.relayNextMessage()
-  await expectBalanceOf(l2_bridge, account, amount)
+  if (isChainIdOptimism(chainId)) {
+    l2BridgeArtifact = 'L2_OptimismBridge.sol:L2_OptimismBridge'
+    messengerWrapperArtifact = 'OptimismMessengerWrapper.sol:OptimismMessengerWrapper'
+  } else if (isChainIdArbitrum(chainId)) {
+    l2BridgeArtifact = 'L2_ArbitrumBridge.sol:L2_ArbitrumBridge'
+    messengerWrapperArtifact = 'ArbitrumMessengerWrapper.sol:ArbitrumMessengerWrapper'
+  }
+
+  return  {
+    l2BridgeArtifact,
+    messengerWrapperArtifact
+  }
 }

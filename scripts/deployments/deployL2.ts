@@ -6,17 +6,11 @@ import {
   ethers as evmEthers,
   l2ethers as ovmEthers
 } from 'hardhat'
-import {
-  getContractFactories,
-  getValidEthersObject,
-  verifyDeployment,
-  isChainIdOptimism,
-  isChainIdArbitrum
-} from '../utils'
-import {
-  ZERO_ADDRESS,
-  CHAIN_IDS
-} from '../../test/shared/constants'
+
+import { getContractFactories, getValidEthersObject, verifyDeployment } from '../shared/utils'
+
+import { isChainIdOptimism, isChainIdArbitrum } from '../../config/utils'
+import { ZERO_ADDRESS, CHAIN_IDS } from '../../config/constants'
 
 async function deployL2 () {
 

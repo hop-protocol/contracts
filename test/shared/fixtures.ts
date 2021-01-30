@@ -2,17 +2,19 @@ import '@nomiclabs/hardhat-waffle'
 import { ethers } from 'hardhat'
 import { BigNumber } from 'ethers'
 import Transfer from '../../lib/Transfer'
+
+import { getL2SpecificArtifact } from './utils'
+import { IFixture } from './interfaces'
+
+import { getMessengerWrapperDefaults } from '../../config/utils'
+import { IGetMessengerWrapperDefaults } from '../../config/interfaces'
 import {
-  IFixture,
-  IGetMessengerWrapperDefaults,
   CHAIN_IDS,
+  DEFAULT_DEADLINE,
   RELAYER_FEE,
-  TRANSFER_AMOUNT,
-  DEFAULT_DEADLINE
-} from './constants'
-import {
-  getMessengerWrapperDefaults
-} from './utils'
+  TRANSFER_AMOUNT
+} from '../../config/constants'
+
 
 export async function fixture(l2ChainId: BigNumber): Promise<IFixture> {
   const {
@@ -140,29 +142,5 @@ export async function fixture(l2ChainId: BigNumber): Promise<IFixture> {
     accounting,
     bridge,
     transfers
-  }
-}
-
-const getL2SpecificArtifact = (l2ChainId: BigNumber) => {
-  let l2BridgeArtifact: string
-  let messengerWrapperArtifact: string
-
-  if (
-    l2ChainId.eq(CHAIN_IDS.ARBITRUM.TESTNET_2) ||
-    l2ChainId.eq(CHAIN_IDS.ARBITRUM.TESTNET_3)
-  ) {
-    l2BridgeArtifact = 'L2_ArbitrumBridge.sol:L2_ArbitrumBridge'
-    messengerWrapperArtifact = 'ArbitrumMessengerWrapper.sol:ArbitrumMessengerWrapper'
-  } else if (
-    l2ChainId.eq(CHAIN_IDS.OPTIMISM.TESTNET_1) ||
-    l2ChainId.eq(CHAIN_IDS.OPTIMISM.SYNTHETIX_DEMO)
-  ) {
-    l2BridgeArtifact = 'L2_OptimismBridge.sol:L2_OptimismBridge'
-    messengerWrapperArtifact = 'OptimismMessengerWrapper.sol:OptimismMessengerWrapper'
-  }
-
-  return  {
-    l2BridgeArtifact,
-    messengerWrapperArtifact
   }
 }
