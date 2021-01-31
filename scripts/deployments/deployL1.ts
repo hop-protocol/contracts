@@ -19,7 +19,8 @@ async function deployL1 () {
 
   // Signers
   const accounts: Signer[] = await ethers.getSigners()
-  const bonder: Signer = accounts[0]
+  const owner: Signer = accounts[0]
+  const bonder: Signer = accounts[1]
 
   // Factories
   let L1_Bridge: ContractFactory
@@ -29,13 +30,13 @@ async function deployL1 () {
 
   ;({ 
     L1_Bridge
-  } = await getContractFactories(chainId, ethers, bonder))
+  } = await getContractFactories(chainId, bonder, ethers))
 
   /**
    * Deployments
    */
 
-  l1_bridge = await L1_Bridge.deploy(l1_canonicalTokenAddress, await bonder.getAddress())
+  l1_bridge = await L1_Bridge.connect(owner).deploy(l1_canonicalTokenAddress, await bonder.getAddress())
   await l1_bridge.deployed()
 
   console.log('L1 Bridge: ', l1_bridge.address)

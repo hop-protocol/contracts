@@ -11,7 +11,7 @@ import { getContractFactories, sendChainSpecificBridgeDeposit } from '../shared/
 
 import { getMessengerWrapperDefaults } from '../../config/utils'
 import { IGetMessengerWrapperDefaults } from '../../config/interfaces'
-import { CHAIN_IDS, LIQUIDITY_PROVIDER_INITIAL_BALANCE, MAX_APPROVAL } from '../../config/constants'
+import { LIQUIDITY_PROVIDER_INITIAL_BALANCE, MAX_APPROVAL } from '../../config/constants'
 
 // NOTE: Transactions sometimes get stuck during this script. Ensure that each transaction has been made.
 
@@ -38,7 +38,8 @@ async function setupL1 () {
 
   // Signers
   let accounts: Signer[]
-  let bonder: Signer
+  let owner: Signer
+  let liquidityProvider: Signer
 
   // Factories
   let L1_MockERC20: ContractFactory
@@ -56,7 +57,8 @@ async function setupL1 () {
   
   // Instantiate the wallets
   accounts = await ethers.getSigners()
-  bonder = accounts[0]
+  owner = accounts[0]
+  liquidityProvider = accounts[2]
 
   // Get the contract Factories
   ;({ 
@@ -65,7 +67,7 @@ async function setupL1 () {
     L1_Messenger,
     MessengerWrapper,
     L2_Bridge
-  } = await getContractFactories(l2ChainId, bonder, ethers, ovmEthers))
+  } = await getContractFactories(l2ChainId, owner, ethers, ovmEthers))
 
   // Attach already deployed contracts
   l1_messenger = L1_Messenger.attach(l1_messengerAddress)
@@ -84,27 +86,27 @@ async function setupL1 () {
     l2_bridge.address,
     l1_messenger.address
   )
-  messengerWrapper = await MessengerWrapper.deploy(...messengerWrapperDefaults)
+  messengerWrapper = await MessengerWrapper.connect(owner).deploy(...messengerWrapperDefaults)
   await messengerWrapper.deployed()
 
   // Set up the L1 bridge
   await l1_bridge.setCrossDomainMessengerWrapper(l2ChainId, messengerWrapper.address)
 
   // Get canonical token to L2
-  await l1_canonicalToken.mint(await bonder.getAddress(), LIQUIDITY_PROVIDER_INITIAL_BALANCE)
-  await l1_canonicalToken.approve(l1_messenger.address, MAX_APPROVAL)
+  await l1_canonicalToken.connect(owner).mint(await liquidityProvider.getAddress(), LIQUIDITY_PROVIDER_INITIAL_BALANCE)
+  await l1_canonicalToken.connect(liquidityProvider).approve(l1_messenger.address, MAX_APPROVAL)
   await sendChainSpecificBridgeDeposit(
     chainId,
-    bonder,
+    liquidityProvider,
     LIQUIDITY_PROVIDER_INITIAL_BALANCE,
     l1_messenger,
     l1_canonicalToken
   )
 
   // Get hop token on L2
-  await l1_canonicalToken.mint(await bonder.getAddress(), LIQUIDITY_PROVIDER_INITIAL_BALANCE)
-  await l1_canonicalToken.approve(l1_bridge.address, LIQUIDITY_PROVIDER_INITIAL_BALANCE)
-  await l1_bridge.sendToL2(l2ChainId, await bonder.getAddress(), LIQUIDITY_PROVIDER_INITIAL_BALANCE)
+  await l1_canonicalToken.connect(owner).mint(await liquidityProvider.getAddress(), LIQUIDITY_PROVIDER_INITIAL_BALANCE)
+  await l1_canonicalToken.connect(liquidityProvider).approve(l1_bridge.address, LIQUIDITY_PROVIDER_INITIAL_BALANCE)
+  await l1_bridge.connect(liquidityProvider).sendToL2(l2ChainId, await liquidityProvider.getAddress(), LIQUIDITY_PROVIDER_INITIAL_BALANCE)
 }
 
 /* tslint:disable-next-line */

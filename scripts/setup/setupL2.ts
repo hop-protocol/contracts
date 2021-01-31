@@ -26,7 +26,8 @@ async function setupL2 () {
   }
   // Signers
   let accounts: Signer[]
-  let bonder: Signer
+  let owner: Signer
+  let liquidityProvider: Signer
 
   // Factories
   let L2_MockERC20: ContractFactory
@@ -40,14 +41,15 @@ async function setupL2 () {
 
   // Instantiate the wallets
   accounts = await ethers.getSigners()
-  bonder = accounts[0]
+  owner = accounts[0]
+  liquidityProvider = accounts[2]
 
   // Get the contract Factories
   ;({ 
     L2_MockERC20,
     L2_Bridge,
     UniswapRouter
-  } = await getContractFactories(chainId, bonder, ethers, ovmEthers))
+  } = await getContractFactories(chainId, owner, ethers, ovmEthers))
 
   // Attach already deployed contracts
   l2_canonicalToken = L2_MockERC20.attach(l2_canonicalTokenAddress)
@@ -63,9 +65,9 @@ async function setupL2 () {
   await addAllSupportedChainIds(l2_bridge)
 
   // Set up Uniswap
-  await l2_canonicalToken.approve(uniswapRouter.address, MAX_APPROVAL)
-  await l2_bridge.approve(uniswapRouter.address, MAX_APPROVAL)
-  await uniswapRouter.addLiquidity(
+  await l2_canonicalToken.connect(liquidityProvider).approve(uniswapRouter.address, MAX_APPROVAL)
+  await l2_bridge.connect(liquidityProvider).approve(uniswapRouter.address, MAX_APPROVAL)
+  await uniswapRouter.connect(liquidityProvider).addLiquidity(
     l2_bridge.address,
     l2_canonicalToken.address,
     BigNumber.from('1000000000000000000'),
@@ -74,7 +76,7 @@ async function setupL2 () {
     // LIQUIDITY_PROVIDER_UNISWAP_AMOUNT.div(2),
     '0',
     '0',
-    await bonder.getAddress(),
+    await liquidityProvider.getAddress(),
     DEFAULT_DEADLINE
   )
 }

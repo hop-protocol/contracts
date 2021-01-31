@@ -117,11 +117,11 @@ export const sendChainSpecificBridgeDeposit = async (
   l1_canonicalToken: Contract
 ) => {
   if (isChainIdOptimism(chainId)) {
-    await l1_messenger.deposit(await sender.getAddress(), amount, true)
+    await l1_messenger.connect(sender).deposit(await sender.getAddress(), amount, true)
   }
 
   if (isChainIdArbitrum(chainId)) {
-    await l1_messenger.depositERC20Message(ARB_CHAIN_ADDRESS, l1_canonicalToken.address, await sender.getAddress(), amount)
+    await l1_messenger.connect(sender).depositERC20Message(ARB_CHAIN_ADDRESS, l1_canonicalToken.address, await sender.getAddress(), amount)
   }
 }
 

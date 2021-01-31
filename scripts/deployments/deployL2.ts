@@ -28,8 +28,8 @@ async function deployL2 () {
 
   // Signers
   let accounts: Signer[]
+  let owner: Signer
   let bonder: Signer
-  let user: Signer
 
   // Factories
   let L1_Bridge: ContractFactory
@@ -49,8 +49,8 @@ async function deployL2 () {
 
   // Instantiate the wallets
   accounts = await ethers.getSigners()
-  bonder = accounts[0]
-  user = accounts[1]
+  owner = accounts[0]
+  bonder = accounts[1]
 
   // Get the contract Factories
   ;({ 
@@ -60,7 +60,7 @@ async function deployL2 () {
     UniswapFactory,
     UniswapRouter,
     UniswapPair
-  } = await getContractFactories(chainId, bonder, ethers, ovmEthers))
+  } = await getContractFactories(chainId, owner, ethers, ovmEthers))
 
   // Attach already deployed contracts
   l1_bridge = L1_Bridge.attach(l1_bridgeAddress)
@@ -75,7 +75,7 @@ async function deployL2 () {
     l2_uniswapRouter
   } = await deployUniswap(
     ethers,
-    user,
+    owner,
     UniswapFactory,
     UniswapRouter,
     l2_uniswapFactory,
@@ -86,7 +86,7 @@ async function deployL2 () {
     l2_bridge
   } = await deployBridge(
     ethers,
-    user,
+    owner,
     bonder,
     L2_Bridge,
     l1_bridge,
@@ -98,6 +98,7 @@ async function deployL2 () {
 
   await deployNetworkSpecificContracts(
     chainId,
+    owner,
     ethers,
     UniswapPair,
     l2_uniswapFactory,
@@ -112,17 +113,17 @@ async function deployL2 () {
 
 const deployUniswap = async (
   ethers: any,
-  user: Signer,
+  owner: Signer,
   UniswapFactory: ContractFactory,
   UniswapRouter: ContractFactory,
   l2_uniswapFactory: Contract,
   l2_uniswapRouter: Contract,
 ) => {
-  l2_uniswapFactory = await UniswapFactory.deploy(await user.getAddress())
+  l2_uniswapFactory = await UniswapFactory.connect(owner).deploy(await owner.getAddress())
   await l2_uniswapFactory.deployed()
   await verifyDeployment('L2 Uniswap Factory', l2_uniswapFactory, ethers)
 
-  l2_uniswapRouter = await UniswapRouter.deploy(l2_uniswapFactory.address, ZERO_ADDRESS)
+  l2_uniswapRouter = await UniswapRouter.connect(owner).deploy(l2_uniswapFactory.address, ZERO_ADDRESS)
   await l2_uniswapRouter.deployed()
   await verifyDeployment('L2 Uniswap Router', l2_uniswapRouter, ethers)
 
@@ -134,7 +135,7 @@ const deployUniswap = async (
 
 const deployBridge = async (
   ethers: any,
-  user: Signer,
+  owner: Signer,
   bonder: Signer,
   L2_Bridge: ContractFactory,
   l1_bridge: Contract,
@@ -145,9 +146,9 @@ const deployBridge = async (
 ) => {
   // NOTE: Adding more CHAIN_IDs here will push the OVM deployment over the contract size limit
   //       If additional CHAIN_IDs must be added, do so after the deployment.
-  l2_bridge = await L2_Bridge.deploy(
+  l2_bridge = await L2_Bridge.connect(owner).deploy(
     l2_messengerAddress,
-    await user.getAddress(),
+    await owner.getAddress(),
     l2_canonicalToken.address,
     l1_bridge.address,
     [
@@ -166,6 +167,7 @@ const deployBridge = async (
 
 const deployNetworkSpecificContracts = async (
   chainId: BigNumber,
+  owner: Signer,
   ethers: any,
   UniswapPair: ContractFactory,
   l2_uniswapFactory: Contract,
@@ -176,11 +178,11 @@ const deployNetworkSpecificContracts = async (
   }
 
   if (isChainIdOptimism(chainId)) {
-    l2_uniswapPair = await UniswapPair.deploy(l2_uniswapFactory.address)
+    l2_uniswapPair = await UniswapPair.connect(owner).deploy(l2_uniswapFactory.address)
     l2_uniswapPair.deployed()
     verifyDeployment('L2 Uniswap Pair', l2_uniswapPair, ethers)
 
-    await l2_uniswapFactory.setPair(l2_uniswapPair.address)
+    await l2_uniswapFactory.connect(owner).setPair(l2_uniswapPair.address)
     const realPair = await l2_uniswapFactory.realPair()
     if (l2_uniswapPair.address !== realPair) {
       throw new Error('Pair did not get set on the factory.')

@@ -7,6 +7,7 @@ import '@eth-optimism/plugins/hardhat/ethers'
 import { CHAIN_IDS} from './config/constants'
 
 const desiredAccounts: string[] = [
+  process.env.OWNER_PRIVATE_KEY,
   process.env.BONDER_PRIVATE_KEY,
   process.env.LIQUIDITY_PROVIDER_PRIVATE_KEY,
   process.env.USER_PRIVATE_KEY
