@@ -131,11 +131,6 @@ The following steps are to add a new L2 (Xyz, for example) to the Hop System:
 
 ## FAQ
 
-* What are the relevant `messageId`s?
-
-    * Arbitrum = `0x9186606d55c571b43a756333453d90ab5653c483deb4980cda697bfa36fba5de`
-      Optimism = `0x09d0f27659ee556a8134fa56941e42400e672aecc2d4cfc61cdb0fcea4590e05`
-
 * How can I verify the contracts on Etherscan?
 
   * To do it manually:
@@ -143,3 +138,15 @@ The following steps are to add a new L2 (Xyz, for example) to the Hop System:
     2. Keep one SPDX license at the top of the file. Remove all the others. 
     3. Keep one Solidity pragma and ABIEncoder definition at the top of the file. Remove all others.
     4. Verify on Etherscan.
+
+* Why can I not interact with a contract I just deployed?
+
+  * It takes a few blocks for transactions to traverse from L1 to other chains. If your contract was deployed on an L2 via an L1 call, you may have to wait a few blocks.
+
+* What is the l2ethers object from hardhat?
+
+  * It is an ethers.js object that is used when creating a contract factory for the OVM. It use OVM bytecode.
+
+* Why are my Optimism contracts not working?
+
+  * Optimism adds additional bytecode to your contracts when they are compiled. This may push your contract over the contract size limit. When this happens, your contract deployment mail fail silently (the transaction will succeed but there will be no code at the address). Try removing unused functions from your contracts.

@@ -69,3 +69,12 @@ export const isChainIdArbitrum = (chainId: BigNumber): boolean => {
 
   return false
 }
+
+// Create an array of strings for each supported chain ID
+export const getAllSupportedChainIds = (obj): string[] => (obj && typeof obj === 'object')
+? Object
+  .values(obj)
+  .map(getAllSupportedChainIds)
+  .reduce((a, b) => a.concat(b), [])
+  .filter(a => typeof a === 'string')
+: [obj]

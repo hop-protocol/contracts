@@ -6,7 +6,8 @@ import {
 } from '../../config/utils'
 
 import {
-  ARB_CHAIN_ADDRESS
+  ARB_CHAIN_ADDRESS,
+  ALL_SUPPORTED_CHAIN_IDS
 } from '../../config/constants'
 
 export const verifyDeployment = async (name: string, contract: Contract, ethers) => {
@@ -16,7 +17,7 @@ export const verifyDeployment = async (name: string, contract: Contract, ethers)
   }
 }
 
-export const getContractFactories = async (chainId: BigNumber, ethers: any, signer: Signer) => {
+export const getContractFactories = async (chainId: BigNumber, signer: Signer, ethers: any, ovmEthers?: any) => {
   const MockERC20: ContractFactory = await ethers.getContractFactory('contracts/test/MockERC20.sol:MockERC20', { signer })
   const L1_Bridge: ContractFactory = await ethers.getContractFactory('contracts/bridges/L1_Bridge.sol:L1_Bridge', { signer })
 
@@ -34,7 +35,7 @@ export const getContractFactories = async (chainId: BigNumber, ethers: any, sign
     UniswapFactory,
     UniswapRouter,
     UniswapPair,
-  } = await getNetworkSpecificFactories(chainId, ethers, signer))
+  } = await getNetworkSpecificFactories(chainId, signer, ethers, ovmEthers))
 
   return {
     MockERC20,
@@ -48,11 +49,11 @@ export const getContractFactories = async (chainId: BigNumber, ethers: any, sign
   }
 }
 
-const getNetworkSpecificFactories = async (chainId: BigNumber, ethers: any, signer: Signer) => {
+const getNetworkSpecificFactories = async (chainId: BigNumber, signer: Signer, ethers: any, ovmEthers: any) => {
   if (isChainIdOptimism(chainId)) {
-    return getOptimismContractFactories(ethers, signer)
+    return getOptimismContractFactories(signer, ethers, ovmEthers)
   } else if (isChainIdArbitrum(chainId)) {
-    return getArbitrumContractFactories(ethers, signer)
+    return getArbitrumContractFactories(signer, ethers)
   } else {
     return {
       L1_Messenger: null,
@@ -65,13 +66,13 @@ const getNetworkSpecificFactories = async (chainId: BigNumber, ethers: any, sign
   }
 }
 
-const getOptimismContractFactories = async (ethers: any, signer: Signer) => {
+const getOptimismContractFactories = async (signer: Signer, ethers: any, ovmEthers: any) => {
   const L1_Messenger: ContractFactory = await ethers.getContractFactory('contracts/test/Optimism/mockOVM_CrossDomainMessenger.sol:mockOVM_CrossDomainMessenger', { signer })
   const MessengerWrapper: ContractFactory = await ethers.getContractFactory('contracts/wrappers/OptimismMessengerWrapper.sol:OptimismMessengerWrapper', { signer })
-  const L2_Bridge: ContractFactory = await ethers.getContractFactory('contracts/bridges/L2_OptimismBridge.sol:L2_OptimismBridge', { signer })
-  const UniswapFactory: ContractFactory = await ethers.getContractFactory('contracts/uniswap/optimism/OptimismUniswapFactory.sol:OptimismUniswapFactory', { signer })
-  const UniswapRouter: ContractFactory = await ethers.getContractFactory('contracts/uniswap/optimism/OptimismUniswapRouter.sol:OptimismUniswapRouter', { signer })
-  const UniswapPair: ContractFactory = await ethers.getContractFactory('contracts/uniswap/optimism/OptimismUniswapPair.sol:OptimismUniswapPair', { signer })
+  const L2_Bridge: ContractFactory = await ovmEthers.getContractFactory('contracts/bridges/L2_OptimismBridge.sol:L2_OptimismBridge', { signer })
+  const UniswapFactory: ContractFactory = await ovmEthers.getContractFactory('contracts/uniswap/optimism/OptimismUniswapFactory.sol:OptimismUniswapFactory', { signer })
+  const UniswapRouter: ContractFactory = await ovmEthers.getContractFactory('contracts/uniswap/optimism/OptimismUniswapRouter.sol:OptimismUniswapRouter', { signer })
+  const UniswapPair: ContractFactory = await ovmEthers.getContractFactory('contracts/uniswap/optimism/OptimismUniswapPair.sol:OptimismUniswapPair', { signer })
 
   return {
     L1_Messenger,
@@ -79,11 +80,11 @@ const getOptimismContractFactories = async (ethers: any, signer: Signer) => {
     L2_Bridge,
     UniswapFactory,
     UniswapRouter,
-    UniswapPair,
+    UniswapPair
   }
 }
 
-const getArbitrumContractFactories = async (ethers: any, signer: Signer) => {
+const getArbitrumContractFactories = async (signer: Signer, ethers: any) => {
   const L1_Messenger: ContractFactory = await ethers.getContractFactory('contracts/test/Arbitrum/inbox/GlobalInbox.sol:GlobalInbox', { signer })
   const MessengerWrapper: ContractFactory = await ethers.getContractFactory('contracts/wrappers/ArbitrumMessengerWrapper.sol:ArbitrumMessengerWrapper', { signer })
   const L2_Bridge: ContractFactory = await ethers.getContractFactory('contracts/bridges/L2_ArbitrumBridge.sol:L2_ArbitrumBridge', { signer })
@@ -113,6 +114,14 @@ export const sendChainSpecificBridgeDeposit = async (
 
   if (isChainIdArbitrum(chainId)) {
     await l1_messenger.depositERC20Message(ARB_CHAIN_ADDRESS, l1_canonicalToken.address, await sender.getAddress(), amount)
+  }
+}
+
+export const addAllSupportedChainIds = async (l2_bridge: Contract) => {
+  const allSupportedChainIds: string[] =  ALL_SUPPORTED_CHAIN_IDS
+
+  for (let i = 0; i < allSupportedChainIds.length; i++) {
+    await l2_bridge.addSupportedChainId(allSupportedChainIds[i])
   }
 }
 

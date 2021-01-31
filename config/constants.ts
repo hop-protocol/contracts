@@ -1,5 +1,6 @@
 import { BigNumber } from 'ethers'
 import { parseEther } from 'ethers/lib/utils'
+import { getAllSupportedChainIds } from './utils'
 
 export const CHAIN_IDS = {
   ETHEREUM: {
@@ -17,6 +18,8 @@ export const CHAIN_IDS = {
     TESTNET_3: BigNumber.from('79377087078960')
   }
 }
+
+export const ALL_SUPPORTED_CHAIN_IDS: string[] = getAllSupportedChainIds(CHAIN_IDS)
 
 export const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000'
 export const ONE_ADDRESS = '0x0000000000000000000000000000000000000001'

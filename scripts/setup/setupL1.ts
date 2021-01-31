@@ -1,6 +1,10 @@
 require('dotenv').config()
 
-import { network, ethers } from 'hardhat'
+import {
+  network,
+  ethers,
+  ethers as ovmEthers
+} from 'hardhat'
 import { BigNumber, ContractFactory, Signer, Contract } from 'ethers'
 
 import { getContractFactories, sendChainSpecificBridgeDeposit } from '../shared/utils'
@@ -61,7 +65,7 @@ async function setupL1 () {
     L1_Messenger,
     MessengerWrapper,
     L2_Bridge
-  } = await getContractFactories(l2ChainId, ethers, bonder))
+  } = await getContractFactories(l2ChainId, bonder, ethers, ovmEthers))
 
   // Attach already deployed contracts
   l1_messenger = L1_Messenger.attach(l1_messengerAddress)

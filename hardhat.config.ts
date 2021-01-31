@@ -6,6 +6,12 @@ import '@eth-optimism/plugins/hardhat/ethers'
 
 import { CHAIN_IDS} from './config/constants'
 
+const desiredAccounts: string[] = [
+  process.env.BONDER_PRIVATE_KEY,
+  process.env.LIQUIDITY_PROVIDER_PRIVATE_KEY,
+  process.env.USER_PRIVATE_KEY
+]
+
 // You have to export an object to set up your config
 // This object can have the following optional entries:
 // defaultNetwork, networks, solc, and paths.
@@ -17,30 +23,18 @@ export default {
     },
     kovan : {
       url: "https://kovan.rpc.authereum.com",
-      accounts: [
-        process.env.BONDER_PRIVATE_KEY,
-        process.env.USER_PRIVATE_KEY,
-        process.env.LIQUIDITY_PROVIDER_PRIVATE_KEY
-      ],
+      accounts: desiredAccounts,
       chainId: CHAIN_IDS.ETHEREUM.KOVAN.toNumber()
     },
     arbitrum: {
       url: "https://kovan3.arbitrum.io/rpc",
-      accounts: [
-        process.env.BONDER_PRIVATE_KEY,
-        process.env.USER_PRIVATE_KEY,
-        process.env.LIQUIDITY_PROVIDER_PRIVATE_KEY
-      ],
+      accounts: desiredAccounts,
       gasPrice: 0,
       chainId: CHAIN_IDS.ARBITRUM.TESTNET_3.toNumber()
     },
     optimism: {
       url: "https://kovan.optimism.rpc.hop.exchange",
-      accounts: [
-        process.env.BONDER_PRIVATE_KEY,
-        process.env.USER_PRIVATE_KEY,
-        process.env.LIQUIDITY_PROVIDER_PRIVATE_KEY
-      ],
+      accounts: desiredAccounts,
       gasPrice: 0,
       gas: 9000000,
       chainId: CHAIN_IDS.OPTIMISM.HOP_TESTNET.toNumber()

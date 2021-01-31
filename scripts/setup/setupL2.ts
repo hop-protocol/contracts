@@ -2,12 +2,12 @@ require('dotenv').config()
 
 import {
   network,
-  ethers as evmEthers,
+  ethers,
   l2ethers as ovmEthers
 } from 'hardhat'
 import { BigNumber, ContractFactory, Contract, Signer } from 'ethers'
 
-import { getValidEthersObject, getContractFactories } from '../shared/utils'
+import { addAllSupportedChainIds, getContractFactories } from '../shared/utils'
 
 import { DEFAULT_DEADLINE, MAX_APPROVAL } from '../../config/constants'
 
@@ -48,7 +48,7 @@ async function setupL2 () {
     MockERC20,
     L2_Bridge,
     UniswapRouter
-  } = await getContractFactories(chainId, ethers, bonder))
+  } = await getContractFactories(chainId, bonder, ethers, ovmEthers))
 
   // Attach already deployed contracts
   l2_canonicalToken = MockERC20.attach(l2_canonicalTokenAddress)
@@ -59,6 +59,9 @@ async function setupL2 () {
   /**
    * Setup
    */
+
+  // Add supported chain IDs
+  await addAllSupportedChainIds(l2_bridge)
 
   // Set up Uniswap
   await l2_canonicalToken.approve(uniswapRouter.address, MAX_APPROVAL)

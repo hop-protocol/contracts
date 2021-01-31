@@ -3,11 +3,11 @@ require('dotenv').config()
 import { ContractFactory, Signer, Contract, BigNumber } from 'ethers'
 import {
   network,
-  ethers as evmEthers,
+  ethers,
   l2ethers as ovmEthers
 } from 'hardhat'
 
-import { getContractFactories, getValidEthersObject, verifyDeployment } from '../shared/utils'
+import { getContractFactories, verifyDeployment } from '../shared/utils'
 
 import { isChainIdOptimism, isChainIdArbitrum } from '../../config/utils'
 import { ZERO_ADDRESS, CHAIN_IDS } from '../../config/constants'
@@ -16,7 +16,6 @@ async function deployL2 () {
 
   // Network setup
   const chainId: BigNumber = BigNumber.from(network.config.chainId)
-  const ethers = getValidEthersObject(chainId, evmEthers, ovmEthers)
 
   // Addresses
   const l1_bridgeAddress: string = ''
@@ -61,7 +60,7 @@ async function deployL2 () {
     UniswapFactory,
     UniswapRouter,
     UniswapPair
-  } = await getContractFactories(chainId, ethers, bonder))
+  } = await getContractFactories(chainId, bonder, ethers, ovmEthers))
 
   // Attach already deployed contracts
   l1_bridge = L1_Bridge.attach(l1_bridgeAddress)
@@ -144,16 +143,15 @@ const deployBridge = async (
   l2_uniswapRouter: Contract,
   l2_messengerAddress: string
 ) => {
+  // NOTE: Adding more CHAIN_IDs here will push the OVM deployment over the contract size limit
+  //       If additional CHAIN_IDs must be added, do so after the deployment.
   l2_bridge = await L2_Bridge.deploy(
     l2_messengerAddress,
     await user.getAddress(),
     l2_canonicalToken.address,
     l1_bridge.address,
     [
-      CHAIN_IDS.ETHEREUM.MAINNET,
-      CHAIN_IDS.ETHEREUM.KOVAN,
-      CHAIN_IDS.OPTIMISM.HOP_TESTNET,
-      CHAIN_IDS.ARBITRUM.TESTNET_3
+      CHAIN_IDS.ETHEREUM.MAINNET
     ],
     await bonder.getAddress(),
     l2_uniswapRouter.address
