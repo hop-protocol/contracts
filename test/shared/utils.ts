@@ -1,11 +1,13 @@
 import { ethers } from 'hardhat'
-import { BigNumber, Signer, Contract } from 'ethers'
+import { BigNumber, Signer, Contract, BigNumberish } from 'ethers'
+import { expect } from 'chai'
 import {
   USER_INITIAL_BALANCE,
   LIQUIDITY_PROVIDER_INITIAL_BALANCE,
   LIQUIDITY_PROVIDER_UNISWAP_AMOUNT,
-  COMMITTEE_INITIAL_BALANCE,
+  BONDER_INITIAL_BALANCE,
   CHALLENGER_INITIAL_BALANCE,
+  UNISWAP_LP_MINIMUM_LIQUIDITY
 } from '../../config/constants'
 
 import {
@@ -13,7 +15,6 @@ import {
 } from './interfaces'
 
 import {
-  expectBalanceOf,
   isChainIdOptimism,
   isChainIdArbitrum
 } from '../../config/utils'
@@ -30,7 +31,7 @@ export const setUpDefaults = async (fixture: IFixture, l2ChainId: BigNumber) => 
   const distributeCanonicalTokensOpts = {
     userInitialBalance: USER_INITIAL_BALANCE,
     liquidityProviderInitialBalance: LIQUIDITY_PROVIDER_INITIAL_BALANCE,
-    bonderInitialBalance: COMMITTEE_INITIAL_BALANCE,
+    bonderInitialBalance: BONDER_INITIAL_BALANCE,
     challengerInitialBalance: CHALLENGER_INITIAL_BALANCE
   }
 
@@ -156,8 +157,9 @@ export const setUpL2UniswapMarket = async (fixture: IFixture, opts: any) => {
   await expectBalanceOf(l2_bridge, liquidityProvider, '0')
 
   const uniswapPairAddress: string = await l2_uniswapFactory.getPair(l2_canonicalToken.address, l2_bridge.address)
-  const uniswapPair = await ethers.getContractAt('@uniswap/v2-core/contracts/UniswapV2Pair.sol:UniswapV2Pair', uniswapPairAddress)
-  const expectedLiquidityProviderBalance: BigNumber = BigNumber.from('499999999999999999999000')
+  const uniswapPair: Contract = await ethers.getContractAt('@uniswap/v2-core/contracts/UniswapV2Pair.sol:UniswapV2Pair', uniswapPairAddress)
+  const lpTokenTotalBalance: BigNumber = await uniswapPair.totalSupply()
+  const expectedLiquidityProviderBalance = lpTokenTotalBalance.sub(UNISWAP_LP_MINIMUM_LIQUIDITY)
   await expectBalanceOf(uniswapPair, liquidityProvider, expectedLiquidityProviderBalance)
   await expectBalanceOf(l2_canonicalToken, uniswapPair, liquidityProviderBalance)
   await expectBalanceOf(l2_bridge, uniswapPair, liquidityProviderBalance)
@@ -166,6 +168,12 @@ export const setUpL2UniswapMarket = async (fixture: IFixture, opts: any) => {
 /**
  * General functions
  */
+
+export const expectBalanceOf = async (token: Contract, account: Signer | Contract, expectedBalance: BigNumberish) => {
+  const accountAddress: string = account instanceof Signer ? await account.getAddress() : account.address
+  const balance: BigNumber = await token.balanceOf(accountAddress)
+  expect(balance.toString()).to.eq(BigNumber.from(expectedBalance).toString())
+}
 
 export const sendTestTokensAcrossCanonicalBridge = async (
   l1_canonicalToken: Contract,

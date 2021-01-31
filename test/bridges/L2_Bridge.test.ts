@@ -5,15 +5,14 @@ import Transfer from '../../lib/Transfer'
 import MerkleTree from '../../lib/MerkleTree'
 
 import { fixture } from '../shared/fixtures'
-import { setUpDefaults, sendTestTokensAcrossCanonicalBridge, sendTestTokensAcrossHopBridge } from '../shared/utils'
+import { setUpDefaults, sendTestTokensAcrossCanonicalBridge, sendTestTokensAcrossHopBridge, expectBalanceOf } from '../shared/utils'
 import { IFixture } from '../shared/interfaces'
 
-import { expectBalanceOf } from '../../config/utils'
 import {
   CHAIN_IDS,
   ONE_ADDRESS,
   DEFAULT_DEADLINE,
-  LIQUIDITY_PROVIDER_UNISWAP_AMOUNT,
+  USER_INITIAL_BALANCE,
   TRANSFER_AMOUNT
 } from '../../config/constants'
 
@@ -36,10 +35,11 @@ describe("L2_Bridge", () => {
   let l2_canonicalToken: Contract
   let l2_bridge: Contract
   let l2_messenger: Contract
+  let l2_uniswapRouter: Contract
 
   let transfers: Transfer[]
 
-  let sendTokenInitialBalance: BigNumber
+  let userSendTokenAmount: BigNumber
 
   beforeEach(async () => {
     l2ChainId = CHAIN_IDS.OPTIMISM.TESTNET_1
@@ -56,10 +56,11 @@ describe("L2_Bridge", () => {
       l2_canonicalToken,
       l2_bridge,
       l2_messenger,
+      l2_uniswapRouter,
       transfers
     } = _fixture);
 
-    sendTokenInitialBalance = LIQUIDITY_PROVIDER_UNISWAP_AMOUNT
+    userSendTokenAmount = USER_INITIAL_BALANCE
   })
 
   /**
@@ -140,7 +141,7 @@ describe("L2_Bridge", () => {
       l2_bridge,
       l2_messenger,
       user,
-      sendTokenInitialBalance,
+      userSendTokenAmount,
       l2ChainId
     )
 
@@ -157,7 +158,7 @@ describe("L2_Bridge", () => {
     )
 
     // Verify state
-    const expectedCurrentBridgeBal = sendTokenInitialBalance.sub(TRANSFER_AMOUNT)
+    const expectedCurrentBridgeBal = userSendTokenAmount.sub(TRANSFER_AMOUNT)
     await expectBalanceOf(l2_bridge, user, expectedCurrentBridgeBal)
 
     const pendingTransferHash = await l2_bridge.pendingTransfers(0)
@@ -186,6 +187,9 @@ describe("L2_Bridge", () => {
     transfer.destinationAmountOutMin = BigNumber.from(0)
     transfer.destinationDeadline = BigNumber.from(DEFAULT_DEADLINE)
 
+    const expectedAmounts: BigNumber[] = await l2_uniswapRouter.getAmountsOut(transfer.amount, [l2_canonicalToken.address, l2_bridge.address])
+    const expectedAmountAfterSlippage: BigNumber = expectedAmounts[1]
+
     // Add the canonical token to the users' address on L2
     await sendTestTokensAcrossCanonicalBridge(
       l1_canonicalToken,
@@ -193,12 +197,12 @@ describe("L2_Bridge", () => {
       l2_canonicalToken,
       l2_messenger,
       user,
-      sendTokenInitialBalance
+      userSendTokenAmount
     ) 
 
     // Execute transaction
     await l2_bridge.connect(governance).addSupportedChainId(transfer.chainId)
-    await l2_canonicalToken.connect(user).approve(l2_bridge.address, sendTokenInitialBalance)
+    await l2_canonicalToken.connect(user).approve(l2_bridge.address, userSendTokenAmount)
     await l2_bridge.connect(user).swapAndSend(
       transfer.chainId,
       transfer.recipient,
@@ -212,13 +216,12 @@ describe("L2_Bridge", () => {
     )
 
     // Verify state
-    const expectedCurrentCanonicalTokenBal = sendTokenInitialBalance.sub(TRANSFER_AMOUNT)
+    const expectedCurrentCanonicalTokenBal = userSendTokenAmount.sub(TRANSFER_AMOUNT)
     await expectBalanceOf(l2_canonicalToken, user, expectedCurrentCanonicalTokenBal)
 
-    const transferAmountAfterSlippage = BigNumber.from('9969801202164028849')
-    transfer.amount = transferAmountAfterSlippage
+    const transferAfterSlippage: Transfer = Object.assign(transfer, { amount: expectedAmountAfterSlippage })
     const pendingTransferHash = await l2_bridge.pendingTransfers(0)
-    const expectedPendingTransferHash: Buffer = transfer.getTransferHash()
+    const expectedPendingTransferHash: Buffer = transferAfterSlippage.getTransferHash()
     expect(pendingTransferHash).to.eq('0x' + expectedPendingTransferHash.toString('hex'))
 
     const pendingAmountChainId = await l2_bridge.pendingAmountChainIds(0)
@@ -233,7 +236,7 @@ describe("L2_Bridge", () => {
     const transferSentArgs = transfersSentEvent.args
     expect(transferSentArgs[0]).to.eq('0x' + expectedPendingTransferHash.toString('hex'))
     expect(transferSentArgs[1]).to.eq(transfer.recipient)
-    expect(transferSentArgs[2]).to.eq(transferAmountAfterSlippage)
+    expect(transferSentArgs[2]).to.eq(transferAfterSlippage.amount)
     expect(transferSentArgs[3]).to.eq(transfer.transferNonce)
     expect(transferSentArgs[4]).to.eq(transfer.relayerFee)
   })
@@ -248,7 +251,7 @@ describe("L2_Bridge", () => {
       l2_bridge,
       l2_messenger,
       user,
-      sendTokenInitialBalance,
+      userSendTokenAmount,
       l2ChainId
     )
 
@@ -266,7 +269,7 @@ describe("L2_Bridge", () => {
 
     // Verify state pre-transaction
     let pendingAmountForChainId = await l2_bridge.pendingAmountForChainId(transfer.chainId)
-    expect(pendingAmountForChainId).to.eq(BigNumber.from('10000000000000000000'))
+    expect(pendingAmountForChainId).to.eq(transfer.amount)
     let pendingAmountChainIds = await l2_bridge.pendingAmountChainIds(0)
     expect(pendingAmountChainIds).to.eq(transfer.chainId)
     let pendingTransfers = await l2_bridge.pendingTransfers(0)

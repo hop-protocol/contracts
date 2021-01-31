@@ -2,17 +2,16 @@ import '@nomiclabs/hardhat-waffle'
 import { expect } from 'chai'
 import { Signer, Contract, BigNumber } from 'ethers'
 
-import { setUpDefaults } from '../shared/utils'
+import { setUpDefaults, expectBalanceOf } from '../shared/utils'
 import { fixture } from '../shared/fixtures'
 import { IFixture } from '../shared/interfaces'
 
-import { expectBalanceOf } from '../../config/utils'
 import {
   CHAIN_IDS,
   DEFAULT_AMOUNT_OUT_MIN,
   DEFAULT_DEADLINE,
   USER_INITIAL_BALANCE,
-  COMMITTEE_INITIAL_BALANCE 
+  BONDER_INITIAL_BALANCE 
 } from '../../config/constants'
 
 describe("L1_Bridge", () => {
@@ -27,6 +26,7 @@ describe("L1_Bridge", () => {
   let l2_canonicalToken: Contract
   let l2_bridge: Contract
   let l2_messenger: Contract
+  let l2_uniswapRouter: Contract
 
   beforeEach(async () => {
     l2ChainId = CHAIN_IDS.OPTIMISM.TESTNET_1
@@ -40,7 +40,8 @@ describe("L1_Bridge", () => {
       l1_bridge,
       l2_canonicalToken,
       l2_bridge,
-      l2_messenger
+      l2_messenger,
+      l2_uniswapRouter
     } = _fixture);
   })
 
@@ -49,9 +50,9 @@ describe("L1_Bridge", () => {
    */
 
   it('Should allow bonder to deposit bond and then withdraw bond', async () => {
-    await l1_canonicalToken.connect(bonder).approve(l1_bridge.address, COMMITTEE_INITIAL_BALANCE)
-    await l1_bridge.connect(bonder).stake(COMMITTEE_INITIAL_BALANCE)
-    await l1_bridge.connect(bonder).unstake(COMMITTEE_INITIAL_BALANCE)
+    await l1_canonicalToken.connect(bonder).approve(l1_bridge.address, BONDER_INITIAL_BALANCE)
+    await l1_bridge.connect(bonder).stake(BONDER_INITIAL_BALANCE)
+    await l1_bridge.connect(bonder).unstake(BONDER_INITIAL_BALANCE)
   })
 
   /**
@@ -81,6 +82,9 @@ describe("L1_Bridge", () => {
 
   it('Should send tokens across the bridge and swap via sendToL2AndAttemptSwap', async () => {
     const tokenAmount = USER_INITIAL_BALANCE
+    const expectedAmounts: BigNumber[] = await l2_uniswapRouter.getAmountsOut(tokenAmount, [l2_canonicalToken.address, l2_bridge.address])
+    const expectedAmountAfterSlippage: BigNumber = expectedAmounts[1]
+
     await l1_canonicalToken.connect(user).approve(l1_bridge.address, tokenAmount)
     await l1_bridge.connect(user).sendToL2AndAttemptSwap(
       l2ChainId.toString(),
@@ -91,7 +95,6 @@ describe("L1_Bridge", () => {
     )
     await l2_messenger.relayNextMessage()
 
-    const amountAfterSlippage = BigNumber.from('332999331997327989311957')
-    await expectBalanceOf(l2_canonicalToken, user, amountAfterSlippage)
+    await expectBalanceOf(l2_canonicalToken, user, expectedAmountAfterSlippage)
   })
 })

@@ -1,4 +1,4 @@
-import { BigNumber, BigNumberish, Signer, Contract } from 'ethers'
+import { BigNumber } from 'ethers'
 import { IGetMessengerWrapperDefaults } from './interfaces'
 import {
   CHAIN_IDS,
@@ -8,14 +8,6 @@ import {
   DEFAULT_MESSENGER_WRAPPER_GAS_PRICE,
   DEFAULT_MESSENGER_WRAPPER_GAS_CALL_VALUE
 } from './constants'
-
-export const expectBalanceOf = async (token: Contract, account: Signer | Contract, expectedBalance: BigNumberish) => {
-  const accountAddress: string = account instanceof Signer ? await account.getAddress() : account.address
-  const balance = await token.balanceOf(accountAddress)
-  if (!balance.eq(BigNumber.from(expectedBalance))) {
-    throw new Error(`Balance not correct. Expect ${balance.toString()} to equal ${expectedBalance.toString()}`)
-  }
-}
 
 export const getMessengerWrapperDefaults = (
   chainId: BigNumber,

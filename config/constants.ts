@@ -35,10 +35,12 @@ export const DEFAULT_AMOUNT_OUT_MIN = 0
 export const DEFAULT_DEADLINE = 9999999999
 
 export const USER_INITIAL_BALANCE = BigNumber.from(parseEther('10'))
-export const LIQUIDITY_PROVIDER_INITIAL_BALANCE = BigNumber.from(parseEther('100'))
+export const LIQUIDITY_PROVIDER_INITIAL_BALANCE = BigNumber.from(parseEther('1000'))
 export const LIQUIDITY_PROVIDER_UNISWAP_AMOUNT = LIQUIDITY_PROVIDER_INITIAL_BALANCE.div(2)
-export const COMMITTEE_INITIAL_BALANCE = BigNumber.from(parseEther('1000'))
+export const BONDER_INITIAL_BALANCE = BigNumber.from(parseEther('1000'))
 export const CHALLENGER_INITIAL_BALANCE = BigNumber.from(parseEther('1'))
 
 export const TRANSFER_AMOUNT = BigNumber.from(parseEther('10'))
 export const RELAYER_FEE = BigNumber.from(parseEther('1'))
+
+export const UNISWAP_LP_MINIMUM_LIQUIDITY = BigNumber.from('1000')
