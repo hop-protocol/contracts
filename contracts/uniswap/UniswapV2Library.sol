@@ -2,9 +2,9 @@
 
 pragma solidity >=0.5.0;
 
-import '@uniswap/v2-core/contracts/interfaces/IUniswapV2Pair.sol';
+import "@uniswap/v2-core/contracts/interfaces/IUniswapV2Pair.sol";
 
-import '@uniswap/v2-periphery/contracts/libraries/SafeMath.sol';
+import "@uniswap/v2-periphery/contracts/libraries/SafeMath.sol";
 
 interface Factory {
     function getPair(address, address) external view returns (address);
