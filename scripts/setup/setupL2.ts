@@ -9,7 +9,7 @@ import { BigNumber, ContractFactory, Contract, Signer } from 'ethers'
 
 import { getValidEthersObject, getContractFactories } from '../shared/utils'
 
-import { LIQUIDITY_PROVIDER_UNISWAP_AMOUNT, DEFAULT_DEADLINE } from '../../config/constants'
+import { LIQUIDITY_PROVIDER_UNISWAP_AMOUNT, DEFAULT_DEADLINE, MAX_APPROVAL } from '../../config/constants'
 
 async function deployArbitrum () {
 
@@ -61,9 +61,8 @@ async function deployArbitrum () {
    */
 
   // Set up Uniswap
-  await l2_canonicalToken.approve(uniswapRouter.address, LIQUIDITY_PROVIDER_UNISWAP_AMOUNT)
-  await l2_bridge.approve(uniswapRouter.address, LIQUIDITY_PROVIDER_UNISWAP_AMOUNT)
-  await uniswapRouter.addLiquidity(
+  await l2_canonicalToken.approve(uniswapRouter.address, MAX_APPROVAL)
+  await l2_bridge.approve(uniswapRouter.address, MAX_APPROVAL)
     l2_bridge.address,
     l2_canonicalToken.address,
     LIQUIDITY_PROVIDER_UNISWAP_AMOUNT,
