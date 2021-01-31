@@ -32,8 +32,8 @@ async function deployL2 () {
   let user: Signer
 
   // Factories
-  let MockERC20: ContractFactory
   let L1_Bridge: ContractFactory
+  let L2_MockERC20: ContractFactory
   let L2_Bridge: ContractFactory
   let UniswapFactory: ContractFactory
   let UniswapRouter: ContractFactory
@@ -54,8 +54,8 @@ async function deployL2 () {
 
   // Get the contract Factories
   ;({ 
-    MockERC20,
     L1_Bridge,
+    L2_MockERC20,
     L2_Bridge,
     UniswapFactory,
     UniswapRouter,
@@ -64,7 +64,7 @@ async function deployL2 () {
 
   // Attach already deployed contracts
   l1_bridge = L1_Bridge.attach(l1_bridgeAddress)
-  l2_canonicalToken = MockERC20.attach(l2_canonicalTokenAddress)
+  l2_canonicalToken = L2_MockERC20.attach(l2_canonicalTokenAddress)
 
   /**
    * Deployments

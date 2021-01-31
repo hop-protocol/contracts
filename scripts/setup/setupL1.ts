@@ -41,7 +41,7 @@ async function setupL1 () {
   let bonder: Signer
 
   // Factories
-  let MockERC20: ContractFactory
+  let L1_MockERC20: ContractFactory
   let L1_Bridge: ContractFactory
   let MessengerWrapper: ContractFactory
   let L1_Messenger: ContractFactory
@@ -60,7 +60,7 @@ async function setupL1 () {
 
   // Get the contract Factories
   ;({ 
-    MockERC20,
+    L1_MockERC20,
     L1_Bridge,
     L1_Messenger,
     MessengerWrapper,
@@ -69,7 +69,7 @@ async function setupL1 () {
 
   // Attach already deployed contracts
   l1_messenger = L1_Messenger.attach(l1_messengerAddress)
-  l1_canonicalToken = MockERC20.attach(l1_canonicalTokenAddress)
+  l1_canonicalToken = L1_MockERC20.attach(l1_canonicalTokenAddress)
   l1_bridge = L1_Bridge.attach(l1_bridgeAddress)
   l2_bridge = L2_Bridge.attach(l2_bridgeAddress)
 

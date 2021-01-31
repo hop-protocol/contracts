@@ -15,12 +15,11 @@ async function setupL2 () {
 
   // Network setup
   const chainId: BigNumber = BigNumber.from(network.config.chainId)
-  const ethers = getValidEthersObject(chainId, evmEthers, ovmEthers)
 
   // Addresses
-  const l2_canonicalTokenAddress: string = '0x57eaeE3D9C99b93D8FD1b50EF274579bFEC8e14B'
-  const l2_bridgeAddress: string = '0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0'
-  const uniswapRouterAddress: string = '0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512'
+  const l2_canonicalTokenAddress: string = ''
+  const l2_bridgeAddress: string = ''
+  const uniswapRouterAddress: string = ''
 
   if (!l2_canonicalTokenAddress || !l2_bridgeAddress || !uniswapRouterAddress) {
     throw new Error('Addresses must be defined')
@@ -30,8 +29,8 @@ async function setupL2 () {
   let bonder: Signer
 
   // Factories
+  let L2_MockERC20: ContractFactory
   let L2_Bridge: ContractFactory
-  let MockERC20: ContractFactory
   let UniswapRouter: ContractFactory
 
   // L2
@@ -45,13 +44,13 @@ async function setupL2 () {
 
   // Get the contract Factories
   ;({ 
-    MockERC20,
+    L2_MockERC20,
     L2_Bridge,
     UniswapRouter
   } = await getContractFactories(chainId, bonder, ethers, ovmEthers))
 
   // Attach already deployed contracts
-  l2_canonicalToken = MockERC20.attach(l2_canonicalTokenAddress)
+  l2_canonicalToken = L2_MockERC20.attach(l2_canonicalTokenAddress)
 
   l2_bridge = L2_Bridge.attach(l2_bridgeAddress)
   uniswapRouter = UniswapRouter.attach(uniswapRouterAddress)
