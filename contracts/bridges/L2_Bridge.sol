@@ -3,8 +3,8 @@
 pragma solidity 0.6.12;
 pragma experimental ABIEncoderV2;
 
-import "../test/MockERC20OVM.sol";
-// import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+// import "../test/MockERC20OVM.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import '@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol';
 
 import "./Bridge.sol";

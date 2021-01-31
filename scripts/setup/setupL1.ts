@@ -9,6 +9,8 @@ import { getMessengerWrapperDefaults } from '../../config/utils'
 import { IGetMessengerWrapperDefaults } from '../../config/interfaces'
 import { CHAIN_IDS, LIQUIDITY_PROVIDER_INITIAL_BALANCE, MAX_APPROVAL } from '../../config/constants'
 
+// NOTE: Transactions sometimes get stuck during this script. Ensure that each transaction has been made.
+
 async function setupL1 () {
 
   // Network setup
