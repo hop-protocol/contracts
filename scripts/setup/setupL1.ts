@@ -11,7 +11,7 @@ import { getContractFactories, sendChainSpecificBridgeDeposit } from '../shared/
 
 import { getMessengerWrapperDefaults } from '../../config/utils'
 import { IGetMessengerWrapperDefaults } from '../../config/interfaces'
-import { LIQUIDITY_PROVIDER_INITIAL_BALANCE, MAX_APPROVAL } from '../../config/constants'
+import { CHAIN_IDS, LIQUIDITY_PROVIDER_INITIAL_BALANCE } from '../../config/constants'
 
 // NOTE: Transactions sometimes get stuck during this script. Ensure that each transaction has been made.
 
@@ -94,7 +94,7 @@ async function setupL1 () {
 
   // Get canonical token to L2
   await l1_canonicalToken.connect(owner).mint(await liquidityProvider.getAddress(), LIQUIDITY_PROVIDER_INITIAL_BALANCE)
-  await l1_canonicalToken.connect(liquidityProvider).approve(l1_messenger.address, MAX_APPROVAL)
+  await l1_canonicalToken.connect(liquidityProvider).approve(l1_messenger.address, LIQUIDITY_PROVIDER_INITIAL_BALANCE)
   await sendChainSpecificBridgeDeposit(
     chainId,
     liquidityProvider,
@@ -104,6 +104,7 @@ async function setupL1 () {
   )
 
   // Get hop token on L2
+  // NOTE: If there is no watcher set up, this transaction will never make it to L2
   await l1_canonicalToken.connect(owner).mint(await liquidityProvider.getAddress(), LIQUIDITY_PROVIDER_INITIAL_BALANCE)
   await l1_canonicalToken.connect(liquidityProvider).approve(l1_bridge.address, LIQUIDITY_PROVIDER_INITIAL_BALANCE)
   await l1_bridge.connect(liquidityProvider).sendToL2(l2ChainId, await liquidityProvider.getAddress(), LIQUIDITY_PROVIDER_INITIAL_BALANCE)

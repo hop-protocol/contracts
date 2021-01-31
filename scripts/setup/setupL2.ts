@@ -9,7 +9,7 @@ import { BigNumber, ContractFactory, Contract, Signer } from 'ethers'
 
 import { addAllSupportedChainIds, getContractFactories } from '../shared/utils'
 
-import { DEFAULT_DEADLINE, MAX_APPROVAL } from '../../config/constants'
+import { DEFAULT_DEADLINE, LIQUIDITY_PROVIDER_UNISWAP_AMOUNT } from '../../config/constants'
 
 async function setupL2 () {
 
@@ -64,16 +64,19 @@ async function setupL2 () {
   // Add supported chain IDs
   await addAllSupportedChainIds(l2_bridge)
 
+  // Additional transactions
+  // NOTE: If a watcher is not set up to propagate transactions from L1 -> L2, then this mint is required to get the LP h tokens.
+  // NOTE: Not to be used in production.
+  await l2_bridge.connect(liquidityProvider).mint(await liquidityProvider.getAddress(), LIQUIDITY_PROVIDER_UNISWAP_AMOUNT)
+
   // Set up Uniswap
-  await l2_canonicalToken.connect(liquidityProvider).approve(uniswapRouter.address, MAX_APPROVAL)
-  await l2_bridge.connect(liquidityProvider).approve(uniswapRouter.address, MAX_APPROVAL)
+  await l2_canonicalToken.connect(liquidityProvider).approve(uniswapRouter.address, LIQUIDITY_PROVIDER_UNISWAP_AMOUNT)
+  await l2_bridge.connect(liquidityProvider).approve(uniswapRouter.address, LIQUIDITY_PROVIDER_UNISWAP_AMOUNT)
   await uniswapRouter.connect(liquidityProvider).addLiquidity(
     l2_bridge.address,
     l2_canonicalToken.address,
-    BigNumber.from('1000000000000000000'),
-    BigNumber.from('1000000000000000000'),
-    // LIQUIDITY_PROVIDER_UNISWAP_AMOUNT.div(2),
-    // LIQUIDITY_PROVIDER_UNISWAP_AMOUNT.div(2),
+    LIQUIDITY_PROVIDER_UNISWAP_AMOUNT,
+    LIQUIDITY_PROVIDER_UNISWAP_AMOUNT,
     '0',
     '0',
     await liquidityProvider.getAddress(),
