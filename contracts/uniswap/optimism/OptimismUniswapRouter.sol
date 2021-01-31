@@ -788,3 +788,7 @@ contract UniswapV2Router02 is IUniswapV2Router02 {
         return UniswapV2Library.getAmountsIn(factory, amountOut, path);
     }
 }
+
+contract OptimismUniswapRouter is UniswapV2Router02 {
+    constructor(address _factory, address _WETH) public UniswapV2Router02(_factory, _WETH) {}
+}

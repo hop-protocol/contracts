@@ -69,9 +69,9 @@ const getOptimismContractFactories = async (ethers: any, signer: Signer) => {
   const L1_Messenger: ContractFactory = await ethers.getContractFactory('contracts/test/Optimism/mockOVM_CrossDomainMessenger.sol:mockOVM_CrossDomainMessenger', { signer })
   const MessengerWrapper: ContractFactory = await ethers.getContractFactory('contracts/wrappers/OptimismMessengerWrapper.sol:OptimismMessengerWrapper', { signer })
   const L2_Bridge: ContractFactory = await ethers.getContractFactory('contracts/bridges/L2_OptimismBridge.sol:L2_OptimismBridge', { signer })
-  const UniswapFactory: ContractFactory = await ethers.getContractFactory('contracts/test/UniswapFactoryFlat.sol:UniswapV2Factory', { signer })
-  const UniswapRouter: ContractFactory = await ethers.getContractFactory('contracts/test/UniswapRouterFlat.sol:UniswapV2Router02', { signer })
-  const UniswapPair: ContractFactory = await ethers.getContractFactory('contracts/test/UniswapPairV2OVM/UniswapV2Pair.sol:UniswapV2Pair', { signer })
+  const UniswapFactory: ContractFactory = await ethers.getContractFactory('contracts/uniswap/optimism/OptimismUniswapFactory.sol:OptimismUniswapFactory', { signer })
+  const UniswapRouter: ContractFactory = await ethers.getContractFactory('contracts/uniswap/optimism/OptimismUniswapRouter.sol:OptimismUniswapRouter', { signer })
+  const UniswapPair: ContractFactory = await ethers.getContractFactory('contracts/uniswap/optimism/OptimismUniswapPair.sol:OptimismUniswapPair', { signer })
 
   return {
     L1_Messenger,
@@ -87,12 +87,8 @@ const getArbitrumContractFactories = async (ethers: any, signer: Signer) => {
   const L1_Messenger: ContractFactory = await ethers.getContractFactory('contracts/test/Arbitrum/inbox/GlobalInbox.sol:GlobalInbox', { signer })
   const MessengerWrapper: ContractFactory = await ethers.getContractFactory('contracts/wrappers/ArbitrumMessengerWrapper.sol:ArbitrumMessengerWrapper', { signer })
   const L2_Bridge: ContractFactory = await ethers.getContractFactory('contracts/bridges/L2_ArbitrumBridge.sol:L2_ArbitrumBridge', { signer })
-  const UniswapFactory: ContractFactory = await ethers.getContractFactory('@uniswap/v2-core/contracts/UniswapV2Factory.sol:UniswapV2Factory', { signer })
-  const UniswapRouter: ContractFactory = await ethers.getContractFactory('contracts/uniswap/UniswapV2Router02.sol:UniswapV2Router02', { signer })
-  // const UniswapRouter: ContractFactory = await ethers.getContractFactory('@uniswap/v2-periphery/contracts/UniswapV2Router02.sol:UniswapV2Router02', { signer })
-  // const UniswapFactory: ContractFactory = await ethers.getContractFactory('contracts/test/UniswapFactoryFlat.sol:UniswapV2Factory', { signer })
-  // const UniswapRouter: ContractFactory = await ethers.getContractFactory('contracts/test/UniswapRouterFlat.sol:UniswapV2Router02', { signer })
-  // const UniswapPair: ContractFactory = await ethers.getContractFactory('contracts/test/UniswapPairV2OVM/UniswapV2Pair.sol:UniswapV2Pair', { signer })
+  const UniswapFactory: ContractFactory = await ethers.getContractFactory('contracts/uniswap/arbitrum/ArbitrumUniswapFactory.sol:ArbitrumUniswapFactory', { signer })
+  const UniswapRouter: ContractFactory = await ethers.getContractFactory('contracts/uniswap/arbitrum/ArbitrumUniswapRouter.sol:ArbitrumUniswapRouter', { signer })
 
   return {
     L1_Messenger,

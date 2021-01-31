@@ -96,3 +96,7 @@ contract UniswapV2Factory {
         feeToSetter = _feeToSetter;
     }
 }
+
+contract OptimismUniswapFactory is UniswapV2Factory {
+    constructor(address _feeToSetter) public UniswapV2Factory(_feeToSetter) {}
+}
