@@ -18,8 +18,8 @@ import {
 
 export async function fixture(l2ChainId: BigNumber): Promise<IFixture> {
   const {
-    l2BridgeArtifact,
-    messengerWrapperArtifact
+    l2_bridgeArtifact,
+    l1_messengerWrapperArtifact
   } = getL2SpecificArtifact(l2ChainId)
   const accounts = await ethers.getSigners()
   const [
@@ -35,12 +35,12 @@ export async function fixture(l2ChainId: BigNumber): Promise<IFixture> {
   // Factories
   const L1_CanonicalBridge = await ethers.getContractFactory('contracts/test/Mock_L1_CanonicalBridge.sol:Mock_L1_CanonicalBridge')
   const L1_Bridge = await ethers.getContractFactory('contracts/test/Mock_L1_Bridge.sol:Mock_L1_Bridge')
-  const L2_Bridge = await ethers.getContractFactory(`contracts/bridges/${l2BridgeArtifact}`)
+  const L2_Bridge = await ethers.getContractFactory(`contracts/bridges/${l2_bridgeArtifact}`)
   const L1_Messenger = await ethers.getContractFactory('contracts/test/Mock_L1_Messenger.sol:Mock_L1_Messenger')
-  const MessengerWrapper = await ethers.getContractFactory(`contracts/wrappers/${messengerWrapperArtifact}`)
+  const L1_MessengerWrapper = await ethers.getContractFactory(`contracts/wrappers/${l1_messengerWrapperArtifact}`)
   const L2_Messenger = await ethers.getContractFactory('contracts/test/Mock_L2_Messenger.sol:Mock_L2_Messenger')
-  const UniswapRouter = await ethers.getContractFactory('contracts/uniswap/UniswapV2Router02.sol:UniswapV2Router02')
-  const UniswapFactory = await ethers.getContractFactory('@uniswap/v2-core/contracts/UniswapV2Factory.sol:UniswapV2Factory')
+  const L2_UniswapRouter = await ethers.getContractFactory('contracts/uniswap/UniswapV2Router02.sol:UniswapV2Router02')
+  const L2_UniswapFactory = await ethers.getContractFactory('@uniswap/v2-core/contracts/UniswapV2Factory.sol:UniswapV2Factory')
 
   // Mock Factories
   const MockERC20 = await ethers.getContractFactory('contracts/test/MockERC20.sol:MockERC20')
@@ -60,8 +60,8 @@ export async function fixture(l2ChainId: BigNumber): Promise<IFixture> {
 
   // Deploy Uniswap contracts
   const weth = await MockERC20.deploy('WETH', 'WETH')
-  const l2_uniswapFactory = await UniswapFactory.deploy(await user.getAddress())
-  const l2_uniswapRouter = await UniswapRouter.deploy(l2_uniswapFactory.address, weth.address)
+  const l2_uniswapFactory = await L2_UniswapFactory.deploy(await user.getAddress())
+  const l2_uniswapRouter = await L2_UniswapRouter.deploy(l2_uniswapFactory.address, weth.address)
 
   // Deploy Hop L1 contracts
   const l1_bridge = await L1_Bridge.deploy(l1_canonicalToken.address, await bonder.getAddress())
@@ -79,7 +79,7 @@ export async function fixture(l2ChainId: BigNumber): Promise<IFixture> {
 
   // Deploy Messenger Wrapper
   const messengerWrapperDefaults: IGetMessengerWrapperDefaults[] = getMessengerWrapperDefaults(l2ChainId, l1_bridge.address, l2_bridge.address, l1_messenger.address)
-  const messengerWrapper = await MessengerWrapper.deploy(...messengerWrapperDefaults)
+  const l1_messengerWrapper = await L1_MessengerWrapper.deploy(...messengerWrapperDefaults)
 
   // Mocks
   const accounting = await MockAccounting.deploy(await bonder.getAddress())
@@ -122,17 +122,17 @@ export async function fixture(l2ChainId: BigNumber): Promise<IFixture> {
     L1_Bridge,
     L2_Bridge,
     MockERC20,
-    MessengerWrapper,
+    L1_MessengerWrapper,
     L1_Messenger,
     L2_Messenger,
-    UniswapRouter,
-    UniswapFactory,
+    L2_UniswapRouter,
+    L2_UniswapFactory,
     MockAccounting,
     MockBridge,
     l1_canonicalToken,
     l1_canonicalBridge,
     l1_messenger,
-    messengerWrapper,
+    l1_messengerWrapper,
     l1_bridge,
     l2_messenger,
     l2_bridge,

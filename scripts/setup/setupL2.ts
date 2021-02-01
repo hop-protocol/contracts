@@ -19,9 +19,9 @@ async function setupL2 () {
   // Addresses
   const l2_canonicalTokenAddress: string = ''
   const l2_bridgeAddress: string = ''
-  const uniswapRouterAddress: string = ''
+  const l2_uniswapRouterAddress: string = ''
 
-  if (!l2_canonicalTokenAddress || !l2_bridgeAddress || !uniswapRouterAddress) {
+  if (!l2_canonicalTokenAddress || !l2_bridgeAddress || !l2_uniswapRouterAddress) {
     throw new Error('Addresses must be defined')
   }
   // Signers
@@ -32,12 +32,12 @@ async function setupL2 () {
   // Factories
   let L2_MockERC20: ContractFactory
   let L2_Bridge: ContractFactory
-  let UniswapRouter: ContractFactory
+  let L2_UniswapRouter: ContractFactory
 
   // L2
   let l2_bridge: Contract
   let l2_canonicalToken: Contract
-  let uniswapRouter: Contract
+  let l2_uniswapRouter: Contract
 
   // Instantiate the wallets
   accounts = await ethers.getSigners()
@@ -48,14 +48,14 @@ async function setupL2 () {
   ;({ 
     L2_MockERC20,
     L2_Bridge,
-    UniswapRouter
+    L2_UniswapRouter
   } = await getContractFactories(chainId, owner, ethers, ovmEthers))
 
   // Attach already deployed contracts
   l2_canonicalToken = L2_MockERC20.attach(l2_canonicalTokenAddress)
 
   l2_bridge = L2_Bridge.attach(l2_bridgeAddress)
-  uniswapRouter = UniswapRouter.attach(uniswapRouterAddress)
+  l2_uniswapRouter = L2_UniswapRouter.attach(l2_uniswapRouterAddress)
 
   /**
    * Setup
@@ -70,9 +70,9 @@ async function setupL2 () {
   await l2_bridge.connect(liquidityProvider).mint(await liquidityProvider.getAddress(), LIQUIDITY_PROVIDER_UNISWAP_AMOUNT)
 
   // Set up Uniswap
-  await l2_canonicalToken.connect(liquidityProvider).approve(uniswapRouter.address, LIQUIDITY_PROVIDER_UNISWAP_AMOUNT)
-  await l2_bridge.connect(liquidityProvider).approve(uniswapRouter.address, LIQUIDITY_PROVIDER_UNISWAP_AMOUNT)
-  await uniswapRouter.connect(liquidityProvider).addLiquidity(
+  await l2_canonicalToken.connect(liquidityProvider).approve(l2_uniswapRouter.address, LIQUIDITY_PROVIDER_UNISWAP_AMOUNT)
+  await l2_bridge.connect(liquidityProvider).approve(l2_uniswapRouter.address, LIQUIDITY_PROVIDER_UNISWAP_AMOUNT)
+  await l2_uniswapRouter.connect(liquidityProvider).addLiquidity(
     l2_bridge.address,
     l2_canonicalToken.address,
     LIQUIDITY_PROVIDER_UNISWAP_AMOUNT,

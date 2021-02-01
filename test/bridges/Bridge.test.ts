@@ -12,8 +12,6 @@ import { CHAIN_IDS } from '../../config/constants'
 describe("Bridge", () => {
   let _fixture: IFixture
 
-  let bonder: Signer
-
   let bridge: Contract
   let transfers: Transfer[]
 
@@ -23,7 +21,6 @@ describe("Bridge", () => {
     await setUpDefaults(_fixture, l2ChainId)
 
     ;({ 
-      bonder,
       bridge,
       transfers
     } = _fixture);

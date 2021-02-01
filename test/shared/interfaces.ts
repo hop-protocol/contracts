@@ -17,10 +17,10 @@ export interface IFixture {
   L1_Bridge: ContractFactory
   L2_Bridge: ContractFactory
   L1_Messenger: ContractFactory
-  MessengerWrapper: ContractFactory
+  L1_MessengerWrapper: ContractFactory
   L2_Messenger: ContractFactory
-  UniswapRouter: ContractFactory
-  UniswapFactory: ContractFactory
+  L2_UniswapRouter: ContractFactory
+  L2_UniswapFactory: ContractFactory
 
   // Mock Factories
   MockERC20: ContractFactory
@@ -32,7 +32,7 @@ export interface IFixture {
   l1_canonicalToken: Contract
   l1_messenger: Contract
   l1_bridge: Contract
-  messengerWrapper: Contract
+  l1_messengerWrapper: Contract
   
   // L2
   l2_canonicalToken: Contract

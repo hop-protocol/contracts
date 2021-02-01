@@ -44,13 +44,13 @@ async function setupL1 () {
   // Factories
   let L1_MockERC20: ContractFactory
   let L1_Bridge: ContractFactory
-  let MessengerWrapper: ContractFactory
+  let L1_MessengerWrapper: ContractFactory
   let L1_Messenger: ContractFactory
   let L2_Bridge: ContractFactory
 
   // Contracts
   let l1_canonicalToken: Contract
-  let messengerWrapper: Contract
+  let l1_messengerWrapper: Contract
   let l1_bridge: Contract
   let l1_messenger: Contract
   let l2_bridge: Contract
@@ -65,7 +65,7 @@ async function setupL1 () {
     L1_MockERC20,
     L1_Bridge,
     L1_Messenger,
-    MessengerWrapper,
+    L1_MessengerWrapper,
     L2_Bridge
   } = await getContractFactories(l2ChainId, owner, ethers, ovmEthers))
 
@@ -86,11 +86,11 @@ async function setupL1 () {
     l2_bridge.address,
     l1_messenger.address
   )
-  messengerWrapper = await MessengerWrapper.connect(owner).deploy(...messengerWrapperDefaults)
-  await messengerWrapper.deployed()
+  l1_messengerWrapper = await L1_MessengerWrapper.connect(owner).deploy(...messengerWrapperDefaults)
+  await l1_messengerWrapper.deployed()
 
   // Set up the L1 bridge
-  await l1_bridge.setCrossDomainMessengerWrapper(l2ChainId, messengerWrapper.address)
+  await l1_bridge.setCrossDomainMessengerWrapper(l2ChainId, l1_messengerWrapper.address)
 
   // Get canonical token to L2
   await l1_canonicalToken.connect(owner).mint(await liquidityProvider.getAddress(), LIQUIDITY_PROVIDER_INITIAL_BALANCE)

@@ -35,9 +35,9 @@ async function deployL2 () {
   let L1_Bridge: ContractFactory
   let L2_MockERC20: ContractFactory
   let L2_Bridge: ContractFactory
-  let UniswapFactory: ContractFactory
-  let UniswapRouter: ContractFactory
-  let UniswapPair: ContractFactory
+  let L2_UniswapFactory: ContractFactory
+  let L2_UniswapRouter: ContractFactory
+  let L2_UniswapPair: ContractFactory
 
   // Contracts
   let l1_bridge: Contract
@@ -57,9 +57,9 @@ async function deployL2 () {
     L1_Bridge,
     L2_MockERC20,
     L2_Bridge,
-    UniswapFactory,
-    UniswapRouter,
-    UniswapPair
+    L2_UniswapFactory,
+    L2_UniswapRouter,
+    L2_UniswapPair
   } = await getContractFactories(chainId, owner, ethers, ovmEthers))
 
   // Attach already deployed contracts
@@ -76,8 +76,8 @@ async function deployL2 () {
   } = await deployUniswap(
     ethers,
     owner,
-    UniswapFactory,
-    UniswapRouter,
+    L2_UniswapFactory,
+    L2_UniswapRouter,
     l2_uniswapFactory,
     l2_uniswapRouter
   ))
@@ -100,7 +100,7 @@ async function deployL2 () {
     chainId,
     owner,
     ethers,
-    UniswapPair,
+    L2_UniswapPair,
     l2_uniswapFactory,
     l2_uniswapPair
   )
@@ -114,16 +114,16 @@ async function deployL2 () {
 const deployUniswap = async (
   ethers: any,
   owner: Signer,
-  UniswapFactory: ContractFactory,
-  UniswapRouter: ContractFactory,
+  L2_UniswapFactory: ContractFactory,
+  L2_UniswapRouter: ContractFactory,
   l2_uniswapFactory: Contract,
   l2_uniswapRouter: Contract,
 ) => {
-  l2_uniswapFactory = await UniswapFactory.connect(owner).deploy(await owner.getAddress())
+  l2_uniswapFactory = await L2_UniswapFactory.connect(owner).deploy(await owner.getAddress())
   await l2_uniswapFactory.deployed()
   await verifyDeployment('L2 Uniswap Factory', l2_uniswapFactory, ethers)
 
-  l2_uniswapRouter = await UniswapRouter.connect(owner).deploy(l2_uniswapFactory.address, ZERO_ADDRESS)
+  l2_uniswapRouter = await L2_UniswapRouter.connect(owner).deploy(l2_uniswapFactory.address, ZERO_ADDRESS)
   await l2_uniswapRouter.deployed()
   await verifyDeployment('L2 Uniswap Router', l2_uniswapRouter, ethers)
 
@@ -169,7 +169,7 @@ const deployNetworkSpecificContracts = async (
   chainId: BigNumber,
   owner: Signer,
   ethers: any,
-  UniswapPair: ContractFactory,
+  L2_UniswapPair: ContractFactory,
   l2_uniswapFactory: Contract,
   l2_uniswapPair: Contract
 ) => {
@@ -178,7 +178,7 @@ const deployNetworkSpecificContracts = async (
   }
 
   if (isChainIdOptimism(chainId)) {
-    l2_uniswapPair = await UniswapPair.connect(owner).deploy(l2_uniswapFactory.address)
+    l2_uniswapPair = await L2_UniswapPair.connect(owner).deploy(l2_uniswapFactory.address)
     l2_uniswapPair.deployed()
     verifyDeployment('L2 Uniswap Pair', l2_uniswapPair, ethers)
 
