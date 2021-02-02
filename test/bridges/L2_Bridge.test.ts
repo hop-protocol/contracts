@@ -1,6 +1,6 @@
 import '@nomiclabs/hardhat-waffle'
 import { expect } from 'chai'
-import { Signer, Contract, BigNumber } from 'ethers'
+import { Signer, Contract, BigNumber, utils } from 'ethers'
 import Transfer from '../../lib/Transfer'
 import MerkleTree from '../../lib/MerkleTree'
 
@@ -413,6 +413,60 @@ describe("L2_Bridge", () => {
     // atomically call recipientL2Bridge.setTransferRoot(). Then I can test the recipientL2Bridge.withdrawAndAttemptSwap()
   })
 
+  it('Should send a transfer from one L2 to another L2 via bondWithdrawalAndAttemptSwap', async () => {
+    let transfer: any = transfers[0]
+    transfer.destinationAmountOutMin = BigNumber.from(0)
+    transfer.destinationDeadline = BigNumber.from(DEFAULT_DEADLINE)
+
+    // Add the canonical token to the users' address on L2
+    await sendTestTokensAcrossCanonicalBridge(
+      l1_canonicalToken,
+      l1_canonicalBridge,
+      l2_canonicalToken,
+      l2_messenger,
+      user,
+      userSendTokenAmount
+    ) 
+
+    // Execute transaction
+    await l2_bridge.connect(governance).addSupportedChainId(transfer.chainId)
+    await l2_canonicalToken.connect(user).approve(l2_bridge.address, userSendTokenAmount)
+    await l2_bridge.connect(user).swapAndSend(
+      transfer.chainId,
+      transfer.recipient,
+      transfer.amount,
+      transfer.transferNonce,
+      transfer.relayerFee,
+      transfer.amountOutMin,
+      transfer.deadline,
+      transfer.destinationAmountOutMin,
+      transfer.destinationDeadline
+    )
+
+    // TODO: Mimic the cross chain test and verify state
+  })
+
+  it.only('Should set the transfer root', async () => {
+    const arbitraryRootHash: string = '0x7465737400000000000000000000000000000000000000000000000000000000'
+    const arbitraryAmount: BigNumber = BigNumber.from('123')
+
+    // Verify that the l1 bridge is the only account who can set it
+    // TODO: Introduce this when `_verifySender()` implementation is added
+    // expect(await l2_bridge.setTransferRoot(arbitraryRootHash, arbitraryAmount)).to.throw('hi')
+
+    // Update l1 bridge address for testing purposes
+    await l2_bridge.setL1BridgeAddress(await user.getAddress())
+    expect(await l2_bridge.l1BridgeAddress()).to.eq(await user.getAddress())
+
+    await l2_bridge.setTransferRoot(arbitraryRootHash, arbitraryAmount)
+
+    const transferRoot = await l2_bridge.getTransferRoot(arbitraryRootHash)
+    expect(transferRoot[0]).to.eq(arbitraryAmount)
+    expect(transferRoot[1]).to.eq(0)
+  })
+
+
+  // TODO: Over 100 pending transfers in send() (test is basically already written in 'Should send tokens from one L2 to another while the bonder is offline')
   // TODO: swapAndSend to same user on a different L2
   // TODO: swapAndSend to self on a different L2
   // TODO: Commit multiple
@@ -423,7 +477,7 @@ describe("L2_Bridge", () => {
    */
 
    // TODO: only governance
-   // TODO: all requires
+   // TODO: all requires -- even those in children contracts
    // TODO: modifiers
    // TODO: Same nonce shouldn't work
    // TODO: Does 200 transfers without a bond event work?
