@@ -42,8 +42,8 @@ export interface IFixture {
   l2_uniswapRouter: Contract
 
   // Mocks
-  accounting: Contract
-  bridge: Contract
+  mockAccounting: Contract
+  mockBridge: Contract
 
   // Other
   transfers: Transfer[]

@@ -13,7 +13,7 @@ describe("Accounting", () => {
 
   let bonder: Signer
 
-  let accounting: Contract
+  let mockAccounting: Contract
 
   beforeEach(async () => {
     const l2ChainId: BigNumber = CHAIN_IDS.OPTIMISM.TESTNET_1
@@ -22,7 +22,7 @@ describe("Accounting", () => {
 
     ;({ 
       bonder,
-      accounting
+      mockAccounting
     } = _fixture);
   })
 
@@ -31,35 +31,35 @@ describe("Accounting", () => {
    */
 
   it('Should get the correct bonder address', async () => {
-    const expectedBonderAddress = await accounting.getBonder()
+    const expectedBonderAddress = await mockAccounting.getBonder()
     const bonderAddress = await bonder.getAddress()
     expect(bonderAddress).to.eq(expectedBonderAddress)
   })
 
   it('Should get the correct credit', async () => {
     const expectedCredit = BigNumber.from(0)
-    const credit = await accounting.getCredit()
+    const credit = await mockAccounting.getCredit()
     expect(credit).to.eq(expectedCredit)
   })
 
   it('Should get the correct debit', async () => {
     const expectedDebit = BigNumber.from(0)
-    const debit = await accounting.getDebit()
+    const debit = await mockAccounting.getDebit()
     expect(debit).to.eq(expectedDebit)
   })
 
   it('Should stake and increase the credit', async () => {
     const stakeAmount = BigNumber.from(10)
 
-    await accounting.stake(stakeAmount)
-    let credit = await accounting.getCredit()
-    let debit = await accounting.getDebit()
+    await mockAccounting.stake(stakeAmount)
+    let credit = await mockAccounting.getCredit()
+    let debit = await mockAccounting.getDebit()
     expect(credit).to.eq(stakeAmount)
     expect(debit).to.eq(0)
 
-    await accounting.stake(stakeAmount)
-    credit = await accounting.getCredit()
-    debit = await accounting.getDebit()
+    await mockAccounting.stake(stakeAmount)
+    credit = await mockAccounting.getCredit()
+    debit = await mockAccounting.getDebit()
     expect(credit).to.eq(stakeAmount.mul(2))
     expect(debit).to.eq(0)
   })
@@ -67,27 +67,27 @@ describe("Accounting", () => {
   it('Should stake to increase the credit and subsequently unstake to increase the debit', async () => {
     const stakeAmount = BigNumber.from(10)
 
-    await accounting.stake(stakeAmount)
-    let credit = await accounting.getCredit()
-    let debit = await accounting.getDebit()
+    await mockAccounting.stake(stakeAmount)
+    let credit = await mockAccounting.getCredit()
+    let debit = await mockAccounting.getDebit()
     expect(credit).to.eq(stakeAmount)
     expect(debit).to.eq(0)
 
-    await accounting.connect(bonder).unstake(stakeAmount)
-    credit = await accounting.getCredit()
-    debit = await accounting.getDebit()
+    await mockAccounting.connect(bonder).unstake(stakeAmount)
+    credit = await mockAccounting.getCredit()
+    debit = await mockAccounting.getDebit()
     expect(credit).to.eq(stakeAmount)
     expect(debit).to.eq(stakeAmount)
 
-    await accounting.stake(stakeAmount.mul(2))
-    credit = await accounting.getCredit()
-    debit = await accounting.getDebit()
+    await mockAccounting.stake(stakeAmount.mul(2))
+    credit = await mockAccounting.getCredit()
+    debit = await mockAccounting.getDebit()
     expect(credit).to.eq(stakeAmount.mul(3))
     expect(debit).to.eq(stakeAmount)
 
-    await accounting.connect(bonder).unstake(stakeAmount)
-    credit = await accounting.getCredit()
-    debit = await accounting.getDebit()
+    await mockAccounting.connect(bonder).unstake(stakeAmount)
+    credit = await mockAccounting.getCredit()
+    debit = await mockAccounting.getDebit()
     expect(credit).to.eq(stakeAmount.mul(3))
     expect(debit).to.eq(stakeAmount.mul(2))
   })
@@ -101,7 +101,7 @@ describe("Accounting", () => {
     const stakeAmount = BigNumber.from(10)
 
     await expect(
-      accounting.connect(bonder).unstake(stakeAmount)
+      mockAccounting.connect(bonder).unstake(stakeAmount)
     ).to.be.revertedWith(expectedError)
   })
 
@@ -109,9 +109,9 @@ describe("Accounting", () => {
     const expectedError = 'ACT: Caller is not bonder'
     const stakeAmount = BigNumber.from(10)
 
-    await accounting.stake(stakeAmount)
+    await mockAccounting.stake(stakeAmount)
     await expect(
-      accounting.unstake(stakeAmount)
+      mockAccounting.unstake(stakeAmount)
     ).to.be.revertedWith(expectedError)
   })
 })

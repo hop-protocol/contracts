@@ -1,6 +1,6 @@
 import '@nomiclabs/hardhat-waffle'
 import { expect } from 'chai'
-import { Signer, Contract, BigNumber, utils } from 'ethers'
+import { Signer, Contract, BigNumber } from 'ethers'
 import Transfer from '../../lib/Transfer'
 import MerkleTree from '../../lib/MerkleTree'
 
@@ -446,9 +446,9 @@ describe("L2_Bridge", () => {
     // TODO: Mimic the cross chain test and verify state
   })
 
-  it.only('Should set the transfer root', async () => {
+  it('Should set the transfer root', async () => {
     const arbitraryRootHash: string = '0x7465737400000000000000000000000000000000000000000000000000000000'
-    const arbitraryAmount: BigNumber = BigNumber.from('123')
+    const arbitraryAmount: number = 123
 
     // Verify that the l1 bridge is the only account who can set it
     // TODO: Introduce this when `_verifySender()` implementation is added

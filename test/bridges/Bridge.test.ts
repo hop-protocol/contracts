@@ -1,6 +1,6 @@
 import '@nomiclabs/hardhat-waffle'
 import { expect } from 'chai'
-import { Signer, Contract, BigNumber } from 'ethers'
+import { Contract, BigNumber } from 'ethers'
 import Transfer from '../../lib/Transfer'
 
 import { fixture } from '../shared/fixtures'
@@ -12,7 +12,7 @@ import { CHAIN_IDS } from '../../config/constants'
 describe("Bridge", () => {
   let _fixture: IFixture
 
-  let bridge: Contract
+  let mockBridge: Contract
   let transfers: Transfer[]
 
   beforeEach(async () => {
@@ -21,7 +21,7 @@ describe("Bridge", () => {
     await setUpDefaults(_fixture, l2ChainId)
 
     ;({ 
-      bridge,
+      mockBridge,
       transfers
     } = _fixture);
   })
@@ -34,7 +34,7 @@ describe("Bridge", () => {
     for (let i = 0; i < transfers.length; i++) {
       const transfer: Transfer = transfers[i]
       const expectedTransferHash: Buffer = transfer.getTransferHash()
-      const transferHash = await bridge.getTransferHash(
+      const transferHash = await mockBridge.getTransferHash(
         transfer.chainId,
         transfer.sender,
         transfer.recipient,
@@ -53,13 +53,13 @@ describe("Bridge", () => {
     const amounts: Number[] = [123, 999]
 
     const expectedAmountHash: Buffer = generateAmountHash(chainIds, amounts)
-    const amountHash = await bridge.getAmountHash(chainIds, amounts)
+    const amountHash = await mockBridge.getAmountHash(chainIds, amounts)
     expect(amountHash).to.eq('0x' + expectedAmountHash.toString('hex'))
   })
 
   it('Should get the correct chainId', async () => {
     const expectedChainId = 1
-    const chainId = await bridge.getChainId()
+    const chainId = await mockBridge.getChainId()
     expect(chainId).to.eq(expectedChainId)
   })
 

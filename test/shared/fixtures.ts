@@ -82,8 +82,8 @@ export async function fixture(l2ChainId: BigNumber): Promise<IFixture> {
   const l1_messengerWrapper = await L1_MessengerWrapper.deploy(...messengerWrapperDefaults)
 
   // Mocks
-  const accounting = await MockAccounting.deploy(await bonder.getAddress())
-  const bridge = await MockBridge.deploy(await bonder.getAddress())
+  const mockAccounting = await MockAccounting.deploy(await bonder.getAddress())
+  const mockBridge = await MockBridge.deploy(await bonder.getAddress())
 
   // Transfers
   const transfers: Transfer[] = [
@@ -139,8 +139,8 @@ export async function fixture(l2ChainId: BigNumber): Promise<IFixture> {
     l2_canonicalToken,
     l2_uniswapFactory,
     l2_uniswapRouter,
-    accounting,
-    bridge,
+    mockAccounting,
+    mockBridge,
     transfers
   }
 }
