@@ -1,19 +1,14 @@
 import '@nomiclabs/hardhat-waffle'
 import { expect } from 'chai'
-import { Signer, Contract, BigNumber } from 'ethers'
-import Transfer from '../../lib/Transfer'
+import { Contract, BigNumber } from 'ethers'
 
 import { fixture } from '../shared/fixtures'
-import { setUpDefaults, generateAmountHash } from '../shared/utils'
+import { setUpDefaults } from '../shared/utils'
 import { IFixture} from '../shared/interfaces'
 
 import {
   CHAIN_IDS,
-  ARB_CHAIN_ADDRESS,
-  DEFAULT_MESSENGER_WRAPPER_GAS_LIMIT,
-  DEFAULT_MESSENGER_WRAPPER_GAS_PRICE,
-  DEFAULT_MESSENGER_WRAPPER_GAS_CALL_VALUE,
-  DEFAULT_MESSENGER_WRAPPER_SUB_MESSAGE_TYPE
+  DEFAULT_MESSENGER_WRAPPER_GAS_LIMIT
 } from '../../config/constants'
 
 export const MAX_NUM_SENDS_BEFORE_COMMIT = 10
@@ -59,11 +54,4 @@ describe("Arbitrum Messenger Wrapper", () => {
     expect(expectedDefaultGasLimit).to.eq(defaultGasLimit)
     expect(expectedL1MessengerAddress).to.eq(l1MessengerAddress)
   })
-
-  /**
-   * Non-Happy Path
-   */
-
-   // TODO
-
 })

@@ -1,10 +1,9 @@
 import '@nomiclabs/hardhat-waffle'
 import { expect } from 'chai'
-import { Signer, Contract, BigNumber } from 'ethers'
-import Transfer from '../../lib/Transfer'
+import { Contract, BigNumber } from 'ethers'
 
 import { fixture } from '../shared/fixtures'
-import { setUpDefaults, generateAmountHash } from '../shared/utils'
+import { setUpDefaults } from '../shared/utils'
 import { IFixture} from '../shared/interfaces'
 
 import {
@@ -71,11 +70,4 @@ describe("Arbitrum Messenger Wrapper", () => {
     expect(expectedDefaultGasPrice).to.eq(defaultGasPrice)
     expect(expectedDefaultCallValue).to.eq(defaultCallValue)
   })
-
-  /**
-   * Non-Happy Path
-   */
-
-   // TODO
-
 })
