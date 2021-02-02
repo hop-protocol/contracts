@@ -13,7 +13,9 @@ import {
   ONE_ADDRESS,
   DEFAULT_DEADLINE,
   USER_INITIAL_BALANCE,
-  TRANSFER_AMOUNT
+  TRANSFER_AMOUNT,
+  DEFAULT_AMOUNT_OUT_MIN,
+  MAX_NUM_SENDS_BEFORE_COMMIT
 } from '../../config/constants'
 
 /**
@@ -37,11 +39,14 @@ describe("L2_Bridge", () => {
   let l2_messenger: Contract
   let l2_uniswapRouter: Contract
 
+  let recipientL2Bridge: Contract
+
   let transfers: Transfer[]
 
   let userSendTokenAmount: BigNumber
 
   beforeEach(async () => {
+    // Set up sending L2
     l2ChainId = CHAIN_IDS.OPTIMISM.TESTNET_1
     _fixture = await fixture(l2ChainId)
     await setUpDefaults(_fixture, l2ChainId)
@@ -60,6 +65,16 @@ describe("L2_Bridge", () => {
       transfers
     } = _fixture);
 
+    // Set up receiving L2
+    const recipientL2ChainId = CHAIN_IDS.ARBITRUM.TESTNET_3
+    const recipientFixture = await fixture(recipientL2ChainId)
+    await setUpDefaults(recipientFixture, recipientL2ChainId)
+
+    ;({ 
+      l2_bridge: recipientL2Bridge
+    } = recipientFixture);
+
+    // Set up other
     userSendTokenAmount = USER_INITIAL_BALANCE
   })
 
@@ -276,7 +291,7 @@ describe("L2_Bridge", () => {
     const expectedPendingTransferHash: Buffer = transfer.getTransferHash()
     expect(pendingTransfers).to.eq('0x' + expectedPendingTransferHash.toString('hex'))
 
-    // Send transaction
+    // Commit the transfer
     await l2_bridge.connect(bonder).commitTransfers()
 
     // Verify state post-transaction
@@ -294,10 +309,114 @@ describe("L2_Bridge", () => {
     expect(pendingChainAmounts).to.eq(transfer.amount)
   })
 
-  // TODO: Over 100 pending transfers in send()
+  it('Should mint hTokens', async () => {
+    const tokenAmount: BigNumber = USER_INITIAL_BALANCE
+
+    // Verify no tokens available
+    let expectedBalance: BigNumber = BigNumber.from('0')
+    await expectBalanceOf(l2_bridge, user, expectedBalance)
+
+    // Make swap from l1 bridge
+    await l1_canonicalToken.connect(user).approve(l1_bridge.address, tokenAmount)
+    await l1_bridge.connect(user).sendToL2(l2ChainId.toString(), await user.getAddress(), tokenAmount)
+    await l2_messenger.relayNextMessage()
+
+    // Verify token mint on L2
+    expectedBalance = BigNumber.from(tokenAmount)
+    await expectBalanceOf(l2_bridge, user, expectedBalance)
+  })
+
+  it('Should mint hTokens and swap for canonical tokens', async () => {
+    const tokenAmount: BigNumber = USER_INITIAL_BALANCE
+
+    // Verify no tokens available
+    let expectedBalance: BigNumber = BigNumber.from('0')
+    await expectBalanceOf(l2_canonicalToken, user, expectedBalance)
+
+    // Make swap from l1 bridge
+    const expectedAmounts: BigNumber[] = await l2_uniswapRouter.getAmountsOut(tokenAmount, [l2_canonicalToken.address, l2_bridge.address])
+    const expectedAmountAfterSlippage: BigNumber = expectedAmounts[1]
+
+    await l1_canonicalToken.connect(user).approve(l1_bridge.address, tokenAmount)
+    await l1_bridge.connect(user).sendToL2AndAttemptSwap(
+      l2ChainId.toString(),
+      await user.getAddress(),
+      tokenAmount,
+      DEFAULT_AMOUNT_OUT_MIN,
+      DEFAULT_DEADLINE
+    )
+    await l2_messenger.relayNextMessage()
+
+    // Verify token mint on L2
+    expectedBalance = BigNumber.from(expectedAmountAfterSlippage)
+    await expectBalanceOf(l2_canonicalToken, user, expectedBalance)
+  })
+
+  it('Should send tokens from one L2 to another while the bonder is offline via withdrawAndAttemptSwap', async () => {
+    let transfer: any = transfers[0]
+    transfer.destinationAmountOutMin = BigNumber.from(0)
+    transfer.destinationDeadline = BigNumber.from(DEFAULT_DEADLINE)
+
+    const numberOfSendsToOverflow: number = MAX_NUM_SENDS_BEFORE_COMMIT + 1
+    for (let i = 0; i < numberOfSendsToOverflow; i++) {
+      // Mint canonical tokens on L1
+      await l1_canonicalToken.mint(await user.getAddress(), transfer.amount)
+
+      // Add the canonical token to the users' address on L2
+      await sendTestTokensAcrossCanonicalBridge(
+        l1_canonicalToken,
+        l1_canonicalBridge,
+        l2_canonicalToken,
+        l2_messenger,
+        user,
+        userSendTokenAmount
+      ) 
+
+      // Execute transaction
+      await l2_bridge.connect(governance).addSupportedChainId(transfer.chainId)
+      await l2_canonicalToken.connect(user).approve(l2_bridge.address, userSendTokenAmount)
+      await l2_bridge.connect(user).swapAndSend(
+        transfer.chainId,
+        transfer.recipient,
+        transfer.amount,
+        transfer.transferNonce,
+        transfer.relayerFee,
+        transfer.amountOutMin,
+        transfer.deadline,
+        transfer.destinationAmountOutMin,
+        transfer.destinationDeadline
+      )
+
+      transfer.transferNonce += 1
+    }
+
+    try {
+      // The array should have been deleted and only a single item (index 0) should exist
+      await l2_bridge.pendingAmountChainIds(1)
+      throw new Error('There should not be a pending transfer in this slot.')
+    } catch (err) {
+      const expectedErrorMsg: string = 'VM Exception while processing transaction: invalid opcode'
+      expect(err.message).to.eq(expectedErrorMsg)
+    }
+
+    try {
+      // The array should have been deleted and only a single item (index 0) should exist
+      await l2_bridge.pendingTransfers(1)
+      throw new Error('There should not be a pending transfer in this slot.')
+    } catch (err) {
+      const expectedErrorMsg: string = 'VM Exception while processing transaction: invalid opcode'
+      expect(err.message).to.eq(expectedErrorMsg)
+    }
+
+    // TODO: When _sendCrossDomainImplementation is implemented, the last l2_bridge.swapAndSend() should atomically
+    // call the l2_canonicalMessenger, which should automatically call l1_bridge.confirmTransferRoot() which should
+    // atomically call recipientL2Bridge.setTransferRoot(). Then I can test the recipientL2Bridge.withdrawAndAttemptSwap()
+  })
+
   // TODO: swapAndSend to same user on a different L2
   // TODO: swapAndSend to self on a different L2
   // TODO: Commit multiple
+  // TODO: (maybe another file) single leaf tree and multiple leaf tree
 
   /**
    * Non-Happy Path
@@ -306,4 +425,7 @@ describe("L2_Bridge", () => {
    // TODO: only governance
    // TODO: all requires
    // TODO: modifiers
+   // TODO: Same nonce shouldn't work
+   // TODO: Does 200 transfers without a bond event work?
+
 })
