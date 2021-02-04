@@ -56,7 +56,7 @@ contract L2ERC20 is ERC20 {
         );
 
         // send the message over to the L1CrossDomainMessenger
-        uint32 gasLimit = 1000000;
+        uint32 gasLimit = 2500000;
         messenger.sendMessage(l1ERC20BridgeAddress, message, gasLimit);
     }
 }

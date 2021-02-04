@@ -40,11 +40,11 @@ contract L1ERC20Bridge {
     }
 
     function deposit(
-        address _depositer,
+        address _depositor,
         uint256 _amount
     ) public {
         l1ERC20.transferFrom(
-            _depositer,
+            _depositor,
             address(this),
             _amount
         );
@@ -52,14 +52,14 @@ contract L1ERC20Bridge {
         // generate encoded calldata to be executed on L2
         bytes memory message = abi.encodeWithSignature(
             "mint(address,uint256)",
-            _depositer,
+            _depositor,
             _amount
         );
 
-        uint32 gasLimit = 1000000;
+        uint32 gasLimit = 2500000;
         messenger.sendMessage(l2ERC20Address, message, gasLimit);
 
-        emit Deposit(_depositer, _amount);
+        emit Deposit(_depositor, _amount);
     }
 
     function withdraw(
