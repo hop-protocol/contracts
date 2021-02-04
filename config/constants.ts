@@ -42,7 +42,7 @@ export const LIQUIDITY_PROVIDER_UNISWAP_AMOUNT: BigNumber = LIQUIDITY_PROVIDER_I
 export const BONDER_INITIAL_BALANCE: BigNumber = BigNumber.from(parseEther('1000'))
 export const CHALLENGER_INITIAL_BALANCE: BigNumber = BigNumber.from(parseEther('1'))
 
-export const TRANSFER_AMOUNT: BigNumber = BigNumber.from(parseEther('10'))
+export const TRANSFER_AMOUNT: BigNumber = BigNumber.from(parseEther('5'))
 export const RELAYER_FEE: BigNumber = BigNumber.from(parseEther('1'))
 
 export const UNISWAP_LP_MINIMUM_LIQUIDITY: BigNumber = BigNumber.from('1000')

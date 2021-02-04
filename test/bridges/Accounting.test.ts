@@ -13,7 +13,7 @@ describe("Accounting", () => {
 
   let bonder: Signer
   let user: Signer
-  let otherAccount: Signer
+  let otherUser: Signer
 
   let mockAccounting: Contract
 
@@ -25,7 +25,7 @@ describe("Accounting", () => {
     ;({ 
       bonder,
       user,
-      otherAccount,
+      otherUser,
       mockAccounting
     } = _fixture);
   })
@@ -101,7 +101,7 @@ describe("Accounting", () => {
 
     await mockAccounting.connect(bonder).stake(stakeAmount)
     await mockAccounting.connect(user).stake(stakeAmount)
-    await mockAccounting.connect(otherAccount).stake(stakeAmount)
+    await mockAccounting.connect(otherUser).stake(stakeAmount)
 
     let credit = await mockAccounting.getCredit()
     let debit = await mockAccounting.getDebit()

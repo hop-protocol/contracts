@@ -29,7 +29,7 @@ export async function fixture(l2ChainId: BigNumber): Promise<IFixture> {
     challenger,
     governance,
     relayer,
-    otherAccount
+    otherUser 
   ] = accounts
 
   // Factories
@@ -90,7 +90,7 @@ export async function fixture(l2ChainId: BigNumber): Promise<IFixture> {
       new Transfer({
         chainId: CHAIN_IDS.ARBITRUM.TESTNET_3,
         sender: await user.getAddress(),
-        recipient: await otherAccount.getAddress(),
+        recipient: await otherUser.getAddress(),
         amount: TRANSFER_AMOUNT,
         transferNonce: 0,
         relayerFee: RELAYER_FEE,
@@ -117,7 +117,7 @@ export async function fixture(l2ChainId: BigNumber): Promise<IFixture> {
     challenger,
     governance,
     relayer,
-    otherAccount,
+    otherUser,
     L1_CanonicalBridge,
     L1_Bridge,
     L2_Bridge,
