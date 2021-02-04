@@ -23,7 +23,7 @@ export default {
       allowUnlimitedContractSize: true
     },
     kovan : {
-      url: "https://kovan.rpc.authereum.com",
+      url: "https://kovan.rpc.hop.exchange",
       accounts: desiredAccounts,
       chainId: CHAIN_IDS.ETHEREUM.KOVAN.toNumber()
     },
