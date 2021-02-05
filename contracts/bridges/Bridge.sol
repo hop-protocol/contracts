@@ -72,22 +72,6 @@ abstract contract Bridge is Accounting {
     }
 
     /**
-     * @dev Get the hash of the destination chainIds for a given TransferRoot and their respective amounts.
-     * @param _chainIds The chainIds of all networks receiving Transfers in a given TransferRoot
-     * @param _amounts The amounts destined for each _chainId
-     */
-    function getAmountHash(
-        uint256[] memory _chainIds,
-        uint256[] memory _amounts
-    )
-        public
-        pure
-        returns (bytes32)
-    {
-        return keccak256(abi.encode(_chainIds, _amounts));
-    }
-
-    /**
      * @notice getChainId can be overridden by subclasses if needed for compatibility or testing purposes.
      * @dev Get the current chainId
      */
