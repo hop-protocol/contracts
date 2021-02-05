@@ -12,7 +12,8 @@ import {
   CHAIN_IDS,
   DEFAULT_DEADLINE,
   RELAYER_FEE,
-  TRANSFER_AMOUNT
+  TRANSFER_AMOUNT,
+  ALL_SUPPORTED_CHAIN_IDS
 } from '../../config/constants'
 
 
@@ -72,7 +73,7 @@ export async function fixture(l2ChainId: BigNumber): Promise<IFixture> {
     governance.getAddress(),
     l2_canonicalToken.address,
     l1_bridge.address,
-    [CHAIN_IDS.ETHEREUM.MAINNET],
+    ALL_SUPPORTED_CHAIN_IDS,
     bonder.getAddress(),
     l2_uniswapRouter.address
   )

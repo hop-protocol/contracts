@@ -236,3 +236,7 @@ export const getL2SpecificArtifact = (chainId: BigNumber) => {
     l1_messengerWrapperArtifact
   }
 }
+
+export const increaseTime = async (numDays: number) => {
+  return ethers.provider.send("evm_increaseTime", [60 * 60 * 24 * numDays])
+}
