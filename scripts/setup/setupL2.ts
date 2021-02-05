@@ -1,18 +1,16 @@
 require('dotenv').config()
 
-import {
-  network,
-  ethers,
-  l2ethers as ovmEthers
-} from 'hardhat'
+import { network, ethers, l2ethers as ovmEthers } from 'hardhat'
 import { BigNumber, ContractFactory, Contract, Signer } from 'ethers'
 
 import { addAllSupportedChainIds, getContractFactories } from '../shared/utils'
 
-import { DEFAULT_DEADLINE, LIQUIDITY_PROVIDER_UNISWAP_AMOUNT } from '../../config/constants'
+import {
+  DEFAULT_DEADLINE,
+  LIQUIDITY_PROVIDER_UNISWAP_AMOUNT
+} from '../../config/constants'
 
 async function setupL2 () {
-
   // Network setup
   const chainId: BigNumber = BigNumber.from(network.config.chainId)
 
@@ -21,7 +19,11 @@ async function setupL2 () {
   const l2_bridgeAddress: string = ''
   const l2_uniswapRouterAddress: string = ''
 
-  if (!l2_canonicalTokenAddress || !l2_bridgeAddress || !l2_uniswapRouterAddress) {
+  if (
+    !l2_canonicalTokenAddress ||
+    !l2_bridgeAddress ||
+    !l2_uniswapRouterAddress
+  ) {
     throw new Error('Addresses must be defined')
   }
   // Signers
@@ -45,11 +47,12 @@ async function setupL2 () {
   liquidityProvider = accounts[2]
 
   // Get the contract Factories
-  ;({ 
-    L2_MockERC20,
-    L2_Bridge,
-    L2_UniswapRouter
-  } = await getContractFactories(chainId, owner, ethers, ovmEthers))
+  ;({ L2_MockERC20, L2_Bridge, L2_UniswapRouter } = await getContractFactories(
+    chainId,
+    owner,
+    ethers,
+    ovmEthers
+  ))
 
   // Attach already deployed contracts
   l2_canonicalToken = L2_MockERC20.attach(l2_canonicalTokenAddress)
@@ -67,24 +70,35 @@ async function setupL2 () {
   // Additional transactions
   // NOTE: If a watcher is not set up to propagate transactions from L1 -> L2, then this mint is required to get the LP h tokens.
   // NOTE: Not to be used in production.
-  await l2_bridge.connect(liquidityProvider).mint(await liquidityProvider.getAddress(), LIQUIDITY_PROVIDER_UNISWAP_AMOUNT)
+  await l2_bridge
+    .connect(liquidityProvider)
+    .mint(
+      await liquidityProvider.getAddress(),
+      LIQUIDITY_PROVIDER_UNISWAP_AMOUNT
+    )
 
   // Set up Uniswap
-  await l2_canonicalToken.connect(liquidityProvider).approve(l2_uniswapRouter.address, LIQUIDITY_PROVIDER_UNISWAP_AMOUNT)
-  await l2_bridge.connect(liquidityProvider).approve(l2_uniswapRouter.address, LIQUIDITY_PROVIDER_UNISWAP_AMOUNT)
-  await l2_uniswapRouter.connect(liquidityProvider).addLiquidity(
-    l2_bridge.address,
-    l2_canonicalToken.address,
-    LIQUIDITY_PROVIDER_UNISWAP_AMOUNT,
-    LIQUIDITY_PROVIDER_UNISWAP_AMOUNT,
-    '0',
-    '0',
-    await liquidityProvider.getAddress(),
-    DEFAULT_DEADLINE
-  )
+  await l2_canonicalToken
+    .connect(liquidityProvider)
+    .approve(l2_uniswapRouter.address, LIQUIDITY_PROVIDER_UNISWAP_AMOUNT)
+  await l2_bridge
+    .connect(liquidityProvider)
+    .approve(l2_uniswapRouter.address, LIQUIDITY_PROVIDER_UNISWAP_AMOUNT)
+  await l2_uniswapRouter
+    .connect(liquidityProvider)
+    .addLiquidity(
+      l2_bridge.address,
+      l2_canonicalToken.address,
+      LIQUIDITY_PROVIDER_UNISWAP_AMOUNT,
+      LIQUIDITY_PROVIDER_UNISWAP_AMOUNT,
+      '0',
+      '0',
+      await liquidityProvider.getAddress(),
+      DEFAULT_DEADLINE
+    )
 }
 
 /* tslint:disable-next-line */
-(async () => {
+;(async () => {
   await setupL2()
 })()

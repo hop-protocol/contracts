@@ -8,7 +8,7 @@ import { IFixture } from '../shared/interfaces'
 
 import { CHAIN_IDS } from '../../config/constants'
 
-describe("Accounting", () => {
+describe('Accounting', () => {
   let _fixture: IFixture
 
   let bonder: Signer
@@ -21,13 +21,7 @@ describe("Accounting", () => {
     const l2ChainId: BigNumber = CHAIN_IDS.OPTIMISM.TESTNET_1
     _fixture = await fixture(l2ChainId)
     await setUpDefaults(_fixture, l2ChainId)
-
-    ;({ 
-      bonder,
-      user,
-      otherUser,
-      mockAccounting
-    } = _fixture);
+    ;({ bonder, user, otherUser, mockAccounting } = _fixture)
   })
 
   /**
@@ -133,8 +127,8 @@ describe("Accounting", () => {
     const stakeAmount: BigNumber = BigNumber.from(10)
 
     await mockAccounting.stake(stakeAmount)
-    await expect(
-      mockAccounting.unstake(stakeAmount)
-    ).to.be.revertedWith(expectedErrorMsg)
+    await expect(mockAccounting.unstake(stakeAmount)).to.be.revertedWith(
+      expectedErrorMsg
+    )
   })
 })

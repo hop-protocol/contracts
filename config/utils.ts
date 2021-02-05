@@ -38,7 +38,6 @@ export const getMessengerWrapperDefaults = (
   return defaults
 }
 
-
 export const isChainIdOptimism = (chainId: BigNumber): boolean => {
   if (
     chainId.eq(CHAIN_IDS.OPTIMISM.TESTNET_1) ||
@@ -63,10 +62,10 @@ export const isChainIdArbitrum = (chainId: BigNumber): boolean => {
 }
 
 // Create an array of strings for each supported chain ID
-export const getAllSupportedChainIds = (obj): string[] => (obj && typeof obj === 'object')
-? Object
-  .values(obj)
-  .map(getAllSupportedChainIds)
-  .reduce((a, b) => a.concat(b), [])
-  .filter(a => typeof a === 'string')
-: [obj]
+export const getAllSupportedChainIds = (obj): string[] =>
+  obj && typeof obj === 'object'
+    ? Object.values(obj)
+        .map(getAllSupportedChainIds)
+        .reduce((a, b) => a.concat(b), [])
+        .filter(a => typeof a === 'string')
+    : [obj]

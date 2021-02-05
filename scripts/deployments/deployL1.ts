@@ -6,7 +6,6 @@ import { ContractFactory, Contract, Signer, BigNumber } from 'ethers'
 import { getContractFactories } from '../shared/utils'
 
 async function deployL1 () {
-
   // Network setup
   const chainId: BigNumber = BigNumber.from(network.config.chainId)
 
@@ -28,21 +27,22 @@ async function deployL1 () {
   // Contracts
   let l1_bridge: Contract
 
-  ;({ 
-    L1_Bridge
-  } = await getContractFactories(chainId, bonder, ethers))
+  ;({ L1_Bridge } = await getContractFactories(chainId, bonder, ethers))
 
   /**
    * Deployments
    */
 
-  l1_bridge = await L1_Bridge.connect(owner).deploy(l1_canonicalTokenAddress, await bonder.getAddress())
+  l1_bridge = await L1_Bridge.connect(owner).deploy(
+    l1_canonicalTokenAddress,
+    await bonder.getAddress()
+  )
   await l1_bridge.deployed()
 
   console.log('L1 Bridge: ', l1_bridge.address)
 }
 
 /* tslint:disable-next-line */
-(async () => {
+;(async () => {
   await deployL1()
 })()

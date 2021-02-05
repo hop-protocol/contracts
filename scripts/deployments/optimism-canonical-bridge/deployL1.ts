@@ -33,7 +33,7 @@ async function main () {
   console.log(
     'deployed bytecode:',
     await ethers.provider.getCode(l1_erc20Bridge.address)
-    )
+  )
   console.log('complete')
 }
 

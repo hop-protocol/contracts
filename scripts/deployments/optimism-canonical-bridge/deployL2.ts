@@ -14,11 +14,7 @@ async function main () {
     signer: (await ethers.getSigners())[0]
   })
 
-  const l2_erc20_contract = await L2ERC20.deploy(
-    'DAI',
-    0,
-    'DAI',
-  )
+  const l2_erc20_contract = await L2ERC20.deploy('DAI', 0, 'DAI')
   await l2_erc20_contract.deployed()
 
   console.log('L2 ERC20 deployed to:', l2_erc20_contract.address)

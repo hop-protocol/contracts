@@ -25,7 +25,10 @@ async function main () {
   }
 
   const l2_erc20_contract = L2ERC20.attach(l2_erc20.address)
-  await l2_erc20_contract.init(l2_crossDomainMessenger.address, l1_erc20Bridge.address)
+  await l2_erc20_contract.init(
+    l2_crossDomainMessenger.address,
+    l1_erc20Bridge.address
+  )
   console.log('complete')
 }
 
@@ -34,4 +37,3 @@ main()
     console.error(error)
   })
   .finally(() => process.exit(0))
-
