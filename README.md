@@ -1,6 +1,6 @@
 # `contracts`
 
-The smart contracts the power the Hop Exchange.
+The smart contracts that power the Hop Exchange.
 
 ## Contract Addresses
 
@@ -70,7 +70,7 @@ The following steps are to add a new L2 (Xyz, for example) to the Hop System:
 
   * To do it manually:
     1. Flatten the contract with `npx hardhat flatten ./contracts/bridges/L1_Bridge.sol > flat.txt`
-    2. Keep one SPDX license at the top of the file. Remove all the others. 
+    2. Keep one SPDX license at the top of the file. Remove all the others.
     3. Keep one Solidity pragma and ABIEncoder definition at the top of the file. Remove all others.
     4. Verify on Etherscan.
 
