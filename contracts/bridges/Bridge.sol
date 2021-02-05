@@ -6,6 +6,7 @@ pragma experimental ABIEncoderV2;
 import "@openzeppelin/contracts/cryptography/MerkleProof.sol";
 
 import "./Accounting.sol";
+import "../libraries/MerkleUtils.sol";
 
 /**
  * @dev Bridge extends the accounting system and encapsulates the logic that is shared by both the
@@ -68,22 +69,6 @@ abstract contract Bridge is Accounting {
             _amountOutMin,
             _deadline
         ));
-    }
-
-    /**
-     * @dev Get the hash of the destination chainIds for a given TransferRoot and their respective amounts.
-     * @param _chainIds The chainIds of all networks receiving Transfers in a given TransferRoot
-     * @param _amounts The amounts destined for each _chainId
-     */
-    function getAmountHash(
-        uint256[] memory _chainIds,
-        uint256[] memory _amounts
-    )
-        public
-        pure
-        returns (bytes32)
-    {
-        return keccak256(abi.encode(_chainIds, _amounts));
     }
 
     /**
@@ -209,8 +194,31 @@ abstract contract Bridge is Accounting {
         uint256 amount = _bondedWithdrawalAmounts[_transferHash];
         _addToAmountWithdrawn(_rootHash, amount);
 
-        _bondedWithdrawalAmounts[_rootHash] = 0;
+        _bondedWithdrawalAmounts[_transferHash] = 0;
         _addCredit(amount);
+    }
+
+    function settleBondedWithdrawals(
+        bytes32[] memory _transferHashes
+    )
+        public
+    {
+        bytes32 rootHash = MerkleUtils.getMerkleRoot(_transferHashes);
+
+        TransferRoot storage transferRoot = _transferRoots[rootHash];
+        require(transferRoot.total > 0, "BRG: Transfer root not found");
+
+        uint256 totalBondsFreed = 0;
+        for(uint256 i = 0; i < _transferHashes.length; i++) {
+            uint256 transferBondAmount = _bondedWithdrawalAmounts[_transferHashes[i]];
+            totalBondsFreed = totalBondsFreed.add(transferBondAmount);
+        }
+
+        uint256 newAmountWithdrawn = transferRoot.amountWithdrawn.add(totalBondsFreed);
+        require(newAmountWithdrawn <= transferRoot.total, "BRG: Withdrawal exceeds TransferRoot total");
+        transferRoot.amountWithdrawn = newAmountWithdrawn;
+
+        _addCredit(totalBondsFreed);
     }
 
     /* ========== Internal functions ========== */

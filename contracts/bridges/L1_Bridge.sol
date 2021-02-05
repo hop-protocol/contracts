@@ -17,7 +17,7 @@ contract L1_Bridge is Bridge, L1_BridgeConfig {
 
     struct TransferBond {
         uint256 createdAt;
-        bytes32 amountHash;
+        uint256 totalAmount;
         bool confirmed;
         uint256 challengeStartTime;
         address challenger;
@@ -101,50 +101,43 @@ contract L1_Bridge is Bridge, L1_BridgeConfig {
     /**
      * @dev Used by the bonder to bond a TransferRoot and propagate it up to destination L2s
      * @param _transferRootHash The Merkle root of the TransferRoot Merkle tree
-     * @param _chainIds The ids of the destination chains
-     * @param _chainAmounts The amounts destined for each destination chain
+     * @param _destinationChainId The id of the destination chain
+     * @param _totalAmount The amount destined for the destination chain
      */
     function bondTransferRoot(
         bytes32 _transferRootHash,
-        uint256[] memory _chainIds,
-        uint256[] memory _chainAmounts
+        uint256 _destinationChainId,
+        uint256 _totalAmount
     )
         external
         onlyBonder
         requirePositiveBalance
     {
-        require(_chainIds.length == _chainAmounts.length, "L1_BRG: chainIds and chainAmounts must be the same length");
         require(transferRootConfirmed[_transferRootHash] == false, "L1_BRG: Transfer Root has already been confirmed");
         require(transferBonds[_transferRootHash].createdAt == 0, "L1_BRG: Transfer Root has already been bonded");
 
-        uint256 totalAmount = 0;
-        for (uint256 i = 0; i < _chainAmounts.length; i++) {
-            totalAmount = totalAmount.add(_chainAmounts[i]);
-        }
-
         uint256 currentTimeSlot = getTimeSlot(block.timestamp);
-        uint256 bondAmount = getBondForTransferAmount(totalAmount);
+        uint256 bondAmount = getBondForTransferAmount(_totalAmount);
         timeSlotToAmountBonded[currentTimeSlot] = timeSlotToAmountBonded[currentTimeSlot].add(bondAmount);
 
-        bytes32 amountHash = getAmountHash(_chainIds, _chainAmounts);
-        transferBonds[_transferRootHash] = TransferBond(block.timestamp, amountHash, false, 0, address(0));
+        transferBonds[_transferRootHash] = TransferBond(block.timestamp, _totalAmount, false, 0, address(0));
 
-        _distributeTransferRoot(_transferRootHash, _chainIds, _chainAmounts);
+        _distributeTransferRoot(_transferRootHash, _destinationChainId, _totalAmount);
 
-        emit TransferRootBonded(_transferRootHash, totalAmount);
+        emit TransferRootBonded(_transferRootHash, _totalAmount);
     }
 
     /**
      * @dev Used by an L2 bridge to confirm a TransferRoot via cross-domain message. Once a TransferRoot
      * has been confirmed, any challenge against that TransferRoot can be resolved as unsuccessful.
      * @param _transferRootHash The Merkle root of the TransferRoot Merkle tree
-     * @param _chainIds The ids of the destination chains
-     * @param _chainAmounts The amounts destined for each destination chain
+     * @param _destinationChainId The id of the destination chain
+     * @param _totalAmount The amount destined for each destination chain
      */
     function confirmTransferRoot(
         bytes32 _transferRootHash,
-        uint256[] memory _chainIds,
-        uint256[] memory _chainAmounts
+        uint256 _destinationChainId,
+        uint256 _totalAmount
     )
         public
         onlyL2Bridge
@@ -156,36 +149,33 @@ contract L1_Bridge is Bridge, L1_BridgeConfig {
         // require that the chainIds and chainAmounts match the values coming from the L2_Bridge.
         TransferBond storage transferBond = transferBonds[_transferRootHash];
         if (transferBond.createdAt == 0) {
-            _distributeTransferRoot(_transferRootHash, _chainIds, _chainAmounts);
+            _distributeTransferRoot(_transferRootHash, _destinationChainId, _totalAmount);
         } else {
-            bytes32 amountHash = getAmountHash(_chainIds, _chainAmounts);
-            require(transferBond.amountHash == amountHash, "L1_BRG: Amount hash is invalid");
+            require(transferBond.totalAmount == _totalAmount, "L1_BRG: TransferRoot amount is invalid");
         }
     }
 
     function _distributeTransferRoot(
         bytes32 _transferRootHash,
-        uint256[] memory _chainIds,
-        uint256[] memory _chainAmounts
+        uint256 _chainId,
+        uint256 _totalAmount
     )
         internal
     {
-        // Set TransferRoots on recipient Bridges
-        for (uint256 i = 0; i < _chainIds.length; i++) {
-            if (_chainIds[i] == getChainId()) {
-                // Set L1 transfer root
-                _setTransferRoot(_transferRootHash, _chainAmounts[i]);
-            } else {
-                // Set L2 transfer root
-                bytes memory setTransferRootMessage = abi.encodeWithSignature(
-                    "setTransferRoot(bytes32,uint256)",
-                    _transferRootHash,
-                    _chainAmounts[i]
-                );
+        // Set TransferRoot on recipient Bridge
+        if (_chainId == getChainId()) {
+            // Set L1 transfer root
+            _setTransferRoot(_transferRootHash, _totalAmount);
+        } else {
+            // Set L2 transfer root
+            bytes memory setTransferRootMessage = abi.encodeWithSignature(
+                "setTransferRoot(bytes32,uint256)",
+                _transferRootHash,
+                _totalAmount
+            );
 
-                IMessengerWrapper messengerWrapper = getCrossDomainMessengerWrapper(_chainIds[i]);
-                messengerWrapper.sendCrossDomainMessage(setTransferRootMessage);
-            }
+            IMessengerWrapper messengerWrapper = getCrossDomainMessengerWrapper(_totalAmount);
+            messengerWrapper.sendCrossDomainMessage(setTransferRootMessage);
         }
     }
 
