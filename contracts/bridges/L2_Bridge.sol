@@ -16,14 +16,13 @@ abstract contract L2_Bridge is ERC20, Bridge {
     IERC20 public l2CanonicalToken;
     mapping(uint256 => bool) public supportedChainIds;
 
-    bytes32[] public pendingTransfers;
     uint256[] public pendingAmountChainIds;
+    mapping(uint256 => bytes32[]) public pendingTransfersForChainId;
     mapping(uint256 => uint256) public pendingAmountForChainId;
 
     event TransfersCommitted (
         bytes32 indexed root,
-        uint256[] chainIds,
-        uint256[] amounts
+        uint256 totalAmount
     );
 
     event TransferSent (
@@ -105,8 +104,10 @@ abstract contract L2_Bridge is ERC20, Bridge {
         require(_amount >= _relayerFee, "L2_BRG: Relayer fee cannot exceed amount");
         require(supportedChainIds[_chainId], "L2_BRG: _chainId is not supported");
 
+        bytes32[] storage pendingTransfers = pendingTransfersForChainId[_chainId];
+
         if (pendingTransfers.length >= 100) {
-            commitTransfers();
+            commitTransfers(_chainId);
         }
 
         _burn(msg.sender, _amount);
@@ -162,31 +163,23 @@ abstract contract L2_Bridge is ERC20, Bridge {
         send(_chainId, _recipient, swapAmount, _transferNonce, _relayerFee, _destinationAmountOutMin, _destinationDeadline);
     }
 
-    function commitTransfers() public onlyBonder {
+    function commitTransfers(uint256 _destinationChainId) public onlyBonder {
+        bytes32[] storage pendingTransfers = pendingTransfersForChainId[_destinationChainId];
         require(pendingTransfers.length > 0, "L2_BRG: Must commit at least 1 Transfer");
 
         bytes32 root = MerkleUtils.getMerkleRoot(pendingTransfers);
+        uint256 totalAmont = pendingAmountForChainId[_destinationChainId];
 
-        uint256[] memory chainAmounts = new uint256[](pendingAmountChainIds.length);
-        for (uint256 i = 0; i < pendingAmountChainIds.length; i++) {
-            uint256 chainId = pendingAmountChainIds[i];
-            chainAmounts[i] = pendingAmountForChainId[chainId];
-
-            // Clean up for the next batch of transfers as pendingAmountChainIds is iterated
-            pendingAmountForChainId[chainId] = 0;
-        }
-
-        emit TransfersCommitted(root, pendingAmountChainIds, chainAmounts);
+        emit TransfersCommitted(root,totalAmont);
 
         bytes memory confirmTransferRootMessage = abi.encodeWithSignature(
-            "confirmTransferRoot(bytes32,uint256[],uint256[])",
+            "confirmTransferRoot(bytes32,uint256)",
             root,
-            pendingAmountChainIds,
-            chainAmounts
+            totalAmont
         );
 
         delete pendingAmountChainIds;
-        delete pendingTransfers;
+        delete pendingTransfersForChainId[_destinationChainId];
 
         _sendCrossDomainMessage(confirmTransferRootMessage);
     }
