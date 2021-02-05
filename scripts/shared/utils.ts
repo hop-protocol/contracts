@@ -7,10 +7,7 @@ import {
   ALL_SUPPORTED_CHAIN_IDS
 } from '../../config/constants'
 
-export const verifyDeployment = async (
-  contract: Contract,
-  ethers
-) => {
+export const verifyDeployment = async (contract: Contract, ethers) => {
   const isCodeAtAddress =
     (await ethers.provider.getCode(contract.address)).length > 50
   if (!isCodeAtAddress) {

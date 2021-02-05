@@ -182,8 +182,6 @@ const deployNetworkSpecificContracts = async (
     }
   }
 }
-
-/* tslint:disable-next-line */
 ;(async () => {
   await deployL2()
 })()

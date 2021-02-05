@@ -26,7 +26,6 @@ async function deployL1 () {
 
   // Contracts
   let l1_bridge: Contract
-
   ;({ L1_Bridge } = await getContractFactories(chainId, bonder, ethers))
 
   /**
