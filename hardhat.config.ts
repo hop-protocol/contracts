@@ -1,10 +1,10 @@
 require('dotenv').config()
 
-import "@nomiclabs/hardhat-waffle"
+import '@nomiclabs/hardhat-waffle'
 import '@eth-optimism/plugins/hardhat/compiler'
 import '@eth-optimism/plugins/hardhat/ethers'
 
-import { CHAIN_IDS} from './config/constants'
+import { CHAIN_IDS } from './config/constants'
 
 const desiredAccounts: string[] = [
   process.env.OWNER_PRIVATE_KEY,
@@ -22,19 +22,19 @@ export default {
     hardhat: {
       allowUnlimitedContractSize: true
     },
-    kovan : {
-      url: "https://kovan.rpc.authereum.com",
+    kovan: {
+      url: 'https://kovan.rpc.hop.exchange',
       accounts: desiredAccounts,
       chainId: CHAIN_IDS.ETHEREUM.KOVAN.toNumber()
     },
     arbitrum: {
-      url: "https://kovan3.arbitrum.io/rpc",
+      url: 'https://kovan3.arbitrum.io/rpc',
       accounts: desiredAccounts,
       gasPrice: 0,
       chainId: CHAIN_IDS.ARBITRUM.TESTNET_3.toNumber()
     },
     optimism: {
-      url: "https://kovan.optimism.rpc.hop.exchange",
+      url: 'https://kovan.optimism.rpc.hop.exchange',
       accounts: desiredAccounts,
       gasPrice: 0,
       gas: 9000000,
@@ -44,25 +44,25 @@ export default {
   solidity: {
     compilers: [
       {
-        version: "0.6.12"
+        version: '0.6.12'
       },
       {
-        version: "0.6.11"
+        version: '0.6.11'
       },
       {
-        version: "0.6.6"
+        version: '0.6.6'
       },
       {
-        version: "0.5.17"
+        version: '0.5.17'
       },
       {
-        version: "0.5.16"
+        version: '0.5.16'
       },
       {
-        version: "0.5.11"
+        version: '0.5.11'
       },
       {
-        version: "0.4.25"
+        version: '0.4.25'
       }
     ]
   },

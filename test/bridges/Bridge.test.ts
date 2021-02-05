@@ -6,11 +6,11 @@ import Transfer from '../../lib/Transfer'
 
 import { fixture } from '../shared/fixtures'
 import { setUpDefaults, generateAmountHash } from '../shared/utils'
-import { IFixture} from '../shared/interfaces'
+import { IFixture } from '../shared/interfaces'
 
 import { CHAIN_IDS } from '../../config/constants'
 
-describe("Bridge", () => {
+describe('Bridge', () => {
   let _fixture: IFixture
 
   let mockBridge: Contract
@@ -22,11 +22,7 @@ describe("Bridge", () => {
     l2ChainId = CHAIN_IDS.OPTIMISM.TESTNET_1
     _fixture = await fixture(l2ChainId)
     await setUpDefaults(_fixture, l2ChainId)
-
-    ;({ 
-      mockBridge,
-      transfers
-    } = _fixture);
+    ;({ mockBridge, transfers } = _fixture)
   })
 
   /**
@@ -81,7 +77,8 @@ describe("Bridge", () => {
 
   it('Should not allow a withdrawal because of an invalid proof', async () => {
     const transfer: Transfer = transfers[0]
-    const arbitraryRootHash: string = '0x7465737400000000000000000000000000000000000000000000000000000000'
+    const arbitraryRootHash: string =
+      '0x7465737400000000000000000000000000000000000000000000000000000000'
     const arbitraryProof: string[] = [arbitraryRootHash, arbitraryRootHash]
 
     const expectedErrorMsg: string = 'BRG: Invalid transfer proof'
@@ -102,13 +99,13 @@ describe("Bridge", () => {
   it.only('Should not allow a withdrawal because the transfer root is not found', async () => {
     const transfer: Transfer = transfers[0]
 
-    // Set up transfer 
+    // Set up transfer
     transfer.chainId = await mockBridge.getChainId()
     transfer.amountOutMin = BigNumber.from(0)
     transfer.deadline = BigNumber.from(0)
 
     const transferHash: Buffer = transfer.getTransferHash()
-    const tree: MerkleTree = new MerkleTree([ transferHash ])
+    const tree: MerkleTree = new MerkleTree([transferHash])
     const transferRootHash: Buffer = tree.getRoot()
     const proof: Buffer[] = tree.getProof(transferHash)
 
@@ -126,5 +123,4 @@ describe("Bridge", () => {
       )
     ).to.be.revertedWith(expectedErrorMsg)
   })
-
 })

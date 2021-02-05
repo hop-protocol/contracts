@@ -1,7 +1,7 @@
 import * as ethers from 'ethers'
 
 export type TransferAmountsProps = {
-  ids: string[],
+  ids: string[]
   amounts: ethers.BigNumber[]
 }
 
@@ -9,21 +9,15 @@ export default class TransferAmounts {
   ids: string[]
   amounts: ethers.BigNumber[]
 
-  constructor(props: TransferAmountsProps) {
+  constructor (props: TransferAmountsProps) {
     this.ids = props.ids
     this.amounts = props.amounts
   }
 
-  getTransferAmountsHash(): Buffer {
+  getTransferAmountsHash (): Buffer {
     const data = ethers.utils.defaultAbiCoder.encode(
-      [
-        'bytes32[]',
-        'uint256[]'
-      ],
-      [
-        this.ids,
-        this.amounts
-      ]
+      ['bytes32[]', 'uint256[]'],
+      [this.ids, this.amounts]
     )
     const hash = ethers.utils.keccak256(data)
     return Buffer.from(hash.slice(2), 'hex')

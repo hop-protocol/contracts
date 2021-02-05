@@ -1,22 +1,23 @@
 require('dotenv').config()
 
-import {
-  network,
-  ethers,
-  ethers as ovmEthers
-} from 'hardhat'
+import { network, ethers, ethers as ovmEthers } from 'hardhat'
 import { BigNumber, ContractFactory, Signer, Contract } from 'ethers'
 
-import { getContractFactories, sendChainSpecificBridgeDeposit } from '../shared/utils'
+import {
+  getContractFactories,
+  sendChainSpecificBridgeDeposit
+} from '../shared/utils'
 
 import { getMessengerWrapperDefaults } from '../../config/utils'
 import { IGetMessengerWrapperDefaults } from '../../config/interfaces'
-import { CHAIN_IDS, LIQUIDITY_PROVIDER_INITIAL_BALANCE } from '../../config/constants'
+import {
+  CHAIN_IDS,
+  LIQUIDITY_PROVIDER_INITIAL_BALANCE
+} from '../../config/constants'
 
 // NOTE: Transactions sometimes get stuck during this script. Ensure that each transaction has been made.
 
 async function setupL1 () {
-
   // Network setup
   const chainId: BigNumber = BigNumber.from(network.config.chainId)
 
@@ -32,7 +33,12 @@ async function setupL1 () {
   const l1_bridgeAddress: string = ''
   const l2_bridgeAddress: string = ''
 
-  if (!l1_messengerAddress || !l1_canonicalTokenAddress || !l1_bridgeAddress || !l2_bridgeAddress) {
+  if (
+    !l1_messengerAddress ||
+    !l1_canonicalTokenAddress ||
+    !l1_bridgeAddress ||
+    !l2_bridgeAddress
+  ) {
     throw new Error('Addresses must be defined')
   }
 
@@ -54,14 +60,14 @@ async function setupL1 () {
   let l1_bridge: Contract
   let l1_messenger: Contract
   let l2_bridge: Contract
-  
+
   // Instantiate the wallets
   accounts = await ethers.getSigners()
   owner = accounts[0]
   liquidityProvider = accounts[2]
 
   // Get the contract Factories
-  ;({ 
+  ;({
     L1_MockERC20,
     L1_Bridge,
     L1_Messenger,
@@ -86,15 +92,27 @@ async function setupL1 () {
     l2_bridge.address,
     l1_messenger.address
   )
-  l1_messengerWrapper = await L1_MessengerWrapper.connect(owner).deploy(...messengerWrapperDefaults)
+  l1_messengerWrapper = await L1_MessengerWrapper.connect(owner).deploy(
+    ...messengerWrapperDefaults
+  )
   await l1_messengerWrapper.deployed()
 
   // Set up the L1 bridge
-  await l1_bridge.setCrossDomainMessengerWrapper(l2ChainId, l1_messengerWrapper.address)
+  await l1_bridge.setCrossDomainMessengerWrapper(
+    l2ChainId,
+    l1_messengerWrapper.address
+  )
 
   // Get canonical token to L2
-  await l1_canonicalToken.connect(owner).mint(await liquidityProvider.getAddress(), LIQUIDITY_PROVIDER_INITIAL_BALANCE)
-  await l1_canonicalToken.connect(liquidityProvider).approve(l1_messenger.address, LIQUIDITY_PROVIDER_INITIAL_BALANCE)
+  await l1_canonicalToken
+    .connect(owner)
+    .mint(
+      await liquidityProvider.getAddress(),
+      LIQUIDITY_PROVIDER_INITIAL_BALANCE
+    )
+  await l1_canonicalToken
+    .connect(liquidityProvider)
+    .approve(l1_messenger.address, LIQUIDITY_PROVIDER_INITIAL_BALANCE)
   await sendChainSpecificBridgeDeposit(
     chainId,
     liquidityProvider,
@@ -105,12 +123,25 @@ async function setupL1 () {
 
   // Get hop token on L2
   // NOTE: If there is no watcher set up, this transaction will never make it to L2
-  await l1_canonicalToken.connect(owner).mint(await liquidityProvider.getAddress(), LIQUIDITY_PROVIDER_INITIAL_BALANCE)
-  await l1_canonicalToken.connect(liquidityProvider).approve(l1_bridge.address, LIQUIDITY_PROVIDER_INITIAL_BALANCE)
-  await l1_bridge.connect(liquidityProvider).sendToL2(l2ChainId, await liquidityProvider.getAddress(), LIQUIDITY_PROVIDER_INITIAL_BALANCE)
+  await l1_canonicalToken
+    .connect(owner)
+    .mint(
+      await liquidityProvider.getAddress(),
+      LIQUIDITY_PROVIDER_INITIAL_BALANCE
+    )
+  await l1_canonicalToken
+    .connect(liquidityProvider)
+    .approve(l1_bridge.address, LIQUIDITY_PROVIDER_INITIAL_BALANCE)
+  await l1_bridge
+    .connect(liquidityProvider)
+    .sendToL2(
+      l2ChainId,
+      await liquidityProvider.getAddress(),
+      LIQUIDITY_PROVIDER_INITIAL_BALANCE
+    )
 }
 
 /* tslint:disable-next-line */
-(async () => {
+;(async () => {
   await setupL1()
 })()

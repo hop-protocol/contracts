@@ -8,12 +8,12 @@ import { IFixture } from '../shared/interfaces'
 
 import { CHAIN_IDS } from '../../config/constants'
 
-describe("Accounting", () => {
+describe('Accounting', () => {
   let _fixture: IFixture
 
   let bonder: Signer
   let user: Signer
-  let otherAccount: Signer
+  let otherUser: Signer
 
   let mockAccounting: Contract
 
@@ -21,13 +21,7 @@ describe("Accounting", () => {
     const l2ChainId: BigNumber = CHAIN_IDS.OPTIMISM.TESTNET_1
     _fixture = await fixture(l2ChainId)
     await setUpDefaults(_fixture, l2ChainId)
-
-    ;({ 
-      bonder,
-      user,
-      otherAccount,
-      mockAccounting
-    } = _fixture);
+    ;({ bonder, user, otherUser, mockAccounting } = _fixture)
   })
 
   /**
@@ -101,7 +95,7 @@ describe("Accounting", () => {
 
     await mockAccounting.connect(bonder).stake(stakeAmount)
     await mockAccounting.connect(user).stake(stakeAmount)
-    await mockAccounting.connect(otherAccount).stake(stakeAmount)
+    await mockAccounting.connect(otherUser).stake(stakeAmount)
 
     let credit = await mockAccounting.getCredit()
     let debit = await mockAccounting.getDebit()
@@ -133,8 +127,8 @@ describe("Accounting", () => {
     const stakeAmount: BigNumber = BigNumber.from(10)
 
     await mockAccounting.stake(stakeAmount)
-    await expect(
-      mockAccounting.unstake(stakeAmount)
-    ).to.be.revertedWith(expectedErrorMsg)
+    await expect(mockAccounting.unstake(stakeAmount)).to.be.revertedWith(
+      expectedErrorMsg
+    )
   })
 })

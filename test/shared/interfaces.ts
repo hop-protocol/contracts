@@ -10,7 +10,7 @@ export interface IFixture {
   challenger: Signer
   governance: Signer
   relayer: Signer
-  otherAccount: Signer
+  otherUser: Signer
 
   // Factories
   L1_CanonicalBridge: ContractFactory
@@ -33,7 +33,7 @@ export interface IFixture {
   l1_messenger: Contract
   l1_bridge: Contract
   l1_messengerWrapper: Contract
-  
+
   // L2
   l2_canonicalToken: Contract
   l2_messenger: Contract

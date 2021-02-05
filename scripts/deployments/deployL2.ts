@@ -1,11 +1,7 @@
 require('dotenv').config()
 
 import { ContractFactory, Signer, Contract, BigNumber } from 'ethers'
-import {
-  network,
-  ethers,
-  l2ethers as ovmEthers
-} from 'hardhat'
+import { network, ethers, l2ethers as ovmEthers } from 'hardhat'
 
 import { getContractFactories, verifyDeployment } from '../shared/utils'
 
@@ -13,7 +9,6 @@ import { isChainIdOptimism, isChainIdArbitrum } from '../../config/utils'
 import { ZERO_ADDRESS, CHAIN_IDS } from '../../config/constants'
 
 async function deployL2 () {
-
   // Network setup
   const chainId: BigNumber = BigNumber.from(network.config.chainId)
 
@@ -53,7 +48,7 @@ async function deployL2 () {
   bonder = accounts[1]
 
   // Get the contract Factories
-  ;({ 
+  ;({
     L1_Bridge,
     L2_MockERC20,
     L2_Bridge,
@@ -69,11 +64,7 @@ async function deployL2 () {
   /**
    * Deployments
    */
-
-  ;({ 
-    l2_uniswapFactory,
-    l2_uniswapRouter
-  } = await deployUniswap(
+  ;({ l2_uniswapFactory, l2_uniswapRouter } = await deployUniswap(
     ethers,
     owner,
     L2_UniswapFactory,
@@ -81,10 +72,7 @@ async function deployL2 () {
     l2_uniswapFactory,
     l2_uniswapRouter
   ))
-
-  ;({ 
-    l2_bridge
-  } = await deployBridge(
+  ;({ l2_bridge } = await deployBridge(
     ethers,
     owner,
     bonder,
@@ -117,19 +105,24 @@ const deployUniswap = async (
   L2_UniswapFactory: ContractFactory,
   L2_UniswapRouter: ContractFactory,
   l2_uniswapFactory: Contract,
-  l2_uniswapRouter: Contract,
+  l2_uniswapRouter: Contract
 ) => {
-  l2_uniswapFactory = await L2_UniswapFactory.connect(owner).deploy(await owner.getAddress())
+  l2_uniswapFactory = await L2_UniswapFactory.connect(owner).deploy(
+    await owner.getAddress()
+  )
   await l2_uniswapFactory.deployed()
-  await verifyDeployment('L2 Uniswap Factory', l2_uniswapFactory, ethers)
+  await verifyDeployment(l2_uniswapFactory, ethers)
 
-  l2_uniswapRouter = await L2_UniswapRouter.connect(owner).deploy(l2_uniswapFactory.address, ZERO_ADDRESS)
+  l2_uniswapRouter = await L2_UniswapRouter.connect(owner).deploy(
+    l2_uniswapFactory.address,
+    ZERO_ADDRESS
+  )
   await l2_uniswapRouter.deployed()
-  await verifyDeployment('L2 Uniswap Router', l2_uniswapRouter, ethers)
+  await verifyDeployment(l2_uniswapRouter, ethers)
 
   return {
     l2_uniswapFactory,
-    l2_uniswapRouter,
+    l2_uniswapRouter
   }
 }
 
@@ -151,14 +144,12 @@ const deployBridge = async (
     await owner.getAddress(),
     l2_canonicalToken.address,
     l1_bridge.address,
-    [
-      CHAIN_IDS.ETHEREUM.MAINNET
-    ],
+    [CHAIN_IDS.ETHEREUM.MAINNET],
     await bonder.getAddress(),
     l2_uniswapRouter.address
   )
   await l2_bridge.deployed()
-  await verifyDeployment('L2 Bridge', l2_bridge, ethers)
+  await verifyDeployment(l2_bridge, ethers)
 
   return {
     l2_bridge
@@ -178,9 +169,11 @@ const deployNetworkSpecificContracts = async (
   }
 
   if (isChainIdOptimism(chainId)) {
-    l2_uniswapPair = await L2_UniswapPair.connect(owner).deploy(l2_uniswapFactory.address)
+    l2_uniswapPair = await L2_UniswapPair.connect(owner).deploy(
+      l2_uniswapFactory.address
+    )
     l2_uniswapPair.deployed()
-    verifyDeployment('L2 Uniswap Pair', l2_uniswapPair, ethers)
+    verifyDeployment(l2_uniswapPair, ethers)
 
     await l2_uniswapFactory.connect(owner).setPair(l2_uniswapPair.address)
     const realPair = await l2_uniswapFactory.realPair()
@@ -191,6 +184,6 @@ const deployNetworkSpecificContracts = async (
 }
 
 /* tslint:disable-next-line */
-(async () => {
+;(async () => {
   await deployL2()
 })()

@@ -4,7 +4,7 @@ import { Contract, BigNumber } from 'ethers'
 
 import { fixture } from '../shared/fixtures'
 import { setUpDefaults } from '../shared/utils'
-import { IFixture} from '../shared/interfaces'
+import { IFixture } from '../shared/interfaces'
 
 import {
   CHAIN_IDS,
@@ -13,7 +13,7 @@ import {
 
 export const MAX_NUM_SENDS_BEFORE_COMMIT = 10
 
-describe("Arbitrum Messenger Wrapper", () => {
+describe('Arbitrum Messenger Wrapper', () => {
   let _fixture: IFixture
 
   let l1_messenger: Contract
@@ -25,13 +25,7 @@ describe("Arbitrum Messenger Wrapper", () => {
     const l2ChainId: BigNumber = CHAIN_IDS.OPTIMISM.HOP_TESTNET
     _fixture = await fixture(l2ChainId)
     await setUpDefaults(_fixture, l2ChainId)
-
-    ;({ 
-      l1_messenger,
-      l1_bridge,
-      l1_messengerWrapper,
-      l2_bridge,
-    } = _fixture);
+    ;({ l1_messenger, l1_bridge, l1_messengerWrapper, l2_bridge } = _fixture)
   })
 
   /**

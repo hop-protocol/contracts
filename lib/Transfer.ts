@@ -1,12 +1,12 @@
 import * as ethers from 'ethers'
 
 export type TransferProps = {
-  chainId: ethers.BigNumber,
-  sender: string,
-  recipient: string,
-  amount: ethers.BigNumber,
-  transferNonce: number,
-  relayerFee: ethers.BigNumber,
+  chainId: ethers.BigNumber
+  sender: string
+  recipient: string
+  amount: ethers.BigNumber
+  transferNonce: number
+  relayerFee: ethers.BigNumber
   amountOutMin: ethers.BigNumber
   deadline: ethers.BigNumber
 }
@@ -21,7 +21,7 @@ export default class Transfer {
   amountOutMin: ethers.BigNumber
   deadline: ethers.BigNumber
 
-  constructor(props: TransferProps) {
+  constructor (props: TransferProps) {
     this.chainId = props.chainId
     this.sender = props.sender
     this.recipient = props.recipient
@@ -32,7 +32,7 @@ export default class Transfer {
     this.deadline = props.deadline
   }
 
-  getTransferHash(): Buffer {
+  getTransferHash (): Buffer {
     const data = ethers.utils.defaultAbiCoder.encode(
       [
         'uint256',
