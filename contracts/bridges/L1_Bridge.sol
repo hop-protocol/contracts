@@ -26,7 +26,7 @@ contract L1_Bridge is Bridge, L1_BridgeConfig {
     /* ========== State ========== */
 
     IERC20 public l1CanonicalToken;
-    mapping(bytes32 => bool) transferRootConfirmed;
+    mapping(bytes32 => bool) public transferRootConfirmed;
     mapping(bytes32 => TransferBond) public transferBonds;
     mapping(uint256 => uint256) public timeSlotToAmountBonded;
     uint256 public amountChallenged;
