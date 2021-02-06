@@ -173,8 +173,9 @@ abstract contract L2_Bridge is ERC20, Bridge {
         emit TransfersCommitted(root,totalAmount);
 
         bytes memory confirmTransferRootMessage = abi.encodeWithSignature(
-            "confirmTransferRoot(bytes32,uint256)",
+            "confirmTransferRoot(bytes32,uint256,uint256)",
             root,
+            _destinationChainId,
             totalAmount
         );
 
