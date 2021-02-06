@@ -10,7 +10,7 @@ contract Mock_L2_ArbitrumBridge is L2_ArbitrumBridge {
 
     constructor (
         uint256 chainId_,
-        IGlobalInbox _messenger,
+        IArbSys _messenger,
         address _l1Governance,
         IERC20 _canonicalToken,
         address _l1BridgeAddress,

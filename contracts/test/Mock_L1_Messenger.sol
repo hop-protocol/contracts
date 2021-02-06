@@ -69,9 +69,4 @@ contract Mock_L1_Messenger is MockMessenger {
             _message
         );
     }
-
-    // TODO: I believe this should go in Mock_L2_Messenger
-    function xDomainRelease(address _recipient, uint256 _amount) public {
-        canonicalToken.safeTransfer(_recipient, _amount);
-    }
 }

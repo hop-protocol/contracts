@@ -24,8 +24,13 @@ contract L2_OptimismBridge is L2_Bridge {
         messenger = _messenger;
     }
 
+    // TODO: Use a valid gasLimit
     function _sendCrossDomainMessage(bytes memory _message) internal override {
-        // TODO: Add the Optimism-specific messaging
+        messenger.sendMessage(
+            l1BridgeAddress,
+            _message,
+            0
+        );
     }
 
     function _verifySender(address _expectedSender) internal override {

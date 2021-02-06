@@ -3,14 +3,14 @@
 pragma solidity 0.6.12;
 pragma experimental ABIEncoderV2;
 
-import "../interfaces/arbitrum/messengers/IGlobalInbox.sol";
+import "../interfaces/arbitrum/messengers/IArbSys.sol";
 import "./L2_Bridge.sol";
 
 contract L2_ArbitrumBridge is L2_Bridge {
-    IGlobalInbox public messenger;
+    IArbSys public messenger;
 
     constructor (
-        IGlobalInbox _messenger,
+        IArbSys _messenger,
         address _l1Governance,
         IERC20 _canonicalToken,
         address _l1BridgeAddress,
@@ -25,7 +25,10 @@ contract L2_ArbitrumBridge is L2_Bridge {
     }
 
     function _sendCrossDomainMessage(bytes memory _message) internal override {
-        // TODO: Add the Arbitrum-specific messaging
+        messenger.sendTxToL1(
+            l1BridgeAddress,
+            _message
+        );
     }
 
     function _verifySender(address _expectedSender) internal override {

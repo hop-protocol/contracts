@@ -18,28 +18,32 @@ contract Mock_L2_Messenger is MockMessenger {
 
     /* ========== Arbitrum ========== */
 
-    function sendL2Message(
-        address _arbChain,
-        bytes memory _message
+    function sendTxToL1(
+        address _destAddr,
+        bytes calldata _calldataForL1
     )
-        public
+        external
+        payable
     {
-        // TODO: This whole function should be revisited
+        targetMessenger.receiveMessage(
+            _destAddr,
+            _calldataForL1
+        );
     }
+
 
     /* ========== Optimism ========== */
 
-    function xDomainTransfer(
-        address _recipient,
-        uint256 _amount,
-        address _target
+    function sendMessage(
+        address _target,
+        bytes calldata _message,
+        uint32 _gasLimit
     )
         public
     {
-        // TODO: This whole function should be revisited
-    }
-
-    function xDomainRelease(address _recipient, uint256 _amount) public {
-        // TODO: This whole function should be revisited
+        targetMessenger.receiveMessage(
+            _target,
+            _message
+        );
     }
 }
