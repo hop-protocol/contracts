@@ -1,11 +1,11 @@
 import '@nomiclabs/hardhat-waffle'
 import { expect } from 'chai'
-import { Contract, BigNumber, Signer } from 'ethers'
+import { Contract, BigNumber } from 'ethers'
 import MerkleTree from '../../lib/MerkleTree'
 import Transfer from '../../lib/Transfer'
 
 import { fixture } from '../shared/fixtures'
-import { setUpDefaults, generateAmountHash } from '../shared/utils'
+import { setUpDefaults } from '../shared/utils'
 import { IFixture } from '../shared/interfaces'
 
 import { CHAIN_IDS } from '../../config/constants'
@@ -47,24 +47,6 @@ describe('Bridge', () => {
     }
   })
 
-  it('Should get the correct amount hash', async () => {
-    const chainIds: Number[] = [10, 79377087078960]
-    const amounts: Number[] = [123, 999]
-
-    const expectedAmountHash: Buffer = generateAmountHash(chainIds, amounts)
-    const amountHash = await mockBridge.getAmountHash(chainIds, amounts)
-    expect(amountHash).to.eq('0x' + expectedAmountHash.toString('hex'))
-  })
-
-  it('Should get the correct amount hash with arbitrary values and array lengths', async () => {
-    const chainIds: Number[] = [10, 79377087078960]
-    const amounts: Number[] = [123, 999, 1, 2, 3, 4, 5, 6]
-
-    const expectedAmountHash: Buffer = generateAmountHash(chainIds, amounts)
-    const amountHash = await mockBridge.getAmountHash(chainIds, amounts)
-    expect(amountHash).to.eq('0x' + expectedAmountHash.toString('hex'))
-  })
-
   it('Should get the correct chainId', async () => {
     const expectedChainId = 1
     const chainId = await mockBridge.getChainId()
@@ -96,7 +78,7 @@ describe('Bridge', () => {
     ).to.be.revertedWith(expectedErrorMsg)
   })
 
-  it.only('Should not allow a withdrawal because the transfer root is not found', async () => {
+  it('Should not allow a withdrawal because the transfer root is not found', async () => {
     const transfer: Transfer = transfers[0]
 
     // Set up transfer

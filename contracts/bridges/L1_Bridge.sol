@@ -174,7 +174,7 @@ contract L1_Bridge is Bridge, L1_BridgeConfig {
                 _totalAmount
             );
 
-            IMessengerWrapper messengerWrapper = getCrossDomainMessengerWrapper(_totalAmount);
+            IMessengerWrapper messengerWrapper = getCrossDomainMessengerWrapper(_chainId);
             messengerWrapper.sendCrossDomainMessage(setTransferRootMessage);
         }
     }

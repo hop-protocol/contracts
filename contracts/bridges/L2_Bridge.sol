@@ -168,14 +168,14 @@ abstract contract L2_Bridge is ERC20, Bridge {
         require(pendingTransfers.length > 0, "L2_BRG: Must commit at least 1 Transfer");
 
         bytes32 root = MerkleUtils.getMerkleRoot(pendingTransfers);
-        uint256 totalAmont = pendingAmountForChainId[_destinationChainId];
+        uint256 totalAmount = pendingAmountForChainId[_destinationChainId];
 
-        emit TransfersCommitted(root,totalAmont);
+        emit TransfersCommitted(root,totalAmount);
 
         bytes memory confirmTransferRootMessage = abi.encodeWithSignature(
             "confirmTransferRoot(bytes32,uint256)",
             root,
-            totalAmont
+            totalAmount
         );
 
         delete pendingAmountChainIds;

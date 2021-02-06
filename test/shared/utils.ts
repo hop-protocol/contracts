@@ -239,18 +239,6 @@ export const sendTestTokensAcrossHopBridge = async (
   await expectBalanceOf(l2_bridge, account, amount)
 }
 
-export const generateAmountHash = (
-  chainIds: Number[],
-  amounts: Number[]
-): Buffer => {
-  const data = ethers.utils.defaultAbiCoder.encode(
-    ['uint256[]', 'uint256[]'],
-    [chainIds, amounts]
-  )
-  const hash = ethers.utils.keccak256(data)
-  return Buffer.from(hash.slice(2), 'hex')
-}
-
 export const getL2SpecificArtifact = (chainId: BigNumber) => {
   let l2_bridgeArtifact: string
   let l1_messengerWrapperArtifact: string
