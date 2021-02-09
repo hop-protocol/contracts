@@ -15,10 +15,12 @@ abstract contract L2_Bridge is ERC20, Bridge {
     address public exchangeAddress;
     IERC20 public l2CanonicalToken;
     mapping(uint256 => bool) public supportedChainIds;
+    uint256 minimumForceCommitDelay = 1 days;
 
     uint256[] public pendingAmountChainIds;
     mapping(uint256 => bytes32[]) public pendingTransfersForChainId;
     mapping(uint256 => uint256) public pendingAmountForChainId;
+    mapping(uint256 => uint256) public lastCommitTimeForChainId;
 
     event TransfersCommitted (
         bytes32 indexed root,
@@ -91,6 +93,10 @@ abstract contract L2_Bridge is ERC20, Bridge {
 
     function removeSupportedChainId(uint256 _chainIds) public onlyGovernance {
         supportedChainIds[_chainIds] = false;
+    }
+
+    function setMinimumForceCommitDelay(uint256 _minimumForceCommitDelay) public onlyGovernance {
+        minimumForceCommitDelay = _minimumForceCommitDelay;
     }
 
     /// @notice _amount is the amount the user wants to send plus the relayer fee
@@ -169,6 +175,10 @@ abstract contract L2_Bridge is ERC20, Bridge {
     }
 
     function commitTransfers(uint256 _destinationChainId) public onlyBonder {
+        uint minForceCommitTime = lastCommitTimeForChainId[_destinationChainId].add(minimumForceCommitDelay);
+        require(minForceCommitTime < block.timestamp || msg.sender == getBonder(), "L2_BRG: Only Bonder can commit before min delay");
+        lastCommitTimeForChainId[_destinationChainId] = block.timestamp;
+
         bytes32[] storage pendingTransfers = pendingTransfersForChainId[_destinationChainId];
         require(pendingTransfers.length > 0, "L2_BRG: Must commit at least 1 Transfer");
 
