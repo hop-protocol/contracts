@@ -6,7 +6,13 @@ import { network, ethers, l2ethers as ovmEthers } from 'hardhat'
 import { getContractFactories, verifyDeployment } from '../shared/utils'
 
 import { isChainIdOptimism, isChainIdArbitrum } from '../../config/utils'
-import { ZERO_ADDRESS, CHAIN_IDS } from '../../config/constants'
+import {
+  ZERO_ADDRESS,
+  CHAIN_IDS,
+  DEFAULT_H_TOKEN_NAME,
+  DEFAULT_H_TOKEN_SYMBOL,
+  DEFAULT_H_TOKEN_DECIMALS
+} from '../../config/constants'
 
 async function deployL2 () {
   // Network setup
@@ -81,7 +87,10 @@ async function deployL2 () {
     l2_bridge,
     l2_canonicalToken,
     l2_uniswapRouter,
-    l2_messengerAddress
+    l2_messengerAddress,
+    l2_hTokenName,
+    l2_hTokenSymbol,
+    l2_hTokenDecimals
   ))
 
   await deployNetworkSpecificContracts(
@@ -135,7 +144,10 @@ const deployBridge = async (
   l2_bridge: Contract,
   l2_canonicalToken: Contract,
   l2_uniswapRouter: Contract,
-  l2_messengerAddress: string
+  l2_messengerAddress: string,
+  l2_hTokenName: string,
+  l2_hTokenSymbol: string,
+  l2_hTokenDecimals: number
 ) => {
   // NOTE: Adding more CHAIN_IDs here will push the OVM deployment over the contract size limit
   //       If additional CHAIN_IDs must be added, do so after the deployment.
@@ -146,7 +158,10 @@ const deployBridge = async (
     l1_bridge.address,
     [CHAIN_IDS.ETHEREUM.MAINNET],
     await bonder.getAddress(),
-    l2_uniswapRouter.address
+    l2_uniswapRouter.address,
+    l2_hTokenName,
+    l2_hTokenSymbol,
+    l2_hTokenDecimals
   )
   await l2_bridge.deployed()
   await verifyDeployment(l2_bridge, ethers)

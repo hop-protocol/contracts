@@ -49,11 +49,14 @@ abstract contract L2_Bridge is ERC20, Bridge {
         address _l1BridgeAddress,
         uint256[] memory _supportedChainIds,
         address _bonder,
-        address _exchangeAddress
+        address _exchangeAddress,
+        string memory _name,
+        string memory _symbol,
+        uint8 _decimals
     )
         public
         Bridge(_bonder)
-        ERC20("DAI Hop Token", "hDAI")
+        ERC20(_name, _symbol)
     {
         l1Governance = _l1Governance;
         l2CanonicalToken = _l2CanonicalToken;
@@ -63,6 +66,8 @@ abstract contract L2_Bridge is ERC20, Bridge {
         for (uint256 i = 0; i < _supportedChainIds.length; i++) {
             supportedChainIds[_supportedChainIds[i]] = true;
         }
+
+        _setupDecimals(_decimals);
     }
 
     /* ========== Virtual functions ========== */

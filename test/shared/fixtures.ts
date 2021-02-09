@@ -13,7 +13,10 @@ import {
   DEFAULT_DEADLINE,
   RELAYER_FEE,
   TRANSFER_AMOUNT,
-  ALL_SUPPORTED_CHAIN_IDS
+  ALL_SUPPORTED_CHAIN_IDS,
+  DEFAULT_H_TOKEN_NAME,
+  DEFAULT_H_TOKEN_SYMBOL,
+  DEFAULT_H_TOKEN_DECIMALS
 } from '../../config/constants'
 
 export async function fixture (l2ChainId: BigNumber): Promise<IFixture> {
@@ -110,7 +113,10 @@ export async function fixture (l2ChainId: BigNumber): Promise<IFixture> {
     l1_bridge.address,
     ALL_SUPPORTED_CHAIN_IDS,
     bonder.getAddress(),
-    l2_uniswapRouter.address
+    l2_uniswapRouter.address,
+    DEFAULT_H_TOKEN_NAME,
+    DEFAULT_H_TOKEN_SYMBOL,
+    DEFAULT_H_TOKEN_DECIMALS
   )
 
   // Deploy Messenger Wrapper
