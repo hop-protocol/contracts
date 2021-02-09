@@ -23,7 +23,19 @@ async function deployL2 () {
   const l2_canonicalTokenAddress: string = ''
   const l2_messengerAddress: string = ''
 
-  if (!l1_bridgeAddress || !l2_canonicalTokenAddress || !l2_messengerAddress) {
+  // Variables
+  const l2_hTokenName: string = ''
+  const l2_hTokenSymbol: string = ''
+  const l2_hTokenDecimals: number = 0
+
+  if (
+    !l1_bridgeAddress ||
+    !l2_canonicalTokenAddress ||
+    !l2_messengerAddress ||
+    !l2_hTokenName ||
+    !l2_hTokenSymbol ||
+    !l2_hTokenDecimals
+  ) {
     throw new Error('Addresses must be defined')
   }
 
