@@ -118,7 +118,7 @@ abstract contract L2_Bridge is ERC20, Bridge {
         bytes32[] storage pendingTransfers = pendingTransfersForChainId[_chainId];
 
         if (pendingTransfers.length >= 100) {
-            commitTransfers(_chainId);
+            _commitTransfers(_chainId);
         }
 
         _burn(msg.sender, _amount);
@@ -174,30 +174,12 @@ abstract contract L2_Bridge is ERC20, Bridge {
         send(_chainId, _recipient, swapAmount, _transferNonce, _relayerFee, _destinationAmountOutMin, _destinationDeadline);
     }
 
-    function commitTransfers(uint256 _destinationChainId) public onlyBonder {
+    function commitTransfers(uint256 _destinationChainId) external {
         uint minForceCommitTime = lastCommitTimeForChainId[_destinationChainId].add(minimumForceCommitDelay);
         require(minForceCommitTime < block.timestamp || msg.sender == getBonder(), "L2_BRG: Only Bonder can commit before min delay");
         lastCommitTimeForChainId[_destinationChainId] = block.timestamp;
 
-        bytes32[] storage pendingTransfers = pendingTransfersForChainId[_destinationChainId];
-        require(pendingTransfers.length > 0, "L2_BRG: Must commit at least 1 Transfer");
-
-        bytes32 root = MerkleUtils.getMerkleRoot(pendingTransfers);
-        uint256 totalAmount = pendingAmountForChainId[_destinationChainId];
-
-        emit TransfersCommitted(root,totalAmount);
-
-        bytes memory confirmTransferRootMessage = abi.encodeWithSignature(
-            "confirmTransferRoot(bytes32,uint256,uint256)",
-            root,
-            _destinationChainId,
-            totalAmount
-        );
-
-        delete pendingAmountChainIds;
-        delete pendingTransfersForChainId[_destinationChainId];
-
-        _sendCrossDomainMessage(confirmTransferRootMessage);
+        _commitTransfers(_destinationChainId);
     }
 
     function mint(address _recipient, uint256 _amount) public onlyL1Bridge {
@@ -278,6 +260,28 @@ abstract contract L2_Bridge is ERC20, Bridge {
         }
 
         pendingAmountForChainId[_chainId] = pendingAmountForChainId[_chainId].add(_amount);
+    }
+
+    function _commitTransfers(uint256 _destinationChainId) public {
+        bytes32[] storage pendingTransfers = pendingTransfersForChainId[_destinationChainId];
+        require(pendingTransfers.length > 0, "L2_BRG: Must commit at least 1 Transfer");
+
+        bytes32 root = MerkleUtils.getMerkleRoot(pendingTransfers);
+        uint256 totalAmount = pendingAmountForChainId[_destinationChainId];
+
+        emit TransfersCommitted(root,totalAmount);
+
+        bytes memory confirmTransferRootMessage = abi.encodeWithSignature(
+            "confirmTransferRoot(bytes32,uint256,uint256)",
+            root,
+            _destinationChainId,
+            totalAmount
+        );
+
+        delete pendingAmountChainIds;
+        delete pendingTransfersForChainId[_destinationChainId];
+
+        _sendCrossDomainMessage(confirmTransferRootMessage);
     }
 
     function _mintAndAttemptSwap(address _recipient, uint256 _amount, uint256 _amountOutMin, uint256 _deadline) internal {
