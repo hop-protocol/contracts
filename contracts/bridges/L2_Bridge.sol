@@ -247,6 +247,8 @@ abstract contract L2_Bridge is ERC20, Bridge {
         uint256 _deadline
     )
         public
+        onlyBonder
+        requirePositiveBalance
     {
         bytes32 transferHash = getTransferHash(
             getChainId(),
