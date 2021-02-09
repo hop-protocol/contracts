@@ -15,7 +15,7 @@ abstract contract L2_Bridge is ERC20, Bridge {
     address public exchangeAddress;
     IERC20 public l2CanonicalToken;
     mapping(uint256 => bool) public supportedChainIds;
-    uint256 minimumForceCommitDelay = 1 days;
+    uint256 minimumForceCommitDelay = 4 hours;
 
     uint256[] public pendingAmountChainIds;
     mapping(uint256 => bytes32[]) public pendingTransfersForChainId;
