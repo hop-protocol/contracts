@@ -113,14 +113,15 @@ contract L1_Bridge is Bridge, L1_BridgeConfig {
         onlyBonder
         requirePositiveBalance
     {
-        require(transferRootConfirmed[_transferRootHash] == false, "L1_BRG: Transfer Root has already been confirmed");
-        require(transferBonds[_transferRootHash].createdAt == 0, "L1_BRG: Transfer Root has already been bonded");
+        bytes32 transferRootId = getTransferRootId(_transferRootHash, _totalAmount);
+        require(transferRootConfirmed[transferRootId] == false, "L1_BRG: Transfer Root has already been confirmed");
+        require(transferBonds[transferRootId].createdAt == 0, "L1_BRG: Transfer Root has already been bonded");
 
         uint256 currentTimeSlot = getTimeSlot(block.timestamp);
         uint256 bondAmount = getBondForTransferAmount(_totalAmount);
         timeSlotToAmountBonded[currentTimeSlot] = timeSlotToAmountBonded[currentTimeSlot].add(bondAmount);
 
-        transferBonds[_transferRootHash] = TransferBond(block.timestamp, _totalAmount, false, 0, address(0));
+        transferBonds[transferRootId] = TransferBond(block.timestamp, _totalAmount, false, 0, address(0));
 
         _distributeTransferRoot(_transferRootHash, _destinationChainId, _totalAmount);
 
@@ -142,17 +143,16 @@ contract L1_Bridge is Bridge, L1_BridgeConfig {
         public
         onlyL2Bridge
     {
-        require(transferRootConfirmed[_transferRootHash] == false, "L1_BRG: TransferRoot already confirmed");
-        transferRootConfirmed[_transferRootHash] = true;
+        bytes32 transferRootId = getTransferRootId(_transferRootHash, _totalAmount);
+        require(transferRootConfirmed[transferRootId] == false, "L1_BRG: TransferRoot already confirmed");
+        transferRootConfirmed[transferRootId] = true;
 
         // If the TransferRoot was never bonded, distribute the TransferRoot. If it has been bonded, 
         // require that the chainIds and chainAmounts match the values coming from the L2_Bridge.
-        TransferBond storage transferBond = transferBonds[_transferRootHash];
+        TransferBond storage transferBond = transferBonds[transferRootId];
         if (transferBond.createdAt == 0) {
             _distributeTransferRoot(_transferRootHash, _destinationChainId, _totalAmount);
-        } else {
-            require(transferBond.totalAmount == _totalAmount, "L1_BRG: TransferRoot amount is invalid");
-        }
+        } 
     }
 
     function _distributeTransferRoot(
@@ -181,10 +181,12 @@ contract L1_Bridge is Bridge, L1_BridgeConfig {
 
     /* ========== Public TransferRoot Challenges ========== */
 
-    function challengeTransferBond(bytes32 _transferRootHash) public {
-        TransferRoot memory transferRoot = getTransferRoot(_transferRootHash);
-        TransferBond storage transferBond = transferBonds[_transferRootHash];
-        require(transferRootConfirmed[_transferRootHash] == false, "L1_BRG: Transfer root has already been confirmed");
+    function challengeTransferBond(bytes32 _transferRootHash, uint256 _originalAmount) public {
+        bytes32 transferRootId = getTransferRootId(_transferRootHash, _originalAmount);
+        TransferRoot memory transferRoot = getTransferRoot(_transferRootHash, _originalAmount);
+        TransferBond storage transferBond = transferBonds[transferRootId];
+
+        require(transferRootConfirmed[transferRootId] == false, "L1_BRG: Transfer root has already been confirmed");
         uint256 challengePeriodEnd = transferBond.createdAt.add(getChallengePeriod());
         require(challengePeriodEnd >= block.timestamp, "L1_BRG: Transfer root cannot be challenged after challenge period");
 
@@ -203,16 +205,17 @@ contract L1_Bridge is Bridge, L1_BridgeConfig {
         _addDebit(bondAmount);
     }
 
-    function resolveChallenge(bytes32 _transferRootHash) public {
-        TransferRoot memory transferRoot = getTransferRoot(_transferRootHash);
-        TransferBond storage transferBond = transferBonds[_transferRootHash];
+    function resolveChallenge(bytes32 _transferRootHash, uint256 _originalAmount) public {
+        bytes32 transferRootId = getTransferRootId(_transferRootHash, _originalAmount);
+        TransferRoot memory transferRoot = getTransferRoot(_transferRootHash, _originalAmount);
+        TransferBond storage transferBond = transferBonds[transferRootId];
 
         require(transferBond.challengeStartTime != 0, "L1_BRG: Transfer root has not been challenged");
         require(now > transferBond.challengeStartTime.add(getChallengeResolutionPeriod()), "L1_BRG: Challenge period has not ended");
 
         uint256 challengeStakeAmount = getChallengeAmountForTransferAmount(transferRoot.total);
 
-        if (transferRootConfirmed[_transferRootHash]) {
+        if (transferRootConfirmed[transferRootId]) {
             // Invalid challenge
             // Credit the bonder back with the bond amount plus the challenger's stake
             _addCredit(getBondForTransferAmount(transferRoot.total).add(challengeStakeAmount));
