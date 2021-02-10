@@ -18,17 +18,17 @@ abstract contract L2_Bridge is ERC20, Bridge {
     uint256 minimumForceCommitDelay = 4 hours;
 
     uint256[] public pendingAmountChainIds;
-    mapping(uint256 => bytes32[]) public pendingTransfersForChainId;
+    mapping(uint256 => bytes32[]) public pendingTransferIdsForChainId;
     mapping(uint256 => uint256) public pendingAmountForChainId;
     mapping(uint256 => uint256) public lastCommitTimeForChainId;
 
     event TransfersCommitted (
-        bytes32 indexed root,
+        bytes32 indexed rootHash,
         uint256 totalAmount
     );
 
     event TransferSent (
-        bytes32 indexed transferHash,
+        bytes32 indexed transferId,
         address indexed recipient,
         uint256 amount,
         uint256 indexed transferNonce,
@@ -115,7 +115,7 @@ abstract contract L2_Bridge is ERC20, Bridge {
         require(_amount >= _relayerFee, "L2_BRG: Relayer fee cannot exceed amount");
         require(supportedChainIds[_chainId], "L2_BRG: _chainId is not supported");
 
-        bytes32[] storage pendingTransfers = pendingTransfersForChainId[_chainId];
+        bytes32[] storage pendingTransfers = pendingTransferIdsForChainId[_chainId];
 
         if (pendingTransfers.length >= 100) {
             _commitTransfers(_chainId);
@@ -123,7 +123,7 @@ abstract contract L2_Bridge is ERC20, Bridge {
 
         _burn(msg.sender, _amount);
 
-        bytes32 transferHash = getTransferHash(
+        bytes32 transferId = getTransferId(
             _chainId,
             msg.sender,
             _recipient,
@@ -133,11 +133,11 @@ abstract contract L2_Bridge is ERC20, Bridge {
             _amountOutMin,
             _deadline
         );
-        pendingTransfers.push(transferHash);
+        pendingTransfers.push(transferId);
 
         _addToPendingAmount(_chainId, _amount);
 
-        emit TransferSent(transferHash, _recipient, _amount, _transferNonce, _relayerFee);
+        emit TransferSent(transferId, _recipient, _amount, _transferNonce, _relayerFee);
     }
 
     /// @notice _amount is the amount the user wants to send plus the relayer fee
@@ -196,14 +196,14 @@ abstract contract L2_Bridge is ERC20, Bridge {
         uint256 _amount,
         uint256 _transferNonce,
         uint256 _relayerFee,
-        bytes32 _transferRootHash,
+        bytes32 _rootHash,
         bytes32[] memory _proof,
         uint256 _amountOutMin,
         uint256 _deadline
     )
         public
     {
-        bytes32 transferHash = getTransferHash(
+        bytes32 transferId = getTransferId(
             getChainId(),
             _sender,
             _recipient,
@@ -214,9 +214,9 @@ abstract contract L2_Bridge is ERC20, Bridge {
             _deadline
         );
 
-        require(_proof.verify(_transferRootHash, transferHash), "L2_BRG: Invalid transfer proof");
-        _addToAmountWithdrawn(_transferRootHash, _amount);
-        _withdrawAndAttemptSwap(transferHash, _recipient, _amount, _relayerFee, _amountOutMin, _deadline);
+        require(_proof.verify(_rootHash, transferId), "L2_BRG: Invalid transfer proof");
+        _addToAmountWithdrawn(_rootHash, _amount);
+        _withdrawAndAttemptSwap(transferId, _recipient, _amount, _relayerFee, _amountOutMin, _deadline);
     }
 
     function bondWithdrawalAndAttemptSwap(
@@ -232,7 +232,7 @@ abstract contract L2_Bridge is ERC20, Bridge {
         onlyBonder
         requirePositiveBalance
     {
-        bytes32 transferHash = getTransferHash(
+        bytes32 transferId = getTransferId(
             getChainId(),
             _sender,
             _recipient,
@@ -244,8 +244,8 @@ abstract contract L2_Bridge is ERC20, Bridge {
         );
 
         _addDebit(_amount);
-        _setBondedWithdrawalAmount(transferHash, _amount);
-        _withdrawAndAttemptSwap(transferHash, _recipient, _amount, _relayerFee, _amountOutMin, _deadline);
+        _setBondedWithdrawalAmount(transferId, _amount);
+        _withdrawAndAttemptSwap(transferId, _recipient, _amount, _relayerFee, _amountOutMin, _deadline);
     }
 
     function setTransferRoot(bytes32 _rootHash, uint256 _amount) public onlyL1Bridge {
@@ -263,23 +263,23 @@ abstract contract L2_Bridge is ERC20, Bridge {
     }
 
     function _commitTransfers(uint256 _destinationChainId) internal {
-        bytes32[] storage pendingTransfers = pendingTransfersForChainId[_destinationChainId];
+        bytes32[] storage pendingTransfers = pendingTransferIdsForChainId[_destinationChainId];
         require(pendingTransfers.length > 0, "L2_BRG: Must commit at least 1 Transfer");
 
-        bytes32 root = MerkleUtils.getMerkleRoot(pendingTransfers);
+        bytes32 rootHash = MerkleUtils.getMerkleRoot(pendingTransfers);
         uint256 totalAmount = pendingAmountForChainId[_destinationChainId];
 
-        emit TransfersCommitted(root,totalAmount);
+        emit TransfersCommitted(rootHash, totalAmount);
 
         bytes memory confirmTransferRootMessage = abi.encodeWithSignature(
             "confirmTransferRoot(bytes32,uint256,uint256)",
-            root,
+            rootHash,
             _destinationChainId,
             totalAmount
         );
 
         delete pendingAmountChainIds;
-        delete pendingTransfersForChainId[_destinationChainId];
+        delete pendingTransferIdsForChainId[_destinationChainId];
 
         _sendCrossDomainMessage(confirmTransferRootMessage);
     }
@@ -301,14 +301,14 @@ abstract contract L2_Bridge is ERC20, Bridge {
     }
 
     function _withdrawAndAttemptSwap(
-        bytes32 _transferHash,
+        bytes32 _transferId,
         address _recipient,
         uint256 _amount,
         uint256 _relayerFee,
         uint256 _amountOutMin,
         uint256 _deadline
     ) internal {
-        _markTransferSpent(_transferHash);
+        _markTransferSpent(_transferId);
         // distribute fee
         _transferFromBridge(msg.sender, _relayerFee);
         // Attempt swap to recipient
