@@ -9,6 +9,7 @@ _For a detailed description of the protocol, please see the [whitepaper](https:/
 ### Overview
 
 The Hop protocol provides a scalable rollup-to-rollup General Token Bridge using a two-pronged approach:
+
 1. Create a cross-network bridge token that can be quickly and economically moved from rollup to rollup or claimed on layer-1 for its underlying asset.
 2. Use Automated Market Makers to swap between each bridge token and its corresponding Canonical Tokens on each rollup in order to dynamically price liquidity and incentivize the rebalancing of liquidity across the network.
 
@@ -48,9 +49,10 @@ This contract is also an ERC20 contract that represents as an h token. Each main
 
 ### Diagrams
 
-- For detailed diagrams of the system, please see [here](https://github.com/hop-exchange/assets)
-  - [Detailed Transaction Diagrams](https://github.com/hop-exchange/assets/Hop_Transfer_Diagrams.jpg)
-  - [Contract Inheritance](https://github.com/hop-exchange/assets/Hop_Contract_Inheritance_Diagram.jpg.jpg)
+- For detailed diagrams of the system, please see [here](https://github.com/hop-exchange/contracts/tree/master/assets)
+  - [Detailed Transaction Diagrams](https://github.com/hop-exchange/contracts/blob/master/assets/Hop_Contract_Inheritance_Diagram.jpg)
+  - [Contract Inheritance](https://github.com/hop-exchange/contracts/blob/master/assets/Hop_Transfer_Diagrams.jpg)
+
 ## Contract Addresses
 
 Please see [`./config/addresses.ts`](https://github.com/hop-exchange/contracts/blob/master/config/addresses.ts) for all deployed contract addresses.

@@ -189,7 +189,6 @@ describe('L2_Bridge', () => {
     const expectedCurrentBridgeBal = userSendTokenAmount.sub(TRANSFER_AMOUNT)
     await expectBalanceOf(l2_bridge, user, expectedCurrentBridgeBal)
 
-
     const expectedPendingTransferHash: Buffer = transfer.getTransferHash()
     const pendingAmountChainId = await l2_bridge.pendingAmountChainIds(0)
     const expectedPendingAmountChainId = transfer.chainId
