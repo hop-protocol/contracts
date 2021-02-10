@@ -100,12 +100,12 @@ contract L1_Bridge is Bridge, L1_BridgeConfig {
 
     /**
      * @dev Used by the bonder to bond a TransferRoot and propagate it up to destination L2s
-     * @param _transferRootHash The Merkle root of the TransferRoot Merkle tree
+     * @param _rootHash The Merkle root of the TransferRoot Merkle tree
      * @param _destinationChainId The id of the destination chain
      * @param _totalAmount The amount destined for the destination chain
      */
     function bondTransferRoot(
-        bytes32 _transferRootHash,
+        bytes32 _rootHash,
         uint256 _destinationChainId,
         uint256 _totalAmount
     )
@@ -113,7 +113,7 @@ contract L1_Bridge is Bridge, L1_BridgeConfig {
         onlyBonder
         requirePositiveBalance
     {
-        bytes32 transferRootId = getTransferRootId(_transferRootHash, _totalAmount);
+        bytes32 transferRootId = getTransferRootId(_rootHash, _totalAmount);
         require(transferRootConfirmed[transferRootId] == false, "L1_BRG: Transfer Root has already been confirmed");
         require(transferBonds[transferRootId].createdAt == 0, "L1_BRG: Transfer Root has already been bonded");
 
@@ -123,27 +123,27 @@ contract L1_Bridge is Bridge, L1_BridgeConfig {
 
         transferBonds[transferRootId] = TransferBond(block.timestamp, _totalAmount, false, 0, address(0));
 
-        _distributeTransferRoot(_transferRootHash, _destinationChainId, _totalAmount);
+        _distributeTransferRoot(_rootHash, _destinationChainId, _totalAmount);
 
-        emit TransferRootBonded(_transferRootHash, _totalAmount);
+        emit TransferRootBonded(_rootHash, _totalAmount);
     }
 
     /**
      * @dev Used by an L2 bridge to confirm a TransferRoot via cross-domain message. Once a TransferRoot
      * has been confirmed, any challenge against that TransferRoot can be resolved as unsuccessful.
-     * @param _transferRootHash The Merkle root of the TransferRoot Merkle tree
+     * @param _rootHash The Merkle root of the TransferRoot Merkle tree
      * @param _destinationChainId The id of the destination chain
      * @param _totalAmount The amount destined for each destination chain
      */
     function confirmTransferRoot(
-        bytes32 _transferRootHash,
+        bytes32 _rootHash,
         uint256 _destinationChainId,
         uint256 _totalAmount
     )
         public
         onlyL2Bridge
     {
-        bytes32 transferRootId = getTransferRootId(_transferRootHash, _totalAmount);
+        bytes32 transferRootId = getTransferRootId(_rootHash, _totalAmount);
         require(transferRootConfirmed[transferRootId] == false, "L1_BRG: TransferRoot already confirmed");
         transferRootConfirmed[transferRootId] = true;
 
@@ -151,12 +151,12 @@ contract L1_Bridge is Bridge, L1_BridgeConfig {
         // require that the chainIds and chainAmounts match the values coming from the L2_Bridge.
         TransferBond storage transferBond = transferBonds[transferRootId];
         if (transferBond.createdAt == 0) {
-            _distributeTransferRoot(_transferRootHash, _destinationChainId, _totalAmount);
+            _distributeTransferRoot(_rootHash, _destinationChainId, _totalAmount);
         } 
     }
 
     function _distributeTransferRoot(
-        bytes32 _transferRootHash,
+        bytes32 _rootHash,
         uint256 _chainId,
         uint256 _totalAmount
     )
@@ -165,12 +165,12 @@ contract L1_Bridge is Bridge, L1_BridgeConfig {
         // Set TransferRoot on recipient Bridge
         if (_chainId == getChainId()) {
             // Set L1 transfer root
-            _setTransferRoot(_transferRootHash, _totalAmount);
+            _setTransferRoot(_rootHash, _totalAmount);
         } else {
             // Set L2 transfer root
             bytes memory setTransferRootMessage = abi.encodeWithSignature(
                 "setTransferRoot(bytes32,uint256)",
-                _transferRootHash,
+                _rootHash,
                 _totalAmount
             );
 
@@ -181,9 +181,9 @@ contract L1_Bridge is Bridge, L1_BridgeConfig {
 
     /* ========== Public TransferRoot Challenges ========== */
 
-    function challengeTransferBond(bytes32 _transferRootHash, uint256 _originalAmount) public {
-        bytes32 transferRootId = getTransferRootId(_transferRootHash, _originalAmount);
-        TransferRoot memory transferRoot = getTransferRoot(_transferRootHash, _originalAmount);
+    function challengeTransferBond(bytes32 _rootHash, uint256 _originalAmount) public {
+        bytes32 transferRootId = getTransferRootId(_rootHash, _originalAmount);
+        TransferRoot memory transferRoot = getTransferRoot(_rootHash, _originalAmount);
         TransferBond storage transferBond = transferBonds[transferRootId];
 
         require(transferRootConfirmed[transferRootId] == false, "L1_BRG: Transfer root has already been confirmed");
@@ -205,9 +205,9 @@ contract L1_Bridge is Bridge, L1_BridgeConfig {
         _addDebit(bondAmount);
     }
 
-    function resolveChallenge(bytes32 _transferRootHash, uint256 _originalAmount) public {
-        bytes32 transferRootId = getTransferRootId(_transferRootHash, _originalAmount);
-        TransferRoot memory transferRoot = getTransferRoot(_transferRootHash, _originalAmount);
+    function resolveChallenge(bytes32 _rootHash, uint256 _originalAmount) public {
+        bytes32 transferRootId = getTransferRootId(_rootHash, _originalAmount);
+        TransferRoot memory transferRoot = getTransferRoot(_rootHash, _originalAmount);
         TransferBond storage transferBond = transferBonds[transferRootId];
 
         require(transferBond.challengeStartTime != 0, "L1_BRG: Transfer root has not been challenged");
