@@ -10,32 +10,32 @@ _For a detailed description of the protocol, please see the [whitepaper](https:/
 
 The Hop protocol provides a scalable rollup-to-rollup General Token Bridge using a two-pronged approach:
 
-1. Create a cross-network bridge token that can be quickly and economically moved from rollup to rollup or claimed on layer-1 for its underlying asset.
+1. Create a cross-network bridge token that can be quickly and economically moved from rollup to rollup or claimed on L1 for its underlying asset.
 2. Use Automated Market Makers to swap between each bridge token and its corresponding Canonical Tokens on each rollup in order to dynamically price liquidity and incentivize the rebalancing of liquidity across the network.
 
 The combined approach allows users to quickly and trustlessly swap between layer-2 Canonical Tokens using the specialized bridge token as an intermediary asset.
 
-A bonder posts their funds as collateral for the system, which effectively fronts liquidity for users to easily transfer throughout each layer. All transferred funds are tracked and and the system will always have funds that account for all assets within the Hop ecosystem. Transfers are fully settled and bonders credits restored when the canonical L2 checkpoints their state onto L1.
+A bonder posts their funds as collateral for the system, which effectively fronts liquidity for users to easily transfer throughout each layer. All transferred funds are tracked and and the system will always have funds that account for all assets within the Hop ecosystem. Transfers are fully settled and bonders credits restored when the sending layer-2 checkpoints their state onto layer-1.
 
-Invalid transfers can be challenged by anyone. Challenges require a challenged to put up stake and wait until the challenged transfer is fully settled. If the challenge is won, the challenger is paid out their initial stake plus some. If it is lost, the challenge stake gets credited to the system.
+Transfers can be challenged by anyone. Challenges require a challenger to put up stake and wait until the challenged transfer is fully settled. If the challenge is won, the challenger is paid out their initial stake plus some. If it is lost, the challenge stake gets credited to the system.
 
 ### Contracts
 
 #### Bridges
 
-**Accounting.sol** - Abstract contract that is responsible for the accounting of the L1 and L2 bridges. A bonder can stake or unstake their funds using functions in this contract. All credits and debits are accounted accounted for and updated in this contract.
+**Accounting.sol** - Abstract contract that is responsible for the accounting of the layer-1 and layer-2 bridges. A bonder can stake or unstake their funds using functions in this contract. All credits and debits are accounted accounted for and updated in this contract.
 
 **Bridge.sol** - Abstract contract that inherits `Accounting.sol` and has the base, shared functionality for `L1_Bridge.sol` and `L2_Bridge.sol`. This contract's main functionality is to handle user withdrawals on any chain. It is also responsible for settling withdrawals and updating a bonder's credit. This contract has helper functions to retrieve data related to transfers.
 
 **L1_BridgeConfig.sol** - This contract contains getters and setters for L1_Bridge related variables. Most of these variables are associated with challenges.
 
-**L1_Bridge.sol** - This contract inherits `Bridge.sol` and `L1_BridgeConfig.sol`. There are four main entities that will use this contract and four main functionalities within it. A **user** can use this contract to send tokens to an L2. A **bonder** can use this contract to bond transfer roots. An **off-chain node** will use this contract to confirm transfer roots. **Anyone** can challenge and resolve a transfer bond.
+**L1_Bridge.sol** - This contract inherits `Bridge.sol` and `L1_BridgeConfig.sol`. There are four main entities that will use this contract and four main functionalities within it. A **user** can use this contract to send tokens to a layer-2. A **bonder** can use this contract to bond transfer roots. An **off-chain node** will use this contract to confirm transfer roots. **Anyone** can challenge and resolve a transfer bond.
 
-**L2_Bridge.sol** - This abstract contract inherits `Bridge.sol` and `ERC20.sol`. Similar to `L1_Bridge.sol`, there are four entities that will use this contract with four main functionalities within in. A **user** can use this contract to send tokens to either an L1 or an L2. They can also withdraw their tokens on an L2 through this contract. A **bonder** can bond a withdrawal on behalf of a user. An **off-chain node** will use this contract to mint new H Tokens. The **governance** entity can set various parameters.
+**L2_Bridge.sol** - This abstract contract inherits `Bridge.sol` and `ERC20.sol`. Similar to `L1_Bridge.sol`, there are four entities that will use this contract with four main functionalities within in. A **user** can use this contract to send tokens to either a layer-1 or a layer-2. They can also withdraw their tokens on an L2 through this contract. A **bonder** can bond a withdrawal on behalf of a user. An **off-chain node** will use this contract to mint new h Tokens. The **governance** entity can set various parameters.
 
 This contract is also an ERC20 contract that represents as an h token. Each mainnet token is represented 1:1 by an h token (e.g., 1 mainnet DAI has a corresponding hDAI). This bridge handles the minting/burning, transfers, and all ERC20 related functionality of these h tokens.
 
-**L2_ArbitrumBridge.sol / L2_OptimismBridge.sol** - These contracts inherit `L2_Bridge.sol` and add L2 specific implementation details. These are the contracts that will be deployed on each L2.
+**L2_ArbitrumBridge.sol / L2_OptimismBridge.sol** - These contracts inherit `L2_Bridge.sol` and add layer-2 specific implementation details. These are the contracts that will be deployed on each layer-2.
 
 ### Definitions
 
@@ -43,16 +43,29 @@ This contract is also an ERC20 contract that represents as an h token. Each main
 - **TransferId** - The hash of a single transfer's data.
 - **TransferRoot** - The merkle root of a tree of TransferHashes and associated metadata such as the destination chainIds and totals for each chain.
 - **TransferRootId** - The hash of a transfer root's hash and total amount.
-- **Bridge** - A hop bridge contracts on L1 or L2 ("L1 Bridge", "Hop Bridge", "Arbitrum Bridge", "Optimism Bridge")
+- **Bridge** - A hop bridge contracts on layer-1 or layer-2 ("L1 Bridge", "Hop Bridge", "Arbitrum Bridge", "Optimism Bridge")
 - **Canonical Token Bridge** - A Rollup's own token bridge. ("Canonical Arbitrum Bridge", "Canonical Optimism Bridge")
 - **Challenge** - A staked claim that a transfer is invalid. Anyone can challenge a transfer and will be rewarded or punished accordingly.
-- **h Tokens** - Hop Bridge Tokens (e.g., ”Hop ETH”, ”Hop DAI” with symbols ”hETH”, ”hDAI” respectively) are specialized layer-2 tokens that can be transferred rollup-to-rollup in batches and act as intermediary assets in the Hop protocol.
+- **h Tokens** - Hop Bridge Tokens (e.g., ”Hop ETH”, ”Hop DAI” with symbols ”hETH”, ”hDAI” respectively) are specialized L2 tokens that can be transferred rollup-to-rollup in batches and act as intermediary assets in the Hop protocol.
 
 ### Diagrams
 
 - For detailed diagrams of the system, please see [here](https://github.com/hop-exchange/contracts/tree/master/assets)
   - [Detailed Transaction Diagrams](https://github.com/hop-exchange/contracts/blob/master/assets/Hop_Contract_Inheritance_Diagram.jpg)
   - [Contract Inheritance](https://github.com/hop-exchange/contracts/blob/master/assets/Hop_Transfer_Diagrams.jpg)
+
+
+### Expected Usage
+
+In the happy path case, a user will send tokens from one layer to another and receive the tokens on the receiving chain within seconds. The Bonder (an off-chain node) will be running and will facilitate the transfers by calling bonded withdrawal functions on the receiving chain.
+
+In the non-happy path, the Bonder will be offline. In this case, users will still send tokens from one layer to another, however, they will be unable to withdraw on the receiving chain until the sending chain relays the transfer to layer-1 via the sending chain's messenger.
+
+Many transfers can be made from a given layer-2 before they are confirmed on layer-1 as a single bundle called a Transfer Root. After a certain number of transactions or a certain number of hours, a Bonder will bond a Transfer Root via a transaction on the layer-1 chain. This consists of bonding 110% of the Transfer Root's amount and sends the Transfer Roots to each layer-2.
+
+The system keeps track of the Bonder's credit and debit. Credit and debit only increment, and debit can never exceed credit. Credit is added to the Bonder's credit account each time funds are staked. Debit is added to the Bonder's debit account each time staked funds are unstaked. Credit is added to the Bonder's credit account each time transactions (from/to any chain) are successfully confirmed on layer-1. Debit is added to the Bonder's debit account each time transactions are sent (from/to any chain) but not yet confirmed on layer-1.
+
+Transfer Roots can be challenged by anyone. When a Transfer Root is bonded, the Bonder puts up a challenger bounty equal to 10% of the Transfer Root bond. A challenge consists of a challenger putting up an equal stake and waiting until the challenged Transfer Root is fully confirmed. If the challenge is won, the challenger’s stake is returned on top of 75% of the Bonder's challenger bounty. The remaining 25% of the bounty is burned. If the challenge is lost, the challenger’s stake is credited to the Bonder.
 
 
 ### Expected Contract Invocation
@@ -63,29 +76,29 @@ These are the expected, happy-path cases for users to send and receive funds on 
 
 - **L1 -> L2**
   - User calls `L1_Bridge.sendAndAttemptSwap()`
-    - Funds will show up on the appropriate L2 through the canonical L2 messenger
+    - Funds will show up on the appropriate layer-2 through the canonical layer-2 messenger
 
 - **L2 -> L1**
   - User calls `L2_Bridge.swapAndSend()`
   - Bonder calls `L1_Bridge.bondWithdrawal()`
 
 - **L2 -> L2**
-  - User calls `L2_Bridge.swapAndSend()` on the sending L2
-  - Bonder calls `L2_Bridge.bondWithdrawalAndAttemptSwap()` on the receiving L2
+  - User calls `L2_Bridge.swapAndSend()` on the sending layer-2
+  - Bonder calls `L2_Bridge.bondWithdrawalAndAttemptSwap()` on the receiving layer-2
 
-If the bonder is offline, the system relies on the canonical L2 bridge to settle transactions on L1.
+If the bonder is offline, the system relies on the canonical layer-2 bridge to settle transactions on layer-1.
 
 - **L2 -> L1 (bonder offline)**
   - User calls `L2_Bridge.swapAndSend()`
   - `L2_Bridge.commitTransfer()` is called by anyone after 100 txs or after 4 hours
-  - Wait for the canonical L2 to settle on L1 (usually 7 days)
+  - Wait for the sending layer-2 to be confirmed on layer-1 (usually 7 days)
   - User or Relayer calls `L1_Bridge.withdraw()`
 
 - **L2 -> L2 (bonder offline)**
-  - User calls `L2_Bridge.swapAndSend()` on the sending L2
-  - `L2_Bridge.commitTransfer()` is called on the sending L2 by anyone after 100 txs or after 4 hours
-  - Wait for the canonical L2 to settle on L1 (usually 7 days)
-  - User or Relayer calls `L2_Bridge.withdrawAndAttemptSwap()` on the receiving L2
+  - User calls `L2_Bridge.swapAndSend()` on the sending layer-2
+  - `L2_Bridge.commitTransfer()` is called on the sending layer-2 by anyone after 100 txs or after 4 hours
+  - Wait for the sending layer-2 to be confirmed on layer-1 (usually 7 days)
+  - User or Relayer calls `L2_Bridge.withdrawAndAttemptSwap()` on the receiving layer-2
 
 #### Transfer Roots
 
@@ -109,17 +122,17 @@ Please see [`./config/addresses.ts`](https://github.com/hop-exchange/contracts/b
 
 ### Tokens
 
-- **Canonical L1 Token** - The layer 1 token that is being bridged.
+- **Canonical L1 Token** - The layer-1 token that is being bridged.
   ("Canonical L1 ETH", "Canonical L1 DAI", "DAI", "ETH")
-- **hToken** - Exists on L2 and represents the right to 1 Token deposited in the L1 bridge.
+- **hToken** - Exists on layer-2 and represents the right to 1 Token deposited in the layer-1 bridge.
   hToken's can be converted to their Canonical L1 Token or vice versa at a 1:1 rate.
   ("hDAI", "hETH")
-- **Canonical L2 Token** - The primary L2 representation of a Canonical L1 Token. This is the
+- **Canonical L2 Token** - The primary layer-2 representation of a Canonical L1 Token. This is the
   token you get from depositing into a rollup's Canonical Token Bridge.
 
 ### Token Path
 
-On Hop, tokens are always converted along the following path. To convert DAI to Arbitrum DAI, DAI (on L1) is first converted to hDAI (on L2) using the L1 Hop Bridge. Then the hDAI is swapped for Arbitrum DAI through the Uniswap market. This can be done in one transaction by calling `sendToL2AndAttemptSwap`.
+On Hop, tokens are always converted along the following path. To convert DAI to Arbitrum DAI, DAI (on layer-1) is first converted to hDAI (on layer-2) using the layer-1 Hop Bridge. Then the hDAI is swapped for Arbitrum DAI through the Uniswap market. This can be done in one transaction by calling `sendToL2AndAttemptSwap`.
 
 ```
       Layer 1          |      Layer 2
@@ -139,7 +152,7 @@ DAI <--------------<---|---> hDAI <----(Uniswap)--> Arbitrum DAI
 
 ## Steps to Integrate a New L2
 
-The following steps are to add a new L2 (Xyz, for example) to the Hop System:
+The following steps are to add a new layer-2 (Xyz, for example) to the Hop System:
 
 - Contract updates
 
