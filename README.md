@@ -40,8 +40,9 @@ This contract is also an ERC20 contract that represents as an h token. Each main
 ### Definitions
 
 - **Transfer** - The data for a transfer from one chain to another.
-- **TransferHash** - The hash of a single transfer's data.
+- **TransferId** - The hash of a single transfer's data.
 - **TransferRoot** - The merkle root of a tree of TransferHashes and associated metadata such as the destination chainIds and totals for each chain.
+- **TransferRootId** - The hash of a transfer root's hash and total amount.
 - **Bridge** - A hop bridge contracts on L1 or L2 ("L1 Bridge", "Hop Bridge", "Arbitrum Bridge", "Optimism Bridge")
 - **Canonical Token Bridge** - A Rollup's own token bridge. ("Canonical Arbitrum Bridge", "Canonical Optimism Bridge")
 - **Challenge** - A staked claim that a transfer is invalid. Anyone can challenge a transfer and will be rewarded or punished accordingly.
@@ -69,8 +70,8 @@ These are the expected, happy-path cases for users to send and receive funds on 
   - Bonder calls `L1_Bridge.bondWithdrawal()`
 
 - **L2 -> L2**
-  - User calls `L2_Bridge.swapAndSend()`
-  - Bonder calls `L2_Bridge.bondWithdrawalAndAttemptSwap()`
+  - User calls `L2_Bridge.swapAndSend()` on the sending L2
+  - Bonder calls `L2_Bridge.bondWithdrawalAndAttemptSwap()` on the receiving L2
 
 If the bonder is offline, the system relies on the canonical L2 bridge to settle transactions on L1.
 
@@ -81,10 +82,10 @@ If the bonder is offline, the system relies on the canonical L2 bridge to settle
   - User or Relayer calls `L1_Bridge.withdraw()`
 
 - **L2 -> L2 (bonder offline)**
-  - User calls `L2_Bridge.swapAndSend()`
-  - `L2_Bridge.commitTransfer()` is called by anyone after 100 txs or after 4 hours
+  - User calls `L2_Bridge.swapAndSend()` on the sending L2
+  - `L2_Bridge.commitTransfer()` is called on the sending L2 by anyone after 100 txs or after 4 hours
   - Wait for the canonical L2 to settle on L1 (usually 7 days)
-  - User or Relayer calls `L2_Bridge.withdrawAndAttemptSwap()`
+  - User or Relayer calls `L2_Bridge.withdrawAndAttemptSwap()` on the receiving L2
 
 #### Transfer Roots
 
@@ -92,7 +93,7 @@ The bonder settles transactions and accounting with the following functions:
 
 - Bonder calls `L2_Bridge.commitTransfers()`
 - Bonder calls `L1_Bridge.bondTransferRoot()`
-- Bonder calls `L2_settleBondedWithdrawals()` on every chain
+- Bonder calls `settleBondedWithdrawals()` on every chain
 - Wait 7 days and `L1_Bridge.confirmTransferRoot()` is triggered and settles all accounting
 
 #### Challenges

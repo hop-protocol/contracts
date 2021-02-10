@@ -207,18 +207,18 @@ abstract contract Bridge is Accounting {
     }
 
     function settleBondedWithdrawals(
-        bytes32[] memory _transferIdes
+        bytes32[] memory _transferIds
     )
         public
     {
-        bytes32 rootHash = MerkleUtils.getMerkleRoot(_transferIdes);
+        bytes32 rootHash = MerkleUtils.getMerkleRoot(_transferIds);
 
         TransferRoot storage transferRoot = _transferRoots[rootHash];
         require(transferRoot.total > 0, "BRG: Transfer root not found");
 
         uint256 totalBondsFreed = 0;
-        for(uint256 i = 0; i < _transferIdes.length; i++) {
-            uint256 transferBondAmount = _bondedWithdrawalAmounts[_transferIdes[i]];
+        for(uint256 i = 0; i < _transferIds.length; i++) {
+            uint256 transferBondAmount = _bondedWithdrawalAmounts[_transferIds[i]];
             totalBondsFreed = totalBondsFreed.add(transferBondAmount);
         }
 
