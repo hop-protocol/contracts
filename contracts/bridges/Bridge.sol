@@ -83,11 +83,19 @@ abstract contract Bridge is Accounting {
     }
 
     /**
-     * @dev Get the TransferRoot for a given rootHash
+     * @dev Get the TransferRoot id for a given rootHash and totalAmount
      * @param _rootHash The merkle root of the TransferRoot
      */
-    function getTransferRoot(bytes32 _rootHash) public view returns (TransferRoot memory) {
-        return _transferRoots[_rootHash];
+    function getTransferRootId(bytes32 _rootHash, uint256 _totalAmount) public view returns (bytes32) {
+        return keccak256(abi.encodePacked(_rootHash, _totalAmount));
+    }
+
+    /**
+     * @dev Get the TransferRoot for a given rootHash and totalAmount
+     * @param _rootHash The merkle root of the TransferRoot
+     */
+    function getTransferRoot(bytes32 _rootHash, uint256 _totalAmount) public view returns (TransferRoot memory) {
+        return _transferRoots[getTransferRootId(_rootHash, _totalAmount)];
     }
 
     /**
@@ -234,7 +242,8 @@ abstract contract Bridge is Accounting {
     )
         internal
     {
-        TransferRoot storage transferRoot = _transferRoots[_transferRootHash];
+        bytes32 transferRootId = getTransferRootId(_transferRootHash, _amount);
+        TransferRoot storage transferRoot = _transferRoots[transferRootId];
         require(transferRoot.total > 0, "BRG: Transfer root not found");
 
         uint256 newAmountWithdrawn = transferRoot.amountWithdrawn.add(_amount);
@@ -246,7 +255,9 @@ abstract contract Bridge is Accounting {
     function _setTransferRoot(bytes32 _transferRootHash, uint256 _amount) internal {
         require(_transferRoots[_transferRootHash].total == 0, "BRG: Transfer root already set");
         require(_amount > 0, "BRG: Cannot set TransferRoot amount of 0");
-        _transferRoots[_transferRootHash] = TransferRoot(_amount, 0);
+
+        bytes32 transferRootId = getTransferRootId(_transferRootHash, _amount);
+        _transferRoots[transferRootId] = TransferRoot(_amount, 0);
     }
 
     function _setBondedWithdrawalAmount(bytes32 _transferHash, uint256 _amount) internal {
