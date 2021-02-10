@@ -23,19 +23,19 @@ Invalid transfers can be challenged by anyone. Challenges require a challenged t
 
 #### Bridges
 
-**Accounting.sol**: Abstract contract that is responsible for the accounting of the L1 and L2 bridges. A bonder can stake or unstake their funds using functions in this contract. All credits and debits are accounted accounted for and updated in this contract.
+**Accounting.sol** - Abstract contract that is responsible for the accounting of the L1 and L2 bridges. A bonder can stake or unstake their funds using functions in this contract. All credits and debits are accounted accounted for and updated in this contract.
 
-**Bridge.sol**: Abstract contract that inherits `Accounting.sol` and has the base, shared functionality for `L1_Bridge.sol` and `L2_Bridge.sol`. This contract's main functionality is to handle user withdrawals on any chain. It is also responsible for settling withdrawals and updating a bonder's credit. This contract has helper functions to retrieve data related to transfers.
+**Bridge.sol** - Abstract contract that inherits `Accounting.sol` and has the base, shared functionality for `L1_Bridge.sol` and `L2_Bridge.sol`. This contract's main functionality is to handle user withdrawals on any chain. It is also responsible for settling withdrawals and updating a bonder's credit. This contract has helper functions to retrieve data related to transfers.
 
-**L1_BridgeConfig.sol**: This contract contains getters and setters for L1_Bridge related variables. Most of these variables are associated with challenges.
+**L1_BridgeConfig.sol** - This contract contains getters and setters for L1_Bridge related variables. Most of these variables are associated with challenges.
 
-**L1_Bridge.sol**: This contract inherits `Bridge.sol` and `L1_BridgeConfig.sol`. There are four main entities that will use this contract and four main functionalities within it. A **user** can use this contract to send tokens to an L2. A **bonder** can use this contract to bond transfer roots. An **off-chain node** will use this contract to confirm transfer roots. **Anyone** can challenge and resolve a transfer bond.
+**L1_Bridge.sol** - This contract inherits `Bridge.sol` and `L1_BridgeConfig.sol`. There are four main entities that will use this contract and four main functionalities within it. A **user** can use this contract to send tokens to an L2. A **bonder** can use this contract to bond transfer roots. An **off-chain node** will use this contract to confirm transfer roots. **Anyone** can challenge and resolve a transfer bond.
 
-**L2_Bridge.sol**: This abstract contract inherits `Bridge.sol` and `ERC20.sol`. Similar to `L1_Bridge.sol`, there are four entities that will use this contract with four main functionalities within in. A **user** can use this contract to send tokens to either an L1 or an L2. They can also withdraw their tokens on an L2 through this contract. A **bonder** can bond a withdrawal on behalf of a user. An **off-chain node** will use this contract to mint new H Tokens. The **governance** entity can set various parameters.
+**L2_Bridge.sol** - This abstract contract inherits `Bridge.sol` and `ERC20.sol`. Similar to `L1_Bridge.sol`, there are four entities that will use this contract with four main functionalities within in. A **user** can use this contract to send tokens to either an L1 or an L2. They can also withdraw their tokens on an L2 through this contract. A **bonder** can bond a withdrawal on behalf of a user. An **off-chain node** will use this contract to mint new H Tokens. The **governance** entity can set various parameters.
 
 This contract is also an ERC20 contract that represents as an h token. Each mainnet token is represented 1:1 by an h token (e.g., 1 mainnet DAI has a corresponding hDAI). This bridge handles the minting/burning, transfers, and all ERC20 related functionality of these h tokens.
 
-**L2_ArbitrumBridge.sol / L2_OptimismBridge.sol**: These contracts inherit `L2_Bridge.sol` and add L2 specific implementation details. These are the contracts that will be deployed on each L2.
+**L2_ArbitrumBridge.sol / L2_OptimismBridge.sol** - These contracts inherit `L2_Bridge.sol` and add L2 specific implementation details. These are the contracts that will be deployed on each L2.
 
 ### Definitions
 
@@ -52,6 +52,55 @@ This contract is also an ERC20 contract that represents as an h token. Each main
 - For detailed diagrams of the system, please see [here](https://github.com/hop-exchange/contracts/tree/master/assets)
   - [Detailed Transaction Diagrams](https://github.com/hop-exchange/contracts/blob/master/assets/Hop_Contract_Inheritance_Diagram.jpg)
   - [Contract Inheritance](https://github.com/hop-exchange/contracts/blob/master/assets/Hop_Transfer_Diagrams.jpg)
+
+
+### Expected Contract Invocation
+
+#### Transfers
+
+These are the expected, happy-path cases for users to send and receive funds on each layer.
+
+- **L1 -> L2**
+  - User calls `L1_Bridge.sendAndAttemptSwap()`
+    - Funds will show up on the appropriate L2 through the canonical L2 messenger
+
+- **L2 -> L1**
+  - User calls `L2_Bridge.swapAndSend()`
+  - Bonder calls `L1_Bridge.bondWithdrawal()`
+
+- **L2 -> L2**
+  - User calls `L2_Bridge.swapAndSend()`
+  - Bonder calls `L2_Bridge.bondWithdrawalAndAttemptSwap()`
+
+If the bonder is offline, the system relies on the canonical L2 bridge to settle transactions on L1.
+
+- **L2 -> L1 (bonder offline)**
+  - User calls `L2_Bridge.swapAndSend()`
+  - `L2_Bridge.commitTransfer()` is called by anyone after 100 txs or after 4 hours
+  - Wait for the canonical L2 to settle on L1 (usually 7 days)
+  - User or Relayer calls `L1_Bridge.withdraw()`
+
+- **L2 -> L2 (bonder offline)**
+  - User calls `L2_Bridge.swapAndSend()`
+  - `L2_Bridge.commitTransfer()` is called by anyone after 100 txs or after 4 hours
+  - Wait for the canonical L2 to settle on L1 (usually 7 days)
+  - User or Relayer calls `L2_Bridge.withdrawAndAttemptSwap()`
+
+#### Transfer Roots
+
+The bonder settles transactions and accounting with the following functions:
+
+- Bonder calls `L2_Bridge.commitTransfers()`
+- Bonder calls `L1_Bridge.bondTransferRoot()`
+- Bonder calls `L2_settleBondedWithdrawals()` on every chain
+- Wait 7 days and `L1_Bridge.confirmTransferRoot()` is triggered and settles all accounting
+
+#### Challenges
+
+Anyone can challenge transactions:
+
+- Anyone calls `L1_Bridge.challengeTransferBond()`
+- After the challenge resolution period has ended, anyone calls `L1_Bridge.resolveChallenge()`
 
 ## Contract Addresses
 
