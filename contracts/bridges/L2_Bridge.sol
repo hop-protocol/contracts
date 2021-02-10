@@ -175,7 +175,7 @@ abstract contract L2_Bridge is ERC20, Bridge {
     }
 
     function commitTransfers(uint256 _destinationChainId) external {
-        uint minForceCommitTime = lastCommitTimeForChainId[_destinationChainId].add(minimumForceCommitDelay);
+        uint256 minForceCommitTime = lastCommitTimeForChainId[_destinationChainId].add(minimumForceCommitDelay);
         require(minForceCommitTime < block.timestamp || msg.sender == getBonder(), "L2_BRG: Only Bonder can commit before min delay");
         lastCommitTimeForChainId[_destinationChainId] = block.timestamp;
 
