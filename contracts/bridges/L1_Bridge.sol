@@ -221,8 +221,10 @@ contract L1_Bridge is Bridge, L1_BridgeConfig {
             _addCredit(getBondForTransferAmount(transferRoot.total).add(challengeStakeAmount));
         } else {
             // Valid challenge
-            // Reward challenger with their stake times two
-            l1CanonicalToken.transfer(transferBond.challenger, challengeStakeAmount.mul(2));
+            // Burn 25% of the challengers stake
+            l1CanonicalToken.transfer(address(0xd3ad), challengeStakeAmount.mul(1).div(4));
+            // Reward challenger with the remaining 75% of their stake plus 100% of the Bonder's stake
+            l1CanonicalToken.transfer(transferBond.challenger, challengeStakeAmount.mul(7).div(4));
         }
     }
 
