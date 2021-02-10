@@ -262,7 +262,7 @@ abstract contract L2_Bridge is ERC20, Bridge {
         pendingAmountForChainId[_chainId] = pendingAmountForChainId[_chainId].add(_amount);
     }
 
-    function _commitTransfers(uint256 _destinationChainId) public {
+    function _commitTransfers(uint256 _destinationChainId) internal {
         bytes32[] storage pendingTransfers = pendingTransfersForChainId[_destinationChainId];
         require(pendingTransfers.length > 0, "L2_BRG: Must commit at least 1 Transfer");
 
