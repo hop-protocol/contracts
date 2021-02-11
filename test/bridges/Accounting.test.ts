@@ -3,8 +3,12 @@ import { expect } from 'chai'
 import { Signer, Contract, BigNumber } from 'ethers'
 
 import { fixture } from '../shared/fixtures'
-import { setUpDefaults } from '../shared/utils'
 import { IFixture } from '../shared/interfaces'
+import {
+  setUpDefaults,
+  revertSnapshot,
+  takeSnapshot
+} from '../shared/utils'
 
 import { CHAIN_IDS } from '../../config/constants'
 
@@ -17,11 +21,28 @@ describe('Accounting', () => {
 
   let mockAccounting: Contract
 
-  beforeEach(async () => {
+  let beforeAllSnapshotId: string
+  let snapshotId: string
+
+  before(async () => {
+    beforeAllSnapshotId = await takeSnapshot()
+
     const l2ChainId: BigNumber = CHAIN_IDS.OPTIMISM.TESTNET_1
     _fixture = await fixture(l2ChainId)
     await setUpDefaults(_fixture, l2ChainId)
     ;({ bonder, user, otherUser, mockAccounting } = _fixture)
+  })
+
+  after(async() => {
+    await revertSnapshot(beforeAllSnapshotId)
+  })
+
+  beforeEach(async() => {
+    snapshotId = await takeSnapshot()
+  })
+
+  afterEach(async() => {
+    await revertSnapshot(snapshotId)
   })
 
   /**

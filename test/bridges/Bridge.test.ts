@@ -5,7 +5,11 @@ import MerkleTree from '../../lib/MerkleTree'
 import Transfer from '../../lib/Transfer'
 
 import { fixture } from '../shared/fixtures'
-import { setUpDefaults } from '../shared/utils'
+import {
+  setUpDefaults,
+  revertSnapshot,
+  takeSnapshot
+} from '../shared/utils'
 import { IFixture } from '../shared/interfaces'
 
 import { CHAIN_IDS } from '../../config/constants'
@@ -18,11 +22,28 @@ describe('Bridge', () => {
 
   let l2ChainId: BigNumber
 
-  beforeEach(async () => {
+  let beforeAllSnapshotId: string
+  let snapshotId: string
+
+  before(async () => {
+    beforeAllSnapshotId = await takeSnapshot()
+
     l2ChainId = CHAIN_IDS.OPTIMISM.TESTNET_1
     _fixture = await fixture(l2ChainId)
     await setUpDefaults(_fixture, l2ChainId)
     ;({ mockBridge, transfers } = _fixture)
+  })
+
+  after(async() => {
+    await revertSnapshot(beforeAllSnapshotId)
+  })
+
+  beforeEach(async() => {
+    snapshotId = await takeSnapshot()
+  })
+
+  afterEach(async() => {
+    await revertSnapshot(snapshotId)
   })
 
   /**

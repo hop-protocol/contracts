@@ -10,7 +10,7 @@ _For a detailed description of the protocol, please see the [whitepaper](https:/
 
 The Hop protocol provides a scalable rollup-to-rollup General Token Bridge using a two-pronged approach:
 
-1. Create a cross-network bridge token that can be quickly and economically moved from rollup to rollup or claimed on L1 for its underlying asset.
+1. Create a cross-network bridge token that can be quickly and economically moved from rollup to rollup or claimed on layer-1 for its underlying asset.
 2. Use Automated Market Makers to swap between each bridge token and its corresponding Canonical Tokens on each rollup in order to dynamically price liquidity and incentivize the rebalancing of liquidity across the network.
 
 The combined approach allows users to quickly and trustlessly swap between layer-2 Canonical Tokens using the specialized bridge token as an intermediary asset.
@@ -120,7 +120,7 @@ Anyone can challenge transactions:
 
 Please see [`./config/addresses.ts`](https://github.com/hop-exchange/contracts/blob/master/config/addresses.ts) for all deployed contract addresses.
 
-### Tokens
+## Tokens
 
 - **Canonical L1 Token** - The layer-1 token that is being bridged.
   ("Canonical L1 ETH", "Canonical L1 DAI", "DAI", "ETH")
@@ -130,7 +130,7 @@ Please see [`./config/addresses.ts`](https://github.com/hop-exchange/contracts/b
 - **Canonical L2 Token** - The primary layer-2 representation of a Canonical L1 Token. This is the
   token you get from depositing into a rollup's Canonical Token Bridge.
 
-### Token Path
+## Token Path
 
 On Hop, tokens are always converted along the following path. To convert DAI to Arbitrum DAI, DAI (on layer-1) is first converted to hDAI (on layer-2) using the layer-1 Hop Bridge. Then the hDAI is swapped for Arbitrum DAI through the Uniswap market. This can be done in one transaction by calling `sendToL2AndAttemptSwap`.
 

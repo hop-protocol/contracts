@@ -4,7 +4,13 @@ import { Signer, Contract, BigNumber } from 'ethers'
 import Transfer from '../../lib/Transfer'
 import MerkleTree from '../../lib/MerkleTree'
 
-import { setUpDefaults, expectBalanceOf, increaseTime } from '../shared/utils'
+import {
+  setUpDefaults,
+  expectBalanceOf,
+  increaseTime,
+  revertSnapshot,
+  takeSnapshot
+} from '../shared/utils'
 import { fixture } from '../shared/fixtures'
 import { IFixture } from '../shared/interfaces'
 
@@ -15,7 +21,8 @@ import {
   USER_INITIAL_BALANCE,
   BONDER_INITIAL_BALANCE,
   CHALLENGER_INITIAL_BALANCE,
-  ZERO_ADDRESS
+  ZERO_ADDRESS,
+  SECONDS_IN_A_DAY
 } from '../../config/constants'
 
 describe('L1_Bridge', () => {
@@ -38,7 +45,12 @@ describe('L1_Bridge', () => {
 
   let transfers: Transfer[]
 
-  beforeEach(async () => {
+  let beforeAllSnapshotId: string
+  let snapshotId: string
+
+  before(async () => {
+    beforeAllSnapshotId = await takeSnapshot()
+
     l2ChainId = CHAIN_IDS.OPTIMISM.TESTNET_1
     _fixture = await fixture(l2ChainId)
     await setUpDefaults(_fixture, l2ChainId)
@@ -57,6 +69,19 @@ describe('L1_Bridge', () => {
       l2_uniswapRouter,
       transfers
     } = _fixture)
+  })
+
+  after(async() => {
+    await revertSnapshot(beforeAllSnapshotId)
+  })
+
+  // Take snapshot before each test and revert after each test
+  beforeEach(async() => {
+    snapshotId = await takeSnapshot()
+  })
+
+  afterEach(async() => {
+    await revertSnapshot(snapshotId)
   })
 
   /**

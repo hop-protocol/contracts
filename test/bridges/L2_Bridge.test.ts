@@ -9,7 +9,9 @@ import {
   setUpDefaults,
   sendTestTokensAcrossCanonicalBridge,
   sendTestTokensAcrossHopBridge,
-  expectBalanceOf
+  expectBalanceOf,
+  revertSnapshot,
+  takeSnapshot
 } from '../shared/utils'
 import { IFixture } from '../shared/interfaces'
 
@@ -50,7 +52,12 @@ describe('L2_Bridge', () => {
 
   let userSendTokenAmount: BigNumber
 
-  beforeEach(async () => {
+  let beforeAllSnapshotId: string
+  let snapshotId: string
+
+  before(async () => {
+    beforeAllSnapshotId = await takeSnapshot()
+
     // Set up sending L2
     l2ChainId = CHAIN_IDS.OPTIMISM.TESTNET_1
     _fixture = await fixture(l2ChainId)
@@ -78,6 +85,20 @@ describe('L2_Bridge', () => {
     // Set up other
     userSendTokenAmount = USER_INITIAL_BALANCE
   })
+
+  after(async() => {
+    await revertSnapshot(beforeAllSnapshotId)
+  })
+
+  // Take snapshot before each test and revert after each test
+  beforeEach(async() => {
+    snapshotId = await takeSnapshot()
+  })
+
+  afterEach(async() => {
+    await revertSnapshot(snapshotId)
+  })
+
 
   /**
    * Happy Path

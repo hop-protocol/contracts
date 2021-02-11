@@ -259,6 +259,30 @@ export const getL2SpecificArtifact = (chainId: BigNumber) => {
   }
 }
 
-export const increaseTime = async (numDays: number) => {
-  return ethers.provider.send('evm_increaseTime', [60 * 60 * 24 * numDays])
+export const takeSnapshot = async () => {
+  return await ethers.provider.send('evm_snapshot', [])
+}
+
+export const revertSnapshot = async (id: string) => {
+  await ethers.provider.send('evm_revert', [id])
+}
+
+export const mineBlock = async () => {
+  console.log('0')
+  const timestamp: number = Date.now()
+  console.log('1')
+  await ethers.provider.send('evm_mine', [timestamp])
+}
+
+export const increaseTime = async (seconds: number) => {
+  await ethers.provider.send('evm_increaseTime', [seconds])
+  await mineBlock()
+}
+
+export const minerStop = async () => {
+  await ethers.provider.send('miner_stop', [])
+}
+
+export const minerStart = async () => {
+  await ethers.provider.send('miner_start', [])
 }
