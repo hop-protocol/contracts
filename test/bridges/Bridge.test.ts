@@ -50,11 +50,12 @@ describe('Bridge', () => {
    * Happy Path
    */
 
-  it('Should get the correct transfer hash', async () => {
+
+  it('Should get the correct transfer id', async () => {
     for (let i = 0; i < transfers.length; i++) {
       const transfer: Transfer = transfers[i]
-      const expectedTransferHash: Buffer = transfer.getTransferHash()
-      const transferHash = await mockBridge.getTransferHash(
+      const expectedTransferId: Buffer = transfer.getTransferId()
+      const transferId = await mockBridge.getTransferId(
         transfer.chainId,
         transfer.sender,
         transfer.recipient,
@@ -64,7 +65,7 @@ describe('Bridge', () => {
         transfer.amountOutMin,
         transfer.deadline
       )
-      expect(transferHash).to.eq('0x' + expectedTransferHash.toString('hex'))
+      expect(transferId).to.eq('0x' + expectedTransferId.toString('hex'))
     }
   })
 
@@ -107,10 +108,10 @@ describe('Bridge', () => {
     transfer.amountOutMin = BigNumber.from(0)
     transfer.deadline = BigNumber.from(0)
 
-    const transferHash: Buffer = transfer.getTransferHash()
-    const tree: MerkleTree = new MerkleTree([transferHash])
+    const transferId: Buffer = transfer.getTransferId()
+    const tree: MerkleTree = new MerkleTree([transferId])
     const transferRootHash: Buffer = tree.getRoot()
-    const proof: Buffer[] = tree.getProof(transferHash)
+    const proof: Buffer[] = tree.getProof(transferId)
 
     const expectedErrorMsg: string = 'BRG: Transfer root not found'
 

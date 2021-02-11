@@ -32,7 +32,7 @@ export default class Transfer {
     this.deadline = props.deadline
   }
 
-  getTransferHash (): Buffer {
+  getTransferId (): Buffer {
     const data = ethers.utils.defaultAbiCoder.encode(
       [
         'uint256',

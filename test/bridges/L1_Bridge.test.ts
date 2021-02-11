@@ -96,7 +96,7 @@ describe('L1_Bridge', () => {
     await l1_bridge.connect(bonder).unstake(BONDER_INITIAL_BALANCE)
   })
 
-  it('Should bond a transfer root when a user sends from L2 to L1 via the canonical messenger', async () => {
+  it('Should bond a transfer root when a user sends from L2 to L1', async () => {
     // Set up transfer
     let transfer: any = transfers[0]
     transfer.chainId = CHAIN_IDS.ETHEREUM.MAINNET
@@ -154,8 +154,7 @@ describe('L1_Bridge', () => {
       .approve(l1_bridge.address, BONDER_INITIAL_BALANCE)
     await l1_bridge.connect(bonder).stake(BONDER_INITIAL_BALANCE)
 
-    // await l1_bridge.setCrossDomainMessengerWrapper(CHAIN_IDS.ARBITRUM.TESTNET_3)
-    // Bond the transfer root on L1
+    // Bond the withdrawal on L1
     const transfersCommittedEvent = (
       await l2_bridge.queryFilter(l2_bridge.filters.TransfersCommitted())
     )[0]
@@ -168,10 +167,10 @@ describe('L1_Bridge', () => {
       )
 
     // User withdraws from L1 bridge
-    const transferHash: Buffer = transfer.getTransferHash()
-    const tree: MerkleTree = new MerkleTree([transferHash])
-    const transferRootHash: Buffer = tree.getRoot()
-    const proof: Buffer[] = tree.getProof(transferHash)
+    const transferId: Buffer = transfer.getTransferId()
+    const tree: MerkleTree = new MerkleTree([transferId])
+    const rootHash: Buffer = tree.getRoot()
+    const proof: Buffer[] = tree.getProof(transferId)
 
     // TODO: I believe this will work when `_sendCrossDomainMessage()` on L2_Bridge is implemented
     // await l1_bridge
@@ -182,7 +181,7 @@ describe('L1_Bridge', () => {
     //     transfer.amount,
     //     transfer.transferNonce,
     //     transfer.relayerFee,
-    //     transferRootHash,
+    //     rootHash,
     //     proof
     //   )
 
@@ -222,16 +221,16 @@ describe('L1_Bridge', () => {
     await l1_bridge.connect(bonder).stake(BONDER_INITIAL_BALANCE)
 
     // Set up transfer root
-    const transferHash: Buffer = transfer.getTransferHash()
-    const tree: MerkleTree = new MerkleTree([transferHash])
-    const transferRootHash: Buffer = tree.getRoot()
+    const transferId: Buffer = transfer.getTransferId()
+    const tree: MerkleTree = new MerkleTree([transferId])
+    const rootHash: Buffer = tree.getRoot()
 
     // Bonder bonds transfer root
     const chainId: BigNumber = transfer.chainId
     const amount: BigNumber = transfer.amount
     await l1_bridge
       .connect(bonder)
-      .bondTransferRoot(transferRootHash, chainId, amount)
+      .bondTransferRoot(rootHash, chainId, amount)
 
     // Get current debit
     const originalDebit = await l1_bridge.getDebit()
@@ -243,14 +242,14 @@ describe('L1_Bridge', () => {
     await l1_canonicalToken
       .connect(challenger)
       .approve(l1_bridge.address, challengeAmount)
-    await l1_bridge.connect(challenger).challengeTransferBond(transferRootHash)
+    await l1_bridge.connect(challenger).challengeTransferBond(rootHash, transfer.amount)
 
     // Validate balances
     // TODO: This requires the L2 Bridge to confirm the transfer, or else the transfer will have a total of 0
     // await expectBalanceOf(l1_canonicalToken, challenger, CHALLENGER_INITIAL_BALANCE.sub(transfer.amount))
 
     // Validate transfer bond
-    const transferBond = await l1_bridge.transferBonds(transferRootHash)
+    const transferBond = await l1_bridge.transferBonds(rootHash)
 
     expect(transferBond[0].mul(1000).toNumber()).to.be.closeTo(
       expectedChallengeStartTime,
@@ -282,7 +281,7 @@ describe('L1_Bridge', () => {
     transfer.chainId = CHAIN_IDS.OPTIMISM.TESTNET_1
 
     // User withdraws from L1 bridge
-    const tree = new MerkleTree([transfer.getTransferHash()])
+    const tree = new MerkleTree([transfer.getTransferId()])
 
     // Bonder stakes assets
     await l1_canonicalToken
@@ -301,11 +300,11 @@ describe('L1_Bridge', () => {
     await l1_canonicalToken
       .connect(challenger)
       .approve(l1_bridge.address, transfer.amount)
-    await l1_bridge.connect(challenger).challengeTransferBond(tree.getRoot())
-    const numDaysToWait: number = 9
+    await l1_bridge.connect(challenger).challengeTransferBond(tree.getRoot(), transfer.amount)
+    const numDaysToWait: number = 9 * SECONDS_IN_A_DAY
     await increaseTime(numDaysToWait)
 
-    await l1_bridge.connect(challenger).resolveChallenge(tree.getRoot())
+    await l1_bridge.connect(challenger).resolveChallenge(tree.getRoot(), transfer.amount)
 
     // TODO: Validate all state
   })
@@ -379,8 +378,8 @@ describe('L1_Bridge', () => {
       let transfer: any = transfers[0]
 
       // User withdraws from L1 bridge
-      const transferHash: Buffer = transfer.getTransferHash()
-      const tree: MerkleTree = new MerkleTree([transferHash])
+      const transferId: Buffer = transfer.getTransferId()
+      const tree: MerkleTree = new MerkleTree([transferId])
 
       await l1_canonicalToken
         .connect(bonder)
@@ -402,8 +401,8 @@ describe('L1_Bridge', () => {
       let transfer: any = transfers[0]
 
       // User withdraws from L1 bridge
-      const transferHash: Buffer = transfer.getTransferHash()
-      const tree: MerkleTree = new MerkleTree([transferHash])
+      const transferId: Buffer = transfer.getTransferId()
+      const tree: MerkleTree = new MerkleTree([transferId])
 
       await l1_canonicalToken
         .connect(bonder)
@@ -472,10 +471,10 @@ describe('L1_Bridge', () => {
       await l1_messenger.relayNextMessage()
 
       // User withdraws from L1 bridge
-      const transferHash: Buffer = transfer.getTransferHash()
-      const tree: MerkleTree = new MerkleTree([transferHash])
-      const transferRootHash: Buffer = tree.getRoot()
-      const proof: Buffer[] = tree.getProof(transferHash)
+      const transferId: Buffer = transfer.getTransferId()
+      const tree: MerkleTree = new MerkleTree([transferId])
+      const rootHash: Buffer = tree.getRoot()
+      const proof: Buffer[] = tree.getProof(transferId)
 
       // TODO: Uncomment this when _sendCrossDomainMessage on L2_Bridge is implemented
       // const chainId: BigNumber = CHAIN_IDS.OPTIMISM.TESTNET_1
@@ -491,8 +490,8 @@ describe('L1_Bridge', () => {
       let transfer: any = transfers[0]
 
       // User withdraws from L1 bridge
-      const transferHash: Buffer = transfer.getTransferHash()
-      const tree: MerkleTree = new MerkleTree([transferHash])
+      const transferId: Buffer = transfer.getTransferId()
+      const tree: MerkleTree = new MerkleTree([transferId])
 
       await l1_canonicalToken
         .connect(bonder)
@@ -523,8 +522,8 @@ describe('L1_Bridge', () => {
       let transfer: any = transfers[0]
 
       // User withdraws from L1 bridge
-      const transferHash: Buffer = transfer.getTransferHash()
-      const tree: MerkleTree = new MerkleTree([transferHash])
+      const transferId: Buffer = transfer.getTransferId()
+      const tree: MerkleTree = new MerkleTree([transferId])
 
       await l1_canonicalToken
         .connect(bonder)
@@ -553,8 +552,8 @@ describe('L1_Bridge', () => {
       )
 
       // User withdraws from L1 bridge
-      const transferHash: Buffer = transfer.getTransferHash()
-      const tree: MerkleTree = new MerkleTree([transferHash])
+      const transferId: Buffer = transfer.getTransferId()
+      const tree: MerkleTree = new MerkleTree([transferId])
 
       await l1_canonicalToken
         .connect(bonder)
@@ -578,8 +577,8 @@ describe('L1_Bridge', () => {
     it('Should not allow a transfer root to be confirmed by anybody except the L2_Bridge', async () => {
       let transfer: any = transfers[0]
 
-      const transferHash: Buffer = transfer.getTransferHash()
-      const tree: MerkleTree = new MerkleTree([transferHash])
+      const transferId: Buffer = transfer.getTransferId()
+      const tree: MerkleTree = new MerkleTree([transferId])
 
       const chainId: BigNumber = CHAIN_IDS.OPTIMISM.TESTNET_1
       const amount: BigNumber = BigNumber.from(1)
@@ -636,7 +635,7 @@ describe('L1_Bridge', () => {
       transfer.chainId = CHAIN_IDS.OPTIMISM.TESTNET_1
 
       // User withdraws from L1 bridge
-      const tree = new MerkleTree([transfer.getTransferHash()])
+      const tree = new MerkleTree([transfer.getTransferId()])
 
       // Bonder stakes assets
       await l1_canonicalToken
@@ -655,11 +654,11 @@ describe('L1_Bridge', () => {
       await l1_canonicalToken
         .connect(challenger)
         .approve(l1_bridge.address, transfer.amount)
-      await l1_bridge.connect(challenger).challengeTransferBond(tree.getRoot())
+      await l1_bridge.connect(challenger).challengeTransferBond(tree.getRoot(), transfer.amount)
 
       const expectedErrorMsg: string = 'L1_BRG: Challenge period has not ended'
       await expect(
-        l1_bridge.connect(challenger).resolveChallenge(tree.getRoot())
+        l1_bridge.connect(challenger).resolveChallenge(tree.getRoot(), transfer.amount)
       ).to.be.revertedWith(expectedErrorMsg)
     })
   })
