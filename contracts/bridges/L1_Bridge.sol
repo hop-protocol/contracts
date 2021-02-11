@@ -30,6 +30,7 @@ contract L1_Bridge is Bridge, L1_BridgeConfig {
     mapping(bytes32 => TransferBond) public transferBonds;
     mapping(uint256 => uint256) public timeSlotToAmountBonded;
     uint256 public amountChallenged;
+    mapping(uint256 => uint256) public chainBalance;
 
     /* ========== Events ========== */
 
@@ -63,6 +64,8 @@ contract L1_Bridge is Bridge, L1_BridgeConfig {
         l1CanonicalToken.safeTransferFrom(msg.sender, address(this), _amount);
 
         bytes memory mintCalldata = abi.encodeWithSignature("mint(address,uint256)", _recipient, _amount);
+
+        chainBalance[_chainId].add(_amount);
         getCrossDomainMessengerWrapper(_chainId).sendCrossDomainMessage(mintCalldata);
     }
 
@@ -75,6 +78,9 @@ contract L1_Bridge is Bridge, L1_BridgeConfig {
     )
         public
     {
+        IMessengerWrapper messenger = getCrossDomainMessengerWrapper(_chainId);
+        require(messenger != IMessengerWrapper(0), "L1_BRG: chainId not supported");
+
         l1CanonicalToken.safeTransferFrom(msg.sender, address(this), _amount);
 
         bytes memory mintAndAttemptSwapCalldata = abi.encodeWithSignature(
@@ -85,7 +91,8 @@ contract L1_Bridge is Bridge, L1_BridgeConfig {
             _deadline
         );
 
-        getCrossDomainMessengerWrapper(_chainId).sendCrossDomainMessage(mintAndAttemptSwapCalldata);
+        chainBalance[_chainId].add(_amount);
+        messenger.sendCrossDomainMessage(mintAndAttemptSwapCalldata);
     }
 
     /* ========== Public Transfer Root Functions ========== */
@@ -136,6 +143,7 @@ contract L1_Bridge is Bridge, L1_BridgeConfig {
      * @param _totalAmount The amount destined for each destination chain
      */
     function confirmTransferRoot(
+        uint256 _chainId,
         bytes32 _rootHash,
         uint256 _destinationChainId,
         uint256 _totalAmount
@@ -146,6 +154,7 @@ contract L1_Bridge is Bridge, L1_BridgeConfig {
         bytes32 transferRootId = getTransferRootId(_rootHash, _totalAmount);
         require(transferRootConfirmed[transferRootId] == false, "L1_BRG: TransferRoot already confirmed");
         transferRootConfirmed[transferRootId] = true;
+        chainBalance[_chainId].sub(_totalAmount, "L1_BRG: Amount exceeds chainBalance. This indicates a layer-2 failure.");
 
         // If the TransferRoot was never bonded, distribute the TransferRoot. If it has been bonded, 
         // require that the chainIds and chainAmounts match the values coming from the L2_Bridge.
