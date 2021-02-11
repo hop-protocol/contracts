@@ -7,6 +7,7 @@ import MerkleTree from '../../lib/MerkleTree'
 import {
   setUpDefaults,
   expectBalanceOf,
+  getTransferRootId,
   increaseTime,
   revertSnapshot,
   takeSnapshot
@@ -20,6 +21,7 @@ import {
   DEFAULT_DEADLINE,
   USER_INITIAL_BALANCE,
   BONDER_INITIAL_BALANCE,
+  INITIAL_BONDED_AMOUNT,
   CHALLENGER_INITIAL_BALANCE,
   ZERO_ADDRESS,
   SECONDS_IN_A_DAY
@@ -88,15 +90,16 @@ describe('L1_Bridge', () => {
    * End to end tests
    */
 
-  it('Should allow bonder to deposit bond and then withdraw bond', async () => {
+  it('Should allow bonder to stake and unstake', async () => {
+    const bondAmount: BigNumber = BigNumber.from('100')
     await l1_canonicalToken
       .connect(bonder)
-      .approve(l1_bridge.address, BONDER_INITIAL_BALANCE)
-    await l1_bridge.connect(bonder).stake(BONDER_INITIAL_BALANCE)
-    await l1_bridge.connect(bonder).unstake(BONDER_INITIAL_BALANCE)
+      .approve(l1_bridge.address, bondAmount)
+    await l1_bridge.connect(bonder).stake(bondAmount)
+    await l1_bridge.connect(bonder).unstake(bondAmount)
   })
 
-  it('Should bond a transfer root when a user sends from L2 to L1', async () => {
+  it('Should allow a user to send from L2 to L1 and perform a bonded withdrawal', async () => {
     // Set up transfer
     let transfer: any = transfers[0]
     transfer.chainId = CHAIN_IDS.ETHEREUM.MAINNET
@@ -109,13 +112,6 @@ describe('L1_Bridge', () => {
     expect(transfer.sender).to.eq(await sender.getAddress())
     expect(transfer.recipient).to.eq(await recipient.getAddress())
 
-    const senderOriginalBalance: BigNumber = await l1_canonicalToken.balanceOf(
-      await sender.getAddress()
-    )
-    const recipientOriginalBalance: BigNumber = await l1_canonicalToken.balanceOf(
-      await recipient.getAddress()
-    )
-
     // User moves funds to L2
     await l1_canonicalToken
       .connect(user)
@@ -124,6 +120,13 @@ describe('L1_Bridge', () => {
       .connect(user)
       .sendToL2(l2ChainId.toString(), await user.getAddress(), transfer.amount)
     await l2_messenger.relayNextMessage()
+
+    // Validate balances
+    await expectBalanceOf(
+      l1_canonicalToken,
+      user,
+      USER_INITIAL_BALANCE.sub(transfer.amount)
+    )
     await expectBalanceOf(l2_bridge, user, transfer.amount)
 
     // User moves funds back to L1 across the liquidity bridge
@@ -139,70 +142,163 @@ describe('L1_Bridge', () => {
         transfer.deadline
       )
 
-    // User should have less balance now
+    // Validate balances
     await expectBalanceOf(
       l1_canonicalToken,
       user,
       USER_INITIAL_BALANCE.sub(transfer.amount)
     )
+    await expectBalanceOf(
+      l1_canonicalToken,
+      otherUser,
+      0
+    )
+    await expectBalanceOf(l2_bridge, user, 0)
 
-    await l2_bridge.commitTransfers(transfer.chainId)
-    await l1_messenger.relayNextMessage()
-
-    await l1_canonicalToken
-      .connect(bonder)
-      .approve(l1_bridge.address, BONDER_INITIAL_BALANCE)
-    await l1_bridge.connect(bonder).stake(BONDER_INITIAL_BALANCE)
-
-    // Bond the withdrawal on L1
-    const transfersCommittedEvent = (
-      await l2_bridge.queryFilter(l2_bridge.filters.TransfersCommitted())
-    )[0]
     await l1_bridge
       .connect(bonder)
-      .bondTransferRoot(
-        transfersCommittedEvent.args.root,
-        CHAIN_IDS.OPTIMISM.TESTNET_1,
-        transfer.amount
+      .bondWithdrawal(
+        transfer.sender,
+        transfer.recipient,
+        transfer.amount,
+        transfer.transferNonce,
+        transfer.relayerFee
       )
 
-    // User withdraws from L1 bridge
+    // Validate balances
+    await expectBalanceOf(
+      l1_canonicalToken,
+      user,
+      USER_INITIAL_BALANCE.sub(transfer.amount)
+    )
+    await expectBalanceOf(
+      l1_canonicalToken,
+      otherUser,
+      transfer.amount.sub(transfer.relayerFee)
+    )
+    await expectBalanceOf(
+      l1_canonicalToken,
+      bonder,
+      BONDER_INITIAL_BALANCE.sub(INITIAL_BONDED_AMOUNT).add(transfer.relayerFee)
+    )
+  })
+
+  it('Should send a transaction from L2 to L1, perform a bonded withdrawal, and confirm an already bonded transfer root on L1', async () => {
+    // Set up transfer
+    let transfer: any = transfers[0]
+    transfer.chainId = CHAIN_IDS.ETHEREUM.MAINNET
+    transfer.amountOutMin = BigNumber.from(0)
+    transfer.deadline = BigNumber.from(0)
+
+    // Instantiate a sender and recipient Signer
+    const sender: Signer = user
+    const recipient: Signer = otherUser
+    expect(transfer.sender).to.eq(await sender.getAddress())
+    expect(transfer.recipient).to.eq(await recipient.getAddress())
+
+    // User moves funds to L2
+    await l1_canonicalToken
+      .connect(user)
+      .approve(l1_bridge.address, transfer.amount)
+    await l1_bridge
+      .connect(user)
+      .sendToL2(l2ChainId.toString(), await user.getAddress(), transfer.amount)
+    await l2_messenger.relayNextMessage()
+
+    // Validate balances
+    await expectBalanceOf(
+      l1_canonicalToken,
+      user,
+      USER_INITIAL_BALANCE.sub(transfer.amount)
+    )
+    await expectBalanceOf(l2_bridge, user, transfer.amount)
+
+    // User moves funds back to L1 across the liquidity bridge
+    await l2_bridge
+      .connect(user)
+      .send(
+        transfer.chainId,
+        transfer.recipient,
+        transfer.amount,
+        transfer.transferNonce,
+        transfer.relayerFee,
+        transfer.amountOutMin,
+        transfer.deadline
+      )
+
+    // Validate balances
+    await expectBalanceOf(
+      l1_canonicalToken,
+      user,
+      USER_INITIAL_BALANCE.sub(transfer.amount)
+    )
+    await expectBalanceOf(
+      l1_canonicalToken,
+      otherUser,
+      0
+    )
+    await expectBalanceOf(l2_bridge, user, 0)
+
+    await l1_bridge
+      .connect(bonder)
+      .bondWithdrawal(
+        transfer.sender,
+        transfer.recipient,
+        transfer.amount,
+        transfer.transferNonce,
+        transfer.relayerFee
+      )
+
+    // Validate balances
+    await expectBalanceOf(
+      l1_canonicalToken,
+      user,
+      USER_INITIAL_BALANCE.sub(transfer.amount)
+    )
+    await expectBalanceOf(
+      l1_canonicalToken,
+      otherUser,
+      transfer.amount.sub(transfer.relayerFee)
+    )
+    await expectBalanceOf(
+      l1_canonicalToken,
+      bonder,
+      BONDER_INITIAL_BALANCE.sub(INITIAL_BONDED_AMOUNT).add(transfer.relayerFee)
+    )
+
+    // Bonder commits transfers
+    await l2_bridge
+      .connect(bonder)
+      .commitTransfers(transfer.chainId)
+
+    // Set up transfer root
     const transferId: Buffer = transfer.getTransferId()
     const tree: MerkleTree = new MerkleTree([transferId])
     const rootHash: Buffer = tree.getRoot()
     const proof: Buffer[] = tree.getProof(transferId)
 
-    // TODO: I believe this will work when `_sendCrossDomainMessage()` on L2_Bridge is implemented
-    // await l1_bridge
-    //   .connect(relayer)
-    //   .withdraw(
-    //     transfer.sender,
-    //     transfer.recipient,
-    //     transfer.amount,
-    //     transfer.transferNonce,
-    //     transfer.relayerFee,
-    //     rootHash,
-    //     proof
-    //   )
+    // Bonder bonds the transfer root
+    await l1_bridge
+      .connect(bonder)
+      .bondTransferRoot(rootHash, transfer.chainId, transfer.amount)
 
-    // await expectBalanceOf(l1_canonicalToken, relayer, transfer.relayerFee)
-    // await expectBalanceOf(
-    //   l1_canonicalToken,
-    //   sender,
-    //   senderOriginalBalance.sub(transfer.amount)
-    // )
-    // await expectBalanceOf(
-    //   l1_canonicalToken,
-    //   recipient,
-    //   recipientOriginalBalance.add(transfer.amount).sub(transfer.relayerFee)
-    // )
+
+    // Bonder settles withdrawals
+    await l1_bridge
+      .connect(bonder)
+      .settleBondedWithdrawals([ transferId ])
+
+    // Message gets relayed to L1 and bonder confirms the transfer root
+    await l1_messenger.relayNextMessage()
+    await l1_bridge
+      .connect(bonder)
+      .confirmTransferRoot(rootHash, transfer.chainId, transfer.amount)
+
+
+      
   })
 
-  it('Should send a transaction on L2 and confirm an already bonded transfer root on L1', async () => {
-    // TODO -- wait until `L2_Bridge._sendCrossDomainMessage()` is implemented
-  })
-
-  it('Should send a transaction on L2 and confirm a not-yet-bonded transfer root on L1', async () => {
+  it('Should send a transaction from L2 to L1 and confirm a not-yet-bonded transfer root on L1', async () => {
     // TODO -- wait until `L2_Bridge._sendCrossDomainMessage()` is implemented
   })
 
@@ -214,16 +310,11 @@ describe('L1_Bridge', () => {
     const expectedChallengeStartTime: number = Date.now()
     const expectedCreatedAtTime: number = expectedChallengeStartTime
 
-    // Bonder stakes assets
-    await l1_canonicalToken
-      .connect(bonder)
-      .approve(l1_bridge.address, BONDER_INITIAL_BALANCE)
-    await l1_bridge.connect(bonder).stake(BONDER_INITIAL_BALANCE)
-
     // Set up transfer root
     const transferId: Buffer = transfer.getTransferId()
     const tree: MerkleTree = new MerkleTree([transferId])
     const rootHash: Buffer = tree.getRoot()
+    const rootHashHex: string = tree.getHexRoot()
 
     // Bonder bonds transfer root
     const chainId: BigNumber = transfer.chainId
@@ -249,7 +340,8 @@ describe('L1_Bridge', () => {
     // await expectBalanceOf(l1_canonicalToken, challenger, CHALLENGER_INITIAL_BALANCE.sub(transfer.amount))
 
     // Validate transfer bond
-    const transferBond = await l1_bridge.transferBonds(rootHash)
+    const transferRootId: string = await getTransferRootId(rootHashHex, transfer.amount)
+    const transferBond = await l1_bridge.transferBonds(transferRootId)
 
     expect(transferBond[0].mul(1000).toNumber()).to.be.closeTo(
       expectedChallengeStartTime,
@@ -282,12 +374,6 @@ describe('L1_Bridge', () => {
 
     // User withdraws from L1 bridge
     const tree = new MerkleTree([transfer.getTransferId()])
-
-    // Bonder stakes assets
-    await l1_canonicalToken
-      .connect(bonder)
-      .approve(l1_bridge.address, BONDER_INITIAL_BALANCE)
-    await l1_bridge.connect(bonder).stake(BONDER_INITIAL_BALANCE)
 
     // Bonder bonds transfer root
     const chainId: BigNumber = transfer.chainId
@@ -380,11 +466,6 @@ describe('L1_Bridge', () => {
       // User withdraws from L1 bridge
       const transferId: Buffer = transfer.getTransferId()
       const tree: MerkleTree = new MerkleTree([transferId])
-
-      await l1_canonicalToken
-        .connect(bonder)
-        .approve(l1_bridge.address, transfer.amount)
-      await l1_bridge.connect(bonder).stake(transfer.amount)
 
       const chainId: BigNumber = CHAIN_IDS.ARBITRUM.TESTNET_3
       const amount: BigNumber = BigNumber.from(1)
@@ -636,12 +717,6 @@ describe('L1_Bridge', () => {
 
       // User withdraws from L1 bridge
       const tree = new MerkleTree([transfer.getTransferId()])
-
-      // Bonder stakes assets
-      await l1_canonicalToken
-        .connect(bonder)
-        .approve(l1_bridge.address, BONDER_INITIAL_BALANCE)
-      await l1_bridge.connect(bonder).stake(BONDER_INITIAL_BALANCE)
 
       // Bonder bonds transfer root
       const chainId: BigNumber = transfer.chainId
