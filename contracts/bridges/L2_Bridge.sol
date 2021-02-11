@@ -248,8 +248,8 @@ abstract contract L2_Bridge is ERC20, Bridge {
         _withdrawAndAttemptSwap(transferId, _recipient, _amount, _relayerFee, _amountOutMin, _deadline);
     }
 
-    function setTransferRoot(bytes32 _rootHash, uint256 _amount) public onlyL1Bridge {
-        _setTransferRoot(_rootHash, _amount);
+    function setTransferRoot(bytes32 _rootHash, uint256 _totalAmount) public onlyL1Bridge {
+        _setTransferRoot(_rootHash, _totalAmount);
     }
 
     /* ========== Helper Functions ========== */
