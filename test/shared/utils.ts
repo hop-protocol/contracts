@@ -1,6 +1,7 @@
 import { ethers } from 'hardhat'
 import { BigNumber, Signer, Contract, BigNumberish } from 'ethers'
 import { expect } from 'chai'
+import MerkleTree from '../../lib/MerkleTree'
 import {
   USER_INITIAL_BALANCE,
   LIQUIDITY_PROVIDER_INITIAL_BALANCE,
@@ -271,6 +272,17 @@ export const getL2SpecificArtifact = (chainId: BigNumber) => {
   return {
     l2_bridgeArtifact,
     l1_messengerWrapperArtifact
+  }
+}
+
+export const getRootHashFromTransferId = (transferId: Buffer) => {
+  const tree: MerkleTree = new MerkleTree([transferId])
+  const rootHash: Buffer = tree.getRoot()
+  const rootHashHex: string = tree.getHexRoot()
+  
+  return {
+    rootHash,
+    rootHashHex
   }
 }
 

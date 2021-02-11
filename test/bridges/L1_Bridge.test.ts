@@ -7,6 +7,7 @@ import MerkleTree from '../../lib/MerkleTree'
 import {
   setUpDefaults,
   expectBalanceOf,
+  getRootHashFromTransferId,
   getTransferRootId,
   increaseTime,
   revertSnapshot,
@@ -273,9 +274,7 @@ describe('L1_Bridge', () => {
 
     // Set up transfer root
     const transferId: Buffer = transfer.getTransferId()
-    const tree: MerkleTree = new MerkleTree([transferId])
-    const rootHash: Buffer = tree.getRoot()
-    const proof: Buffer[] = tree.getProof(transferId)
+    const { rootHash } = getRootHashFromTransferId(transferId)
 
     // Bonder bonds the transfer root
     await l1_bridge
@@ -312,9 +311,7 @@ describe('L1_Bridge', () => {
 
     // Set up transfer root
     const transferId: Buffer = transfer.getTransferId()
-    const tree: MerkleTree = new MerkleTree([transferId])
-    const rootHash: Buffer = tree.getRoot()
-    const rootHashHex: string = tree.getHexRoot()
+    const { rootHash, rootHashHex } = getRootHashFromTransferId(transferId)
 
     // Bonder bonds transfer root
     const chainId: BigNumber = transfer.chainId
@@ -340,7 +337,7 @@ describe('L1_Bridge', () => {
     // await expectBalanceOf(l1_canonicalToken, challenger, CHALLENGER_INITIAL_BALANCE.sub(transfer.amount))
 
     // Validate transfer bond
-    const transferRootId: string = await getTransferRootId(rootHashHex, transfer.amount)
+    const transferRootId: string = getTransferRootId(rootHashHex, transfer.amount)
     const transferBond = await l1_bridge.transferBonds(transferRootId)
 
     expect(transferBond[0].mul(1000).toNumber()).to.be.closeTo(
