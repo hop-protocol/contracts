@@ -16,6 +16,7 @@ import "./L1_BridgeConfig.sol";
 contract L1_Bridge is Bridge, L1_BridgeConfig {
 
     struct TransferBond {
+        address bonder;
         uint256 createdAt;
         uint256 totalAmount;
         bool confirmed;
@@ -47,7 +48,7 @@ contract L1_Bridge is Bridge, L1_BridgeConfig {
         _;
     }
 
-    constructor (IERC20 _l1CanonicalToken, address bonder_) public Bridge(bonder_) {
+    constructor (IERC20 _l1CanonicalToken, address[] memory _bonders) public Bridge(_bonders) {
         l1CanonicalToken = _l1CanonicalToken;
     }
 
@@ -121,7 +122,7 @@ contract L1_Bridge is Bridge, L1_BridgeConfig {
         uint256 bondAmount = getBondForTransferAmount(_totalAmount);
         timeSlotToAmountBonded[currentTimeSlot] = timeSlotToAmountBonded[currentTimeSlot].add(bondAmount);
 
-        transferBonds[transferRootId] = TransferBond(block.timestamp, _totalAmount, false, 0, address(0));
+        transferBonds[transferRootId] = TransferBond(msg.sender, block.timestamp, _totalAmount, false, 0, address(0));
 
         _distributeTransferRoot(_rootHash, _destinationChainId, _totalAmount);
 
@@ -202,7 +203,7 @@ contract L1_Bridge is Bridge, L1_BridgeConfig {
         uint256 bondAmount = getBondForTransferAmount(transferRoot.total);
         timeSlotToAmountBonded[timeSlot] = timeSlotToAmountBonded[timeSlot].sub(bondAmount);
 
-        _addDebit(bondAmount);
+        _addDebit(transferBond.bonder, bondAmount);
     }
 
     function resolveChallenge(bytes32 _rootHash, uint256 _originalAmount) public {
@@ -218,7 +219,7 @@ contract L1_Bridge is Bridge, L1_BridgeConfig {
         if (transferRootConfirmed[transferRootId]) {
             // Invalid challenge
             // Credit the bonder back with the bond amount plus the challenger's stake
-            _addCredit(getBondForTransferAmount(transferRoot.total).add(challengeStakeAmount));
+            _addCredit(transferBond.bonder, getBondForTransferAmount(transferRoot.total).add(challengeStakeAmount));
         } else {
             // Valid challenge
             // Burn 25% of the challengers stake
