@@ -1,11 +1,13 @@
 import { ethers } from 'hardhat'
 import { BigNumber, Signer, Contract, BigNumberish } from 'ethers'
 import { expect } from 'chai'
+import MerkleTree from '../../lib/MerkleTree'
 import {
   USER_INITIAL_BALANCE,
   LIQUIDITY_PROVIDER_INITIAL_BALANCE,
   LIQUIDITY_PROVIDER_UNISWAP_AMOUNT,
   BONDER_INITIAL_BALANCE,
+  INITIAL_BONDED_AMOUNT,
   CHALLENGER_INITIAL_BALANCE,
   UNISWAP_LP_MINIMUM_LIQUIDITY
 } from '../../config/constants'
@@ -41,6 +43,7 @@ export const setUpDefaults = async (
   await setUpL1AndL2Bridges(fixture, setUpL1AndL2BridgesOpts)
   await setUpL1AndL2Messengers(fixture)
   await distributeCanonicalTokens(fixture, distributeCanonicalTokensOpts)
+  await setUpBonderStake(fixture)
   await setUpL2UniswapMarket(fixture, setUpL2UniswapMarketOpts)
 }
 
@@ -104,6 +107,19 @@ export const distributeCanonicalTokens = async (
     await challenger.getAddress(),
     challengerInitialBalance
   )
+}
+
+export const setUpBonderStake = async (fixture: IFixture) => {
+  const {
+    bonder,
+    l1_bridge,
+    l1_canonicalToken
+  } = fixture
+
+    await l1_canonicalToken
+      .connect(bonder)
+      .approve(l1_bridge.address, INITIAL_BONDED_AMOUNT)
+    await l1_bridge.connect(bonder).stake(INITIAL_BONDED_AMOUNT)
 }
 
 export const setUpL2UniswapMarket = async (fixture: IFixture, opts: any) => {
@@ -259,6 +275,25 @@ export const getL2SpecificArtifact = (chainId: BigNumber) => {
   }
 }
 
+export const getRootHashFromTransferId = (transferId: Buffer) => {
+  const tree: MerkleTree = new MerkleTree([transferId])
+  const rootHash: Buffer = tree.getRoot()
+  const rootHashHex: string = tree.getHexRoot()
+  
+  return {
+    rootHash,
+    rootHashHex
+  }
+}
+
+export const getTransferRootId = (rootHash: string, totalAmount: BigNumber) => {
+  return ethers.utils.solidityKeccak256(['bytes32', 'uint256'], [rootHash, totalAmount])
+}
+
+/**
+ * Timing functions
+ */
+
 export const takeSnapshot = async () => {
   return await ethers.provider.send('evm_snapshot', [])
 }
@@ -268,9 +303,7 @@ export const revertSnapshot = async (id: string) => {
 }
 
 export const mineBlock = async () => {
-  console.log('0')
   const timestamp: number = Date.now()
-  console.log('1')
   await ethers.provider.send('evm_mine', [timestamp])
 }
 

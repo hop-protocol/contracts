@@ -51,6 +51,7 @@ export const LIQUIDITY_PROVIDER_UNISWAP_AMOUNT: BigNumber = LIQUIDITY_PROVIDER_I
 export const BONDER_INITIAL_BALANCE: BigNumber = BigNumber.from(
   parseEther('1000')
 )
+export const INITIAL_BONDED_AMOUNT: BigNumber = BONDER_INITIAL_BALANCE.div(2)
 export const CHALLENGER_INITIAL_BALANCE: BigNumber = BigNumber.from(
   parseEther('1')
 )
@@ -65,3 +66,4 @@ export const DEFAULT_H_TOKEN_SYMBOL = 'hDAI'
 export const DEFAULT_H_TOKEN_DECIMALS = 18
 
 export const SECONDS_IN_A_DAY = 86400
+export const TIMESTAMP_VARIANCE = 1000000
