@@ -25,7 +25,8 @@ import {
   INITIAL_BONDED_AMOUNT,
   CHALLENGER_INITIAL_BALANCE,
   ZERO_ADDRESS,
-  SECONDS_IN_A_DAY
+  SECONDS_IN_A_DAY,
+  TIMESTAMP_VARIANCE
 } from '../../config/constants'
 
 describe('L1_Bridge', () => {
@@ -184,7 +185,7 @@ describe('L1_Bridge', () => {
     )
   })
 
-  it('Should send a transaction from L2 to L1, perform a bonded withdrawal, and confirm an already bonded transfer root on L1', async () => {
+  it.only('Should send a transaction from L2 to L1, perform a bonded withdrawal, and confirm an already bonded transfer root on L1', async () => {
     // Set up transfer
     let transfer: any = transfers[0]
     transfer.chainId = CHAIN_IDS.ETHEREUM.MAINNET
@@ -267,10 +268,38 @@ describe('L1_Bridge', () => {
       BONDER_INITIAL_BALANCE.sub(INITIAL_BONDED_AMOUNT).add(transfer.relayerFee)
     )
 
+    // Validate state before commitTransfers
+    const pendingAmountChainId = await l2_bridge.pendingAmountChainIds(0)
+    const pendingTransferIdsForChainId: string = await l2_bridge.pendingTransferIdsForChainId(transfer.chainId, 0)
+    const expectedPendingTransferIdsForChainId: string = transfer.getTransferIdHex()
+    expect(pendingAmountChainId).to.eq(transfer.chainId)
+    expect(pendingTransferIdsForChainId).to.eq(expectedPendingTransferIdsForChainId)
+
     // Bonder commits transfers
     await l2_bridge
       .connect(bonder)
       .commitTransfers(transfer.chainId)
+
+    // Validate state after commitTransfers()
+    const lastCommitTimeForChainId: BigNumber = await l2_bridge.lastCommitTimeForChainId(transfer.chainId)
+    const expectedCommitTimeForChainId: number = Date.now()
+    expect(lastCommitTimeForChainId.mul(1000).toNumber()).to.be.closeTo(
+      expectedCommitTimeForChainId,
+      TIMESTAMP_VARIANCE
+    )
+    const expectedErrorMsg: string = 'VM Exception while processing transaction: invalid opcode'
+    try {
+      await l2_bridge.pendingAmountChainIds(0)
+      throw new Error('There should not be a pending amount chainId in this slot.')
+    } catch (err) {
+      expect(err.message).to.eq(expectedErrorMsg)
+    }
+    try {
+      await l2_bridge.pendingTransferIdsForChainId(transfer.chainId, 0)
+      throw new Error('There should not be a pending transfer ID for chainId in this slot.')
+    } catch (err) {
+      expect(err.message).to.eq(expectedErrorMsg)
+    }
 
     // Set up transfer root
     const transferId: Buffer = transfer.getTransferId()
@@ -281,20 +310,37 @@ describe('L1_Bridge', () => {
       .connect(bonder)
       .bondTransferRoot(rootHash, transfer.chainId, transfer.amount)
 
+    const timeSlot: string = await l1_bridge.getTimeSlot(Math.floor(Date.now() / 1000))
+    const bondAmount: string = await l1_bridge.getBondForTransferAmount(transfer.amount)
+    const timeSlotToAmountBonded: number = await l1_bridge.timeSlotToAmountBonded(timeSlot)
+    const transferBond: number = await l1_bridge.timeSlotToAmountBonded(timeSlot)
+    let transferRoot: number = await l1_bridge.getTransferRoot(rootHash, transfer.amount)
+    expect(timeSlotToAmountBonded).to.eq(bondAmount)
+    expect(transferBond).to.eq(bondAmount)
+    expect(transferRoot[0]).to.eq(transfer.amount)
+    expect(transferRoot[1]).to.eq(BigNumber.from('0'))
 
     // Bonder settles withdrawals
     await l1_bridge
       .connect(bonder)
-      .settleBondedWithdrawals([ transferId ])
+      .settleBondedWithdrawals([ transferId ], transfer.amount)
+
+    transferRoot = await l1_bridge.getTransferRoot(rootHash, transfer.amount)
+    const credit = await l1_bridge.getCredit()
+    expect(transferRoot[0]).to.eq(transfer.amount)
+    expect(transferRoot[1]).to.eq(transfer.amount)
+    // TODO: Resolve this
+    // expect(credit).to.eq(INITIAL_BONDED_AMOUNT)
 
     // Message gets relayed to L1 and bonder confirms the transfer root
     await l1_messenger.relayNextMessage()
-    await l1_bridge
-      .connect(bonder)
-      .confirmTransferRoot(rootHash, transfer.chainId, transfer.amount)
 
-
-      
+    // TODO: Validate state
+    // const transferRootId: string = await l1_bridge.getTransferRootId(rootHash, transfer.amount);
+    // const transferRootConfirmed: boolean = await l1_bridge.transferRootConfirmed(transferRootId)
+    // const transferBondByTransferRootId = await l1_bridge.transferBonds(transferRootId)
+    // expect(transferRootConfirmed).to.eq(true)
+    // expect(transferBondByTransferRootId).to.eq(todo)
   })
 
   it('Should send a transaction from L2 to L1 and confirm a not-yet-bonded transfer root on L1', async () => {
@@ -342,13 +388,13 @@ describe('L1_Bridge', () => {
 
     expect(transferBond[0].mul(1000).toNumber()).to.be.closeTo(
       expectedChallengeStartTime,
-      1000000
+      TIMESTAMP_VARIANCE
     )
     expect(transferBond[1]).to.eq(transfer.amount)
     expect(transferBond[2]).to.eq(false)
     expect(transferBond[3].mul(1000).toNumber()).to.be.closeTo(
       expectedCreatedAtTime,
-      1000000
+      TIMESTAMP_VARIANCE
     )
     expect(transferBond[4]).to.eq(await challenger.getAddress())
 

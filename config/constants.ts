@@ -66,3 +66,4 @@ export const DEFAULT_H_TOKEN_SYMBOL = 'hDAI'
 export const DEFAULT_H_TOKEN_DECIMALS = 18
 
 export const SECONDS_IN_A_DAY = 86400
+export const TIMESTAMP_VARIANCE = 1000000

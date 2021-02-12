@@ -58,4 +58,9 @@ export default class Transfer {
     const hash = ethers.utils.keccak256(data)
     return Buffer.from(hash.slice(2), 'hex')
   }
+
+  getTransferIdHex (): string {
+    const transferId: Buffer = this.getTransferId()
+    return '0x' + transferId.toString('hex')
+  }
 }
