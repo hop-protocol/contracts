@@ -61,12 +61,15 @@ contract L1_Bridge is Bridge, L1_BridgeConfig {
     )
         public
     {
+        IMessengerWrapper messengerWrapper = getCrossDomainMessengerWrapper(_chainId);
+        require(messengerWrapper != IMessengerWrapper(0), "L1_BRG: chainId not supported");
+
         l1CanonicalToken.safeTransferFrom(msg.sender, address(this), _amount);
 
         bytes memory mintCalldata = abi.encodeWithSignature("mint(address,uint256)", _recipient, _amount);
 
         chainBalance[_chainId].add(_amount);
-        getCrossDomainMessengerWrapper(_chainId).sendCrossDomainMessage(mintCalldata);
+        messengerWrapper.sendCrossDomainMessage(mintCalldata);
     }
 
     function sendToL2AndAttemptSwap(
@@ -78,8 +81,8 @@ contract L1_Bridge is Bridge, L1_BridgeConfig {
     )
         public
     {
-        IMessengerWrapper messenger = getCrossDomainMessengerWrapper(_chainId);
-        require(messenger != IMessengerWrapper(0), "L1_BRG: chainId not supported");
+        IMessengerWrapper messengerWrapper = getCrossDomainMessengerWrapper(_chainId);
+        require(messengerWrapper != IMessengerWrapper(0), "L1_BRG: chainId not supported");
 
         l1CanonicalToken.safeTransferFrom(msg.sender, address(this), _amount);
 
@@ -92,7 +95,7 @@ contract L1_Bridge is Bridge, L1_BridgeConfig {
         );
 
         chainBalance[_chainId].add(_amount);
-        messenger.sendCrossDomainMessage(mintAndAttemptSwapCalldata);
+        messengerWrapper.sendCrossDomainMessage(mintAndAttemptSwapCalldata);
     }
 
     /* ========== Public Transfer Root Functions ========== */
@@ -176,14 +179,15 @@ contract L1_Bridge is Bridge, L1_BridgeConfig {
             // Set L1 transfer root
             _setTransferRoot(_rootHash, _totalAmount);
         } else {
+            IMessengerWrapper messengerWrapper = getCrossDomainMessengerWrapper(_chainId);
+            require(messengerWrapper != IMessengerWrapper(0), "L1_BRG: chainId not supported");
+
             // Set L2 transfer root
             bytes memory setTransferRootMessage = abi.encodeWithSignature(
                 "setTransferRoot(bytes32,uint256)",
                 _rootHash,
                 _totalAmount
             );
-
-            IMessengerWrapper messengerWrapper = getCrossDomainMessengerWrapper(_chainId);
             messengerWrapper.sendCrossDomainMessage(setTransferRootMessage);
         }
     }
