@@ -262,7 +262,7 @@
 //         );
 
 //         _addDebit(_amount);
-//         _setBondedWithdrawalAmount(transferHash, _amount);
+//         _setBondedWithdrawalAmountForSender(transferHash, _amount);
 //         _withdrawAndAttemptSwap(transferHash, _recipient, _amount, _relayerFee, _amountOutMin, _deadline);
 //     }
 

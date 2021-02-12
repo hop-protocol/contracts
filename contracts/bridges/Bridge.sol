@@ -26,9 +26,9 @@ abstract contract Bridge is Accounting {
 
     mapping(bytes32 => TransferRoot) private _transferRoots;
     mapping(bytes32 => bool) private _spentTransferIds;
-    mapping(bytes32 => uint256) private _bondedWithdrawalAmounts;
+    mapping(address => mapping(bytes32 => uint256)) private _bondedWithdrawalAmounts;
 
-    constructor(address _bonder) public Accounting(_bonder) {}
+    constructor(address[] memory _bonders) public Accounting(_bonders) {}
 
     /* ========== Public getters ========== */
 
@@ -102,8 +102,8 @@ abstract contract Bridge is Accounting {
      * @dev Get the TransferRoot for a given rootHash
      * @param _transferId The Transfer's unique identifier
      */
-    function getBondedWithdrawalAmount(bytes32 _transferId) external view returns (uint256) {
-        return _bondedWithdrawalAmounts[_transferId];
+    function getBondedWithdrawalAmount(address _bonder, bytes32 _transferId) external view returns (uint256) {
+        return _bondedWithdrawalAmounts[_bonder][_transferId];
     }
 
     /* ========== User/relayer public functions ========== */
@@ -178,8 +178,8 @@ abstract contract Bridge is Accounting {
             0
         );
 
-        _addDebit(_amount);
-        _setBondedWithdrawalAmount(transferId, _amount);
+        _addDebit(msg.sender, _amount);
+        _setBondedWithdrawalAmountForSender(transferId, _amount);
         _fulfillWithdraw(transferId, _recipient, _amount, _relayerFee);
     }
 
@@ -191,6 +191,7 @@ abstract contract Bridge is Accounting {
      * @param _proof The Merkle proof that proves the Transfer's inclusion in the TransferRoot
      */
     function settleBondedWithdrawal(
+        address _bonder,
         bytes32 _transferId,
         bytes32 _rootHash,
         bytes32[] memory _proof
@@ -199,14 +200,15 @@ abstract contract Bridge is Accounting {
     {
         require(_proof.verify(_rootHash, _transferId), "L2_BRG: Invalid transfer proof");
 
-        uint256 amount = _bondedWithdrawalAmounts[_transferId];
+        uint256 amount = _bondedWithdrawalAmounts[_bonder][_transferId];
         _addToAmountWithdrawn(_rootHash, amount);
 
-        _bondedWithdrawalAmounts[_transferId] = 0;
-        _addCredit(amount);
+        _bondedWithdrawalAmounts[_bonder][_transferId] = 0;
+        _addCredit(_bonder, amount);
     }
 
     function settleBondedWithdrawals(
+        address _bonder,
         bytes32[] memory _transferIds,
         uint256 _totalAmount
     )
@@ -220,15 +222,16 @@ abstract contract Bridge is Accounting {
 
         uint256 totalBondsFreed = 0;
         for(uint256 i = 0; i < _transferIds.length; i++) {
-            uint256 transferBondAmount = _bondedWithdrawalAmounts[_transferIds[i]];
+            uint256 transferBondAmount = _bondedWithdrawalAmounts[_bonder][_transferIds[i]];
             totalBondsFreed = totalBondsFreed.add(transferBondAmount);
+            _bondedWithdrawalAmounts[_bonder][_transferIds[i]] = 0;
         }
 
         uint256 newAmountWithdrawn = transferRoot.amountWithdrawn.add(totalBondsFreed);
         require(newAmountWithdrawn <= transferRoot.total, "BRG: Withdrawal exceeds TransferRoot total");
         transferRoot.amountWithdrawn = newAmountWithdrawn;
 
-        _addCredit(totalBondsFreed);
+        _addCredit(_bonder, totalBondsFreed);
     }
 
     /* ========== Internal functions ========== */
@@ -261,9 +264,9 @@ abstract contract Bridge is Accounting {
         _transferRoots[transferRootId] = TransferRoot(_amount, 0);
     }
 
-    function _setBondedWithdrawalAmount(bytes32 _transferId, uint256 _amount) internal {
-        require(_bondedWithdrawalAmounts[_transferId] == 0, "BRG: Withdrawal has already been bonded");
-        _bondedWithdrawalAmounts[_transferId] = _amount;
+    function _setBondedWithdrawalAmountForSender(bytes32 _transferId, uint256 _amount) internal {
+        require(_bondedWithdrawalAmounts[msg.sender][_transferId] == 0, "BRG: Withdrawal has already been bonded");
+        _bondedWithdrawalAmounts[msg.sender][_transferId] = _amount;
     }
 
     /* ========== Private functions ========== */

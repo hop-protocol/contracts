@@ -50,14 +50,14 @@ abstract contract L2_Bridge is ERC20, Bridge {
         IERC20 _l2CanonicalToken,
         address _l1BridgeAddress,
         uint256[] memory _supportedChainIds,
-        address _bonder,
+        address[] memory _bonders,
         address _exchangeAddress,
         string memory _name,
         string memory _symbol,
         uint8 _decimals
     )
         public
-        Bridge(_bonder)
+        Bridge(_bonders)
         ERC20(_name, _symbol)
     {
         l1Governance = _l1Governance;
@@ -176,7 +176,7 @@ abstract contract L2_Bridge is ERC20, Bridge {
 
     function commitTransfers(uint256 _destinationChainId) external {
         uint256 minForceCommitTime = lastCommitTimeForChainId[_destinationChainId].add(minimumForceCommitDelay);
-        require(minForceCommitTime < block.timestamp || msg.sender == getBonder(), "L2_BRG: Only Bonder can commit before min delay");
+        require(minForceCommitTime < block.timestamp || getIsBonder(msg.sender), "L2_BRG: Only Bonder can commit before min delay");
         lastCommitTimeForChainId[_destinationChainId] = block.timestamp;
 
         _commitTransfers(_destinationChainId);
@@ -243,8 +243,8 @@ abstract contract L2_Bridge is ERC20, Bridge {
             _deadline
         );
 
-        _addDebit(_amount);
-        _setBondedWithdrawalAmount(transferId, _amount);
+        _addDebit(msg.sender, _amount);
+        _setBondedWithdrawalAmountForSender(transferId, _amount);
         _withdrawAndAttemptSwap(transferId, _recipient, _amount, _relayerFee, _amountOutMin, _deadline);
     }
 
