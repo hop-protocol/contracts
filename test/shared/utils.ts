@@ -278,10 +278,12 @@ export const getL2SpecificArtifact = (chainId: BigNumber) => {
 export const getOriginalSignerBalances = async (
   user: Signer,
   bonder: Signer,
+  l1_bridge: Contract,
+  l2_bridge: Contract,
   l1_canonicalToken: Contract,
   l2_canonicalToken: Contract,
-  l2_bridge: Contract
 ) => {
+  const originalBondedAmount: BigNumber = await l1_bridge.getCredit(await bonder.getAddress())
   const user_l1_canonicalTokenOriginalBalance: BigNumber = await l1_canonicalToken.balanceOf(await user.getAddress())
   const bonder_l1_canonicalTokenOriginalBalance: BigNumber = await l1_canonicalToken.balanceOf(await bonder.getAddress())
 
@@ -292,6 +294,7 @@ export const getOriginalSignerBalances = async (
   const bonder_l2_bridgeTokenOriginalBalance: BigNumber = await l2_bridge.balanceOf(await bonder.getAddress())
 
   return {
+    originalBondedAmount,
     user_l1_canonicalTokenOriginalBalance,
     bonder_l1_canonicalTokenOriginalBalance,
     user_l2_canonicalTokenOriginalBalance,

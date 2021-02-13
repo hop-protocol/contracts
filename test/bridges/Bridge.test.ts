@@ -50,6 +50,7 @@ describe('Bridge', () => {
    * Happy Path
    */
 
+  // TODO: Test settleBondedWithdrawals() (it was added with contract upgrades)
 
   it('Should get the correct transfer id', async () => {
     for (let i = 0; i < transfers.length; i++) {
@@ -108,6 +109,7 @@ describe('Bridge', () => {
     transfer.amountOutMin = BigNumber.from(0)
     transfer.deadline = BigNumber.from(0)
 
+    // TODO: This can use the helper function getRootHashFromTransferId()
     const transferId: Buffer = transfer.getTransferId()
     const tree: MerkleTree = new MerkleTree([transferId])
     const transferRootHash: Buffer = tree.getRoot()
@@ -115,6 +117,7 @@ describe('Bridge', () => {
 
     const expectedErrorMsg: string = 'BRG: Transfer root not found'
 
+    // TODO: The second to last param should be the ID. How is this working with the hash?
     await expect(
       mockBridge.withdraw(
         transfer.sender,
