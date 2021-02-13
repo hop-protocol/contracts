@@ -49,7 +49,7 @@ export const LIQUIDITY_PROVIDER_UNISWAP_AMOUNT: BigNumber = LIQUIDITY_PROVIDER_I
   2
 )
 export const BONDER_INITIAL_BALANCE: BigNumber = BigNumber.from(
-  parseEther('1000')
+  parseEther('10000')
 )
 export const INITIAL_BONDED_AMOUNT: BigNumber = BONDER_INITIAL_BALANCE.div(2)
 export const CHALLENGER_INITIAL_BALANCE: BigNumber = BigNumber.from(

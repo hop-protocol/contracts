@@ -19,7 +19,7 @@ import {
   DEFAULT_H_TOKEN_DECIMALS
 } from '../../config/constants'
 
-export async function fixture (l2ChainId: BigNumber): Promise<IFixture> {
+export async function fixture (l2ChainId: BigNumber, l1AlreadySetOpts: any = {}): Promise<IFixture> {
   const {
     l2_bridgeArtifact,
     l1_messengerWrapperArtifact
@@ -73,7 +73,12 @@ export async function fixture (l2ChainId: BigNumber): Promise<IFixture> {
   )
 
   // Deploy canonical tokens
-  const l1_canonicalToken = await MockERC20.deploy('Dai Stable Token', 'DAI')
+  let l1_canonicalToken
+  if (l1AlreadySetOpts?.l1CanonicalTokenAddress) {
+    l1_canonicalToken = await MockERC20.attach(l1AlreadySetOpts.l1CanonicalTokenAddress)
+  } else {
+    l1_canonicalToken = await MockERC20.deploy('Dai Stable Token', 'DAI')
+  }
   const l2_canonicalToken = await MockERC20.deploy(
     'L2 Dai Stable Token',
     'L2DAI'
@@ -100,10 +105,15 @@ export async function fixture (l2ChainId: BigNumber): Promise<IFixture> {
   )
 
   // Deploy Hop L1 contracts
-  const l1_bridge = await L1_Bridge.deploy(
-    l1_canonicalToken.address,
-    [await bonder.getAddress()]
-  )
+  let l1_bridge
+  if (l1AlreadySetOpts?.l1BridgeAddress) {
+    l1_bridge = await L1_Bridge.attach(l1AlreadySetOpts.l1BridgeAddress)
+  } else {
+    l1_bridge = await L1_Bridge.deploy(
+      l1_canonicalToken.address,
+      [await bonder.getAddress()]
+    )
+  }
 
   // Deploy Hop L2 contracts
   const l2_bridge = await L2_Bridge.deploy(

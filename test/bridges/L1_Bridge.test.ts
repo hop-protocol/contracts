@@ -7,6 +7,7 @@ import MerkleTree from '../../lib/MerkleTree'
 import {
   setUpDefaults,
   expectBalanceOf,
+  getOriginalSignerBalances,
   getRootHashFromTransferId,
   getTransferRootId,
   increaseTime,
@@ -23,6 +24,7 @@ import {
   USER_INITIAL_BALANCE,
   BONDER_INITIAL_BALANCE,
   INITIAL_BONDED_AMOUNT,
+  LIQUIDITY_PROVIDER_UNISWAP_AMOUNT,
   CHALLENGER_INITIAL_BALANCE,
   ZERO_ADDRESS,
   SECONDS_IN_A_DAY,
@@ -32,6 +34,7 @@ import {
 describe('L1_Bridge', () => {
   let _fixture: IFixture
   let l2ChainId: BigNumber
+  let l22ChainId: BigNumber
 
   let user: Signer
   let bonder: Signer
@@ -46,8 +49,19 @@ describe('L1_Bridge', () => {
   let l2_bridge: Contract
   let l2_messenger: Contract
   let l2_uniswapRouter: Contract
+  let l22_canonicalToken: Contract
+  let l22_bridge: Contract
+  let l22_messenger: Contract
+  let l22_uniswapRouter: Contract
 
   let transfers: Transfer[]
+
+  let user_l1_canonicalTokenOriginalBalance: BigNumber
+  let bonder_l1_canonicalTokenOriginalBalance: BigNumber
+  let user_l2_canonicalTokenOriginalBalance: BigNumber
+  let bonder_l2_canonicalTokenOriginalBalance: BigNumber
+  let user_l2_bridgeTokenOriginalBalance: BigNumber
+  let bonder_l2_bridgeTokenOriginalBalance: BigNumber
 
   let beforeAllSnapshotId: string
   let snapshotId: string
@@ -73,6 +87,50 @@ describe('L1_Bridge', () => {
       l2_uniswapRouter,
       transfers
     } = _fixture)
+
+    const l1AlreadySetOpts = {
+      l1BridgeAddress: l1_bridge.address,
+      l1CanonicalTokenAddress: l1_canonicalToken.address
+    }
+    _fixture = await fixture(l22ChainId, l1AlreadySetOpts)
+    await setUpDefaults(_fixture, l22ChainId)
+    ;({
+      l2_canonicalToken: l22_canonicalToken,
+      l2_bridge: l22_bridge,
+      l2_messenger: l22_messenger,
+      l2_uniswapRouter: l22_uniswapRouter
+    } = _fixture)
+
+    ;({
+      user,
+      bonder,
+      relayer,
+      challenger,
+      otherUser,
+      l1_canonicalToken,
+      l1_bridge,
+      l1_messenger,
+      l2_canonicalToken,
+      l2_bridge,
+      l2_messenger,
+      l2_uniswapRouter,
+      transfers
+    } = _fixture)
+
+    ;({
+      user_l1_canonicalTokenOriginalBalance,
+      bonder_l1_canonicalTokenOriginalBalance,
+      user_l2_canonicalTokenOriginalBalance,
+      bonder_l2_canonicalTokenOriginalBalance,
+      user_l2_bridgeTokenOriginalBalance,
+      bonder_l2_bridgeTokenOriginalBalance,
+    } = await getOriginalSignerBalances(
+      user,
+      bonder,
+      l1_canonicalToken,
+      l2_canonicalToken,
+      l2_bridge
+    ))
   })
 
   after(async() => {

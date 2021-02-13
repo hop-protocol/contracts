@@ -275,6 +275,32 @@ export const getL2SpecificArtifact = (chainId: BigNumber) => {
   }
 }
 
+export const getOriginalSignerBalances = async (
+  user: Signer,
+  bonder: Signer,
+  l1_canonicalToken: Contract,
+  l2_canonicalToken: Contract,
+  l2_bridge: Contract
+) => {
+  const user_l1_canonicalTokenOriginalBalance: BigNumber = await l1_canonicalToken.balanceOf(await user.getAddress())
+  const bonder_l1_canonicalTokenOriginalBalance: BigNumber = await l1_canonicalToken.balanceOf(await bonder.getAddress())
+
+  const user_l2_canonicalTokenOriginalBalance: BigNumber = await l2_canonicalToken.balanceOf(await user.getAddress())
+  const bonder_l2_canonicalTokenOriginalBalance: BigNumber = await l2_canonicalToken.balanceOf(await bonder.getAddress())
+
+  const user_l2_bridgeTokenOriginalBalance: BigNumber = await l2_bridge.balanceOf(await user.getAddress())
+  const bonder_l2_bridgeTokenOriginalBalance: BigNumber = await l2_bridge.balanceOf(await bonder.getAddress())
+
+  return {
+    user_l1_canonicalTokenOriginalBalance,
+    bonder_l1_canonicalTokenOriginalBalance,
+    user_l2_canonicalTokenOriginalBalance,
+    bonder_l2_canonicalTokenOriginalBalance,
+    user_l2_bridgeTokenOriginalBalance,
+    bonder_l2_bridgeTokenOriginalBalance
+  }
+}
+
 export const getRootHashFromTransferId = (transferId: Buffer) => {
   const tree: MerkleTree = new MerkleTree([transferId])
   const rootHash: Buffer = tree.getRoot()
