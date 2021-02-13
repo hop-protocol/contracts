@@ -69,7 +69,7 @@ contract L1_Bridge is Bridge, L1_BridgeConfig {
 
         bytes memory mintCalldata = abi.encodeWithSignature("mint(address,uint256)", _recipient, _amount);
 
-        chainBalance[_chainId] = chainBalance[_chainId].add((_amount));
+        chainBalance[_chainId] = chainBalance[_chainId].add(_amount);
         messengerWrapper.sendCrossDomainMessage(mintCalldata);
     }
 
@@ -95,7 +95,7 @@ contract L1_Bridge is Bridge, L1_BridgeConfig {
             _deadline
         );
 
-        chainBalance[_chainId].add(_amount);
+        chainBalance[_chainId] = chainBalance[_chainId].add(_amount);
         messengerWrapper.sendCrossDomainMessage(mintAndAttemptSwapCalldata);
     }
 
