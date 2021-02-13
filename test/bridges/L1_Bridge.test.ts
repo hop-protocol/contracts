@@ -1,6 +1,6 @@
 import '@nomiclabs/hardhat-waffle'
 import { expect } from 'chai'
-import { Signer, Contract, BigNumber } from 'ethers'
+import { Signer, Contract, BigNumber, utils } from 'ethers'
 import Transfer from '../../lib/Transfer'
 import MerkleTree from '../../lib/MerkleTree'
 
@@ -701,12 +701,17 @@ describe('L1_Bridge', () => {
       expect(transferRoot[1]).to.eq(BigNumber.from('0'))
     })
 
-    it.only('Should send a transaction from L2 to L2 and bond the transfer root on L1', async () => {
+    it('Should send a transaction from L2 to L2 and bond the transfer root on L1', async () => {
       // Set up transfer
       let transfer: any = transfers[0]
       transfer.chainId = CHAIN_IDS.ETHEREUM.MAINNET
       transfer.amountOutMin = BigNumber.from(0)
       transfer.deadline = BigNumber.from(0)
+
+      let l2Transfer: any = transfers[0]
+      l2Transfer.chainId = l22ChainId
+      l2Transfer.amountOutMin = BigNumber.from(0)
+      l2Transfer.deadline = BigNumber.from(0)
 
       // Instantiate a sender and recipient Signer
       const sender: Signer = user
@@ -735,13 +740,13 @@ describe('L1_Bridge', () => {
       await l2_bridge
         .connect(user)
         .send(
-          transfer.chainId,
-          transfer.recipient,
-          transfer.amount,
-          transfer.transferNonce,
-          transfer.relayerFee,
-          transfer.amountOutMin,
-          transfer.deadline
+          l2Transfer.chainId,
+          l2Transfer.recipient,
+          l2Transfer.amount,
+          l2Transfer.transferNonce,
+          l2Transfer.relayerFee,
+          l2Transfer.amountOutMin,
+          l2Transfer.deadline
         )
 
       // Validate balances
@@ -756,16 +761,18 @@ describe('L1_Bridge', () => {
         0
       )
       await expectBalanceOf(l2_bridge, user, 0)
-      console.log('1')
+      await expectBalanceOf(l22_bridge, user, 0)
 
-      await l1_bridge
+      await l22_bridge
         .connect(bonder)
-        .bondWithdrawal(
-          transfer.sender,
-          transfer.recipient,
-          transfer.amount,
-          transfer.transferNonce,
-          transfer.relayerFee
+        .bondWithdrawalAndAttemptSwap(
+          l2Transfer.sender,
+          l2Transfer.recipient,
+          l2Transfer.amount,
+          l2Transfer.transferNonce,
+          l2Transfer.relayerFee,
+          l2Transfer.amountOutMin,
+          l2Transfer.deadline
         )
 
       // Validate balances
@@ -775,14 +782,14 @@ describe('L1_Bridge', () => {
         user_l1_canonicalTokenOriginalBalance.sub(transfer.amount)
       )
       await expectBalanceOf(
-        l1_canonicalToken,
+        l22_bridge,
         otherUser,
         transfer.amount.sub(transfer.relayerFee)
       )
       await expectBalanceOf(
         l1_canonicalToken,
         bonder,
-        bonder_l1_canonicalTokenOriginalBalance.add(transfer.relayerFee)
+        bonder_l1_canonicalTokenOriginalBalance
       )
 
       // Validate state before commitTransfers
@@ -819,26 +826,27 @@ describe('L1_Bridge', () => {
       }
 
       // Set up transfer root
-      const transferId: Buffer = transfer.getTransferId()
+      const transferId: Buffer = l2Transfer.getTransferId()
       const { rootHash } = getRootHashFromTransferId(transferId)
 
       // Bonder bonds the transfer root
       await l1_bridge
         .connect(bonder)
-        .bondTransferRoot(rootHash, transfer.chainId, transfer.amount)
+        .bondTransferRoot(rootHash, l2Transfer.chainId, l2Transfer.amount)
 
       const timeSlot: string = await l1_bridge.getTimeSlot(Math.floor(Date.now() / 1000))
-      const bondAmount: string = await l1_bridge.getBondForTransferAmount(transfer.amount)
+      const bondAmount: string = await l1_bridge.getBondForTransferAmount(l2Transfer.amount)
       const timeSlotToAmountBonded: number = await l1_bridge.timeSlotToAmountBonded(timeSlot)
       const transferBond: number = await l1_bridge.timeSlotToAmountBonded(timeSlot)
       expect(timeSlotToAmountBonded).to.eq(bondAmount)
       expect(transferBond).to.eq(bondAmount)
 
-      const nextMessage = await l2_messenger.nextMessage()
-      // TODO: calculate message string off-chain with ethers
-      // const expectedNextMessageMessage: string = "setTransferRoot(bytes32,uint256)", _rootHash, _totalAmount
+      const nextMessage = await l22_messenger.nextMessage()
+      const ABI: string[] = [ "function setTransferRoot(bytes32, uint256)" ]
+      const setTransferRootInterface = new utils.Interface(ABI)
+      const expectedMessage: string  = setTransferRootInterface.encodeFunctionData("setTransferRoot", [ rootHash, l2Transfer.amount ])
       expect(nextMessage[0]).to.eq(l22_bridge.address)
-      // expect(nextMessage[1]).to.eq(expectedNextMessageMessage)
+      expect(nextMessage[1]).to.eq(expectedMessage)
     })
   })
 
