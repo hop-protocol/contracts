@@ -97,7 +97,7 @@ describe('L1_Bridge', () => {
     await l1_canonicalToken
       .connect(bonder)
       .approve(l1_bridge.address, bondAmount)
-    await l1_bridge.connect(bonder).stake(bondAmount)
+    await l1_bridge.connect(bonder).stake(await bonder.getAddress(), bondAmount)
     await l1_bridge.connect(bonder).unstake(bondAmount)
   })
 
@@ -204,7 +204,7 @@ describe('L1_Bridge', () => {
       .approve(l1_bridge.address, transfer.amount)
     await l1_bridge
       .connect(user)
-      .sendToL2(l2ChainId.toString(), await user.getAddress(), transfer.amount)
+      .sendToL2(l2ChainId, await user.getAddress(), transfer.amount)
     await l2_messenger.relayNextMessage()
 
     // Validate balances
@@ -323,24 +323,31 @@ describe('L1_Bridge', () => {
     // Bonder settles withdrawals
     await l1_bridge
       .connect(bonder)
-      .settleBondedWithdrawals([ transferId ], transfer.amount)
+      .settleBondedWithdrawals(await bonder.getAddress(), [ transferId ], transfer.amount)
 
     transferRoot = await l1_bridge.getTransferRoot(rootHash, transfer.amount)
-    const credit = await l1_bridge.getCredit()
+    const credit = await l1_bridge.getCredit(await bonder.getAddress())
+    const expectedCredit: BigNumber = INITIAL_BONDED_AMOUNT.add(transfer.amount)
     expect(transferRoot[0]).to.eq(transfer.amount)
     expect(transferRoot[1]).to.eq(transfer.amount)
-    // TODO: Resolve this
-    // expect(credit).to.eq(INITIAL_BONDED_AMOUNT)
+    expect(credit).to.eq(expectedCredit)
 
     // Message gets relayed to L1 and bonder confirms the transfer root
     await l1_messenger.relayNextMessage()
 
     // TODO: Validate state
-    // const transferRootId: string = await l1_bridge.getTransferRootId(rootHash, transfer.amount);
-    // const transferRootConfirmed: boolean = await l1_bridge.transferRootConfirmed(transferRootId)
-    // const transferBondByTransferRootId = await l1_bridge.transferBonds(transferRootId)
-    // expect(transferRootConfirmed).to.eq(true)
-    // expect(transferBondByTransferRootId).to.eq(todo)
+    const transferRootId: string = await l1_bridge.getTransferRootId(rootHash, transfer.amount);
+    const transferRootConfirmed: boolean = await l1_bridge.transferRootConfirmed(transferRootId)
+    const transferBondByTransferRootId = await l1_bridge.transferBonds(transferRootId)
+    expect(transferRootConfirmed).to.eq(true)
+    expect(transferBondByTransferRootId[0]).to.eq(await bonder.getAddress())
+    expect(transferBondByTransferRootId[1].mul(1000).toNumber()).to.be.closeTo(
+      expectedCommitTimeForChainId,
+      TIMESTAMP_VARIANCE
+    )
+    expect(transferBondByTransferRootId[2]).to.eq(transfer.amount)
+    expect(transferBondByTransferRootId[3]).to.eq(false)
+    expect(transferBondByTransferRootId[4]).to.eq(ZERO_ADDRESS)
   })
 
   it('Should send a transaction from L2 to L1 and confirm a not-yet-bonded transfer root on L1', async () => {
@@ -367,7 +374,7 @@ describe('L1_Bridge', () => {
       .bondTransferRoot(rootHash, chainId, amount)
 
     // Get current debit
-    const originalDebit = await l1_bridge.getDebit()
+    const originalDebit = await l1_bridge.getDebitAndAdditionalDebit(await bonder.getAddress())
 
     // Challenger challenges transfer bond
     const challengeAmount: BigNumber = l1_bridge.getChallengeAmountForTransferAmount(
@@ -454,9 +461,9 @@ describe('L1_Bridge', () => {
 
   it('Should set the collateral token address and the bonder address in the constructor', async () => {
     const collateralTokenAddress = await l1_bridge.l1CanonicalToken()
-    const bonderAddress = await l1_bridge.getBonder()
+    const isBonder = await l1_bridge.getIsBonder(await bonder.getAddress())
     expect(collateralTokenAddress).to.eq(l1_canonicalToken.address)
-    expect(bonderAddress).to.eq(await bonder.getAddress())
+    expect(isBonder).to.eq(true)
   })
 
   it('Should send tokens across the bridge via sendToL2', async () => {
@@ -531,7 +538,7 @@ describe('L1_Bridge', () => {
       await l1_canonicalToken
         .connect(bonder)
         .approve(l1_bridge.address, transfer.amount)
-      await l1_bridge.connect(bonder).stake(BigNumber.from(1))
+      await l1_bridge.connect(bonder).stake(await bonder.getAddress(), BigNumber.from(1))
 
       const chainId: BigNumber = CHAIN_IDS.OPTIMISM.TESTNET_1
       const amount: BigNumber = BONDER_INITIAL_BALANCE.mul(2)
@@ -620,7 +627,7 @@ describe('L1_Bridge', () => {
       await l1_canonicalToken
         .connect(bonder)
         .approve(l1_bridge.address, transfer.amount)
-      await l1_bridge.connect(bonder).stake(BigNumber.from(1))
+      await l1_bridge.connect(bonder).stake(await bonder.getAddress(), BigNumber.from(1))
 
       const chainId: BigNumber = CHAIN_IDS.OPTIMISM.TESTNET_1
       const amount: BigNumber = BigNumber.from(1)
@@ -652,7 +659,7 @@ describe('L1_Bridge', () => {
       await l1_canonicalToken
         .connect(bonder)
         .approve(l1_bridge.address, transfer.amount)
-      await l1_bridge.connect(bonder).stake(BigNumber.from(1))
+      await l1_bridge.connect(bonder).stake(await bonder.getAddress(), BigNumber.from(1))
 
       const chainId: BigNumber = CHAIN_IDS.ETHEREUM.MAINNET
       const amount: BigNumber = BigNumber.from(0)
@@ -682,7 +689,7 @@ describe('L1_Bridge', () => {
       await l1_canonicalToken
         .connect(bonder)
         .approve(l1_bridge.address, transfer.amount)
-      await l1_bridge.connect(bonder).stake(BigNumber.from(1))
+      await l1_bridge.connect(bonder).stake(await bonder.getAddress(), BigNumber.from(1))
 
       const chainId: BigNumber = CHAIN_IDS.OPTIMISM.TESTNET_1
       const amount: BigNumber = BigNumber.from(1)
