@@ -69,7 +69,7 @@ contract L1_Bridge is Bridge, L1_BridgeConfig {
 
         bytes memory mintCalldata = abi.encodeWithSignature("mint(address,uint256)", _recipient, _amount);
 
-        chainBalance[_chainId].add(_amount);
+        chainBalance[_chainId] = chainBalance[_chainId].add((_amount));
         messengerWrapper.sendCrossDomainMessage(mintCalldata);
     }
 
@@ -158,7 +158,7 @@ contract L1_Bridge is Bridge, L1_BridgeConfig {
         bytes32 transferRootId = getTransferRootId(_rootHash, _totalAmount);
         require(transferRootConfirmed[transferRootId] == false, "L1_BRG: TransferRoot already confirmed");
         transferRootConfirmed[transferRootId] = true;
-        chainBalance[_chainId].sub(_totalAmount, "L1_BRG: Amount exceeds chainBalance. This indicates a layer-2 failure.");
+        chainBalance[_chainId] = chainBalance[_chainId].sub(_totalAmount, "L1_BRG: Amount exceeds chainBalance. This indicates a layer-2 failure.");
 
         // If the TransferRoot was never bonded, distribute the TransferRoot. If it has been bonded, 
         // require that the chainIds and chainAmounts match the values coming from the L2_Bridge.
