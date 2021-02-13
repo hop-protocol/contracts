@@ -119,7 +119,7 @@ export const setUpBonderStake = async (fixture: IFixture) => {
     await l1_canonicalToken
       .connect(bonder)
       .approve(l1_bridge.address, INITIAL_BONDED_AMOUNT)
-    await l1_bridge.connect(bonder).stake(INITIAL_BONDED_AMOUNT)
+    await l1_bridge.connect(bonder).stake(await bonder.getAddress(), INITIAL_BONDED_AMOUNT)
 }
 
 export const setUpL2UniswapMarket = async (fixture: IFixture, opts: any) => {
@@ -260,11 +260,11 @@ export const getL2SpecificArtifact = (chainId: BigNumber) => {
   let l1_messengerWrapperArtifact: string
 
   if (isChainIdOptimism(chainId)) {
-    l2_bridgeArtifact = 'L2_OptimismBridge.sol:L2_OptimismBridge'
+    l2_bridgeArtifact = 'Mock_L2_OptimismBridge.sol:Mock_L2_OptimismBridge'
     l1_messengerWrapperArtifact =
       'OptimismMessengerWrapper.sol:OptimismMessengerWrapper'
   } else if (isChainIdArbitrum(chainId)) {
-    l2_bridgeArtifact = 'L2_ArbitrumBridge.sol:L2_ArbitrumBridge'
+    l2_bridgeArtifact = 'Mock_L2_ArbitrumBridge.sol:Mock_L2_ArbitrumBridge'
     l1_messengerWrapperArtifact =
       'ArbitrumMessengerWrapper.sol:ArbitrumMessengerWrapper'
   }

@@ -43,7 +43,7 @@ export async function fixture (l2ChainId: BigNumber): Promise<IFixture> {
     'contracts/test/Mock_L1_Bridge.sol:Mock_L1_Bridge'
   )
   const L2_Bridge = await ethers.getContractFactory(
-    `contracts/bridges/${l2_bridgeArtifact}`
+    `contracts/test/${l2_bridgeArtifact}`
   )
   const L1_Messenger = await ethers.getContractFactory(
     'contracts/test/Mock_L1_Messenger.sol:Mock_L1_Messenger'
@@ -102,17 +102,18 @@ export async function fixture (l2ChainId: BigNumber): Promise<IFixture> {
   // Deploy Hop L1 contracts
   const l1_bridge = await L1_Bridge.deploy(
     l1_canonicalToken.address,
-    await bonder.getAddress()
+    [await bonder.getAddress()]
   )
 
   // Deploy Hop L2 contracts
   const l2_bridge = await L2_Bridge.deploy(
+    l2ChainId,
     l2_messenger.address,
     governance.getAddress(),
     l2_canonicalToken.address,
     l1_bridge.address,
     ALL_SUPPORTED_CHAIN_IDS,
-    bonder.getAddress(),
+    [bonder.getAddress()],
     l2_uniswapRouter.address,
     DEFAULT_H_TOKEN_NAME,
     DEFAULT_H_TOKEN_SYMBOL,
@@ -131,8 +132,8 @@ export async function fixture (l2ChainId: BigNumber): Promise<IFixture> {
   )
 
   // Mocks
-  const mockAccounting = await MockAccounting.deploy(await bonder.getAddress())
-  const mockBridge = await MockBridge.deploy(await bonder.getAddress())
+  const mockAccounting = await MockAccounting.deploy([await bonder.getAddress()])
+  const mockBridge = await MockBridge.deploy([await bonder.getAddress()])
 
   // Transfers
   const transfers: Transfer[] = [

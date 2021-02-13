@@ -108,7 +108,8 @@ describe('L2_Bridge', () => {
     const expectedL1GovernanceAddress = await governance.getAddress()
     const expectedL2CanonicalTokenAddress = l2_canonicalToken.address
     const expectedL1BridgeAddress = l1_bridge.address
-    const expectedBonderAddress = await bonder.getAddress()
+    const expectedIsChainIdSupported = true
+    const expectedIsBonder = true
 
     const l1GovernanceAddress = await l2_bridge.l1Governance()
     const l2CanonicalTokenAddress = await l2_bridge.l2CanonicalToken()
@@ -116,13 +117,13 @@ describe('L2_Bridge', () => {
     const isChainIdSupported = await l2_bridge.supportedChainIds(
       CHAIN_IDS.ETHEREUM.MAINNET
     )
-    const bonderAddress = await l2_bridge.getBonder()
+    const isBonder = await l2_bridge.getIsBonder(await bonder.getAddress())
 
     expect(expectedL1GovernanceAddress).to.eq(l1GovernanceAddress)
     expect(expectedL2CanonicalTokenAddress).to.eq(l2CanonicalTokenAddress)
     expect(expectedL1BridgeAddress).to.eq(l1BridgeAddress)
-    expect(true).to.eq(isChainIdSupported)
-    expect(expectedBonderAddress).to.eq(bonderAddress)
+    expect(expectedIsChainIdSupported).to.eq(isChainIdSupported)
+    expect(expectedIsBonder).to.eq(isBonder)
   })
 
   it('Should set the exchange address arbitrarily', async () => {
