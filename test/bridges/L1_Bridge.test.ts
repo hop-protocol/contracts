@@ -530,7 +530,7 @@ describe('L1_Bridge', () => {
 
       await expectBalanceOf(l1_canonicalToken, user, tokenAmount.sub(tokenAmount))
       await expectBalanceOf(l2_bridge, user, tokenAmount)
-      expect(await l1_bridge.chainBalance(l2ChainId)).to.eq(LIQUIDITY_PROVIDER_UNISWAP_AMOUNT.add(tokenAmount))
+      expect(await l1_bridge.chainBalance(l2ChainId)).to.eq(LIQUIDITY_PROVIDER_UNISWAP_AMOUNT.add(INITIAL_BONDED_AMOUNT).add(tokenAmount))
     })
   })
 
@@ -560,7 +560,7 @@ describe('L1_Bridge', () => {
       await expectBalanceOf(l1_canonicalToken, user, tokenAmount.sub(tokenAmount))
       await expectBalanceOf(l2_canonicalToken, user, expectedAmountAfterSlippage)
       await expectBalanceOf(l2_bridge, user, 0)
-      expect(await l1_bridge.chainBalance(l2ChainId)).to.eq(LIQUIDITY_PROVIDER_UNISWAP_AMOUNT.add(tokenAmount))
+      expect(await l1_bridge.chainBalance(l2ChainId)).to.eq(LIQUIDITY_PROVIDER_UNISWAP_AMOUNT.add(INITIAL_BONDED_AMOUNT).add(tokenAmount))
     })
   })
 

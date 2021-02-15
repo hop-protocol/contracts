@@ -35,6 +35,11 @@ export const setUpDefaults = async (
     challengerInitialBalance: CHALLENGER_INITIAL_BALANCE
   }
 
+  const setUpBonderStakeOpts = {
+    l2ChainId: l2ChainId,
+    bondAmount: INITIAL_BONDED_AMOUNT
+  }
+
   const setUpL2UniswapMarketOpts = {
     l2ChainId: l2ChainId,
     liquidityProviderBalance: LIQUIDITY_PROVIDER_UNISWAP_AMOUNT
@@ -43,7 +48,7 @@ export const setUpDefaults = async (
   await setUpL1AndL2Bridges(fixture, setUpL1AndL2BridgesOpts)
   await setUpL1AndL2Messengers(fixture)
   await distributeCanonicalTokens(fixture, distributeCanonicalTokensOpts)
-  await setUpBonderStake(fixture)
+  await setUpBonderStake(fixture, setUpBonderStakeOpts)
   await setUpL2UniswapMarket(fixture, setUpL2UniswapMarketOpts)
 }
 
@@ -109,17 +114,38 @@ export const distributeCanonicalTokens = async (
   )
 }
 
-export const setUpBonderStake = async (fixture: IFixture) => {
+export const setUpBonderStake = async (fixture: IFixture, opts: any) => {
   const {
     bonder,
     l1_bridge,
-    l1_canonicalToken
+    l1_canonicalToken,
+    l2_bridge,
+    l2_messenger,
   } = fixture
 
-    await l1_canonicalToken
-      .connect(bonder)
-      .approve(l1_bridge.address, INITIAL_BONDED_AMOUNT)
-    await l1_bridge.connect(bonder).stake(await bonder.getAddress(), INITIAL_BONDED_AMOUNT)
+  const { l2ChainId, bondAmount } = opts
+
+  // Stake on L1
+  await l1_canonicalToken
+    .connect(bonder)
+    .approve(l1_bridge.address, bondAmount)
+  await l1_bridge.connect(bonder).stake(await bonder.getAddress(), bondAmount)
+
+  // Stake on L2
+  await sendTestTokensAcrossHopBridge(
+    l1_canonicalToken,
+    l1_bridge,
+    l2_bridge,
+    l2_messenger,
+    bonder,
+    bondAmount,
+    l2ChainId
+  )
+
+  await l2_bridge
+    .connect(bonder)
+    .approve(l2_bridge.address, bondAmount)
+  await l2_bridge.connect(bonder).stake(await bonder.getAddress(), bondAmount)
 }
 
 export const setUpL2UniswapMarket = async (fixture: IFixture, opts: any) => {
