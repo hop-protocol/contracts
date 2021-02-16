@@ -9,7 +9,7 @@ import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 
 /**
  * @dev Accounting is an abstract contract that encapsulates the most critical logic in the Hop system.
- * The accounting system works by using two balances that can only increase `credit` and `debit`.
+ * The accounting system works by using two balances that can only increase `_credit` and `_debit`.
  * A bonder's available balance is the total credit minus the total debit. The contract exposes
  * two external functions that allows a bonder to stake and unstake and exposes two internal
  * functions to its parent contracts that allow the parent contract to add to the credit 
@@ -23,10 +23,10 @@ abstract contract Accounting {
     using SafeMath for uint256;
     using SafeERC20 for IERC20;
 
-    mapping(address => bool) private isBonder;
+    mapping(address => bool) private _isBonder;
 
-    mapping(address => uint256) private credit;
-    mapping(address => uint256) private debit;
+    mapping(address => uint256) private _credit;
+    mapping(address => uint256) private _debit;
 
     event Stake (
         uint256 amount
@@ -39,7 +39,7 @@ abstract contract Accounting {
     /* ========== Modifiers ========== */
 
     modifier onlyBonder {
-        require(isBonder[msg.sender], "ACT: Caller is not bonder");
+        require(_isBonder[msg.sender], "ACT: Caller is not bonder");
         _;
     }
 
@@ -50,16 +50,16 @@ abstract contract Accounting {
     }
 
     /// @dev Sets the bonder addresses
-    constructor(address[] memory _bonders) public {
-        for (uint256 i = 0; i < _bonders.length; i++) {
-            isBonder[_bonders[i]] = true;
+    constructor(address[] memory bonders) public {
+        for (uint256 i = 0; i < bonders.length; i++) {
+            _isBonder[bonders[i]] = true;
         }
     }
 
     /* ========== Virtual functions ========== */
 
-    function _transferFromBridge(address _recipient, uint256 _amount) internal virtual;
-    function _transferToBridge(address _from, uint256 _amount) internal virtual;
+    function _transferFromBridge(address recipient, uint256 amount) internal virtual;
+    function _transferToBridge(address from, uint256 amount) internal virtual;
 
     /**
      * @dev This function can be optionally overridden by a parent contract to track any additional
@@ -72,45 +72,45 @@ abstract contract Accounting {
 
     /* ========== Public getters ========== */
 
-    function getIsBonder(address _maybeBonder) public view returns (bool) {
-        return isBonder[_maybeBonder];
+    function getIsBonder(address maybeBonder) public view returns (bool) {
+        return _isBonder[maybeBonder];
     }
 
-    function getCredit(address _bonder) public view returns (uint256) {
-        return credit[_bonder];
+    function getCredit(address bonder) public view returns (uint256) {
+        return _credit[bonder];
     }
 
-    function getDebitAndAdditionalDebit(address _bonder) public view returns (uint256) {
-        return debit[_bonder].add(_additionalDebit());
+    function getDebitAndAdditionalDebit(address bonder) public view returns (uint256) {
+        return _debit[bonder].add(_additionalDebit());
     }
 
     /* ========== Bonder public functions ========== */
 
     /** 
      * @dev Allows the bonder to deposit tokens and increase its credit balance
-     * @param _amount The amount being staked
+     * @param amount The amount being staked
      */
-    function stake(address _bonder, uint256 _amount) external {
-        _transferToBridge(msg.sender, _amount);
-        _addCredit(_bonder, _amount);
+    function stake(address bonder, uint256 amount) external {
+        _transferToBridge(msg.sender, amount);
+        _addCredit(bonder, amount);
     }
 
     /**
      * @dev Allows the bonder to withdraw any available balance and add to its debit balance
-     * @param _amount The amount being staked
+     * @param amount The amount being staked
      */
-    function unstake(uint256 _amount) external requirePositiveBalance onlyBonder {
-        _addDebit(msg.sender, _amount);
-        _transferFromBridge(msg.sender, _amount);
+    function unstake(uint256 amount) external requirePositiveBalance onlyBonder {
+        _addDebit(msg.sender, amount);
+        _transferFromBridge(msg.sender, amount);
     }
 
     /* ========== Internal functions ========== */
 
-    function _addCredit(address bonder, uint256 _amount) internal {
-        credit[bonder] = credit[bonder].add(_amount);
+    function _addCredit(address bonder, uint256 amount) internal {
+        _credit[bonder] = _credit[bonder].add(amount);
     }
 
-    function _addDebit(address bonder, uint256 _amount) internal {
-        debit[bonder] = debit[bonder].add(_amount);
+    function _addDebit(address bonder, uint256 amount) internal {
+        _debit[bonder] = _debit[bonder].add(amount);
     }
 }

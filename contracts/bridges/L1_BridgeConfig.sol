@@ -14,89 +14,89 @@ contract L1_BridgeConfig is Ownable {
 
     /* ========== State ========== */
 
-    mapping(uint256 => IMessengerWrapper) private crossDomainMessengerWrapper;
-    uint256 private challengeAmountMultiplier = 1;
-    uint256 private challengeAmountDivisor = 10;
-    uint256 private timeSlotSize = 3 hours;
-    uint256 private challengePeriod = 1 days;
-    uint256 private challengeResolutionPeriod = 8 days;
-    uint256 private unstakePeriod = 9 days; 
+    mapping(uint256 => IMessengerWrapper) private _crossDomainMessengerWrapper;
+    uint256 private _challengeAmountMultiplier = 1;
+    uint256 private _challengeAmountDivisor = 10;
+    uint256 private _timeSlotSize = 3 hours;
+    uint256 private _challengePeriod = 1 days;
+    uint256 private _challengeResolutionPeriod = 8 days;
+    uint256 private _unstakePeriod = 9 days; 
 
     /* ========== External Management Setters ========== */
 
-    function setCrossDomainMessengerWrapper(uint256 _chainId, IMessengerWrapper _crossDomainMessengerWrapper) external onlyOwner {
-        crossDomainMessengerWrapper[_chainId] = _crossDomainMessengerWrapper;
+    function setCrossDomainMessengerWrapper(uint256 chainId, IMessengerWrapper crossDomainMessengerWrapper) external onlyOwner {
+        _crossDomainMessengerWrapper[chainId] = crossDomainMessengerWrapper;
     }
 
-    function setChallengeAmountDivisor(uint256 _challengeAmountDivisor) external onlyOwner {
-        challengeAmountDivisor = _challengeAmountDivisor;
+    function setChallengeAmountDivisor(uint256 challengeAmountDivisor) external onlyOwner {
+        _challengeAmountDivisor = challengeAmountDivisor;
     }
 
-    function setTimeSlotSize(uint256 _timeSlotSize) external onlyOwner {
-        timeSlotSize = _timeSlotSize;
+    function setTimeSlotSize(uint256 timeSlotSize) external onlyOwner {
+        _timeSlotSize = timeSlotSize;
     }
 
-    function setChallengePeriod(uint256 _challengePeriod) external onlyOwner {
-        challengePeriod = _challengePeriod;
+    function setChallengePeriod(uint256 challengePeriod) external onlyOwner {
+        _challengePeriod = challengePeriod;
     }
 
-    function setChallengeAmountMultiplier(uint256 _challengeAmountMultiplier) external onlyOwner {
-        challengeAmountMultiplier = _challengeAmountMultiplier;
+    function setChallengeAmountMultiplier(uint256 challengeAmountMultiplier) external onlyOwner {
+        _challengeAmountMultiplier = challengeAmountMultiplier;
     }
 
-    function setChallengeResolutionPeriod(uint256 _challengeResolutionPeriod) external onlyOwner {
-        challengeResolutionPeriod = _challengeResolutionPeriod;
+    function setChallengeResolutionPeriod(uint256 challengeResolutionPeriod) external onlyOwner {
+        _challengeResolutionPeriod = challengeResolutionPeriod;
     }
 
-    function setUnstakePeriod(uint256 _unstakePeriod) external onlyOwner {
-        unstakePeriod = _unstakePeriod;
+    function setUnstakePeriod(uint256 unstakePeriod) external onlyOwner {
+        _unstakePeriod = unstakePeriod;
     }
 
     /* ========== Public Getters ========== */
 
-    function getCrossDomainMessengerWrapper(uint256 _chainId) public view returns(IMessengerWrapper) {
-        return crossDomainMessengerWrapper[_chainId];
+    function getCrossDomainMessengerWrapper(uint256 chainId) public view returns(IMessengerWrapper) {
+        return _crossDomainMessengerWrapper[chainId];
     }
 
     function getChallengeAmountDivisor() public view returns(uint256) {
-        return challengeAmountDivisor;
+        return _challengeAmountDivisor;
     }
 
     function getTimeSlotSize() public view returns(uint256) {
-        return timeSlotSize;
+        return _timeSlotSize;
     }
 
     function getChallengePeriod() public view returns(uint256) {
-        return challengePeriod;
+        return _challengePeriod;
     }
 
     function getChallengeAmountMultiplier() public view returns(uint256) {
-        return challengeAmountMultiplier;
+        return _challengeAmountMultiplier;
     }
 
     function getChallengeResolutionPeriod() public view returns(uint256) {
-        return challengeResolutionPeriod;
+        return _challengeResolutionPeriod;
     }
 
     function getUnstakePeriod() public view returns(uint256) {
-        return unstakePeriod;
+        return _unstakePeriod;
     }
 
-    function getBondForTransferAmount(uint256 _amount) public view returns (uint256) {
-        // Bond covers _amount plus a bounty to pay a potential challenger
-        return _amount.add(getChallengeAmountForTransferAmount(_amount));
+    function getBondForTransferAmount(uint256 amount) public view returns (uint256) {
+        // Bond covers amount plus a bounty to pay a potential challenger
+        return amount.add(getChallengeAmountForTransferAmount(amount));
     }
 
-    function getChallengeAmountForTransferAmount(uint256 _amount) public view returns (uint256) {
-        // Bond covers _amount plus a bounty to pay a potential challenger
-        return _amount.mul(challengeAmountMultiplier).div(challengeAmountDivisor);
+    function getChallengeAmountForTransferAmount(uint256 amount) public view returns (uint256) {
+        // Bond covers amount plus a bounty to pay a potential challenger
+        return amount.mul(_challengeAmountMultiplier).div(_challengeAmountDivisor);
     }
 
     function getTimeSlot(uint256 _time) public view returns (uint256) {
-        return _time / timeSlotSize;
+        return _time / _timeSlotSize;
     }
 
     function getNumberOfChallengeableTimeSlots() public view returns (uint256) {
-        return timeSlotSize / challengePeriod;
+        return _timeSlotSize / _challengePeriod;
     }
 }

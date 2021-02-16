@@ -11,40 +11,40 @@ contract L2_ArbitrumBridge is L2_Bridge {
 
     constructor (
         IArbSys _messenger,
-        address _l1Governance,
-        IERC20 _canonicalToken,
-        address _l1BridgeAddress,
-        uint256[] memory _supportedChainIds,
-        address[] memory _bonders,
-        address _exchangeAddress,
-        string memory _name,
-        string memory _symbol,
-        uint8 _decimals
+        address l1Governance,
+        IERC20 canonicalToken,
+        address l1BridgeAddress,
+        uint256[] memory supportedChainIds,
+        address[] memory bonders,
+        address exchangeAddress,
+        string memory name,
+        string memory symbol,
+        uint8 decimals
     )
         public
         L2_Bridge(
-            _l1Governance,
-            _canonicalToken,
-            _l1BridgeAddress,
-            _supportedChainIds,
-            _bonders,
-            _exchangeAddress,
-            _name,
-            _symbol,
-            _decimals
+            l1Governance,
+            canonicalToken,
+            l1BridgeAddress,
+            supportedChainIds,
+            bonders,
+            exchangeAddress,
+            name,
+            symbol,
+            decimals
         )
     {
         messenger = _messenger;
     }
 
-    function _sendCrossDomainMessage(bytes memory _message) internal override {
+    function _sendCrossDomainMessage(bytes memory message) internal override {
         messenger.sendTxToL1(
             l1BridgeAddress,
-            _message
+            message
         );
     }
 
-    function _verifySender(address _expectedSender) internal override {
+    function _verifySender(address expectedSender) internal override {
         // ToDo: verify sender with Arbitrum L2 messenger
         // sender should be l1BridgeAddress
     }

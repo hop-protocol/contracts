@@ -49,53 +49,53 @@ contract L1_Bridge is Bridge, L1_BridgeConfig {
         _;
     }
 
-    constructor (IERC20 _l1CanonicalToken, address[] memory _bonders) public Bridge(_bonders) {
+    constructor (IERC20 _l1CanonicalToken, address[] memory bonders) public Bridge(bonders) {
         l1CanonicalToken = _l1CanonicalToken;
     }
 
     /* ========== Public Transfers Functions ========== */
 
     function sendToL2(
-        uint256 _chainId,
-        address _recipient,
-        uint256 _amount
+        uint256 chainId,
+        address recipient,
+        uint256 amount
     )
         public
     {
-        IMessengerWrapper messengerWrapper = getCrossDomainMessengerWrapper(_chainId);
+        IMessengerWrapper messengerWrapper = getCrossDomainMessengerWrapper(chainId);
         require(messengerWrapper != IMessengerWrapper(0), "L1_BRG: chainId not supported");
 
-        l1CanonicalToken.safeTransferFrom(msg.sender, address(this), _amount);
+        l1CanonicalToken.safeTransferFrom(msg.sender, address(this), amount);
 
-        bytes memory mintCalldata = abi.encodeWithSignature("mint(address,uint256)", _recipient, _amount);
+        bytes memory mintCalldata = abi.encodeWithSignature("mint(address,uint256)", recipient, amount);
 
-        chainBalance[_chainId] = chainBalance[_chainId].add(_amount);
+        chainBalance[chainId] = chainBalance[chainId].add(amount);
         messengerWrapper.sendCrossDomainMessage(mintCalldata);
     }
 
     function sendToL2AndAttemptSwap(
-        uint256 _chainId,
-        address _recipient,
-        uint256 _amount,
-        uint256 _amountOutMin,
-        uint256 _deadline
+        uint256 chainId,
+        address recipient,
+        uint256 amount,
+        uint256 amountOutMin,
+        uint256 deadline
     )
         public
     {
-        IMessengerWrapper messengerWrapper = getCrossDomainMessengerWrapper(_chainId);
+        IMessengerWrapper messengerWrapper = getCrossDomainMessengerWrapper(chainId);
         require(messengerWrapper != IMessengerWrapper(0), "L1_BRG: chainId not supported");
 
-        l1CanonicalToken.safeTransferFrom(msg.sender, address(this), _amount);
+        l1CanonicalToken.safeTransferFrom(msg.sender, address(this), amount);
 
         bytes memory mintAndAttemptSwapCalldata = abi.encodeWithSignature(
             "mintAndAttemptSwap(address,uint256,uint256,uint256)",
-            _recipient,
-            _amount,
-            _amountOutMin,
-            _deadline
+            recipient,
+            amount,
+            amountOutMin,
+            deadline
         );
 
-        chainBalance[_chainId] = chainBalance[_chainId].add(_amount);
+        chainBalance[chainId] = chainBalance[chainId].add(amount);
         messengerWrapper.sendCrossDomainMessage(mintAndAttemptSwapCalldata);
     }
 
@@ -111,83 +111,84 @@ contract L1_Bridge is Bridge, L1_BridgeConfig {
 
     /**
      * @dev Used by the bonder to bond a TransferRoot and propagate it up to destination L2s
-     * @param _rootHash The Merkle root of the TransferRoot Merkle tree
-     * @param _destinationChainId The id of the destination chain
-     * @param _totalAmount The amount destined for the destination chain
+     * @param rootHash The Merkle root of the TransferRoot Merkle tree
+     * @param destinationChainId The id of the destination chain
+     * @param totalAmount The amount destined for the destination chain
      */
     function bondTransferRoot(
-        bytes32 _rootHash,
-        uint256 _destinationChainId,
-        uint256 _totalAmount
+        bytes32 rootHash,
+        uint256 destinationChainId,
+        uint256 totalAmount
     )
         external
         onlyBonder
         requirePositiveBalance
     {
-        bytes32 transferRootId = getTransferRootId(_rootHash, _totalAmount);
+        bytes32 transferRootId = getTransferRootId(rootHash, totalAmount);
         require(transferRootConfirmed[transferRootId] == false, "L1_BRG: Transfer Root has already been confirmed");
         require(transferBonds[transferRootId].createdAt == 0, "L1_BRG: Transfer Root has already been bonded");
 
         uint256 currentTimeSlot = getTimeSlot(block.timestamp);
-        uint256 bondAmount = getBondForTransferAmount(_totalAmount);
+        uint256 bondAmount = getBondForTransferAmount(totalAmount);
         timeSlotToAmountBonded[currentTimeSlot] = timeSlotToAmountBonded[currentTimeSlot].add(bondAmount);
 
-        transferBonds[transferRootId] = TransferBond(msg.sender, block.timestamp, _totalAmount, false, 0, address(0));
+        transferBonds[transferRootId] = TransferBond(msg.sender, block.timestamp, totalAmount, false, 0, address(0));
 
-        _distributeTransferRoot(_rootHash, _destinationChainId, _totalAmount);
+        _distributeTransferRoot(rootHash, destinationChainId, totalAmount);
 
-        emit TransferRootBonded(_rootHash, _totalAmount);
+        emit TransferRootBonded(rootHash, totalAmount);
     }
 
     /**
      * @dev Used by an L2 bridge to confirm a TransferRoot via cross-domain message. Once a TransferRoot
      * has been confirmed, any challenge against that TransferRoot can be resolved as unsuccessful.
-     * @param _rootHash The Merkle root of the TransferRoot Merkle tree
-     * @param _destinationChainId The id of the destination chain
-     * @param _totalAmount The amount destined for each destination chain
+     * @param chainId The id of the destination chain
+     * @param rootHash The Merkle root of the TransferRoot Merkle tree
+     * @param destinationChainId The id of the destination chain
+     * @param totalAmount The amount destined for each destination chain
      */
     function confirmTransferRoot(
-        uint256 _chainId,
-        bytes32 _rootHash,
-        uint256 _destinationChainId,
-        uint256 _totalAmount
+        uint256 chainId,
+        bytes32 rootHash,
+        uint256 destinationChainId,
+        uint256 totalAmount
     )
         public
         onlyL2Bridge
     {
-        bytes32 transferRootId = getTransferRootId(_rootHash, _totalAmount);
+        bytes32 transferRootId = getTransferRootId(rootHash, totalAmount);
         require(transferRootConfirmed[transferRootId] == false, "L1_BRG: TransferRoot already confirmed");
         transferRootConfirmed[transferRootId] = true;
-        chainBalance[_chainId] = chainBalance[_chainId].sub(_totalAmount, "L1_BRG: Amount exceeds chainBalance. This indicates a layer-2 failure.");
+        chainBalance[chainId] = chainBalance[chainId].sub(totalAmount, "L1_BRG: Amount exceeds chainBalance. This indicates a layer-2 failure.");
 
         // If the TransferRoot was never bonded, distribute the TransferRoot. If it has been bonded, 
         // require that the chainIds and chainAmounts match the values coming from the L2_Bridge.
         TransferBond storage transferBond = transferBonds[transferRootId];
         if (transferBond.createdAt == 0) {
-            _distributeTransferRoot(_rootHash, _destinationChainId, _totalAmount);
-        } 
+            _distributeTransferRoot(rootHash, destinationChainId, totalAmount);
+        }
     }
 
     function _distributeTransferRoot(
-        bytes32 _rootHash,
-        uint256 _chainId,
-        uint256 _totalAmount
+        bytes32 rootHash,
+        uint256 chainId,
+        uint256 totalAmount
     )
         internal
     {
         // Set TransferRoot on recipient Bridge
-        if (_chainId == getChainId()) {
+        if (chainId == getChainId()) {
             // Set L1 transfer root
-            _setTransferRoot(_rootHash, _totalAmount);
+            _setTransferRoot(rootHash, totalAmount);
         } else {
-            IMessengerWrapper messengerWrapper = getCrossDomainMessengerWrapper(_chainId);
+            IMessengerWrapper messengerWrapper = getCrossDomainMessengerWrapper(chainId);
             require(messengerWrapper != IMessengerWrapper(0), "L1_BRG: chainId not supported");
 
             // Set L2 transfer root
             bytes memory setTransferRootMessage = abi.encodeWithSignature(
                 "setTransferRoot(bytes32,uint256)",
-                _rootHash,
-                _totalAmount
+                rootHash,
+                totalAmount
             );
             messengerWrapper.sendCrossDomainMessage(setTransferRootMessage);
         }
@@ -195,9 +196,9 @@ contract L1_Bridge is Bridge, L1_BridgeConfig {
 
     /* ========== Public TransferRoot Challenges ========== */
 
-    function challengeTransferBond(bytes32 _rootHash, uint256 _originalAmount) public {
-        bytes32 transferRootId = getTransferRootId(_rootHash, _originalAmount);
-        TransferRoot memory transferRoot = getTransferRoot(_rootHash, _originalAmount);
+    function challengeTransferBond(bytes32 rootHash, uint256 originalAmount) public {
+        bytes32 transferRootId = getTransferRootId(rootHash, originalAmount);
+        TransferRoot memory transferRoot = getTransferRoot(rootHash, originalAmount);
         TransferBond storage transferBond = transferBonds[transferRootId];
 
         require(transferRootConfirmed[transferRootId] == false, "L1_BRG: Transfer root has already been confirmed");
@@ -219,9 +220,9 @@ contract L1_Bridge is Bridge, L1_BridgeConfig {
         _addDebit(transferBond.bonder, bondAmount);
     }
 
-    function resolveChallenge(bytes32 _rootHash, uint256 _originalAmount) public {
-        bytes32 transferRootId = getTransferRootId(_rootHash, _originalAmount);
-        TransferRoot memory transferRoot = getTransferRoot(_rootHash, _originalAmount);
+    function resolveChallenge(bytes32 rootHash, uint256 originalAmount) public {
+        bytes32 transferRootId = getTransferRootId(rootHash, originalAmount);
+        TransferRoot memory transferRoot = getTransferRoot(rootHash, originalAmount);
         TransferBond storage transferBond = transferBonds[transferRootId];
 
         require(transferBond.challengeStartTime != 0, "L1_BRG: Transfer root has not been challenged");
@@ -244,12 +245,12 @@ contract L1_Bridge is Bridge, L1_BridgeConfig {
 
     /* ========== Internal functions ========== */
 
-    function _transferFromBridge(address _recipient, uint256 _amount) internal override {
-        l1CanonicalToken.safeTransfer(_recipient, _amount);
+    function _transferFromBridge(address recipient, uint256 amount) internal override {
+        l1CanonicalToken.safeTransfer(recipient, amount);
     }
 
-    function _transferToBridge(address _from, uint256 _amount) internal override {
-        l1CanonicalToken.safeTransferFrom(_from, address(this), _amount);
+    function _transferToBridge(address from, uint256 amount) internal override {
+        l1CanonicalToken.safeTransferFrom(from, address(this), amount);
     }
 
     function _additionalDebit() internal view override returns (uint256) {
