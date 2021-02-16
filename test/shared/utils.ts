@@ -304,6 +304,7 @@ export const getL2SpecificArtifact = (chainId: BigNumber) => {
 export const getOriginalSignerBalances = async (
   user: Signer,
   bonder: Signer,
+  challenger: Signer,
   l1_bridge: Contract,
   l2_bridge: Contract,
   l1_canonicalToken: Contract,
@@ -312,21 +313,27 @@ export const getOriginalSignerBalances = async (
   const originalBondedAmount: BigNumber = await l1_bridge.getCredit(await bonder.getAddress())
   const user_l1_canonicalTokenOriginalBalance: BigNumber = await l1_canonicalToken.balanceOf(await user.getAddress())
   const bonder_l1_canonicalTokenOriginalBalance: BigNumber = await l1_canonicalToken.balanceOf(await bonder.getAddress())
+  const challenger_l1_canonicalTokenOriginalBalance: BigNumber = await l1_canonicalToken.balanceOf(await challenger.getAddress())
 
   const user_l2_canonicalTokenOriginalBalance: BigNumber = await l2_canonicalToken.balanceOf(await user.getAddress())
   const bonder_l2_canonicalTokenOriginalBalance: BigNumber = await l2_canonicalToken.balanceOf(await bonder.getAddress())
+  const challenger_l2_canonicalTokenOriginalBalance: BigNumber = await l2_canonicalToken.balanceOf(await challenger.getAddress())
 
   const user_l2_bridgeTokenOriginalBalance: BigNumber = await l2_bridge.balanceOf(await user.getAddress())
   const bonder_l2_bridgeTokenOriginalBalance: BigNumber = await l2_bridge.balanceOf(await bonder.getAddress())
+  const challenger_l2_bridgeTokenOriginalBalance: BigNumber = await l2_bridge.balanceOf(await challenger.getAddress())
 
   return {
     originalBondedAmount,
     user_l1_canonicalTokenOriginalBalance,
     bonder_l1_canonicalTokenOriginalBalance,
+    challenger_l1_canonicalTokenOriginalBalance,
     user_l2_canonicalTokenOriginalBalance,
     bonder_l2_canonicalTokenOriginalBalance,
+    challenger_l2_canonicalTokenOriginalBalance,
     user_l2_bridgeTokenOriginalBalance,
-    bonder_l2_bridgeTokenOriginalBalance
+    bonder_l2_bridgeTokenOriginalBalance,
+    challenger_l2_bridgeTokenOriginalBalance
   }
 }
 

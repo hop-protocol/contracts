@@ -28,7 +28,8 @@ import {
   CHALLENGER_INITIAL_BALANCE,
   ZERO_ADDRESS,
   SECONDS_IN_A_DAY,
-  TIMESTAMP_VARIANCE
+  TIMESTAMP_VARIANCE,
+  DEAD_ADDRESS
 } from '../../config/constants'
 
 describe('L1_Bridge', () => {
@@ -60,10 +61,13 @@ describe('L1_Bridge', () => {
   let originalBondedAmount: BigNumber
   let user_l1_canonicalTokenOriginalBalance: BigNumber
   let bonder_l1_canonicalTokenOriginalBalance: BigNumber
+  let challenger_l1_canonicalTokenOriginalBalance: BigNumber
   let user_l2_canonicalTokenOriginalBalance: BigNumber
   let bonder_l2_canonicalTokenOriginalBalance: BigNumber
+  let challenger_l2_canonicalTokenOriginalBalance: BigNumber
   let user_l2_bridgeTokenOriginalBalance: BigNumber
   let bonder_l2_bridgeTokenOriginalBalance: BigNumber
+  let challenger_l2_bridgeTokenOriginalBalance: BigNumber
 
   let beforeAllSnapshotId: string
   let snapshotId: string
@@ -110,17 +114,21 @@ describe('L1_Bridge', () => {
       originalBondedAmount,
       user_l1_canonicalTokenOriginalBalance,
       bonder_l1_canonicalTokenOriginalBalance,
+      challenger_l1_canonicalTokenOriginalBalance,
       user_l2_canonicalTokenOriginalBalance,
       bonder_l2_canonicalTokenOriginalBalance,
+      challenger_l2_canonicalTokenOriginalBalance,
       user_l2_bridgeTokenOriginalBalance,
       bonder_l2_bridgeTokenOriginalBalance,
+      challenger_l2_bridgeTokenOriginalBalance
     } = await getOriginalSignerBalances(
       user,
       bonder,
+      challenger,
       l1_bridge,
       l2_bridge,
       l1_canonicalToken,
-      l2_canonicalToken,
+      l2_canonicalToken
     ))
   })
 
@@ -384,7 +392,7 @@ describe('L1_Bridge', () => {
     // Message gets relayed to L1 and bonder confirms the transfer root
     await l1_messenger.relayNextMessage()
 
-    const transferRootId: string = await l1_bridge.getTransferRootId(rootHash, transfer.amount);
+    const transferRootId: string = await l1_bridge.getTransferRootId(rootHash, transfer.amount)
     const transferRootConfirmed: boolean = await l1_bridge.transferRootConfirmed(transferRootId)
     const transferBondByTransferRootId = await l1_bridge.transferBonds(transferRootId)
     expect(transferRootConfirmed).to.eq(true)
@@ -1096,11 +1104,527 @@ describe('L1_Bridge', () => {
   })
 
   describe('challengeTransferBond', async () => {
-    // TODO
-  })
+    it('Should send a transaction from L2 to L1, bond withdrawal on L1, and challenge the transfer bond', async () => {
+      // Set up transfer
+      let transfer: any = transfers[0]
+      transfer.chainId = CHAIN_IDS.ETHEREUM.MAINNET
+      transfer.amountOutMin = BigNumber.from(0)
+      transfer.deadline = BigNumber.from(0)
 
+      // Instantiate a sender and recipient Signer
+      const sender: Signer = user
+      const recipient: Signer = otherUser
+      expect(transfer.sender).to.eq(await sender.getAddress())
+      expect(transfer.recipient).to.eq(await recipient.getAddress())
+
+      // User moves funds to L2
+      await l1_canonicalToken
+        .connect(user)
+        .approve(l1_bridge.address, transfer.amount)
+      await l1_bridge
+        .connect(user)
+        .sendToL2(l2ChainId, await user.getAddress(), transfer.amount)
+      await l2_messenger.relayNextMessage()
+
+      // Validate balances
+      await expectBalanceOf(
+        l1_canonicalToken,
+        user,
+        user_l1_canonicalTokenOriginalBalance.sub(transfer.amount)
+      )
+      await expectBalanceOf(l2_bridge, user, transfer.amount)
+
+      // User moves funds back to L1 across the liquidity bridge
+      await l2_bridge
+        .connect(user)
+        .send(
+          transfer.chainId,
+          transfer.recipient,
+          transfer.amount,
+          transfer.transferNonce,
+          transfer.relayerFee,
+          transfer.amountOutMin,
+          transfer.deadline
+        )
+
+      // Validate balances
+      await expectBalanceOf(
+        l1_canonicalToken,
+        user,
+        user_l1_canonicalTokenOriginalBalance.sub(transfer.amount)
+      )
+      await expectBalanceOf(
+        l1_canonicalToken,
+        otherUser,
+        0
+      )
+      await expectBalanceOf(l2_bridge, user, 0)
+
+      await l1_bridge
+        .connect(bonder)
+        .bondWithdrawal(
+          transfer.sender,
+          transfer.recipient,
+          transfer.amount,
+          transfer.transferNonce,
+          transfer.relayerFee
+        )
+
+      // Validate balances
+      await expectBalanceOf(
+        l1_canonicalToken,
+        user,
+        user_l1_canonicalTokenOriginalBalance.sub(transfer.amount)
+      )
+      await expectBalanceOf(
+        l1_canonicalToken,
+        otherUser,
+        transfer.amount.sub(transfer.relayerFee)
+      )
+      await expectBalanceOf(
+        l1_canonicalToken,
+        bonder,
+        bonder_l1_canonicalTokenOriginalBalance.add(transfer.relayerFee)
+      )
+
+      // Validate state before commitTransfers
+      const pendingAmountChainId = await l2_bridge.pendingAmountChainIds(0)
+      const pendingTransferIdsForChainId: string = await l2_bridge.pendingTransferIdsForChainId(transfer.chainId, 0)
+      const expectedPendingTransferIdsForChainId: string = transfer.getTransferIdHex()
+      expect(pendingAmountChainId).to.eq(transfer.chainId)
+      expect(pendingTransferIdsForChainId).to.eq(expectedPendingTransferIdsForChainId)
+
+      // Bonder commits transfers
+      await l2_bridge
+        .connect(bonder)
+        .commitTransfers(transfer.chainId)
+
+      // Validate state after commitTransfers()
+      const lastCommitTimeForChainId: BigNumber = await l2_bridge.lastCommitTimeForChainId(transfer.chainId)
+      const expectedCommitTimeForChainId: number = Date.now()
+      expect(lastCommitTimeForChainId.mul(1000).toNumber()).to.be.closeTo(
+        expectedCommitTimeForChainId,
+        TIMESTAMP_VARIANCE
+      )
+      const expectedErrorMsg: string = 'VM Exception while processing transaction: invalid opcode'
+      try {
+        await l2_bridge.pendingAmountChainIds(0)
+        throw new Error('There should not be a pending amount chainId in this slot.')
+      } catch (err) {
+        expect(err.message).to.eq(expectedErrorMsg)
+      }
+      try {
+        await l2_bridge.pendingTransferIdsForChainId(transfer.chainId, 0)
+        throw new Error('There should not be a pending transfer ID for chainId in this slot.')
+      } catch (err) {
+        expect(err.message).to.eq(expectedErrorMsg)
+      }
+
+      const transferId: Buffer = transfer.getTransferId()
+      const { rootHash } = getRootHashFromTransferId(transferId)
+      const transferRootId: string = await l1_bridge.getTransferRootId(rootHash, transfer.amount)
+
+      // Bonder bonds the transfer root
+      const debitBeforeBond: BigNumber = await l1_bridge.getDebitAndAdditionalDebit(await bonder.getAddress())
+      await l1_bridge
+        .connect(bonder)
+        .bondTransferRoot(rootHash, transfer.chainId, transfer.amount)
+
+      const timeSlot: string = await l1_bridge.getTimeSlot(Math.floor(Date.now() / 1000))
+      const bondAmount: string = await l1_bridge.getBondForTransferAmount(transfer.amount)
+      const timeSlotToAmountBonded: number = await l1_bridge.timeSlotToAmountBonded(timeSlot)
+      let bondAmountForTimeSlot: number = await l1_bridge.timeSlotToAmountBonded(timeSlot)
+      const transferRoot: number = await l1_bridge.getTransferRoot(rootHash, transfer.amount)
+      expect(timeSlotToAmountBonded).to.eq(bondAmount)
+      expect(bondAmountForTimeSlot).to.eq(bondAmount)
+      expect(transferRoot[0]).to.eq(transfer.amount)
+      expect(transferRoot[1]).to.eq(BigNumber.from('0'))
+
+      const challengeAmount: BigNumber = await l1_bridge.getChallengeAmountForTransferAmount(transfer.amount)
+      await l1_canonicalToken
+        .connect(challenger)
+        .approve(l1_bridge.address, challengeAmount)
+      await l1_bridge.connect(challenger).challengeTransferBond(rootHash, transfer.amount)
+
+      await expectBalanceOf(
+        l1_canonicalToken,
+        challenger,
+        challenger_l1_canonicalTokenOriginalBalance.sub(challengeAmount)
+      )
+
+      const transferBond = await l1_bridge.transferBonds(transferRootId)
+      expect(transferBond[4].mul(1000).toNumber()).to.be.closeTo(
+        Date.now(),
+        TIMESTAMP_VARIANCE
+      )
+      expect(transferBond[5]).to.eq(await challenger.getAddress())
+
+      bondAmountForTimeSlot = await l1_bridge.timeSlotToAmountBonded(timeSlot)
+      expect(bondAmountForTimeSlot).to.eq(BigNumber.from('0'))
+
+      const debitAfterBond: BigNumber = await l1_bridge.getDebitAndAdditionalDebit(await bonder.getAddress())
+      expect(debitAfterBond).to.eq(debitBeforeBond.add(bondAmount))
+    })
+  })
   describe('resolveChallenge', async () => {
-    // TODO
+    it('Should send a transaction from L2 to L1, bond withdrawal on L1, challenge the transfer bond, and resolve unsuccessfully', async () => {
+      // Set up transfer
+      let transfer: any = transfers[0]
+      transfer.chainId = CHAIN_IDS.ETHEREUM.MAINNET
+      transfer.amountOutMin = BigNumber.from(0)
+      transfer.deadline = BigNumber.from(0)
+
+      // Instantiate a sender and recipient Signer
+      const sender: Signer = user
+      const recipient: Signer = otherUser
+      expect(transfer.sender).to.eq(await sender.getAddress())
+      expect(transfer.recipient).to.eq(await recipient.getAddress())
+
+      // User moves funds to L2
+      await l1_canonicalToken
+        .connect(user)
+        .approve(l1_bridge.address, transfer.amount)
+      await l1_bridge
+        .connect(user)
+        .sendToL2(l2ChainId, await user.getAddress(), transfer.amount)
+      await l2_messenger.relayNextMessage()
+
+      // Validate balances
+      await expectBalanceOf(
+        l1_canonicalToken,
+        user,
+        user_l1_canonicalTokenOriginalBalance.sub(transfer.amount)
+      )
+      await expectBalanceOf(l2_bridge, user, transfer.amount)
+
+      // User moves funds back to L1 across the liquidity bridge
+      await l2_bridge
+        .connect(user)
+        .send(
+          transfer.chainId,
+          transfer.recipient,
+          transfer.amount,
+          transfer.transferNonce,
+          transfer.relayerFee,
+          transfer.amountOutMin,
+          transfer.deadline
+        )
+
+      // Validate balances
+      await expectBalanceOf(
+        l1_canonicalToken,
+        user,
+        user_l1_canonicalTokenOriginalBalance.sub(transfer.amount)
+      )
+      await expectBalanceOf(
+        l1_canonicalToken,
+        otherUser,
+        0
+      )
+      await expectBalanceOf(l2_bridge, user, 0)
+
+      await l1_bridge
+        .connect(bonder)
+        .bondWithdrawal(
+          transfer.sender,
+          transfer.recipient,
+          transfer.amount,
+          transfer.transferNonce,
+          transfer.relayerFee
+        )
+
+      // Validate balances
+      await expectBalanceOf(
+        l1_canonicalToken,
+        user,
+        user_l1_canonicalTokenOriginalBalance.sub(transfer.amount)
+      )
+      await expectBalanceOf(
+        l1_canonicalToken,
+        otherUser,
+        transfer.amount.sub(transfer.relayerFee)
+      )
+      await expectBalanceOf(
+        l1_canonicalToken,
+        bonder,
+        bonder_l1_canonicalTokenOriginalBalance.add(transfer.relayerFee)
+      )
+
+      // Validate state before commitTransfers
+      const pendingAmountChainId = await l2_bridge.pendingAmountChainIds(0)
+      const pendingTransferIdsForChainId: string = await l2_bridge.pendingTransferIdsForChainId(transfer.chainId, 0)
+      const expectedPendingTransferIdsForChainId: string = transfer.getTransferIdHex()
+      expect(pendingAmountChainId).to.eq(transfer.chainId)
+      expect(pendingTransferIdsForChainId).to.eq(expectedPendingTransferIdsForChainId)
+
+      // Bonder commits transfers
+      await l2_bridge
+        .connect(bonder)
+        .commitTransfers(transfer.chainId)
+
+      // Validate state after commitTransfers()
+      const lastCommitTimeForChainId: BigNumber = await l2_bridge.lastCommitTimeForChainId(transfer.chainId)
+      const expectedCommitTimeForChainId: number = Date.now()
+      expect(lastCommitTimeForChainId.mul(1000).toNumber()).to.be.closeTo(
+        expectedCommitTimeForChainId,
+        TIMESTAMP_VARIANCE
+      )
+      const expectedErrorMsg: string = 'VM Exception while processing transaction: invalid opcode'
+      try {
+        await l2_bridge.pendingAmountChainIds(0)
+        throw new Error('There should not be a pending amount chainId in this slot.')
+      } catch (err) {
+        expect(err.message).to.eq(expectedErrorMsg)
+      }
+      try {
+        await l2_bridge.pendingTransferIdsForChainId(transfer.chainId, 0)
+        throw new Error('There should not be a pending transfer ID for chainId in this slot.')
+      } catch (err) {
+        expect(err.message).to.eq(expectedErrorMsg)
+      }
+
+      const transferId: Buffer = transfer.getTransferId()
+      const { rootHash } = getRootHashFromTransferId(transferId)
+      const transferRootId: string = await l1_bridge.getTransferRootId(rootHash, transfer.amount)
+
+      // Bonder bonds the transfer root
+      const debitBeforeBond: BigNumber = await l1_bridge.getDebitAndAdditionalDebit(await bonder.getAddress())
+      await l1_bridge
+        .connect(bonder)
+        .bondTransferRoot(rootHash, transfer.chainId, transfer.amount)
+
+      const timeSlot: string = await l1_bridge.getTimeSlot(Math.floor(Date.now() / 1000))
+      const bondAmount: string = await l1_bridge.getBondForTransferAmount(transfer.amount)
+      const timeSlotToAmountBonded: number = await l1_bridge.timeSlotToAmountBonded(timeSlot)
+      let bondAmountForTimeSlot: number = await l1_bridge.timeSlotToAmountBonded(timeSlot)
+      const transferRoot: number = await l1_bridge.getTransferRoot(rootHash, transfer.amount)
+      expect(timeSlotToAmountBonded).to.eq(bondAmount)
+      expect(bondAmountForTimeSlot).to.eq(bondAmount)
+      expect(transferRoot[0]).to.eq(transfer.amount)
+      expect(transferRoot[1]).to.eq(BigNumber.from('0'))
+
+      const bridgeBalanceBefore: BigNumber = await l1_canonicalToken.balanceOf(l1_bridge.address)
+      const challengeAmount: BigNumber = await l1_bridge.getChallengeAmountForTransferAmount(transfer.amount)
+      await l1_canonicalToken
+        .connect(challenger)
+        .approve(l1_bridge.address, challengeAmount)
+      await l1_bridge.connect(challenger).challengeTransferBond(rootHash, transfer.amount)
+
+      await expectBalanceOf(
+        l1_canonicalToken,
+        challenger,
+        challenger_l1_canonicalTokenOriginalBalance.sub(challengeAmount)
+      )
+
+      const transferBond = await l1_bridge.transferBonds(transferRootId)
+      expect(transferBond[4].mul(1000).toNumber()).to.be.closeTo(
+        Date.now(),
+        TIMESTAMP_VARIANCE
+      )
+      expect(transferBond[5]).to.eq(await challenger.getAddress())
+
+      bondAmountForTimeSlot = await l1_bridge.timeSlotToAmountBonded(timeSlot)
+      expect(bondAmountForTimeSlot).to.eq(BigNumber.from('0'))
+
+      const debitAfterBond: BigNumber = await l1_bridge.getDebitAndAdditionalDebit(await bonder.getAddress())
+      expect(debitAfterBond).to.eq(debitBeforeBond.add(bondAmount))
+
+      // Resolve the challenge
+      const numDaysToWait: number = 9 * SECONDS_IN_A_DAY
+      await increaseTime(numDaysToWait)
+      await l1_messenger.relayNextMessage()
+
+      const creditBeforeChallenge: BigNumber = await l1_bridge.getCredit(await bonder.getAddress())
+      await l1_bridge.resolveChallenge(rootHash, transfer.amount)
+
+      expectBalanceOf(l1_canonicalToken, l1_bridge, bridgeBalanceBefore.add(challengeAmount))
+      const creditAfterChallenge: BigNumber = await l1_bridge.getCredit(await bonder.getAddress())
+      expect(creditAfterChallenge).to.eq(creditBeforeChallenge.add(bondAmount).add(challengeAmount))
+    })
+
+    it('Should send a transaction from L2 to L1, bond withdrawal on L1, challenge the transfer bond, and resolve successfully', async () => {
+      // Set up transfer
+      let transfer: any = transfers[0]
+      transfer.chainId = CHAIN_IDS.ETHEREUM.MAINNET
+      transfer.amountOutMin = BigNumber.from(0)
+      transfer.deadline = BigNumber.from(0)
+
+      // Instantiate a sender and recipient Signer
+      const sender: Signer = user
+      const recipient: Signer = otherUser
+      expect(transfer.sender).to.eq(await sender.getAddress())
+      expect(transfer.recipient).to.eq(await recipient.getAddress())
+
+      // User moves funds to L2
+      await l1_canonicalToken
+        .connect(user)
+        .approve(l1_bridge.address, transfer.amount)
+      await l1_bridge
+        .connect(user)
+        .sendToL2(l2ChainId, await user.getAddress(), transfer.amount)
+      await l2_messenger.relayNextMessage()
+
+      // Validate balances
+      await expectBalanceOf(
+        l1_canonicalToken,
+        user,
+        user_l1_canonicalTokenOriginalBalance.sub(transfer.amount)
+      )
+      await expectBalanceOf(l2_bridge, user, transfer.amount)
+
+      // User moves funds back to L1 across the liquidity bridge
+      await l2_bridge
+        .connect(user)
+        .send(
+          transfer.chainId,
+          transfer.recipient,
+          transfer.amount,
+          transfer.transferNonce,
+          transfer.relayerFee,
+          transfer.amountOutMin,
+          transfer.deadline
+        )
+
+      // Validate balances
+      await expectBalanceOf(
+        l1_canonicalToken,
+        user,
+        user_l1_canonicalTokenOriginalBalance.sub(transfer.amount)
+      )
+      await expectBalanceOf(
+        l1_canonicalToken,
+        otherUser,
+        0
+      )
+      await expectBalanceOf(l2_bridge, user, 0)
+
+      await l1_bridge
+        .connect(bonder)
+        .bondWithdrawal(
+          transfer.sender,
+          transfer.recipient,
+          transfer.amount,
+          transfer.transferNonce,
+          transfer.relayerFee
+        )
+
+      // Validate balances
+      await expectBalanceOf(
+        l1_canonicalToken,
+        user,
+        user_l1_canonicalTokenOriginalBalance.sub(transfer.amount)
+      )
+      await expectBalanceOf(
+        l1_canonicalToken,
+        otherUser,
+        transfer.amount.sub(transfer.relayerFee)
+      )
+      await expectBalanceOf(
+        l1_canonicalToken,
+        bonder,
+        bonder_l1_canonicalTokenOriginalBalance.add(transfer.relayerFee)
+      )
+
+      // Validate state before commitTransfers
+      const pendingAmountChainId = await l2_bridge.pendingAmountChainIds(0)
+      const pendingTransferIdsForChainId: string = await l2_bridge.pendingTransferIdsForChainId(transfer.chainId, 0)
+      const expectedPendingTransferIdsForChainId: string = transfer.getTransferIdHex()
+      expect(pendingAmountChainId).to.eq(transfer.chainId)
+      expect(pendingTransferIdsForChainId).to.eq(expectedPendingTransferIdsForChainId)
+
+      // Bonder commits transfers
+      await l2_bridge
+        .connect(bonder)
+        .commitTransfers(transfer.chainId)
+
+      // Validate state after commitTransfers()
+      const lastCommitTimeForChainId: BigNumber = await l2_bridge.lastCommitTimeForChainId(transfer.chainId)
+      const expectedCommitTimeForChainId: number = Date.now()
+      expect(lastCommitTimeForChainId.mul(1000).toNumber()).to.be.closeTo(
+        expectedCommitTimeForChainId,
+        TIMESTAMP_VARIANCE
+      )
+      const expectedErrorMsg: string = 'VM Exception while processing transaction: invalid opcode'
+      try {
+        await l2_bridge.pendingAmountChainIds(0)
+        throw new Error('There should not be a pending amount chainId in this slot.')
+      } catch (err) {
+        expect(err.message).to.eq(expectedErrorMsg)
+      }
+      try {
+        await l2_bridge.pendingTransferIdsForChainId(transfer.chainId, 0)
+        throw new Error('There should not be a pending transfer ID for chainId in this slot.')
+      } catch (err) {
+        expect(err.message).to.eq(expectedErrorMsg)
+      }
+
+      const transferId: Buffer = transfer.getTransferId()
+      const { rootHash } = getRootHashFromTransferId(transferId)
+      const transferRootId: string = await l1_bridge.getTransferRootId(rootHash, transfer.amount)
+
+      // Bonder bonds the transfer root
+      const debitBeforeBond: BigNumber = await l1_bridge.getDebitAndAdditionalDebit(await bonder.getAddress())
+      await l1_bridge
+        .connect(bonder)
+        .bondTransferRoot(rootHash, transfer.chainId, transfer.amount)
+
+      const timeSlot: string = await l1_bridge.getTimeSlot(Math.floor(Date.now() / 1000))
+      const bondAmount: BigNumber = await l1_bridge.getBondForTransferAmount(transfer.amount)
+      const timeSlotToAmountBonded: number = await l1_bridge.timeSlotToAmountBonded(timeSlot)
+      let bondAmountForTimeSlot: number = await l1_bridge.timeSlotToAmountBonded(timeSlot)
+      const transferRoot: number = await l1_bridge.getTransferRoot(rootHash, transfer.amount)
+      expect(timeSlotToAmountBonded).to.eq(bondAmount)
+      expect(bondAmountForTimeSlot).to.eq(bondAmount)
+      expect(transferRoot[0]).to.eq(transfer.amount)
+      expect(transferRoot[1]).to.eq(BigNumber.from('0'))
+
+      const challengeAmount: BigNumber = await l1_bridge.getChallengeAmountForTransferAmount(transfer.amount)
+      await l1_canonicalToken
+        .connect(challenger)
+        .approve(l1_bridge.address, challengeAmount)
+      await l1_bridge.connect(challenger).challengeTransferBond(rootHash, transfer.amount)
+
+      await expectBalanceOf(
+        l1_canonicalToken,
+        challenger,
+        challenger_l1_canonicalTokenOriginalBalance.sub(challengeAmount)
+      )
+
+      const transferBond = await l1_bridge.transferBonds(transferRootId)
+      expect(transferBond[4].mul(1000).toNumber()).to.be.closeTo(
+        Date.now(),
+        TIMESTAMP_VARIANCE
+      )
+      expect(transferBond[5]).to.eq(await challenger.getAddress())
+
+      bondAmountForTimeSlot = await l1_bridge.timeSlotToAmountBonded(timeSlot)
+      expect(bondAmountForTimeSlot).to.eq(BigNumber.from('0'))
+
+      const debitAfterBond: BigNumber = await l1_bridge.getDebitAndAdditionalDebit(await bonder.getAddress())
+      expect(debitAfterBond).to.eq(debitBeforeBond.add(bondAmount))
+
+      // Resolve the challenge
+      const numDaysToWait: number = 9 * SECONDS_IN_A_DAY
+      await increaseTime(numDaysToWait)
+    
+      // Message is not relayed successfully
+
+      const creditBeforeChallenge: BigNumber = await l1_bridge.getCredit(await bonder.getAddress())
+      await l1_bridge.resolveChallenge(rootHash, transfer.amount)
+
+      // Credit should not have changed
+      const creditAfterChallenge: BigNumber = await l1_bridge.getCredit(await bonder.getAddress())
+      expect(creditAfterChallenge).to.eq(creditBeforeChallenge)
+
+      // DEAD address should have tokens
+      const balanceAfter: BigNumber = await l1_canonicalToken.balanceOf(DEAD_ADDRESS)
+      expect(balanceAfter.toString()).to.eq(BigNumber.from(challengeAmount).div(4).toString())
+
+      // Challenger should have tokens
+      // NOTE: the challenge amount is subtracted to mimic the amount sent to the contract during the challenge
+      const expectedChallengerTokenAmount: BigNumber = challenger_l1_canonicalTokenOriginalBalance.sub(challengeAmount).add(challengeAmount.mul(7).div(4))
+      await expectBalanceOf(l1_canonicalToken, challenger, expectedChallengerTokenAmount)
+    })
   })
 
   // TODO: Test extreme relayer fees (0, max)

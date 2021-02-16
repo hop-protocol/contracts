@@ -25,6 +25,7 @@ export const ALL_SUPPORTED_CHAIN_IDS: string[] = getAllSupportedChainIds(
 
 export const ZERO_ADDRESS: string = '0x0000000000000000000000000000000000000000'
 export const ONE_ADDRESS: string = '0x0000000000000000000000000000000000000001'
+export const DEAD_ADDRESS: string = '0x000000000000000000000000000000000000dEaD'
 export const MAX_APPROVAL: BigNumber = BigNumber.from(
   '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff'
 )
