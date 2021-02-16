@@ -25,7 +25,8 @@ abstract contract MockMessenger {
     }
 
     function relayNextMessage() public {
-        nextMessage.target.call(nextMessage.message);
+        (bool success, bytes memory res) = nextMessage.target.call(nextMessage.message);
+        require(success, _getRevertMsgFromRes(res));
     }
 
     function receiveMessage(
@@ -38,5 +39,12 @@ abstract contract MockMessenger {
             _target,
             _message
         );
+    }
+
+    function _getRevertMsgFromRes(bytes memory _res) internal pure returns (string memory) {
+        // If the _res length is less than 68, then the transaction failed silently (without a revert message)
+        if (_res.length < 68) return 'BA: Transaction reverted silently';
+        bytes memory revertData = _res.slice(4, _res.length - 4); // Remove the selector which is the first 4 bytes
+        return abi.decode(revertData, (string)); // All that remains is the revert string
     }
 }
