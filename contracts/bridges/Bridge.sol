@@ -28,46 +28,46 @@ abstract contract Bridge is Accounting {
     mapping(bytes32 => bool) private _spentTransferIds;
     mapping(address => mapping(bytes32 => uint256)) private _bondedWithdrawalAmounts;
 
-    constructor(address[] memory _bonders) public Accounting(_bonders) {}
+    constructor(address[] memory bonders) public Accounting(bonders) {}
 
     /* ========== Public getters ========== */
 
     /**
      * @dev Get the hash that represents an individual Transfer.
-     * @param _chainId The id of the destination chain
-     * @param _sender The address sending the Transfer
-     * @param _recipient The address receiving the Transfer
-     * @param _amount The amount being transferred including the `_relayerFee`
-     * @param _transferNonce Used to avoid transferId collisions
-     * @param _relayerFee The amount paid to the address that withdraws the Transfer
-     * @param _amountOutMin The minimum amount received after attempting to swap in the destination
+     * @param chainId The id of the destination chain
+     * @param sender The address sending the Transfer
+     * @param recipient The address receiving the Transfer
+     * @param amount The amount being transferred including the `_relayerFee`
+     * @param transferNonce Used to avoid transferId collisions
+     * @param relayerFee The amount paid to the address that withdraws the Transfer
+     * @param amountOutMin The minimum amount received after attempting to swap in the destination
      * Uniswap market. 0 if no swap is intended.
-     * @param _deadline The deadline for swapping in the destination Uniswap market. 0 if no
+     * @param deadline The deadline for swapping in the destination Uniswap market. 0 if no
      * swap is intended.
      */
     function getTransferId(
-        uint256 _chainId,
-        address _sender,
-        address _recipient,
-        uint256 _amount,
-        uint256 _transferNonce,
-        uint256 _relayerFee,
-        uint256 _amountOutMin,
-        uint256 _deadline
+        uint256 chainId,
+        address sender,
+        address recipient,
+        uint256 amount,
+        uint256 transferNonce,
+        uint256 relayerFee,
+        uint256 amountOutMin,
+        uint256 deadline
     )
         public
         pure
         returns (bytes32)
     {
         return keccak256(abi.encode(
-            _chainId,
-            _sender,
-            _recipient,
-            _amount,
-            _transferNonce,
-            _relayerFee,
-            _amountOutMin,
-            _deadline
+            chainId,
+            sender,
+            recipient,
+            amount,
+            transferNonce,
+            relayerFee,
+            amountOutMin,
+            deadline
         ));
     }
 
@@ -84,26 +84,29 @@ abstract contract Bridge is Accounting {
 
     /**
      * @dev Get the TransferRoot id for a given rootHash and totalAmount
-     * @param _rootHash The merkle root of the TransferRoot
+     * @param rootHash The merkle root of the TransferRoot
+     * @param totalAmount The merkle root of the TransferRoot
      */
-    function getTransferRootId(bytes32 _rootHash, uint256 _totalAmount) public view returns (bytes32) {
-        return keccak256(abi.encodePacked(_rootHash, _totalAmount));
+    function getTransferRootId(bytes32 rootHash, uint256 totalAmount) public pure returns (bytes32) {
+        return keccak256(abi.encodePacked(rootHash, totalAmount));
     }
 
     /**
      * @dev Get the TransferRoot for a given rootHash and totalAmount
-     * @param _rootHash The merkle root of the TransferRoot
+     * @param rootHash The merkle root of the TransferRoot
+     * @param totalAmount The total of all Transfers in the TransferRoot
      */
-    function getTransferRoot(bytes32 _rootHash, uint256 _totalAmount) public view returns (TransferRoot memory) {
-        return _transferRoots[getTransferRootId(_rootHash, _totalAmount)];
+    function getTransferRoot(bytes32 rootHash, uint256 totalAmount) public view returns (TransferRoot memory) {
+        return _transferRoots[getTransferRootId(rootHash, totalAmount)];
     }
 
     /**
      * @dev Get the TransferRoot for a given rootHash
-     * @param _transferId The Transfer's unique identifier
+     * @param bonder The Bonder of the withdrawal
+     * @param transferId The Transfer's unique identifier
      */
-    function getBondedWithdrawalAmount(address _bonder, bytes32 _transferId) external view returns (uint256) {
-        return _bondedWithdrawalAmounts[_bonder][_transferId];
+    function getBondedWithdrawalAmount(address bonder, bytes32 transferId) external view returns (uint256) {
+        return _bondedWithdrawalAmounts[bonder][transferId];
     }
 
     /* ========== User/relayer public functions ========== */
@@ -111,57 +114,57 @@ abstract contract Bridge is Accounting {
     /**
      * @notice Can be called by anyone (recipient or relayer)
      * @dev Withdraw a Transfer from its destination bridge
-     * @param _sender The address sending the Transfer
-     * @param _recipient The address receiving the Transfer
-     * @param _amount The amount being transferred including the `_relayerFee`
-     * @param _transferNonce Used to avoid transferId collisions
-     * @param _relayerFee The amount paid to the address that withdraws the Transfer
-     * @param _transferRootId The Merkle root of the TransferRoot
-     * @param _proof The Merkle proof that proves the Transfer's inclusion in the TransferRoot
+     * @param sender The address sending the Transfer
+     * @param recipient The address receiving the Transfer
+     * @param amount The amount being transferred including the `_relayerFee`
+     * @param transferNonce Used to avoid transferId collisions
+     * @param relayerFee The amount paid to the address that withdraws the Transfer
+     * @param transferRootId The Merkle root of the TransferRoot
+     * @param proof The Merkle proof that proves the Transfer's inclusion in the TransferRoot
      */
     function withdraw(
-        address _sender,
-        address _recipient,
-        uint256 _amount,
-        uint256 _transferNonce,
-        uint256 _relayerFee,
-        bytes32 _transferRootId,
-        bytes32[] memory _proof
+        address sender,
+        address recipient,
+        uint256 amount,
+        uint256 transferNonce,
+        uint256 relayerFee,
+        bytes32 transferRootId,
+        bytes32[] memory proof
     )
         public
     {
         bytes32 transferId = getTransferId(
             getChainId(),
-            _sender,
-            _recipient,
-            _amount,
-            _transferNonce,
-            _relayerFee,
+            sender,
+            recipient,
+            amount,
+            transferNonce,
+            relayerFee,
             0,
             0
         );
 
-        require(_proof.verify(_transferRootId, transferId), "BRG: Invalid transfer proof");
-        _addToAmountWithdrawn(_transferRootId, _amount);
-        _fulfillWithdraw(transferId, _recipient, _amount, _relayerFee);
+        require(proof.verify(transferRootId, transferId), "BRG: Invalid transfer proof");
+        _addToAmountWithdrawn(transferRootId, amount);
+        _fulfillWithdraw(transferId, recipient, amount, relayerFee);
     }
 
     // ToDo: enforce _transferNonce can't collide on send or autogenerate nonce
 
     /**
      * @dev Allows the bonder to bond individual withdrawals before their TransferRoot has been committed.
-     * @param _sender The address sending the Transfer
-     * @param _recipient The address receiving the Transfer
-     * @param _amount The amount being transferred including the `_relayerFee`
-     * @param _transferNonce Used to avoid transferId collisions
-     * @param _relayerFee The amount paid to the address that withdraws the Transfer
+     * @param sender The address sending the Transfer
+     * @param recipient The address receiving the Transfer
+     * @param amount The amount being transferred including the `_relayerFee`
+     * @param transferNonce Used to avoid transferId collisions
+     * @param relayerFee The amount paid to the address that withdraws the Transfer
      */
     function bondWithdrawal(
-        address _sender,
-        address _recipient,
-        uint256 _amount,
-        uint256 _transferNonce,
-        uint256 _relayerFee
+        address sender,
+        address recipient,
+        uint256 amount,
+        uint256 transferNonce,
+        uint256 relayerFee
     )
         public
         onlyBonder
@@ -169,117 +172,118 @@ abstract contract Bridge is Accounting {
     {
         bytes32 transferId = getTransferId(
             getChainId(),
-            _sender,
-            _recipient,
-            _amount,
-            _transferNonce,
-            _relayerFee,
+            sender,
+            recipient,
+            amount,
+            transferNonce,
+            relayerFee,
             0,
             0
         );
 
-        _addDebit(msg.sender, _amount);
-        _setBondedWithdrawalAmountForSender(transferId, _amount);
-        _fulfillWithdraw(transferId, _recipient, _amount, _relayerFee);
+        _addDebit(msg.sender, amount);
+        _setBondedWithdrawalAmountForSender(transferId, amount);
+        _fulfillWithdraw(transferId, recipient, amount, relayerFee);
     }
 
     /**
      * @dev Refunds the bonders stake from a bonded withdrawal and counts that withdrawal against
      * its TransferRoot.
-     * @param _transferId The Transfer's unique identifier
-     * @param _rootHash The merkle root of the TransferRoot
-     * @param _proof The Merkle proof that proves the Transfer's inclusion in the TransferRoot
+     * @param bonder The Bonder of the withdrawal
+     * @param transferId The Transfer's unique identifier
+     * @param rootHash The merkle root of the TransferRoot
+     * @param proof The Merkle proof that proves the Transfer's inclusion in the TransferRoot
      */
     function settleBondedWithdrawal(
-        address _bonder,
-        bytes32 _transferId,
-        bytes32 _rootHash,
-        bytes32[] memory _proof
+        address bonder,
+        bytes32 transferId,
+        bytes32 rootHash,
+        bytes32[] memory proof
     )
         public
     {
-        require(_proof.verify(_rootHash, _transferId), "L2_BRG: Invalid transfer proof");
+        require(proof.verify(rootHash, transferId), "L2_BRG: Invalid transfer proof");
 
-        uint256 amount = _bondedWithdrawalAmounts[_bonder][_transferId];
-        _addToAmountWithdrawn(_rootHash, amount);
+        uint256 amount = _bondedWithdrawalAmounts[bonder][transferId];
+        _addToAmountWithdrawn(rootHash, amount);
 
-        _bondedWithdrawalAmounts[_bonder][_transferId] = 0;
-        _addCredit(_bonder, amount);
+        _bondedWithdrawalAmounts[bonder][transferId] = 0;
+        _addCredit(bonder, amount);
     }
 
     function settleBondedWithdrawals(
-        address _bonder,
-        bytes32[] memory _transferIds,
-        uint256 _totalAmount
+        address bonder,
+        bytes32[] memory transferIds,
+        uint256 totalAmount
     )
         public
     {
-        bytes32 rootHash = MerkleUtils.getMerkleRoot(_transferIds);
+        bytes32 rootHash = MerkleUtils.getMerkleRoot(transferIds);
 
-        bytes32 transferRootId = getTransferRootId(rootHash, _totalAmount);
+        bytes32 transferRootId = getTransferRootId(rootHash, totalAmount);
         TransferRoot storage transferRoot = _transferRoots[transferRootId];
         require(transferRoot.total > 0, "BRG: Transfer root not found");
 
         uint256 totalBondsFreed = 0;
-        for(uint256 i = 0; i < _transferIds.length; i++) {
-            uint256 transferBondAmount = _bondedWithdrawalAmounts[_bonder][_transferIds[i]];
+        for(uint256 i = 0; i < transferIds.length; i++) {
+            uint256 transferBondAmount = _bondedWithdrawalAmounts[bonder][transferIds[i]];
             totalBondsFreed = totalBondsFreed.add(transferBondAmount);
-            _bondedWithdrawalAmounts[_bonder][_transferIds[i]] = 0;
+            _bondedWithdrawalAmounts[bonder][transferIds[i]] = 0;
         }
 
         uint256 newAmountWithdrawn = transferRoot.amountWithdrawn.add(totalBondsFreed);
         require(newAmountWithdrawn <= transferRoot.total, "BRG: Withdrawal exceeds TransferRoot total");
         transferRoot.amountWithdrawn = newAmountWithdrawn;
 
-        _addCredit(_bonder, totalBondsFreed);
+        _addCredit(bonder, totalBondsFreed);
     }
 
     /* ========== Internal functions ========== */
 
-    function _markTransferSpent(bytes32 _transferId) internal {
-        require(!_spentTransferIds[_transferId], "BRG: The transfer has already been withdrawn");
-        _spentTransferIds[_transferId] = true;
+    function _markTransferSpent(bytes32 transferId) internal {
+        require(!_spentTransferIds[transferId], "BRG: The transfer has already been withdrawn");
+        _spentTransferIds[transferId] = true;
     }
 
     function _addToAmountWithdrawn(
-        bytes32 _transferRootId,
-        uint256 _amount
+        bytes32 transferRootId,
+        uint256 amount
     )
         internal
     {
-        TransferRoot storage transferRoot = _transferRoots[_transferRootId];
+        TransferRoot storage transferRoot = _transferRoots[transferRootId];
         require(transferRoot.total > 0, "BRG: Transfer root not found");
 
-        uint256 newAmountWithdrawn = transferRoot.amountWithdrawn.add(_amount);
+        uint256 newAmountWithdrawn = transferRoot.amountWithdrawn.add(amount);
         require(newAmountWithdrawn <= transferRoot.total, "BRG: Withdrawal exceeds TransferRoot total");
 
         transferRoot.amountWithdrawn = newAmountWithdrawn;
     }
 
-    function _setTransferRoot(bytes32 _rootHash, uint256 _amount) internal {
-        bytes32 transferRootId = getTransferRootId(_rootHash, _amount);
+    function _setTransferRoot(bytes32 rootHash, uint256 amount) internal {
+        bytes32 transferRootId = getTransferRootId(rootHash, amount);
         require(_transferRoots[transferRootId].total == 0, "BRG: Transfer root already set");
-        require(_amount > 0, "BRG: Cannot set TransferRoot amount of 0");
+        require(amount > 0, "BRG: Cannot set TransferRoot amount of 0");
 
-        _transferRoots[transferRootId] = TransferRoot(_amount, 0);
+        _transferRoots[transferRootId] = TransferRoot(amount, 0);
     }
 
-    function _setBondedWithdrawalAmountForSender(bytes32 _transferId, uint256 _amount) internal {
-        require(_bondedWithdrawalAmounts[msg.sender][_transferId] == 0, "BRG: Withdrawal has already been bonded");
-        _bondedWithdrawalAmounts[msg.sender][_transferId] = _amount;
+    function _setBondedWithdrawalAmountForSender(bytes32 transferId, uint256 amount) internal {
+        require(_bondedWithdrawalAmounts[msg.sender][transferId] == 0, "BRG: Withdrawal has already been bonded");
+        _bondedWithdrawalAmounts[msg.sender][transferId] = amount;
     }
 
     /* ========== Private functions ========== */
 
     /// @dev Completes the Transfer, distributes the relayer fee and marks the Transfer as spent.
     function _fulfillWithdraw(
-        bytes32 _transferId,
-        address _recipient,
-        uint256 _amount,
-        uint256 _relayerFee
+        bytes32 transferId,
+        address recipient,
+        uint256 amount,
+        uint256 relayerFee
     ) private {
-        _markTransferSpent(_transferId);
-        _transferFromBridge(_recipient, _amount.sub(_relayerFee));
-        _transferFromBridge(msg.sender, _relayerFee);
+        _markTransferSpent(transferId);
+        _transferFromBridge(recipient, amount.sub(relayerFee));
+        _transferFromBridge(msg.sender, relayerFee);
     }
 }

@@ -15,7 +15,7 @@ abstract contract L2_Bridge is ERC20, Bridge {
     address public exchangeAddress;
     IERC20 public l2CanonicalToken;
     mapping(uint256 => bool) public supportedChainIds;
-    uint256 minimumForceCommitDelay = 4 hours;
+    uint256 public minimumForceCommitDelay = 4 hours;
 
     uint256[] public pendingAmountChainIds;
     mapping(uint256 => bytes32[]) public pendingTransferIdsForChainId;
@@ -50,15 +50,15 @@ abstract contract L2_Bridge is ERC20, Bridge {
         IERC20 _l2CanonicalToken,
         address _l1BridgeAddress,
         uint256[] memory _supportedChainIds,
-        address[] memory _bonders,
+        address[] memory bonders,
         address _exchangeAddress,
-        string memory _name,
-        string memory _symbol,
+        string memory name,
+        string memory symbol,
         uint8 _decimals
     )
         public
-        Bridge(_bonders)
-        ERC20(_name, _symbol)
+        Bridge(bonders)
+        ERC20(name, symbol)
     {
         l1Governance = _l1Governance;
         l2CanonicalToken = _l2CanonicalToken;
@@ -74,8 +74,8 @@ abstract contract L2_Bridge is ERC20, Bridge {
 
     /* ========== Virtual functions ========== */
 
-    function _sendCrossDomainMessage(bytes memory _message) internal virtual;
-    function _verifySender(address _expectedSender) internal virtual; 
+    function _sendCrossDomainMessage(bytes memory message) internal virtual;
+    function _verifySender(address expectedSender) internal virtual; 
 
     /* ========== Public functions ========== */
 
@@ -87,12 +87,12 @@ abstract contract L2_Bridge is ERC20, Bridge {
         l1BridgeAddress = _l1BridgeAddress;
     }
 
-    function addSupportedChainId(uint256 _chainIds) public onlyGovernance {
-        supportedChainIds[_chainIds] = true;
+    function addSupportedChainId(uint256 chainIds) public onlyGovernance {
+        supportedChainIds[chainIds] = true;
     }
 
-    function removeSupportedChainId(uint256 _chainIds) public onlyGovernance {
-        supportedChainIds[_chainIds] = false;
+    function removeSupportedChainId(uint256 chainIds) public onlyGovernance {
+        supportedChainIds[chainIds] = false;
     }
 
     function setMinimumForceCommitDelay(uint256 _minimumForceCommitDelay) public onlyGovernance {
@@ -101,132 +101,132 @@ abstract contract L2_Bridge is ERC20, Bridge {
 
     /// @notice _amount is the amount the user wants to send plus the relayer fee
     function send(
-        uint256 _chainId,
-        address _recipient,
-        uint256 _amount,
-        uint256 _transferNonce,
-        uint256 _relayerFee,
-        uint256 _amountOutMin,
-        uint256 _deadline
+        uint256 chainId,
+        address recipient,
+        uint256 amount,
+        uint256 transferNonce,
+        uint256 relayerFee,
+        uint256 amountOutMin,
+        uint256 deadline
     )
         public
     {
-        require(_amount > 0, "L2_BRG: Must transfer a non-zero amount");
-        require(_amount >= _relayerFee, "L2_BRG: Relayer fee cannot exceed amount");
-        require(supportedChainIds[_chainId], "L2_BRG: _chainId is not supported");
+        require(amount > 0, "L2_BRG: Must transfer a non-zero amount");
+        require(amount >= relayerFee, "L2_BRG: Relayer fee cannot exceed amount");
+        require(supportedChainIds[chainId], "L2_BRG: _chainId is not supported");
 
-        bytes32[] storage pendingTransfers = pendingTransferIdsForChainId[_chainId];
+        bytes32[] storage pendingTransfers = pendingTransferIdsForChainId[chainId];
 
         if (pendingTransfers.length >= 100) {
-            _commitTransfers(_chainId);
+            _commitTransfers(chainId);
         }
 
-        _burn(msg.sender, _amount);
+        _burn(msg.sender, amount);
 
         bytes32 transferId = getTransferId(
-            _chainId,
+            chainId,
             msg.sender,
-            _recipient,
-            _amount,
-            _transferNonce,
-            _relayerFee,
-            _amountOutMin,
-            _deadline
+            recipient,
+            amount,
+            transferNonce,
+            relayerFee,
+            amountOutMin,
+            deadline
         );
         pendingTransfers.push(transferId);
 
-        _addToPendingAmount(_chainId, _amount);
+        _addToPendingAmount(chainId, amount);
 
-        emit TransferSent(transferId, _recipient, _amount, _transferNonce, _relayerFee);
+        emit TransferSent(transferId, recipient, amount, transferNonce, relayerFee);
     }
 
-    /// @notice _amount is the amount the user wants to send plus the relayer fee
+    /// @notice amount is the amount the user wants to send plus the relayer fee
     function swapAndSend(
-        uint256 _chainId,
-        address _recipient,
-        uint256 _amount,
-        uint256 _transferNonce,
-        uint256 _relayerFee,
-        uint256 _amountOutMin,
-        uint256 _deadline,
-        uint256 _destinationAmountOutMin,
-        uint256 _destinationDeadline
+        uint256 chainId,
+        address recipient,
+        uint256 amount,
+        uint256 transferNonce,
+        uint256 relayerFee,
+        uint256 amountOutMin,
+        uint256 deadline,
+        uint256 destinationAmountOutMin,
+        uint256 destinationDeadline
     )
         public
     {
-        require(_amount >= _relayerFee, "L2_BRG: relayer fee cannot exceed amount");
+        require(amount >= relayerFee, "L2_BRG: relayer fee cannot exceed amount");
 
-        l2CanonicalToken.transferFrom(msg.sender, address(this), _amount);
+        l2CanonicalToken.transferFrom(msg.sender, address(this), amount);
 
         address[] memory exchangePath = _getCHPath();
-        uint256[] memory swapAmounts = IUniswapV2Router02(exchangeAddress).getAmountsOut(_amount, exchangePath);
+        uint256[] memory swapAmounts = IUniswapV2Router02(exchangeAddress).getAmountsOut(amount, exchangePath);
         uint256 swapAmount = swapAmounts[1];
 
-        l2CanonicalToken.approve(exchangeAddress, _amount);
+        l2CanonicalToken.approve(exchangeAddress, amount);
         IUniswapV2Router02(exchangeAddress).swapExactTokensForTokens(
-            _amount,
-            _amountOutMin,
+            amount,
+            amountOutMin,
             exchangePath,
             msg.sender,
-            _deadline
+            deadline
         );
 
-        send(_chainId, _recipient, swapAmount, _transferNonce, _relayerFee, _destinationAmountOutMin, _destinationDeadline);
+        send(chainId, recipient, swapAmount, transferNonce, relayerFee, destinationAmountOutMin, destinationDeadline);
     }
 
-    function commitTransfers(uint256 _destinationChainId) external {
-        uint256 minForceCommitTime = lastCommitTimeForChainId[_destinationChainId].add(minimumForceCommitDelay);
+    function commitTransfers(uint256 destinationChainId) external {
+        uint256 minForceCommitTime = lastCommitTimeForChainId[destinationChainId].add(minimumForceCommitDelay);
         require(minForceCommitTime < block.timestamp || getIsBonder(msg.sender), "L2_BRG: Only Bonder can commit before min delay");
-        lastCommitTimeForChainId[_destinationChainId] = block.timestamp;
+        lastCommitTimeForChainId[destinationChainId] = block.timestamp;
 
-        _commitTransfers(_destinationChainId);
+        _commitTransfers(destinationChainId);
     }
 
-    function mint(address _recipient, uint256 _amount) public onlyL1Bridge {
-        _mint(_recipient, _amount);
+    function mint(address recipient, uint256 amount) public onlyL1Bridge {
+        _mint(recipient, amount);
     }
 
-    function mintAndAttemptSwap(address _recipient, uint256 _amount, uint256 _amountOutMin, uint256 _deadline) public onlyL1Bridge {
-        _mintAndAttemptSwap(_recipient, _amount, _amountOutMin, _deadline);
+    function mintAndAttemptSwap(address _recipient, uint256 amount, uint256 amountOutMin, uint256 _deadline) public onlyL1Bridge {
+        _mintAndAttemptSwap(_recipient, amount, amountOutMin, _deadline);
     }
 
     function withdrawAndAttemptSwap(
-        address _sender,
-        address _recipient,
-        uint256 _amount,
-        uint256 _transferNonce,
-        uint256 _relayerFee,
-        bytes32 _rootHash,
-        bytes32[] memory _proof,
-        uint256 _amountOutMin,
-        uint256 _deadline
+        address sender,
+        address recipient,
+        uint256 amount,
+        uint256 transferNonce,
+        uint256 relayerFee,
+        bytes32 rootHash,
+        bytes32[] memory proof,
+        uint256 amountOutMin,
+        uint256 deadline
     )
         public
     {
         bytes32 transferId = getTransferId(
             getChainId(),
-            _sender,
-            _recipient,
-            _amount,
-            _transferNonce,
-            _relayerFee,
-            _amountOutMin,
-            _deadline
+            sender,
+            recipient,
+            amount,
+            transferNonce,
+            relayerFee,
+            amountOutMin,
+            deadline
         );
 
-        require(_proof.verify(_rootHash, transferId), "L2_BRG: Invalid transfer proof");
-        _addToAmountWithdrawn(_rootHash, _amount);
-        _withdrawAndAttemptSwap(transferId, _recipient, _amount, _relayerFee, _amountOutMin, _deadline);
+        require(proof.verify(rootHash, transferId), "L2_BRG: Invalid transfer proof");
+        _addToAmountWithdrawn(rootHash, amount);
+        _withdrawAndAttemptSwap(transferId, recipient, amount, relayerFee, amountOutMin, deadline);
     }
 
     function bondWithdrawalAndAttemptSwap(
-        address _sender,
-        address _recipient,
-        uint256 _amount,
-        uint256 _transferNonce,
-        uint256 _relayerFee,
-        uint256 _amountOutMin,
-        uint256 _deadline
+        address sender,
+        address recipient,
+        uint256 amount,
+        uint256 transferNonce,
+        uint256 relayerFee,
+        uint256 amountOutMin,
+        uint256 deadline
     )
         public
         onlyBonder
@@ -234,40 +234,40 @@ abstract contract L2_Bridge is ERC20, Bridge {
     {
         bytes32 transferId = getTransferId(
             getChainId(),
-            _sender,
-            _recipient,
-            _amount,
-            _transferNonce,
-            _relayerFee,
-            _amountOutMin,
-            _deadline
+            sender,
+            recipient,
+            amount,
+            transferNonce,
+            relayerFee,
+            amountOutMin,
+            deadline
         );
 
-        _addDebit(msg.sender, _amount);
-        _setBondedWithdrawalAmountForSender(transferId, _amount);
-        _withdrawAndAttemptSwap(transferId, _recipient, _amount, _relayerFee, _amountOutMin, _deadline);
+        _addDebit(msg.sender, amount);
+        _setBondedWithdrawalAmountForSender(transferId, amount);
+        _withdrawAndAttemptSwap(transferId, recipient, amount, relayerFee, amountOutMin, deadline);
     }
 
-    function setTransferRoot(bytes32 _rootHash, uint256 _totalAmount) public onlyL1Bridge {
-        _setTransferRoot(_rootHash, _totalAmount);
+    function setTransferRoot(bytes32 rootHash, uint256 totalAmount) public onlyL1Bridge {
+        _setTransferRoot(rootHash, totalAmount);
     }
 
     /* ========== Helper Functions ========== */
 
-    function _addToPendingAmount(uint256 _chainId, uint256 _amount) internal {
-        if (pendingAmountForChainId[_chainId] == 0) {
-            pendingAmountChainIds.push(_chainId);
+    function _addToPendingAmount(uint256 chainId, uint256 amount) internal {
+        if (pendingAmountForChainId[chainId] == 0) {
+            pendingAmountChainIds.push(chainId);
         }
 
-        pendingAmountForChainId[_chainId] = pendingAmountForChainId[_chainId].add(_amount);
+        pendingAmountForChainId[chainId] = pendingAmountForChainId[chainId].add(amount);
     }
 
-    function _commitTransfers(uint256 _destinationChainId) internal {
-        bytes32[] storage pendingTransfers = pendingTransferIdsForChainId[_destinationChainId];
+    function _commitTransfers(uint256 destinationChainId) internal {
+        bytes32[] storage pendingTransfers = pendingTransferIdsForChainId[destinationChainId];
         require(pendingTransfers.length > 0, "L2_BRG: Must commit at least 1 Transfer");
 
         bytes32 rootHash = MerkleUtils.getMerkleRoot(pendingTransfers);
-        uint256 totalAmount = pendingAmountForChainId[_destinationChainId];
+        uint256 totalAmount = pendingAmountForChainId[destinationChainId];
 
         emit TransfersCommitted(rootHash, totalAmount);
 
@@ -275,46 +275,46 @@ abstract contract L2_Bridge is ERC20, Bridge {
             "confirmTransferRoot(uint256,bytes32,uint256,uint256)",
             getChainId(),
             rootHash,
-            _destinationChainId,
+            destinationChainId,
             totalAmount
         );
 
         delete pendingAmountChainIds;
-        delete pendingTransferIdsForChainId[_destinationChainId];
+        delete pendingTransferIdsForChainId[destinationChainId];
 
         _sendCrossDomainMessage(confirmTransferRootMessage);
     }
 
-    function _mintAndAttemptSwap(address _recipient, uint256 _amount, uint256 _amountOutMin, uint256 _deadline) internal {
-        _mint(address(this), _amount);
-        _approve(address(this), exchangeAddress, _amount);
+    function _mintAndAttemptSwap(address recipient, uint256 amount, uint256 amountOutMin, uint256 deadline) internal {
+        _mint(address(this), amount);
+        _approve(address(this), exchangeAddress, amount);
 
         try IUniswapV2Router02(exchangeAddress).swapExactTokensForTokens(
-            _amount,
-            _amountOutMin,
+            amount,
+            amountOutMin,
             _getHCPath(),
-            _recipient,
-            _deadline
+            recipient,
+            deadline
         ) returns (uint[] memory) {} catch {
             // Transfer hToken to recipient if swap fails
-            _transfer(address(this), _recipient, _amount);
+            _transfer(address(this), recipient, amount);
         }
     }
 
     function _withdrawAndAttemptSwap(
-        bytes32 _transferId,
-        address _recipient,
-        uint256 _amount,
-        uint256 _relayerFee,
-        uint256 _amountOutMin,
-        uint256 _deadline
+        bytes32 transferId,
+        address recipient,
+        uint256 amount,
+        uint256 relayerFee,
+        uint256 amountOutMin,
+        uint256 deadline
     ) internal {
-        _markTransferSpent(_transferId);
+        _markTransferSpent(transferId);
         // distribute fee
-        _transferFromBridge(msg.sender, _relayerFee);
+        _transferFromBridge(msg.sender, relayerFee);
         // Attempt swap to recipient
-        uint256 amountAfterFee = _amount.sub(_relayerFee);
-        _mintAndAttemptSwap(_recipient, amountAfterFee, _amountOutMin, _deadline);
+        uint256 amountAfterFee = amount.sub(relayerFee);
+        _mintAndAttemptSwap(recipient, amountAfterFee, amountOutMin, deadline);
     }
 
     function _getHCPath() internal view returns (address[] memory) {
@@ -333,11 +333,11 @@ abstract contract L2_Bridge is ERC20, Bridge {
 
     /* ========== Override Functions ========== */
 
-    function _transferFromBridge(address _recipient, uint256 _amount) internal override {
-        _mint(_recipient, _amount);
+    function _transferFromBridge(address recipient, uint256 amount) internal override {
+        _mint(recipient, amount);
     }
 
-    function _transferToBridge(address _from, uint256 _amount) internal override {
-        _burn(_from, _amount);
+    function _transferToBridge(address from, uint256 amount) internal override {
+        _burn(from, amount);
     }
 }
