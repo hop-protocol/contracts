@@ -46,7 +46,7 @@ contract L2_XDaiBridge is L2_Bridge {
         messenger.requireToPassMessage(
             l1BridgeAddress,
             message,
-            0
+            messengerGasLimit
         );
     }
 
