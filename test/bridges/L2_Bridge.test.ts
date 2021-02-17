@@ -22,7 +22,8 @@ import {
   USER_INITIAL_BALANCE,
   TRANSFER_AMOUNT,
   DEFAULT_AMOUNT_OUT_MIN,
-  MAX_NUM_SENDS_BEFORE_COMMIT
+  MAX_NUM_SENDS_BEFORE_COMMIT,
+  ARBITRARY_ROOT_HASH
 } from '../../config/constants'
 
 /**
@@ -532,21 +533,19 @@ describe('L2_Bridge', () => {
   })
 
   it('Should set the transfer root', async () => {
-    const arbitraryRootHash: string =
-      '0x7465737400000000000000000000000000000000000000000000000000000000'
     const arbitraryAmount: number = 123
 
     // Verify that the l1 bridge is the only account who can set it
     // TODO: Introduce this when `_verifySender()` implementation is added
-    // expect(await l2_bridge.setTransferRoot(arbitraryRootHash, arbitraryAmount)).to.throw('hi')
+    // expect(await l2_bridge.setTransferRoot(ARBITRARY_ROOT_HASH, arbitraryAmount)).to.throw('hi')
 
     // Update l1 bridge address for testing purposes
     await l2_bridge.setL1BridgeAddress(await user.getAddress())
     expect(await l2_bridge.l1BridgeAddress()).to.eq(await user.getAddress())
 
-    await l2_bridge.setTransferRoot(arbitraryRootHash, arbitraryAmount)
+    await l2_bridge.setTransferRoot(ARBITRARY_ROOT_HASH, arbitraryAmount)
 
-    const transferRoot = await l2_bridge.getTransferRoot(arbitraryRootHash, arbitraryAmount)
+    const transferRoot = await l2_bridge.getTransferRoot(ARBITRARY_ROOT_HASH, arbitraryAmount)
     expect(transferRoot[0]).to.eq(arbitraryAmount)
     expect(transferRoot[1]).to.eq(0)
   })

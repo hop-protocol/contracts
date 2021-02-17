@@ -12,7 +12,7 @@ import {
 } from '../shared/utils'
 import { IFixture } from '../shared/interfaces'
 
-import { CHAIN_IDS } from '../../config/constants'
+import { CHAIN_IDS, ARBITRARY_ROOT_HASH } from '../../config/constants'
 
 describe('Bridge', () => {
   let _fixture: IFixture
@@ -82,9 +82,7 @@ describe('Bridge', () => {
 
   it('Should not allow a withdrawal because of an invalid proof', async () => {
     const transfer: Transfer = transfers[0]
-    const arbitraryRootHash: string =
-      '0x7465737400000000000000000000000000000000000000000000000000000000'
-    const arbitraryProof: string[] = [arbitraryRootHash, arbitraryRootHash]
+    const arbitraryProof: string[] = [ARBITRARY_ROOT_HASH, ARBITRARY_ROOT_HASH]
 
     const expectedErrorMsg: string = 'BRG: Invalid transfer proof'
 
@@ -95,7 +93,7 @@ describe('Bridge', () => {
         transfer.amount,
         transfer.transferNonce,
         transfer.relayerFee,
-        arbitraryRootHash,
+        ARBITRARY_ROOT_HASH,
         arbitraryProof
       )
     ).to.be.revertedWith(expectedErrorMsg)
