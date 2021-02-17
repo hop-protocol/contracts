@@ -16,6 +16,7 @@ abstract contract L2_Bridge is ERC20, Bridge {
     IERC20 public l2CanonicalToken;
     mapping(uint256 => bool) public supportedChainIds;
     uint256 public minimumForceCommitDelay = 4 hours;
+    uint256 public messengerGasLimit = 250000;
 
     uint256[] public pendingAmountChainIds;
     mapping(uint256 => bytes32[]) public pendingTransferIdsForChainId;
@@ -85,6 +86,10 @@ abstract contract L2_Bridge is ERC20, Bridge {
 
     function setL1BridgeAddress(address _l1BridgeAddress) public onlyGovernance {
         l1BridgeAddress = _l1BridgeAddress;
+    }
+
+    function setMessengerGasLimit(uint256 _messengerGasLimit) public onlyGovernance {
+        messengerGasLimit = _messengerGasLimit;
     }
 
     function addSupportedChainId(uint256 chainIds) public onlyGovernance {
