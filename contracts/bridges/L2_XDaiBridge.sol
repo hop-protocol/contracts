@@ -11,9 +11,9 @@ contract L2_XDaiBridge is L2_Bridge {
     /// @notice The xDai AMB uses bytes32 for chainId instead of uint256
     bytes32 public l1ChainId;
 
-    /// @notice Always the L1 chain id first in supportedChainIds
     constructor (
         iArbitraryMessageBridge _messenger,
+        bytes32 _l1ChainId,
         address l1Governance,
         IERC20 canonicalToken,
         address l1BridgeAddress,
@@ -38,7 +38,7 @@ contract L2_XDaiBridge is L2_Bridge {
         )
     {
         messenger = _messenger;
-        l1ChainId = bytes32(supportedChainIds[0]);
+        l1ChainId = _l1ChainId;
     }
 
     // TODO: Use a valid gasLimit
