@@ -62,7 +62,9 @@ abstract contract Accounting {
     }
 
     /* ========== Virtual functions ========== */
-
+    /**
+     * @dev The following functions are overriden in L1_Bridge and L2_Bridge
+     */
     function _transferFromBridge(address recipient, uint256 amount) internal virtual;
     function _transferToBridge(address from, uint256 amount) internal virtual;
     function _requireIsGovernance() internal virtual;
