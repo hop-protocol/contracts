@@ -44,7 +44,7 @@ abstract contract Bridge is Accounting {
         uint256 relayerFee
     );
 
-    event WithdrawalSettled(
+    event WithdrawalBondSettled(
         address bonder,
         bytes32 transferId,
         bytes32 rootHash
@@ -248,7 +248,7 @@ abstract contract Bridge is Accounting {
         _bondedWithdrawalAmounts[bonder][transferId] = 0;
         _addCredit(bonder, amount);
 
-        emit WithdrawalSettled(bonder, transferId, rootHash);
+        emit WithdrawalBondSettled(bonder, transferId, rootHash);
     }
 
     function settleBondedWithdrawals(
