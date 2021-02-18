@@ -34,7 +34,7 @@ async function deployL1 () {
 
   l1_bridge = await L1_Bridge.connect(owner).deploy(
     l1_canonicalTokenAddress,
-    await bonder.getAddress()
+    [await bonder.getAddress()]
   )
   await l1_bridge.deployed()
 

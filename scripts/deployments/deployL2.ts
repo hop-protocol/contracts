@@ -5,7 +5,7 @@ import { network, ethers, l2ethers as ovmEthers } from 'hardhat'
 
 import { getContractFactories, verifyDeployment } from '../shared/utils'
 
-import { isChainIdOptimism, isChainIdArbitrum } from '../../config/utils'
+import { isChainIdOptimism, isChainIdArbitrum, isChainIdXDai } from '../../config/utils'
 import {
   ZERO_ADDRESS,
   CHAIN_IDS,
@@ -90,6 +90,7 @@ async function deployL2 () {
     l2_uniswapFactory,
     l2_uniswapRouter
   ))
+
   ;({ l2_bridge } = await deployBridge(
     ethers,
     owner,
@@ -169,7 +170,7 @@ const deployBridge = async (
     l2_canonicalToken.address,
     l1_bridge.address,
     [CHAIN_IDS.ETHEREUM.MAINNET],
-    await bonder.getAddress(),
+    [await bonder.getAddress()],
     l2_uniswapRouter.address,
     l2_hTokenName,
     l2_hTokenSymbol,
@@ -191,6 +192,10 @@ const deployNetworkSpecificContracts = async (
   l2_uniswapFactory: Contract,
   l2_uniswapPair: Contract
 ) => {
+  if (isChainIdXDai(chainId)) {
+    // No network specific deployments
+  }
+
   if (isChainIdArbitrum(chainId)) {
     // No network specific deployments
   }

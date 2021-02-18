@@ -1,6 +1,6 @@
 import { ContractFactory, Contract, BigNumber, Signer } from 'ethers'
 
-import { isChainIdOptimism, isChainIdArbitrum } from '../../config/utils'
+import { isChainIdOptimism, isChainIdArbitrum, isChainIdXDai } from '../../config/utils'
 
 import {
   ARB_CHAIN_ADDRESS,
@@ -70,6 +70,8 @@ const getNetworkSpecificFactories = async (
     return getOptimismContractFactories(signer, ethers, ovmEthers)
   } else if (isChainIdArbitrum(chainId)) {
     return getArbitrumContractFactories(signer, ethers)
+  } else if (isChainIdXDai(chainId)) {
+    return getXDaiContractFactories(signer, ethers)
   } else {
     return {
       L1_Messenger: null,
@@ -165,6 +167,43 @@ const getArbitrumContractFactories = async (signer: Signer, ethers: any) => {
   }
 }
 
+const getXDaiContractFactories = async (signer: Signer, ethers: any) => {
+  const L1_Messenger: ContractFactory = await ethers.getContractFactory(
+    'contracts/test/XDai/ArbitraryMessageBridge.sol:ArbitraryMessageBridge',
+    { signer }
+  )
+  const L1_MessengerWrapper: ContractFactory = await ethers.getContractFactory(
+    'contracts/wrappers/XDaiMessengerWrapper.sol:XDaiMessengerWrapper',
+    { signer }
+  )
+  const L2_MockERC20: ContractFactory = await ethers.getContractFactory(
+    'contracts/test/MockERC20.sol:MockERC20',
+    { signer }
+  )
+  const L2_Bridge: ContractFactory = await ethers.getContractFactory(
+    'contracts/bridges/L2_XDaiBridge.sol:L2_XDaiBridge',
+    { signer }
+  )
+  const L2_UniswapFactory: ContractFactory = await ethers.getContractFactory(
+    'contracts/uniswap/xdai/XDaiUniswapFactory.sol:XDaiUniswapFactory',
+    { signer }
+  )
+  const L2_UniswapRouter: ContractFactory = await ethers.getContractFactory(
+    'contracts/uniswap/xdai/XDaiUniswapRouter.sol:XDaiUniswapRouter',
+    { signer }
+  )
+
+  return {
+    L1_Messenger,
+    L1_MessengerWrapper,
+    L2_MockERC20,
+    L2_Bridge,
+    L2_UniswapFactory,
+    L2_UniswapRouter,
+    L2_UniswapPair: null
+  }
+}
+
 export const sendChainSpecificBridgeDeposit = async (
   chainId: BigNumber,
   sender: Signer,
@@ -187,6 +226,12 @@ export const sendChainSpecificBridgeDeposit = async (
         await sender.getAddress(),
         amount
       )
+  }
+
+  if (isChainIdXDai(chainId)) {
+    await l1_messenger
+      .connect(sender)
+      .relayTokens(l1_canonicalToken.address, amount)
   }
 }
 

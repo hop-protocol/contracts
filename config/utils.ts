@@ -32,7 +32,11 @@ export const getMessengerWrapperDefaults = (
       DEFAULT_MESSENGER_WRAPPER_GAS_CALL_VALUE
     )
   } else if (isChainIdOptimism(chainId)) {
-    // Nothing unique here. This function exists for consistency.
+    // Nothing unique here. This conditional statement exists for consistency.
+  } else if (isChainIdXDai(chainId)) {
+    defaults.push(
+      chainId.toString()
+    )
   }
 
   return defaults
@@ -54,6 +58,16 @@ export const isChainIdArbitrum = (chainId: BigNumber): boolean => {
   if (
     chainId.eq(CHAIN_IDS.ARBITRUM.TESTNET_2) ||
     chainId.eq(CHAIN_IDS.ARBITRUM.TESTNET_3)
+  ) {
+    return true
+  }
+
+  return false
+}
+
+export const isChainIdXDai = (chainId: BigNumber): boolean => {
+  if (
+    chainId.eq(CHAIN_IDS.XDAI.SOKOL)
   ) {
     return true
   }

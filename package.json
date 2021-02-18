@@ -19,9 +19,11 @@
     "deploy:l1-kovan": "hardhat run scripts/deployments/deployL1.ts --network kovan",
     "deploy:l2-arbitrum": "hardhat run scripts/deployments/deployL2.ts --network arbitrum",
     "deploy:l2-optimism": "hardhat run scripts/deployments/deployL2.ts --network optimism",
+    "deploy:l2-xdai": "hardhat run scripts/deployments/deployL2.ts --network xdai",
     "setup:l1-kovan": "hardhat run scripts/setup/setupL1.ts --network kovan",
     "setup:l2-arbitrum": "hardhat run scripts/setup/setupL2.ts --network arbitrum",
     "setup:l2-optimism": "hardhat run scripts/setup/setupL2.ts --network optimism",
+    "setup:l2-xdai": "hardhat run scripts/setup/setupL2.ts --network xdai",
     "deploy:l1-optimism-canonical-bridge": "hardhat run scripts/deployments/optimism-canonical-bridge/deployL1.ts --network kovan",
     "deploy:l2-optimism-canonical-bridge": "hardhat run scripts/deployments/optimism-canonical-bridge/deployL2.ts --network optimism",
     "setup:l2-optimism-canonical-bridge": "hardhat run scripts/setup/optimism-canonical-bridge/setupL2.ts --network optimism"

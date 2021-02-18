@@ -6,7 +6,7 @@ pragma experimental ABIEncoderV2;
 import "../interfaces/xDai/messengers/iArbitraryMessageBridge.sol";
 import "./MessengerWrapper.sol";
 
-contract xDaiMessengerWrapper is MessengerWrapper {
+contract XDaiMessengerWrapper is MessengerWrapper {
 
     iArbitraryMessageBridge public l1MessengerAddress;
     /// @notice The xDai AMB uses bytes32 for chainId instead of uint256

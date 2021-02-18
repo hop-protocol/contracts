@@ -16,6 +16,9 @@ export const CHAIN_IDS = {
   ARBITRUM: {
     TESTNET_2: BigNumber.from('152709604825713'),
     TESTNET_3: BigNumber.from('79377087078960')
+  },
+  XDAI: {
+    SOKOL: BigNumber.from('77')
   }
 }
 

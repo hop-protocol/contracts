@@ -14,7 +14,7 @@ import {
 
 import { IFixture } from './interfaces'
 
-import { isChainIdOptimism, isChainIdArbitrum } from '../../config/utils'
+import { isChainIdOptimism, isChainIdArbitrum, isChainIdXDai } from '../../config/utils'
 
 /**
  * Initialization functions
@@ -293,6 +293,10 @@ export const getL2SpecificArtifact = (chainId: BigNumber) => {
     l2_bridgeArtifact = 'Mock_L2_ArbitrumBridge.sol:Mock_L2_ArbitrumBridge'
     l1_messengerWrapperArtifact =
       'ArbitrumMessengerWrapper.sol:ArbitrumMessengerWrapper'
+  } else if (isChainIdXDai(chainId)) {
+    l2_bridgeArtifact = 'Mock_L2_XDaiBridge.sol:Mock_L2_XDaiBridge'
+    l1_messengerWrapperArtifact =
+      'XDaiMessengerWrapper.sol:XDaiMessengerWrapper'
   }
 
   return {

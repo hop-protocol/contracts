@@ -39,6 +39,13 @@ export default {
       gasPrice: 0,
       gas: 9000000,
       chainId: CHAIN_IDS.OPTIMISM.HOP_TESTNET.toNumber()
+    },
+    xdai: {
+      url: 'https://sokol.poa.network',
+      accounts: desiredAccounts,
+      gasPrice: 1000000000,
+      gas: 500000,
+      chainId: CHAIN_IDS.XDAI.SOKOL.toNumber()
     }
   },
   solidity: {
