@@ -49,6 +49,25 @@ contract L1_Bridge is Bridge {
         uint256 amount
     );
 
+    event TransferRootConfirmed(
+        uint256 originChainId,
+        uint256 destinationChainId,
+        bytes32 rootHash,
+        uint256 totalAmount
+    );
+
+    event TransferBondChallenged(
+        bytes32 transferRootId,
+        bytes32 rootHash,
+        uint256 originalAmount
+    );
+
+    event ChallengeResolved(
+        bytes32 transferRootId,
+        bytes32 rootHash,
+        uint256 originalAmount
+    );
+
     /* ========== Modifiers ========== */
 
     modifier onlyL2Bridge {
@@ -177,6 +196,8 @@ contract L1_Bridge is Bridge {
         if (transferBond.createdAt == 0) {
             _distributeTransferRoot(rootHash, destinationChainId, totalAmount);
         }
+
+        emit TransferRootConfirmed(chainId, destinationChainId, rootHash, totalAmount);
     }
 
     function _distributeTransferRoot(
@@ -228,6 +249,8 @@ contract L1_Bridge is Bridge {
         timeSlotToAmountBonded[timeSlot] = timeSlotToAmountBonded[timeSlot].sub(bondAmount);
 
         _addDebit(transferBond.bonder, bondAmount);
+
+        emit TransferBondChallenged(transferRootId, rootHash, originalAmount);
     }
 
     function resolveChallenge(bytes32 rootHash, uint256 originalAmount) public {
@@ -251,6 +274,8 @@ contract L1_Bridge is Bridge {
             // Reward challenger with the remaining 75% of their stake plus 100% of the Bonder's stake
             l1CanonicalToken.transfer(transferBond.challenger, challengeStakeAmount.mul(7).div(4));
         }
+
+        emit ChallengeResolved(transferRootId, rootHash, originalAmount);
     }
 
     /* ========== Override functions ========== */
