@@ -110,6 +110,16 @@ abstract contract Accounting {
         _transferFromBridge(msg.sender, amount);
     }
 
+    function addBonder(address bonder) external onlyGovernance {
+        require(_isBonder[bonder] == false, "ACT: Address is already Bonder");
+        _isBonder[bonder] = true;
+    }
+
+    function removeBonder(address bonder) external onlyGovernance {
+        require(_isBonder[bonder] == true, "ACT: Address is Bonder");
+        _isBonder[bonder] = false;
+    }
+
     /* ========== Internal functions ========== */
 
     function _addCredit(address bonder, uint256 amount) internal {
