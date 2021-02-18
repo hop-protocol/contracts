@@ -43,6 +43,11 @@ abstract contract Accounting {
         _;
     }
 
+    modifier onlyGovernance {
+        _requireIsGovernance();
+        _;
+    }
+
     /// @dev Used by parent contract to ensure that the bonder is solvent at the end of the transaction.
     modifier requirePositiveBalance {
         _;
@@ -60,6 +65,7 @@ abstract contract Accounting {
 
     function _transferFromBridge(address recipient, uint256 amount) internal virtual;
     function _transferToBridge(address from, uint256 amount) internal virtual;
+    function _requireIsGovernance() internal virtual;
 
     /**
      * @dev This function can be optionally overridden by a parent contract to track any additional

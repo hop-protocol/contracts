@@ -10,6 +10,7 @@ contract Mock_Bridge is Bridge {
 
     function _transferFromBridge(address _recipient, uint256 _amount) internal override {}
     function _transferToBridge(address _from, uint256 _amount) internal override {}
+    function _requireIsGovernance() internal override {}
 
     function getChainId() public override view returns (uint256) {
         return 1;

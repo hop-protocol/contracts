@@ -4,16 +4,14 @@ pragma solidity 0.6.12;
 pragma experimental ABIEncoderV2;
 
 import "./Bridge.sol";
-
 import "../interfaces/IMessengerWrapper.sol";
-import "./L1_BridgeConfig.sol";
 
 /**
  * @dev L1_Bridge is responsible for the bonding and challenging of TransferRoots. All TransferRoots
  * originate in the L1_Bridge through `bondTransferRoot` and are propagated up to destination L2s.
  */
 
-contract L1_Bridge is Bridge, L1_BridgeConfig {
+contract L1_Bridge is Bridge {
 
     struct TransferBond {
         address bonder;
@@ -26,12 +24,23 @@ contract L1_Bridge is Bridge, L1_BridgeConfig {
 
     /* ========== State ========== */
 
-    IERC20 public l1CanonicalToken;
     mapping(bytes32 => bool) public transferRootConfirmed;
     mapping(bytes32 => TransferBond) public transferBonds;
     mapping(uint256 => uint256) public timeSlotToAmountBonded;
     uint256 public amountChallenged;
     mapping(uint256 => uint256) public chainBalance;
+
+    /* ========== Config State ========== */
+
+    address public governance;
+    IERC20 public l1CanonicalToken;
+    mapping(uint256 => IMessengerWrapper) public crossDomainMessengerWrappers;
+    uint256 public challengeAmountMultiplier = 1;
+    uint256 public challengeAmountDivisor = 10;
+    uint256 public timeSlotSize = 3 hours;
+    uint256 public challengePeriod = 1 days;
+    uint256 public challengeResolutionPeriod = 8 days;
+    uint256 public unstakePeriod = 9 days; 
 
     /* ========== Events ========== */
 
@@ -44,12 +53,13 @@ contract L1_Bridge is Bridge, L1_BridgeConfig {
 
     modifier onlyL2Bridge {
         // ToDo: Figure out how to check sender against an allowlist
-        // IMessengerWrapper messengerWrapper = crossDomainMessengerWrapper[_chainId];
+        // IMessengerWrapper messengerWrapper = crossDomainMessengerWrappers[_chainId];
         // messengerWrapper.verifySender(msg.data);
         _;
     }
 
     constructor (IERC20 _l1CanonicalToken, address[] memory bonders) public Bridge(bonders) {
+        governance = msg.sender;
         l1CanonicalToken = _l1CanonicalToken;
     }
 
@@ -62,7 +72,7 @@ contract L1_Bridge is Bridge, L1_BridgeConfig {
     )
         public
     {
-        IMessengerWrapper messengerWrapper = getCrossDomainMessengerWrapper(chainId);
+        IMessengerWrapper messengerWrapper = crossDomainMessengerWrappers[chainId];
         require(messengerWrapper != IMessengerWrapper(0), "L1_BRG: chainId not supported");
 
         l1CanonicalToken.safeTransferFrom(msg.sender, address(this), amount);
@@ -82,7 +92,7 @@ contract L1_Bridge is Bridge, L1_BridgeConfig {
     )
         public
     {
-        IMessengerWrapper messengerWrapper = getCrossDomainMessengerWrapper(chainId);
+        IMessengerWrapper messengerWrapper = crossDomainMessengerWrappers[chainId];
         require(messengerWrapper != IMessengerWrapper(0), "L1_BRG: chainId not supported");
 
         l1CanonicalToken.safeTransferFrom(msg.sender, address(this), amount);
@@ -181,7 +191,7 @@ contract L1_Bridge is Bridge, L1_BridgeConfig {
             // Set L1 transfer root
             _setTransferRoot(rootHash, totalAmount);
         } else {
-            IMessengerWrapper messengerWrapper = getCrossDomainMessengerWrapper(chainId);
+            IMessengerWrapper messengerWrapper = crossDomainMessengerWrappers[chainId];
             require(messengerWrapper != IMessengerWrapper(0), "L1_BRG: chainId not supported");
 
             // Set L2 transfer root
@@ -202,7 +212,7 @@ contract L1_Bridge is Bridge, L1_BridgeConfig {
         TransferBond storage transferBond = transferBonds[transferRootId];
 
         require(transferRootConfirmed[transferRootId] == false, "L1_BRG: Transfer root has already been confirmed");
-        uint256 challengePeriodEnd = transferBond.createdAt.add(getChallengePeriod());
+        uint256 challengePeriodEnd = transferBond.createdAt.add(challengePeriod);
         require(challengePeriodEnd >= block.timestamp, "L1_BRG: Transfer root cannot be challenged after challenge period");
 
         // Get stake for challenge
@@ -226,7 +236,7 @@ contract L1_Bridge is Bridge, L1_BridgeConfig {
         TransferBond storage transferBond = transferBonds[transferRootId];
 
         require(transferBond.challengeStartTime != 0, "L1_BRG: Transfer root has not been challenged");
-        require(now > transferBond.challengeStartTime.add(getChallengeResolutionPeriod()), "L1_BRG: Challenge period has not ended");
+        require(now > transferBond.challengeStartTime.add(challengeResolutionPeriod), "L1_BRG: Challenge period has not ended");
 
         uint256 challengeStakeAmount = getChallengeAmountForTransferAmount(transferRoot.total);
 
@@ -243,7 +253,7 @@ contract L1_Bridge is Bridge, L1_BridgeConfig {
         }
     }
 
-    /* ========== Internal functions ========== */
+    /* ========== Override functions ========== */
 
     function _transferFromBridge(address recipient, uint256 amount) internal override {
         l1CanonicalToken.safeTransfer(recipient, amount);
@@ -262,5 +272,64 @@ contract L1_Bridge is Bridge, L1_BridgeConfig {
         }
 
         return bonded;
+    }
+
+    function _requireIsGovernance() internal override {
+        require(governance == msg.sender, "L1_BRG: Caller is not the owner");
+    }
+
+    /* ========== External Config Management Setters ========== */
+
+    function setGoveranace(address _newGovernance) external onlyGovernance {
+        require(_newGovernance != address(0), "L1_BRG: _newGovernance cannot be address(0)");
+        governance = _newGovernance;
+    }
+
+    function setCrossDomainMessengerWrapper(uint256 chainId, IMessengerWrapper _crossDomainMessengerWrapper) external onlyGovernance {
+        crossDomainMessengerWrappers[chainId] = _crossDomainMessengerWrapper;
+    }
+
+    function setChallengeAmountDivisor(uint256 _challengeAmountDivisor) external onlyGovernance {
+        challengeAmountDivisor = _challengeAmountDivisor;
+    }
+
+    function setTimeSlotSize(uint256 _timeSlotSize) external onlyGovernance {
+        timeSlotSize = _timeSlotSize;
+    }
+
+    function setChallengePeriod(uint256 _challengePeriod) external onlyGovernance {
+        challengePeriod = _challengePeriod;
+    }
+
+    function setChallengeAmountMultiplier(uint256 _challengeAmountMultiplier) external onlyGovernance {
+        challengeAmountMultiplier = _challengeAmountMultiplier;
+    }
+
+    function setChallengeResolutionPeriod(uint256 _challengeResolutionPeriod) external onlyGovernance {
+        challengeResolutionPeriod = _challengeResolutionPeriod;
+    }
+
+    function setUnstakePeriod(uint256 _unstakePeriod) external onlyGovernance {
+        unstakePeriod = _unstakePeriod;
+    }
+
+    /* ========== Public Getters ========== */
+
+    function getBondForTransferAmount(uint256 amount) public view returns (uint256) {
+        // Bond covers amount plus a bounty to pay a potential challenger
+        return amount.add(getChallengeAmountForTransferAmount(amount));
+    }
+
+    function getChallengeAmountForTransferAmount(uint256 amount) public view returns (uint256) {
+        // Bond covers amount plus a bounty to pay a potential challenger
+        return amount.mul(challengeAmountMultiplier).div(challengeAmountDivisor);
+    }
+
+    function getTimeSlot(uint256 time) public view returns (uint256) {
+        return time / timeSlotSize;
+    }
+
+    function getNumberOfChallengeableTimeSlots() public view returns (uint256) {
+        return timeSlotSize / challengePeriod;
     }
 }

@@ -41,11 +41,6 @@ abstract contract L2_Bridge is ERC20, Bridge {
         _;
     }
 
-    modifier onlyGovernance {
-        _verifySender(l1Governance);
-        _;
-    }
-
     constructor (
         address _l1Governance,
         IERC20 _l2CanonicalToken,
@@ -344,5 +339,9 @@ abstract contract L2_Bridge is ERC20, Bridge {
 
     function _transferToBridge(address from, uint256 amount) internal override {
         _burn(from, amount);
+    }
+
+    function _requireIsGovernance() internal override {
+        _verifySender(l1Governance);
     }
 }

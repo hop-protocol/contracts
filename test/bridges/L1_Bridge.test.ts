@@ -2271,7 +2271,7 @@ describe('L1_Bridge', () => {
       expect(transferRoot[1]).to.eq(BigNumber.from('0'))
 
       // Wait until after the challenge period
-      const challengePeriod: BigNumber = await l1_bridge.getChallengePeriod()
+      const challengePeriod: BigNumber = await l1_bridge.challengePeriod()
       await increaseTime(challengePeriod.toNumber())
 
       const challengeAmount: BigNumber = await l1_bridge.getChallengeAmountForTransferAmount(transfer.amount)
