@@ -24,6 +24,40 @@ abstract contract Bridge is Accounting {
         uint256 amountWithdrawn;
     }
 
+    /* ========== Events ========== */
+
+    event Withdrew(
+        bytes32 indexed transferId,
+        address indexed sender,
+        address indexed recipient,
+        uint256 amount,
+        uint256 transferNonce,
+        uint256 relayerFee
+    );
+
+    event WithdrawalBonded(
+        bytes32 indexed transferId,
+        address indexed sender,
+        address indexed recipient,
+        uint256 amount,
+        uint256 transferNonce,
+        uint256 relayerFee
+    );
+
+    event WithdrawalBondSettled(
+        address bonder,
+        bytes32 transferId,
+        bytes32 rootHash
+    );
+
+    event MultipleWithdrawalsSettled(
+        address bonder,
+        bytes32 rootHash,
+        uint256 totalBondsSettled
+    );
+
+    /* ========== State ========== */
+
     mapping(bytes32 => TransferRoot) private _transferRoots;
     mapping(bytes32 => bool) private _spentTransferIds;
     mapping(address => mapping(bytes32 => uint256)) private _bondedWithdrawalAmounts;
@@ -147,6 +181,8 @@ abstract contract Bridge is Accounting {
         require(proof.verify(transferRootId, transferId), "BRG: Invalid transfer proof");
         _addToAmountWithdrawn(transferRootId, amount);
         _fulfillWithdraw(transferId, recipient, amount, relayerFee);
+
+        emit Withdrew(transferId, sender, recipient, amount, transferNonce, relayerFee);
     }
 
     // ToDo: enforce _transferNonce can't collide on send or autogenerate nonce
@@ -184,6 +220,8 @@ abstract contract Bridge is Accounting {
         _addDebit(msg.sender, amount);
         _setBondedWithdrawalAmountForSender(transferId, amount);
         _fulfillWithdraw(transferId, recipient, amount, relayerFee);
+
+        emit WithdrawalBonded(transferId, sender, recipient, amount, transferNonce, relayerFee);
     }
 
     /**
@@ -209,6 +247,8 @@ abstract contract Bridge is Accounting {
 
         _bondedWithdrawalAmounts[bonder][transferId] = 0;
         _addCredit(bonder, amount);
+
+        emit WithdrawalBondSettled(bonder, transferId, rootHash);
     }
 
     function settleBondedWithdrawals(
@@ -224,18 +264,20 @@ abstract contract Bridge is Accounting {
         TransferRoot storage transferRoot = _transferRoots[transferRootId];
         require(transferRoot.total > 0, "BRG: Transfer root not found");
 
-        uint256 totalBondsFreed = 0;
+        uint256 totalBondsSettled = 0;
         for(uint256 i = 0; i < transferIds.length; i++) {
             uint256 transferBondAmount = _bondedWithdrawalAmounts[bonder][transferIds[i]];
-            totalBondsFreed = totalBondsFreed.add(transferBondAmount);
+            totalBondsSettled = totalBondsSettled.add(transferBondAmount);
             _bondedWithdrawalAmounts[bonder][transferIds[i]] = 0;
         }
 
-        uint256 newAmountWithdrawn = transferRoot.amountWithdrawn.add(totalBondsFreed);
+        uint256 newAmountWithdrawn = transferRoot.amountWithdrawn.add(totalBondsSettled);
         require(newAmountWithdrawn <= transferRoot.total, "BRG: Withdrawal exceeds TransferRoot total");
         transferRoot.amountWithdrawn = newAmountWithdrawn;
 
-        _addCredit(bonder, totalBondsFreed);
+        _addCredit(bonder, totalBondsSettled);
+
+        emit MultipleWithdrawalsSettled(bonder, rootHash, totalBondsSettled);
     }
 
     /* ========== Internal functions ========== */
