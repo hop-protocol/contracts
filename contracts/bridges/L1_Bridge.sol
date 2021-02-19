@@ -17,9 +17,9 @@ contract L1_Bridge is Bridge {
         address bonder;
         uint256 createdAt;
         uint256 totalAmount;
-        bool confirmed;
         uint256 challengeStartTime;
         address challenger;
+        bool challengeResolved;
     }
 
     /* ========== State ========== */
@@ -161,7 +161,7 @@ contract L1_Bridge is Bridge {
         uint256 bondAmount = getBondForTransferAmount(totalAmount);
         timeSlotToAmountBonded[currentTimeSlot] = timeSlotToAmountBonded[currentTimeSlot].add(bondAmount);
 
-        transferBonds[transferRootId] = TransferBond(msg.sender, block.timestamp, totalAmount, false, 0, address(0));
+        transferBonds[transferRootId] = TransferBond(msg.sender, block.timestamp, totalAmount, uint256(0), address(0), false);
 
         _distributeTransferRoot(rootHash, destinationChainId, totalAmount);
 
@@ -235,6 +235,7 @@ contract L1_Bridge is Bridge {
         require(transferRootConfirmed[transferRootId] == false, "L1_BRG: Transfer root has already been confirmed");
         uint256 challengePeriodEnd = transferBond.createdAt.add(challengePeriod);
         require(challengePeriodEnd >= block.timestamp, "L1_BRG: Transfer root cannot be challenged after challenge period");
+        require(transferBond.challengeStartTime != 0, "L1_BRG: Transfer root already challenged");
 
         // Get stake for challenge
         uint256 challengeStakeAmount = getChallengeAmountForTransferAmount(transferRoot.total);
@@ -260,6 +261,8 @@ contract L1_Bridge is Bridge {
 
         require(transferBond.challengeStartTime != 0, "L1_BRG: Transfer root has not been challenged");
         require(now > transferBond.challengeStartTime.add(challengeResolutionPeriod), "L1_BRG: Challenge period has not ended");
+        require(transferBond.challengeResolved == false, "L1_BRG: Transfer root already resolved");
+        transferBond.challengeResolved = true;
 
         uint256 challengeStakeAmount = getChallengeAmountForTransferAmount(transferRoot.total);
 

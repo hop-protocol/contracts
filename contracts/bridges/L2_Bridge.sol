@@ -243,8 +243,7 @@ abstract contract L2_Bridge is ERC20, Bridge {
             deadline
         );
 
-        _addDebit(msg.sender, amount);
-        _setBondedWithdrawalAmountForSender(transferId, amount);
+        _bondWithdrawal(transferId, amount);
         _withdrawAndAttemptSwap(transferId, recipient, amount, relayerFee, amountOutMin, deadline);
     }
 
