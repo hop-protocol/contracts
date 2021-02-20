@@ -27,7 +27,6 @@ contract L1_Bridge is Bridge {
     mapping(bytes32 => bool) public transferRootConfirmed;
     mapping(bytes32 => TransferBond) public transferBonds;
     mapping(uint256 => uint256) public timeSlotToAmountBonded;
-    uint256 public amountChallenged;
     mapping(uint256 => uint256) public chainBalance;
 
     /* ========== Config State ========== */
