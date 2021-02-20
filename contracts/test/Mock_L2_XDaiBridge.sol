@@ -8,11 +8,8 @@ import "../bridges/L2_XDaiBridge.sol";
 contract Mock_L2_XDaiBridge is L2_XDaiBridge {
     uint256 private _chainId;
 
-    // TODO: Need to fix stack to deep
     constructor (
-        // uint256 chainId_,
         iArbitraryMessageBridge _messenger,
-        bytes32 _l1ChainId,
         address l1Governance,
         IERC20 canonicalToken,
         address l1BridgeAddress,
@@ -21,7 +18,8 @@ contract Mock_L2_XDaiBridge is L2_XDaiBridge {
         address exchangeAddress,
         string memory name,
         string memory symbol,
-        uint8 decimals
+        uint8 decimals,
+        bytes32 _l1ChainId
     )
         public
         L2_XDaiBridge(
