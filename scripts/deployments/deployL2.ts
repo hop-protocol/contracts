@@ -1,6 +1,6 @@
 require('dotenv').config()
 
-import { ContractFactory, Signer, Contract, BigNumber } from 'ethers'
+import { ContractFactory, Signer, Contract, BigNumber, utils as ethersUtils } from 'ethers'
 import { network, ethers, l2ethers as ovmEthers } from 'hardhat'
 
 import { getContractFactories, verifyDeployment } from '../shared/utils'
@@ -17,6 +17,7 @@ import {
 async function deployL2 () {
   // Network setup
   const chainId: BigNumber = BigNumber.from(network.config.chainId)
+  const l1ChainId: BigNumber = CHAIN_IDS.ETHEREUM.KOVAN
 
   // Addresses
   const l1_bridgeAddress: string = ''
@@ -92,6 +93,8 @@ async function deployL2 () {
   ))
 
   ;({ l2_bridge } = await deployBridge(
+    chainId,
+    l1ChainId,
     ethers,
     owner,
     bonder,
@@ -149,6 +152,8 @@ const deployUniswap = async (
 }
 
 const deployBridge = async (
+  chainId: BigNumber,
+  l1ChainId: BigNumber,
   ethers: any,
   owner: Signer,
   bonder: Signer,
@@ -164,7 +169,7 @@ const deployBridge = async (
 ) => {
   // NOTE: Adding more CHAIN_IDs here will push the OVM deployment over the contract size limit
   //       If additional CHAIN_IDs must be added, do so after the deployment.
-  l2_bridge = await L2_Bridge.connect(owner).deploy(
+  const l2BridgeDeploymentParams = [
     l2_messengerAddress,
     await owner.getAddress(),
     l2_canonicalToken.address,
@@ -175,7 +180,13 @@ const deployBridge = async (
     l2_hTokenName,
     l2_hTokenSymbol,
     l2_hTokenDecimals
-  )
+  ]
+
+  if (isChainIdXDai(chainId)) {
+    l2BridgeDeploymentParams.push(ethersUtils.formatBytes32String(l1ChainId.toString()))
+  }
+
+  l2_bridge = await L2_Bridge.connect(owner).deploy(...l2BridgeDeploymentParams)
   await l2_bridge.deployed()
   await verifyDeployment(l2_bridge, ethers)
 
