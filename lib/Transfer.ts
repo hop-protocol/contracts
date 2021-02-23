@@ -9,6 +9,8 @@ export type TransferProps = {
   relayerFee: ethers.BigNumber
   amountOutMin: ethers.BigNumber
   deadline: ethers.BigNumber
+  destinationAmountOutMin?: ethers.BigNumber
+  destinationDeadline?: ethers.BigNumber
 }
 
 export default class Transfer {
@@ -20,6 +22,8 @@ export default class Transfer {
   relayerFee: ethers.BigNumber
   amountOutMin: ethers.BigNumber
   deadline: ethers.BigNumber
+  destinationAmountOutMin?: ethers.BigNumber
+  destinationDeadline?: ethers.BigNumber
 
   constructor (props: TransferProps) {
     this.chainId = props.chainId
@@ -30,6 +34,8 @@ export default class Transfer {
     this.relayerFee = props.relayerFee
     this.amountOutMin = props.amountOutMin
     this.deadline = props.deadline
+    this.destinationAmountOutMin = props.destinationAmountOutMin
+    this.destinationDeadline = props.destinationDeadline
   }
 
   async getTransferId (): Promise<Buffer> {

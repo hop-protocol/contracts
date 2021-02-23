@@ -59,6 +59,8 @@ describe('L1_Bridge', () => {
   let l22_uniswapRouter: Contract
 
   let transfers: Transfer[]
+  let transfer: Transfer
+  let l2Transfer: Transfer
 
   let originalBondedAmount: BigNumber
   let user_l1_canonicalTokenOriginalBalance: BigNumber
@@ -132,6 +134,9 @@ describe('L1_Bridge', () => {
       l1_canonicalToken,
       l2_canonicalToken
     ))
+
+    transfer = Object.assign(transfers[0], {})
+    l2Transfer = Object.assign(transfers[1], {})
   })
 
   after(async() => {
@@ -161,12 +166,6 @@ describe('L1_Bridge', () => {
   })
 
   it('Should allow a user to send from L2 to L1 and perform a bonded withdrawal', async () => {
-    // Set up transfer
-    let transfer: any = transfers[0]
-    transfer.chainId = CHAIN_IDS.ETHEREUM.MAINNET
-    transfer.amountOutMin = BigNumber.from(0)
-    transfer.deadline = BigNumber.from(0)
-
     // User moves funds to L2
     await sendTestTokensAcrossHopBridge(
       l1_canonicalToken,
@@ -233,12 +232,6 @@ describe('L1_Bridge', () => {
   })
 
   it('Should send a transaction from L2 to L1, perform a bonded withdrawal, and confirm an already bonded transfer root on L1', async () => {
-    // Set up transfer
-    let transfer: any = transfers[0]
-    transfer.chainId = CHAIN_IDS.ETHEREUM.MAINNET
-    transfer.amountOutMin = BigNumber.from(0)
-    transfer.deadline = BigNumber.from(0)
-
     // User moves funds to L2
     await sendTestTokensAcrossHopBridge(
       l1_canonicalToken,
@@ -453,12 +446,6 @@ describe('L1_Bridge', () => {
 
   describe('bondTransferRoot', async () => {
     it('Should send a transaction from L2 to L1 and bond the transfer root on L1', async () => {
-      // Set up transfer
-      let transfer: any = transfers[0]
-      transfer.chainId = CHAIN_IDS.ETHEREUM.MAINNET
-      transfer.amountOutMin = BigNumber.from(0)
-      transfer.deadline = BigNumber.from(0)
-
       // User moves funds to L2
       await sendTestTokensAcrossHopBridge(
         l1_canonicalToken,
@@ -577,17 +564,6 @@ describe('L1_Bridge', () => {
     })
 
     it('Should send a transaction from L2 to L2 and bond the transfer root on L1', async () => {
-      // Set up transfer
-      let transfer: any = transfers[0]
-      transfer.chainId = CHAIN_IDS.ETHEREUM.MAINNET
-      transfer.amountOutMin = BigNumber.from(0)
-      transfer.deadline = BigNumber.from(0)
-
-      let l2Transfer: any = transfers[0]
-      l2Transfer.chainId = l22ChainId
-      l2Transfer.amountOutMin = BigNumber.from(0)
-      l2Transfer.deadline = BigNumber.from(0)
-
       // User moves funds to first L2
       await l1_canonicalToken
         .connect(user)
@@ -663,18 +639,18 @@ describe('L1_Bridge', () => {
 
       // Validate state before commitTransfers
       const pendingAmountChainId = await l2_bridge.pendingAmountChainIds(0)
-      const pendingTransferIdsForChainId: string = await l2_bridge.pendingTransferIdsForChainId(transfer.chainId, 0)
-      const expectedPendingTransferIdsForChainId: string = await transfer.getTransferIdHex()
-      expect(pendingAmountChainId).to.eq(transfer.chainId)
+      const pendingTransferIdsForChainId: string = await l2_bridge.pendingTransferIdsForChainId(l2Transfer.chainId, 0)
+      const expectedPendingTransferIdsForChainId: string = await l2Transfer.getTransferIdHex()
+      expect(pendingAmountChainId).to.eq(l2Transfer.chainId)
       expect(pendingTransferIdsForChainId).to.eq(expectedPendingTransferIdsForChainId)
 
       // Bonder commits transfers
       await l2_bridge
         .connect(bonder)
-        .commitTransfers(transfer.chainId)
+        .commitTransfers(l2Transfer.chainId)
 
       // Validate state after commitTransfers()
-      const lastCommitTimeForChainId: BigNumber = await l2_bridge.lastCommitTimeForChainId(transfer.chainId)
+      const lastCommitTimeForChainId: BigNumber = await l2_bridge.lastCommitTimeForChainId(l2Transfer.chainId)
       const expectedCommitTimeForChainId: number = Date.now()
       expect(lastCommitTimeForChainId.mul(1000).toNumber()).to.be.closeTo(
         expectedCommitTimeForChainId,
@@ -721,12 +697,6 @@ describe('L1_Bridge', () => {
 
   describe('confirmTransferRoot', async () => {
     it('Should send a transaction from L2 to L1 and commit the transfers on L1', async () => {
-      // Set up transfer
-      let transfer: any = transfers[0]
-      transfer.chainId = CHAIN_IDS.ETHEREUM.MAINNET
-      transfer.amountOutMin = BigNumber.from(0)
-      transfer.deadline = BigNumber.from(0)
-
       // User moves funds to L2
       await sendTestTokensAcrossHopBridge(
         l1_canonicalToken,
@@ -839,17 +809,6 @@ describe('L1_Bridge', () => {
     })
 
     it('Should send a transaction from L2 to L2 and commit the transfers on L1', async () => {
-      // Set up transfer
-      let transfer: any = transfers[0]
-      transfer.chainId = CHAIN_IDS.ETHEREUM.MAINNET
-      transfer.amountOutMin = BigNumber.from(0)
-      transfer.deadline = BigNumber.from(0)
-
-      let l2Transfer: any = transfers[0]
-      l2Transfer.chainId = l22ChainId
-      l2Transfer.amountOutMin = BigNumber.from(0)
-      l2Transfer.deadline = BigNumber.from(0)
-
       // User moves funds to first L2
       await l1_canonicalToken
         .connect(user)
@@ -896,18 +855,18 @@ describe('L1_Bridge', () => {
 
       // Validate state before commitTransfers
       const pendingAmountChainId = await l2_bridge.pendingAmountChainIds(0)
-      const pendingTransferIdsForChainId: string = await l2_bridge.pendingTransferIdsForChainId(transfer.chainId, 0)
-      const expectedPendingTransferIdsForChainId: string = await transfer.getTransferIdHex()
-      expect(pendingAmountChainId).to.eq(transfer.chainId)
+      const pendingTransferIdsForChainId: string = await l2_bridge.pendingTransferIdsForChainId(l2Transfer.chainId, 0)
+      const expectedPendingTransferIdsForChainId: string = await l2Transfer.getTransferIdHex()
+      expect(pendingAmountChainId).to.eq(l2Transfer.chainId)
       expect(pendingTransferIdsForChainId).to.eq(expectedPendingTransferIdsForChainId)
 
       // Bonder commits transfers
       await l2_bridge
         .connect(bonder)
-        .commitTransfers(transfer.chainId)
+        .commitTransfers(l2Transfer.chainId)
 
       // Validate state after commitTransfers()
-      const lastCommitTimeForChainId: BigNumber = await l2_bridge.lastCommitTimeForChainId(transfer.chainId)
+      const lastCommitTimeForChainId: BigNumber = await l2_bridge.lastCommitTimeForChainId(l2Transfer.chainId)
       const expectedCommitTimeForChainId: number = Date.now()
       expect(lastCommitTimeForChainId.mul(1000).toNumber()).to.be.closeTo(
         expectedCommitTimeForChainId,
@@ -930,9 +889,9 @@ describe('L1_Bridge', () => {
       // Send the committed transfer the L1
       await l1_messenger.relayNextMessage()
 
-      const transferId: Buffer = await transfer.getTransferId()
+      const transferId: Buffer = await l2Transfer.getTransferId()
       const { rootHash } = getRootHashFromTransferId(transferId)
-      const transferRootId: string = await l1_bridge.getTransferRootId(rootHash, transfer.amount);
+      const transferRootId: string = await l1_bridge.getTransferRootId(rootHash, l2Transfer.amount);
       const transferRootConfirmed: boolean = await l1_bridge.transferRootConfirmed(transferRootId)
       expect(transferRootConfirmed).to.eq(true)
       expect(await l1_bridge.chainBalance(l22ChainId)).to.eq(LIQUIDITY_PROVIDER_UNISWAP_AMOUNT.add(INITIAL_BONDED_AMOUNT))
@@ -948,12 +907,6 @@ describe('L1_Bridge', () => {
 
   describe('challengeTransferBond', async () => {
     it('Should send a transaction from L2 to L1, bond withdrawal on L1, and challenge the transfer bond', async () => {
-      // Set up transfer
-      let transfer: any = transfers[0]
-      transfer.chainId = CHAIN_IDS.ETHEREUM.MAINNET
-      transfer.amountOutMin = BigNumber.from(0)
-      transfer.deadline = BigNumber.from(0)
-
       // User moves funds to L2
       await sendTestTokensAcrossHopBridge(
         l1_canonicalToken,
@@ -1100,12 +1053,6 @@ describe('L1_Bridge', () => {
   })
   describe('resolveChallenge', async () => {
     it('Should send a transaction from L2 to L1, bond withdrawal on L1, challenge the transfer bond, and resolve unsuccessfully', async () => {
-      // Set up transfer
-      let transfer: any = transfers[0]
-      transfer.chainId = CHAIN_IDS.ETHEREUM.MAINNET
-      transfer.amountOutMin = BigNumber.from(0)
-      transfer.deadline = BigNumber.from(0)
-
       // User moves funds to L2
       await sendTestTokensAcrossHopBridge(
         l1_canonicalToken,
@@ -1266,12 +1213,6 @@ describe('L1_Bridge', () => {
     })
 
     it('Should send a transaction from L2 to L1, bond withdrawal on L1, challenge the transfer bond, and resolve successfully', async () => {
-      // Set up transfer
-      let transfer: any = transfers[0]
-      transfer.chainId = CHAIN_IDS.ETHEREUM.MAINNET
-      transfer.amountOutMin = BigNumber.from(0)
-      transfer.deadline = BigNumber.from(0)
-
       // User moves funds to L2
       await sendTestTokensAcrossHopBridge(
         l1_canonicalToken,
@@ -1548,8 +1489,6 @@ describe('L1_Bridge', () => {
 
   describe('bondTransferRoot', async () => {
     it('Should not allow a transfer root to be bonded unless it is called by the bonder', async () => {
-      let transfer: any = transfers[0]
-
       // User withdraws from L1 bridge
       const transferId: Buffer = await transfer.getTransferId()
       const tree: MerkleTree = new MerkleTree([transferId])
@@ -1566,8 +1505,6 @@ describe('L1_Bridge', () => {
     })
 
     it('Should not allow a transfer root to be bonded that exceeds the bonders credit', async () => {
-      let transfer: any = transfers[0]
-
       // User withdraws from L1 bridge
       const transferId: Buffer = await transfer.getTransferId()
       const tree: MerkleTree = new MerkleTree([transferId])
@@ -1589,12 +1526,6 @@ describe('L1_Bridge', () => {
     })
 
     it('Should not allow a transfer root to be bonded if the transfer root has already been confirmed', async () => {
-      // Set up transfer
-      let transfer: any = transfers[0]
-      transfer.chainId = CHAIN_IDS.ETHEREUM.MAINNET
-      transfer.amountOutMin = BigNumber.from(0)
-      transfer.deadline = BigNumber.from(0)
-
       // User moves funds to L2
       await sendTestTokensAcrossHopBridge(
         l1_canonicalToken,
@@ -1640,8 +1571,6 @@ describe('L1_Bridge', () => {
     })
 
     it('Should not allow a transfer root to be bonded if the transfer root has already been bonded', async () => {
-      let transfer: any = transfers[0]
-
       // User withdraws from L1 bridge
       const transferId: Buffer = await transfer.getTransferId()
       const tree: MerkleTree = new MerkleTree([transferId])
@@ -1672,8 +1601,6 @@ describe('L1_Bridge', () => {
     })
 
     it('Should not allow a transfer root to be bonded if a mainnet transfer root amount is 0', async () => {
-      let transfer: any = transfers[0]
-
       // User withdraws from L1 bridge
       const transferId: Buffer = await transfer.getTransferId()
       const tree: MerkleTree = new MerkleTree([transferId])
@@ -1696,8 +1623,6 @@ describe('L1_Bridge', () => {
     })
 
     it('Should not allow a transfer root to be bonded if the the messenger wrapper is not set', async () => {
-      let transfer: any = transfers[0]
-
       // Unset messenger wrapper address
       await l1_bridge.setCrossDomainMessengerWrapper(
         CHAIN_IDS.OPTIMISM.TESTNET_1,
@@ -1731,12 +1656,6 @@ describe('L1_Bridge', () => {
     })
 
     it('Should not allow a transfer root to be confirmed if it was already confirmed', async () => {
-      // Set up transfer
-      let transfer: any = transfers[0]
-      transfer.chainId = CHAIN_IDS.ETHEREUM.MAINNET
-      transfer.amountOutMin = BigNumber.from(0)
-      transfer.deadline = BigNumber.from(0)
-
       // User moves funds to L2
       await sendTestTokensAcrossHopBridge(
         l1_canonicalToken,
@@ -1786,17 +1705,6 @@ describe('L1_Bridge', () => {
     })
 
     it('Should not allow a transfer root to be confirmed if the messenger wrapper for the L2 is not defined', async () => {
-      // Set up transfer
-      let transfer: any = transfers[0]
-      transfer.chainId = CHAIN_IDS.ETHEREUM.MAINNET
-      transfer.amountOutMin = BigNumber.from(0)
-      transfer.deadline = BigNumber.from(0)
-
-      let l2Transfer: any = transfers[0]
-      l2Transfer.chainId = l22ChainId
-      l2Transfer.amountOutMin = BigNumber.from(0)
-      l2Transfer.deadline = BigNumber.from(0)
-
       // User moves funds to first L2
       await l1_canonicalToken
         .connect(user)
@@ -1844,10 +1752,10 @@ describe('L1_Bridge', () => {
       // Bonder commits transfers
       await l2_bridge
         .connect(bonder)
-        .commitTransfers(transfer.chainId)
+        .commitTransfers(l2Transfer.chainId)
 
       // Validate state after commitTransfers()
-      const lastCommitTimeForChainId: BigNumber = await l2_bridge.lastCommitTimeForChainId(transfer.chainId)
+      const lastCommitTimeForChainId: BigNumber = await l2_bridge.lastCommitTimeForChainId(l2Transfer.chainId)
       const expectedCommitTimeForChainId: number = Date.now()
       expect(lastCommitTimeForChainId.mul(1000).toNumber()).to.be.closeTo(
         expectedCommitTimeForChainId,
@@ -1879,12 +1787,6 @@ describe('L1_Bridge', () => {
 
   describe('challengeTransferBond', async () => {
     it('Should not allow a transfer root to be challenged if the transfer root has already been confirmed', async () => {
-      // Set up transfer
-      let transfer: any = transfers[0]
-      transfer.chainId = CHAIN_IDS.ETHEREUM.MAINNET
-      transfer.amountOutMin = BigNumber.from(0)
-      transfer.deadline = BigNumber.from(0)
-
       // User moves funds to L2
       await sendTestTokensAcrossHopBridge(
         l1_canonicalToken,
@@ -2015,12 +1917,6 @@ describe('L1_Bridge', () => {
     })
 
     it('Should not allow a transfer root to be challenged if the transfer root is challenged after the challenge period', async () => {
-      // Set up transfer
-      let transfer: any = transfers[0]
-      transfer.chainId = CHAIN_IDS.ETHEREUM.MAINNET
-      transfer.amountOutMin = BigNumber.from(0)
-      transfer.deadline = BigNumber.from(0)
-
       // User moves funds to L2
       await sendTestTokensAcrossHopBridge(
         l1_canonicalToken,
@@ -2152,12 +2048,6 @@ describe('L1_Bridge', () => {
     })
 
     it('Should not allow a transfer root to be challenged if the transfer root has already been challenged', async () => {
-      // Set up transfer
-      let transfer: any = transfers[0]
-      transfer.chainId = CHAIN_IDS.ETHEREUM.MAINNET
-      transfer.amountOutMin = BigNumber.from(0)
-      transfer.deadline = BigNumber.from(0)
-
       // User moves funds to L2
       await sendTestTokensAcrossHopBridge(
         l1_canonicalToken,
@@ -2308,12 +2198,6 @@ describe('L1_Bridge', () => {
     })
 
     it('Should not allow a transfer root to be challenged if the challenger does not approve the tokens to challenge with', async () => {
-      // Set up transfer
-      let transfer: any = transfers[0]
-      transfer.chainId = CHAIN_IDS.ETHEREUM.MAINNET
-      transfer.amountOutMin = BigNumber.from(0)
-      transfer.deadline = BigNumber.from(0)
-
       // User moves funds to L2
       await sendTestTokensAcrossHopBridge(
         l1_canonicalToken,
@@ -2436,12 +2320,6 @@ describe('L1_Bridge', () => {
     })
 
     it('Should not allow a transfer root to be challenged if the challenger does not have enough tokens to challenge with', async () => {
-      // Set up transfer
-      let transfer: any = transfers[0]
-      transfer.chainId = CHAIN_IDS.ETHEREUM.MAINNET
-      transfer.amountOutMin = BigNumber.from(0)
-      transfer.deadline = BigNumber.from(0)
-
       // User moves funds to L2
       await sendTestTokensAcrossHopBridge(
         l1_canonicalToken,
@@ -2571,12 +2449,6 @@ describe('L1_Bridge', () => {
     })
 
     it('Should not allow a transfer root to be challenged if an arbitrary root hash is passed in', async () => {
-      // Set up transfer
-      let transfer: any = transfers[0]
-      transfer.chainId = CHAIN_IDS.ETHEREUM.MAINNET
-      transfer.amountOutMin = BigNumber.from(0)
-      transfer.deadline = BigNumber.from(0)
-
       // User moves funds to L2
       await sendTestTokensAcrossHopBridge(
         l1_canonicalToken,
@@ -2706,12 +2578,6 @@ describe('L1_Bridge', () => {
     })
 
     it('Should not allow a transfer root to be challenged if an incorrect originalAmount is passed in', async () => {
-      // Set up transfer
-      let transfer: any = transfers[0]
-      transfer.chainId = CHAIN_IDS.ETHEREUM.MAINNET
-      transfer.amountOutMin = BigNumber.from(0)
-      transfer.deadline = BigNumber.from(0)
-
       // User moves funds to L2
       await sendTestTokensAcrossHopBridge(
         l1_canonicalToken,
@@ -2841,12 +2707,6 @@ describe('L1_Bridge', () => {
 
   describe('resolveChallenge', async () => {
     it('Should not allow a transfer root challenge to be resolved if the transfer root was never challenged', async () => {
-      // Set up transfer
-      let transfer: any = transfers[0]
-      transfer.chainId = CHAIN_IDS.ETHEREUM.MAINNET
-      transfer.amountOutMin = BigNumber.from(0)
-      transfer.deadline = BigNumber.from(0)
-
       // User moves funds to L2
       await sendTestTokensAcrossHopBridge(
         l1_canonicalToken,
@@ -2976,12 +2836,6 @@ describe('L1_Bridge', () => {
     })
 
     it('Should not allow a transfer root challenge to be resolved if the transfer root challenge period is not over', async () => {
-      // Set up transfer
-      let transfer: any = transfers[0]
-      transfer.chainId = CHAIN_IDS.ETHEREUM.MAINNET
-      transfer.amountOutMin = BigNumber.from(0)
-      transfer.deadline = BigNumber.from(0)
-
       // User moves funds to L2
       await sendTestTokensAcrossHopBridge(
         l1_canonicalToken,
@@ -3138,12 +2992,6 @@ describe('L1_Bridge', () => {
     })
 
     it('Should not allow a transfer root challenge to be resolved if an arbitrary root hash is passed in', async () => {
-      // Set up transfer
-      let transfer: any = transfers[0]
-      transfer.chainId = CHAIN_IDS.ETHEREUM.MAINNET
-      transfer.amountOutMin = BigNumber.from(0)
-      transfer.deadline = BigNumber.from(0)
-
       // User moves funds to L2
       await sendTestTokensAcrossHopBridge(
         l1_canonicalToken,
@@ -3298,12 +3146,6 @@ describe('L1_Bridge', () => {
     })
 
     it('Should not allow a transfer root challenge to be resolved if it has already been resolved', async () => {
-      // Set up transfer
-      let transfer: any = transfers[0]
-      transfer.chainId = CHAIN_IDS.ETHEREUM.MAINNET
-      transfer.amountOutMin = BigNumber.from(0)
-      transfer.deadline = BigNumber.from(0)
-
       // User moves funds to L2
       await sendTestTokensAcrossHopBridge(
         l1_canonicalToken,
@@ -3470,12 +3312,6 @@ describe('L1_Bridge', () => {
     })
 
     it('Should not allow a transfer root challenge to be resolved if an incorrect originalAmount is passed in', async () => {
-      // Set up transfer
-      let transfer: any = transfers[0]
-      transfer.chainId = CHAIN_IDS.ETHEREUM.MAINNET
-      transfer.amountOutMin = BigNumber.from(0)
-      transfer.deadline = BigNumber.from(0)
-
       // User moves funds to L2
       await sendTestTokensAcrossHopBridge(
         l1_canonicalToken,

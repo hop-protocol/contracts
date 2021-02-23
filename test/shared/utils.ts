@@ -273,11 +273,22 @@ export const sendTestTokensAcrossHopBridge = async (
   amount: BigNumber,
   l2ChainId: BigNumber
 ) => {
+  // Get state before fund transfer
+  const accountBalanceBefore: BigNumber = await l1_canonicalToken.balanceOf(await account.getAddress())
+
+  // Send assets
   await l1_canonicalToken.connect(account).approve(l1_bridge.address, amount)
   await l1_bridge
     .connect(account)
     .sendToL2(l2ChainId, await account.getAddress(), amount)
   await l2_messenger.relayNextMessage()
+
+  // Validate balances
+  await expectBalanceOf(
+    l1_canonicalToken,
+    account,
+    accountBalanceBefore.sub(amount)
+  )
   await expectBalanceOf(l2_bridge, account, amount)
 }
 

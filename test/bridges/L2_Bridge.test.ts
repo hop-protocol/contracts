@@ -53,6 +53,9 @@ describe('L2_Bridge', () => {
 
   let userSendTokenAmount: BigNumber
 
+  let transfer: Transfer
+  let l2Transfer: Transfer
+
   let beforeAllSnapshotId: string
   let snapshotId: string
 
@@ -83,8 +86,10 @@ describe('L2_Bridge', () => {
     await setUpDefaults(recipientFixture, recipientL2ChainId)
     ;({ l2_bridge: recipientL2Bridge } = recipientFixture)
 
-    // Set up other
     userSendTokenAmount = USER_INITIAL_BALANCE
+
+    transfer = Object.assign(transfers[0], {})
+    l2Transfer = Object.assign(transfers[1], {})
   })
 
   after(async() => {
@@ -181,8 +186,6 @@ describe('L2_Bridge', () => {
   })
 
   it('Should send tokens across the bridge via send', async () => {
-    const transfer = transfers[0]
-
     // Add hToken to the users' address on L2
     await sendTestTokensAcrossHopBridge(
       l1_canonicalToken,
@@ -237,10 +240,6 @@ describe('L2_Bridge', () => {
   })
 
   it('Should send tokens across the bridge via swapAndSend', async () => {
-    let transfer: any = transfers[0]
-    transfer.destinationAmountOutMin = BigNumber.from(0)
-    transfer.destinationDeadline = BigNumber.from(DEFAULT_DEADLINE)
-
     const expectedAmounts: BigNumber[] = await l2_uniswapRouter.getAmountsOut(
       transfer.amount,
       [l2_canonicalToken.address, l2_bridge.address]
@@ -316,8 +315,6 @@ describe('L2_Bridge', () => {
 
   // TODO: Changed with contract updates
   it.skip('Should commit a transfer', async () => {
-    const transfer = transfers[0]
-
     // Add hToken to the users' address on L2
     await sendTestTokensAcrossHopBridge(
       l1_canonicalToken,
@@ -429,10 +426,6 @@ describe('L2_Bridge', () => {
 
   // TODO: Changed with contract updates
   it.skip('Should send tokens from one L2 to another while the bonder is offline via withdrawAndAttemptSwap', async () => {
-    let transfer: any = transfers[0]
-    transfer.destinationAmountOutMin = BigNumber.from(0)
-    transfer.destinationDeadline = BigNumber.from(DEFAULT_DEADLINE)
-
     const numberOfSendsToOverflow: number = MAX_NUM_SENDS_BEFORE_COMMIT + 1
     for (let i = 0; i < numberOfSendsToOverflow; i++) {
       // Mint canonical tokens on L1
@@ -496,7 +489,6 @@ describe('L2_Bridge', () => {
   })
 
   it('Should send a transfer from one L2 to another L2 via bondWithdrawalAndAttemptSwap', async () => {
-    let transfer: any = transfers[0]
     transfer.destinationAmountOutMin = BigNumber.from(0)
     transfer.destinationDeadline = BigNumber.from(DEFAULT_DEADLINE)
 

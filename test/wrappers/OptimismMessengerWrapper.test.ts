@@ -13,7 +13,7 @@ import {
 
 export const MAX_NUM_SENDS_BEFORE_COMMIT = 10
 
-describe('Arbitrum Messenger Wrapper', () => {
+describe('Optimism Messenger Wrapper', () => {
   let _fixture: IFixture
 
   let l1_messenger: Contract
@@ -32,7 +32,7 @@ describe('Arbitrum Messenger Wrapper', () => {
    * Happy Path
    */
 
-  it('Should set the correct values in the constructor (Arbitrum)', async () => {
+  it('Should set the correct values in the constructor (Optimism)', async () => {
     const expectedL1BridgeAddress: string = l1_bridge.address
     const expectedL2BridgeAddress: string = l2_bridge.address
     const expectedDefaultGasLimit: number = DEFAULT_MESSENGER_WRAPPER_GAS_LIMIT
