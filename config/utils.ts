@@ -17,26 +17,37 @@ export const getMessengerWrapperDefaults = (
 ): IGetMessengerWrapperDefaults[] => {
   let defaults: IGetMessengerWrapperDefaults[] = []
 
-  defaults.push(
-    l1BridgeAddress,
-    l2BridgeAddress,
-    DEFAULT_MESSENGER_WRAPPER_GAS_LIMIT,
-    l1MessengerAddress
-  )
+  let additionalData = []
+  let gasLimit: number
 
   if (isChainIdArbitrum(chainId)) {
-    defaults.push(
+    gasLimit = DEFAULT_MESSENGER_WRAPPER_GAS_LIMIT
+
+    additionalData.push(
       ARB_CHAIN_ADDRESS,
       DEFAULT_MESSENGER_WRAPPER_SUB_MESSAGE_TYPE,
       DEFAULT_MESSENGER_WRAPPER_GAS_PRICE,
       DEFAULT_MESSENGER_WRAPPER_GAS_CALL_VALUE
     )
   } else if (isChainIdOptimism(chainId)) {
-    // Nothing unique here. This conditional statement exists for consistency.
+    gasLimit = DEFAULT_MESSENGER_WRAPPER_GAS_LIMIT
   } else if (isChainIdXDai(chainId)) {
-    defaults.push(
+    gasLimit = 1000000
+
+    additionalData.push(
       chainId.toString()
     )
+  }
+
+  defaults.push(
+    l1BridgeAddress,
+    l2BridgeAddress,
+    gasLimit,
+    l1MessengerAddress
+  )
+
+  if (additionalData.length !== 0) {
+    defaults.push(...additionalData)
   }
 
   return defaults

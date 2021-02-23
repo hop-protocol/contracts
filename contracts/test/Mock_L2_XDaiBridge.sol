@@ -24,7 +24,6 @@ contract Mock_L2_XDaiBridge is L2_XDaiBridge {
         public
         L2_XDaiBridge(
             _messenger,
-            _l1ChainId,
             l1Governance,
             canonicalToken,
             l1BridgeAddress,
@@ -33,7 +32,8 @@ contract Mock_L2_XDaiBridge is L2_XDaiBridge {
             exchangeAddress,
             name,
             symbol,
-            decimals
+            decimals,
+            _l1ChainId
         )
     {
         _chainId = 77;
