@@ -91,7 +91,7 @@ const getOptimismContractFactories = async (
   ovmEthers: any
 ) => {
   const L1_Messenger: ContractFactory = await ethers.getContractFactory(
-    'contracts/test/Optimism/mockOVM_CrossDomainMessenger.sol:mockOVM_CrossDomainMessenger',
+    'contracts/test/optimism/mockOVM_CrossDomainMessenger.sol:mockOVM_CrossDomainMessenger',
     { signer }
   )
   const L1_MessengerWrapper: ContractFactory = await ethers.getContractFactory(
@@ -132,7 +132,7 @@ const getOptimismContractFactories = async (
 
 const getArbitrumContractFactories = async (signer: Signer, ethers: any) => {
   const L1_Messenger: ContractFactory = await ethers.getContractFactory(
-    'contracts/test/Arbitrum/inbox/GlobalInbox.sol:GlobalInbox',
+    'contracts/test/arbitrum/inbox/GlobalInbox.sol:GlobalInbox',
     { signer }
   )
   const L1_MessengerWrapper: ContractFactory = await ethers.getContractFactory(
@@ -169,7 +169,7 @@ const getArbitrumContractFactories = async (signer: Signer, ethers: any) => {
 
 const getXDaiContractFactories = async (signer: Signer, ethers: any) => {
   const L1_Messenger: ContractFactory = await ethers.getContractFactory(
-    'contracts/test/XDai/ArbitraryMessageBridge.sol:ArbitraryMessageBridge',
+    'contracts/test/xDai/ArbitraryMessageBridge.sol:ArbitraryMessageBridge',
     { signer }
   )
   const L1_MessengerWrapper: ContractFactory = await ethers.getContractFactory(
