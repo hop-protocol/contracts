@@ -237,8 +237,5 @@ export const sendChainSpecificBridgeDeposit = async (
 
 export const addAllSupportedChainIds = async (l2_bridge: Contract) => {
   const allSupportedChainIds: string[] = ALL_SUPPORTED_CHAIN_IDS
-
-  for (let i = 0; i < allSupportedChainIds.length; i++) {
-    await l2_bridge.addSupportedChainId(allSupportedChainIds[i])
-  }
+  await l2_bridge.addSupportedChainIds(allSupportedChainIds)
 }
