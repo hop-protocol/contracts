@@ -151,11 +151,11 @@ describe('L2_Bridge', () => {
     const newChainId = CHAIN_IDS.ETHEREUM.KOVAN
 
     // Remove it, since our testing suite adds all chains by default
-    await l2_bridge.connect(governance).removeSupportedChainId(newChainId)
+    await l2_bridge.connect(governance).removeSupportedChainIds([newChainId])
     let isChainIdSupported = await l2_bridge.supportedChainIds(newChainId)
     expect(isChainIdSupported).to.eq(false)
 
-    await l2_bridge.connect(governance).addSupportedChainId(newChainId)
+    await l2_bridge.connect(governance).addSupportedChainIds([newChainId])
 
     isChainIdSupported = await l2_bridge.supportedChainIds(newChainId)
     expect(isChainIdSupported).to.eq(true)
@@ -165,16 +165,16 @@ describe('L2_Bridge', () => {
     const newChainId = CHAIN_IDS.ETHEREUM.KOVAN
 
     // Remove it, since our testing suite adds all chains by default
-    await l2_bridge.connect(governance).removeSupportedChainId(newChainId)
-    let isChainIdSupported = await l2_bridge.supportedChainIds(newChainId)
+    await l2_bridge.connect(governance).removeSupportedChainIds([newChainId])
+    let isChainIdSupported = await l2_bridge.supportedChainIds([newChainId])
     expect(isChainIdSupported).to.eq(false)
 
-    await l2_bridge.connect(governance).addSupportedChainId(newChainId)
+    await l2_bridge.connect(governance).addSupportedChainIds([newChainId])
 
     isChainIdSupported = await l2_bridge.supportedChainIds(newChainId)
     expect(isChainIdSupported).to.eq(true)
 
-    await l2_bridge.connect(governance).removeSupportedChainId(newChainId)
+    await l2_bridge.connect(governance).removeSupportedChainIds([newChainId])
 
     isChainIdSupported = await l2_bridge.supportedChainIds(newChainId)
     expect(isChainIdSupported).to.eq(false)
@@ -195,7 +195,7 @@ describe('L2_Bridge', () => {
     )
 
     // Execute transaction
-    await l2_bridge.connect(governance).addSupportedChainId(transfer.chainId)
+    await l2_bridge.connect(governance).addSupportedChainIds([transfer.chainId])
     await l2_bridge
       .connect(user)
       .send(
@@ -258,7 +258,7 @@ describe('L2_Bridge', () => {
     )
 
     // Execute transaction
-    await l2_bridge.connect(governance).addSupportedChainId(transfer.chainId)
+    await l2_bridge.connect(governance).addSupportedChainIds([transfer.chainId])
     await l2_canonicalToken
       .connect(user)
       .approve(l2_bridge.address, userSendTokenAmount)
@@ -330,7 +330,7 @@ describe('L2_Bridge', () => {
     )
 
     // Execute transaction
-    await l2_bridge.connect(governance).addSupportedChainId(transfer.chainId)
+    await l2_bridge.connect(governance).addSupportedChainIds([transfer.chainId])
     await l2_bridge
       .connect(user)
       .send(
@@ -449,7 +449,7 @@ describe('L2_Bridge', () => {
       )
 
       // Execute transaction
-      await l2_bridge.connect(governance).addSupportedChainId(transfer.chainId)
+      await l2_bridge.connect(governance).addSupportedChainIds([transfer.chainId])
       await l2_canonicalToken
         .connect(user)
         .approve(l2_bridge.address, userSendTokenAmount)
@@ -511,7 +511,7 @@ describe('L2_Bridge', () => {
     )
 
     // Execute transaction
-    await l2_bridge.connect(governance).addSupportedChainId(transfer.chainId)
+    await l2_bridge.connect(governance).addSupportedChainIds([transfer.chainId])
     await l2_canonicalToken
       .connect(user)
       .approve(l2_bridge.address, userSendTokenAmount)

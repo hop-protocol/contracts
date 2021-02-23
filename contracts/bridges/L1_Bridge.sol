@@ -235,7 +235,7 @@ contract L1_Bridge is Bridge {
         require(transferRootConfirmed[transferRootId] == false, "L1_BRG: Transfer root has already been confirmed");
         uint256 challengePeriodEnd = transferBond.createdAt.add(challengePeriod);
         require(challengePeriodEnd >= block.timestamp, "L1_BRG: Transfer root cannot be challenged after challenge period");
-        require(transferBond.challengeStartTime != 0, "L1_BRG: Transfer root already challenged");
+        require(transferBond.challengeStartTime == 0, "L1_BRG: Transfer root already challenged");
 
         // Get stake for challenge
         uint256 challengeStakeAmount = getChallengeAmountForTransferAmount(transferRoot.total);
