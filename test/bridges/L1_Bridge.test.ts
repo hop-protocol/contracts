@@ -12,7 +12,8 @@ import {
   getTransferRootId,
   increaseTime,
   revertSnapshot,
-  takeSnapshot
+  takeSnapshot,
+  sendTestTokensAcrossHopBridge
 } from '../shared/utils'
 import { fixture } from '../shared/fixtures'
 import { IFixture } from '../shared/interfaces'
@@ -166,35 +167,23 @@ describe('L1_Bridge', () => {
     transfer.amountOutMin = BigNumber.from(0)
     transfer.deadline = BigNumber.from(0)
 
-    // Instantiate a sender and recipient Signer
-    const sender: Signer = user
-    const recipient: Signer = otherUser
-    expect(transfer.sender).to.eq(await sender.getAddress())
-    expect(transfer.recipient).to.eq(await recipient.getAddress())
-
     // User moves funds to L2
-    await l1_canonicalToken
-      .connect(user)
-      .approve(l1_bridge.address, transfer.amount)
-    await l1_bridge
-      .connect(user)
-      .sendToL2(l2ChainId.toString(), await user.getAddress(), transfer.amount)
-    await l2_messenger.relayNextMessage()
-
-    // Validate balances
-    await expectBalanceOf(
+    await sendTestTokensAcrossHopBridge(
       l1_canonicalToken,
+      l1_bridge,
+      l2_bridge,
+      l2_messenger,
       user,
-      user_l1_canonicalTokenOriginalBalance.sub(transfer.amount)
+      transfer.amount,
+      l2ChainId
     )
-    await expectBalanceOf(l2_bridge, user, transfer.amount)
 
     // User moves funds back to L1 across the liquidity bridge
     await l2_bridge
       .connect(user)
       .send(
         transfer.chainId,
-        transfer.recipient,
+        await transfer.recipient.getAddress(),
         transfer.amount,
         transfer.transferNonce,
         transfer.relayerFee,
@@ -218,8 +207,8 @@ describe('L1_Bridge', () => {
     await l1_bridge
       .connect(bonder)
       .bondWithdrawal(
-        transfer.sender,
-        transfer.recipient,
+        await transfer.sender.getAddress(),
+        await transfer.recipient.getAddress(),
         transfer.amount,
         transfer.transferNonce,
         transfer.relayerFee
@@ -250,35 +239,23 @@ describe('L1_Bridge', () => {
     transfer.amountOutMin = BigNumber.from(0)
     transfer.deadline = BigNumber.from(0)
 
-    // Instantiate a sender and recipient Signer
-    const sender: Signer = user
-    const recipient: Signer = otherUser
-    expect(transfer.sender).to.eq(await sender.getAddress())
-    expect(transfer.recipient).to.eq(await recipient.getAddress())
-
     // User moves funds to L2
-    await l1_canonicalToken
-      .connect(user)
-      .approve(l1_bridge.address, transfer.amount)
-    await l1_bridge
-      .connect(user)
-      .sendToL2(l2ChainId, await user.getAddress(), transfer.amount)
-    await l2_messenger.relayNextMessage()
-
-    // Validate balances
-    await expectBalanceOf(
+    await sendTestTokensAcrossHopBridge(
       l1_canonicalToken,
+      l1_bridge,
+      l2_bridge,
+      l2_messenger,
       user,
-      user_l1_canonicalTokenOriginalBalance.sub(transfer.amount)
+      transfer.amount,
+      l2ChainId
     )
-    await expectBalanceOf(l2_bridge, user, transfer.amount)
 
     // User moves funds back to L1 across the liquidity bridge
     await l2_bridge
       .connect(user)
       .send(
         transfer.chainId,
-        transfer.recipient,
+        await transfer.recipient.getAddress(),
         transfer.amount,
         transfer.transferNonce,
         transfer.relayerFee,
@@ -302,8 +279,8 @@ describe('L1_Bridge', () => {
     await l1_bridge
       .connect(bonder)
       .bondWithdrawal(
-        transfer.sender,
-        transfer.recipient,
+        await transfer.sender.getAddress(),
+        await transfer.recipient.getAddress(),
         transfer.amount,
         transfer.transferNonce,
         transfer.relayerFee
@@ -329,7 +306,7 @@ describe('L1_Bridge', () => {
     // Validate state before commitTransfers
     const pendingAmountChainId = await l2_bridge.pendingAmountChainIds(BigNumber.from('0'))
     const pendingTransferIdsForChainId: string = await l2_bridge.pendingTransferIdsForChainId(transfer.chainId, 0)
-    const expectedPendingTransferIdsForChainId: string = transfer.getTransferIdHex()
+    const expectedPendingTransferIdsForChainId: string = await transfer.getTransferIdHex()
     expect(pendingAmountChainId).to.eq(transfer.chainId)
     expect(pendingTransferIdsForChainId).to.eq(expectedPendingTransferIdsForChainId)
 
@@ -360,7 +337,7 @@ describe('L1_Bridge', () => {
     }
 
     // Set up transfer root
-    const transferId: Buffer = transfer.getTransferId()
+    const transferId: Buffer = await transfer.getTransferId()
     const { rootHash } = getRootHashFromTransferId(transferId)
 
     // Bonder bonds the transfer root
@@ -482,35 +459,23 @@ describe('L1_Bridge', () => {
       transfer.amountOutMin = BigNumber.from(0)
       transfer.deadline = BigNumber.from(0)
 
-      // Instantiate a sender and recipient Signer
-      const sender: Signer = user
-      const recipient: Signer = otherUser
-      expect(transfer.sender).to.eq(await sender.getAddress())
-      expect(transfer.recipient).to.eq(await recipient.getAddress())
-
       // User moves funds to L2
-      await l1_canonicalToken
-        .connect(user)
-        .approve(l1_bridge.address, transfer.amount)
-      await l1_bridge
-        .connect(user)
-        .sendToL2(l2ChainId, await user.getAddress(), transfer.amount)
-      await l2_messenger.relayNextMessage()
-
-      // Validate balances
-      await expectBalanceOf(
+      await sendTestTokensAcrossHopBridge(
         l1_canonicalToken,
+        l1_bridge,
+        l2_bridge,
+        l2_messenger,
         user,
-        user_l1_canonicalTokenOriginalBalance.sub(transfer.amount)
+        transfer.amount,
+        l2ChainId
       )
-      await expectBalanceOf(l2_bridge, user, transfer.amount)
 
       // User moves funds back to L1 across the liquidity bridge
       await l2_bridge
         .connect(user)
         .send(
           transfer.chainId,
-          transfer.recipient,
+          await transfer.recipient.getAddress(),
           transfer.amount,
           transfer.transferNonce,
           transfer.relayerFee,
@@ -534,8 +499,8 @@ describe('L1_Bridge', () => {
       await l1_bridge
         .connect(bonder)
         .bondWithdrawal(
-          transfer.sender,
-          transfer.recipient,
+          await transfer.sender.getAddress(),
+          await transfer.recipient.getAddress(),
           transfer.amount,
           transfer.transferNonce,
           transfer.relayerFee
@@ -561,7 +526,7 @@ describe('L1_Bridge', () => {
       // Validate state before commitTransfers
       const pendingAmountChainId = await l2_bridge.pendingAmountChainIds(0)
       const pendingTransferIdsForChainId: string = await l2_bridge.pendingTransferIdsForChainId(transfer.chainId, 0)
-      const expectedPendingTransferIdsForChainId: string = transfer.getTransferIdHex()
+      const expectedPendingTransferIdsForChainId: string = await transfer.getTransferIdHex()
       expect(pendingAmountChainId).to.eq(transfer.chainId)
       expect(pendingTransferIdsForChainId).to.eq(expectedPendingTransferIdsForChainId)
 
@@ -592,7 +557,7 @@ describe('L1_Bridge', () => {
       }
 
       // Set up transfer root
-      const transferId: Buffer = transfer.getTransferId()
+      const transferId: Buffer = await transfer.getTransferId()
       const { rootHash } = getRootHashFromTransferId(transferId)
 
       // Bonder bonds the transfer root
@@ -623,12 +588,6 @@ describe('L1_Bridge', () => {
       l2Transfer.amountOutMin = BigNumber.from(0)
       l2Transfer.deadline = BigNumber.from(0)
 
-      // Instantiate a sender and recipient Signer
-      const sender: Signer = user
-      const recipient: Signer = otherUser
-      expect(transfer.sender).to.eq(await sender.getAddress())
-      expect(transfer.recipient).to.eq(await recipient.getAddress())
-
       // User moves funds to first L2
       await l1_canonicalToken
         .connect(user)
@@ -651,7 +610,7 @@ describe('L1_Bridge', () => {
         .connect(user)
         .send(
           l2Transfer.chainId,
-          l2Transfer.recipient,
+          await l2Transfer.recipient.getAddress(),
           l2Transfer.amount,
           l2Transfer.transferNonce,
           l2Transfer.relayerFee,
@@ -676,8 +635,8 @@ describe('L1_Bridge', () => {
       await l22_bridge
         .connect(bonder)
         .bondWithdrawalAndAttemptSwap(
-          l2Transfer.sender,
-          l2Transfer.recipient,
+          await l2Transfer.sender.getAddress(),
+          await l2Transfer.recipient.getAddress(),
           l2Transfer.amount,
           l2Transfer.transferNonce,
           l2Transfer.relayerFee,
@@ -705,7 +664,7 @@ describe('L1_Bridge', () => {
       // Validate state before commitTransfers
       const pendingAmountChainId = await l2_bridge.pendingAmountChainIds(0)
       const pendingTransferIdsForChainId: string = await l2_bridge.pendingTransferIdsForChainId(transfer.chainId, 0)
-      const expectedPendingTransferIdsForChainId: string = transfer.getTransferIdHex()
+      const expectedPendingTransferIdsForChainId: string = await transfer.getTransferIdHex()
       expect(pendingAmountChainId).to.eq(transfer.chainId)
       expect(pendingTransferIdsForChainId).to.eq(expectedPendingTransferIdsForChainId)
 
@@ -736,7 +695,7 @@ describe('L1_Bridge', () => {
       }
 
       // Set up transfer root
-      const transferId: Buffer = l2Transfer.getTransferId()
+      const transferId: Buffer = await l2Transfer.getTransferId()
       const { rootHash } = getRootHashFromTransferId(transferId)
 
       // Bonder bonds the transfer root
@@ -768,35 +727,23 @@ describe('L1_Bridge', () => {
       transfer.amountOutMin = BigNumber.from(0)
       transfer.deadline = BigNumber.from(0)
 
-      // Instantiate a sender and recipient Signer
-      const sender: Signer = user
-      const recipient: Signer = otherUser
-      expect(transfer.sender).to.eq(await sender.getAddress())
-      expect(transfer.recipient).to.eq(await recipient.getAddress())
-
       // User moves funds to L2
-      await l1_canonicalToken
-        .connect(user)
-        .approve(l1_bridge.address, transfer.amount)
-      await l1_bridge
-        .connect(user)
-        .sendToL2(l2ChainId, await user.getAddress(), transfer.amount)
-      await l2_messenger.relayNextMessage()
-
-      // Validate balances
-      await expectBalanceOf(
+      await sendTestTokensAcrossHopBridge(
         l1_canonicalToken,
+        l1_bridge,
+        l2_bridge,
+        l2_messenger,
         user,
-        user_l1_canonicalTokenOriginalBalance.sub(transfer.amount)
+        transfer.amount,
+        l2ChainId
       )
-      await expectBalanceOf(l2_bridge, user, transfer.amount)
 
       // User moves funds back to L1 across the liquidity bridge
       await l2_bridge
         .connect(user)
         .send(
           transfer.chainId,
-          transfer.recipient,
+          await transfer.recipient.getAddress(),
           transfer.amount,
           transfer.transferNonce,
           transfer.relayerFee,
@@ -820,8 +767,8 @@ describe('L1_Bridge', () => {
       await l1_bridge
         .connect(bonder)
         .bondWithdrawal(
-          transfer.sender,
-          transfer.recipient,
+          await transfer.sender.getAddress(),
+          await transfer.recipient.getAddress(),
           transfer.amount,
           transfer.transferNonce,
           transfer.relayerFee
@@ -847,7 +794,7 @@ describe('L1_Bridge', () => {
       // Validate state before commitTransfers
       const pendingAmountChainId = await l2_bridge.pendingAmountChainIds(0)
       const pendingTransferIdsForChainId: string = await l2_bridge.pendingTransferIdsForChainId(transfer.chainId, 0)
-      const expectedPendingTransferIdsForChainId: string = transfer.getTransferIdHex()
+      const expectedPendingTransferIdsForChainId: string = await transfer.getTransferIdHex()
       expect(pendingAmountChainId).to.eq(transfer.chainId)
       expect(pendingTransferIdsForChainId).to.eq(expectedPendingTransferIdsForChainId)
 
@@ -880,7 +827,7 @@ describe('L1_Bridge', () => {
       // Send the committed transfer the L1
       await l1_messenger.relayNextMessage()
 
-      const transferId: Buffer = transfer.getTransferId()
+      const transferId: Buffer = await transfer.getTransferId()
       const { rootHash } = getRootHashFromTransferId(transferId)
       const transferRootId: string = await l1_bridge.getTransferRootId(rootHash, transfer.amount);
       const transferRootConfirmed: boolean = await l1_bridge.transferRootConfirmed(transferRootId)
@@ -902,12 +849,6 @@ describe('L1_Bridge', () => {
       l2Transfer.chainId = l22ChainId
       l2Transfer.amountOutMin = BigNumber.from(0)
       l2Transfer.deadline = BigNumber.from(0)
-
-      // Instantiate a sender and recipient Signer
-      const sender: Signer = user
-      const recipient: Signer = otherUser
-      expect(transfer.sender).to.eq(await sender.getAddress())
-      expect(transfer.recipient).to.eq(await recipient.getAddress())
 
       // User moves funds to first L2
       await l1_canonicalToken
@@ -931,7 +872,7 @@ describe('L1_Bridge', () => {
         .connect(user)
         .send(
           l2Transfer.chainId,
-          l2Transfer.recipient,
+          await l2Transfer.recipient.getAddress(),
           l2Transfer.amount,
           l2Transfer.transferNonce,
           l2Transfer.relayerFee,
@@ -956,7 +897,7 @@ describe('L1_Bridge', () => {
       // Validate state before commitTransfers
       const pendingAmountChainId = await l2_bridge.pendingAmountChainIds(0)
       const pendingTransferIdsForChainId: string = await l2_bridge.pendingTransferIdsForChainId(transfer.chainId, 0)
-      const expectedPendingTransferIdsForChainId: string = transfer.getTransferIdHex()
+      const expectedPendingTransferIdsForChainId: string = await transfer.getTransferIdHex()
       expect(pendingAmountChainId).to.eq(transfer.chainId)
       expect(pendingTransferIdsForChainId).to.eq(expectedPendingTransferIdsForChainId)
 
@@ -989,7 +930,7 @@ describe('L1_Bridge', () => {
       // Send the committed transfer the L1
       await l1_messenger.relayNextMessage()
 
-      const transferId: Buffer = transfer.getTransferId()
+      const transferId: Buffer = await transfer.getTransferId()
       const { rootHash } = getRootHashFromTransferId(transferId)
       const transferRootId: string = await l1_bridge.getTransferRootId(rootHash, transfer.amount);
       const transferRootConfirmed: boolean = await l1_bridge.transferRootConfirmed(transferRootId)
@@ -1013,35 +954,23 @@ describe('L1_Bridge', () => {
       transfer.amountOutMin = BigNumber.from(0)
       transfer.deadline = BigNumber.from(0)
 
-      // Instantiate a sender and recipient Signer
-      const sender: Signer = user
-      const recipient: Signer = otherUser
-      expect(transfer.sender).to.eq(await sender.getAddress())
-      expect(transfer.recipient).to.eq(await recipient.getAddress())
-
       // User moves funds to L2
-      await l1_canonicalToken
-        .connect(user)
-        .approve(l1_bridge.address, transfer.amount)
-      await l1_bridge
-        .connect(user)
-        .sendToL2(l2ChainId, await user.getAddress(), transfer.amount)
-      await l2_messenger.relayNextMessage()
-
-      // Validate balances
-      await expectBalanceOf(
+      await sendTestTokensAcrossHopBridge(
         l1_canonicalToken,
+        l1_bridge,
+        l2_bridge,
+        l2_messenger,
         user,
-        user_l1_canonicalTokenOriginalBalance.sub(transfer.amount)
+        transfer.amount,
+        l2ChainId
       )
-      await expectBalanceOf(l2_bridge, user, transfer.amount)
 
       // User moves funds back to L1 across the liquidity bridge
       await l2_bridge
         .connect(user)
         .send(
           transfer.chainId,
-          transfer.recipient,
+          await transfer.recipient.getAddress(),
           transfer.amount,
           transfer.transferNonce,
           transfer.relayerFee,
@@ -1065,8 +994,8 @@ describe('L1_Bridge', () => {
       await l1_bridge
         .connect(bonder)
         .bondWithdrawal(
-          transfer.sender,
-          transfer.recipient,
+          await transfer.sender.getAddress(),
+          await transfer.recipient.getAddress(),
           transfer.amount,
           transfer.transferNonce,
           transfer.relayerFee
@@ -1092,7 +1021,7 @@ describe('L1_Bridge', () => {
       // Validate state before commitTransfers
       const pendingAmountChainId = await l2_bridge.pendingAmountChainIds(0)
       const pendingTransferIdsForChainId: string = await l2_bridge.pendingTransferIdsForChainId(transfer.chainId, 0)
-      const expectedPendingTransferIdsForChainId: string = transfer.getTransferIdHex()
+      const expectedPendingTransferIdsForChainId: string = await transfer.getTransferIdHex()
       expect(pendingAmountChainId).to.eq(transfer.chainId)
       expect(pendingTransferIdsForChainId).to.eq(expectedPendingTransferIdsForChainId)
 
@@ -1122,7 +1051,7 @@ describe('L1_Bridge', () => {
         expect(err.message).to.eq(expectedErrorMsg)
       }
 
-      const transferId: Buffer = transfer.getTransferId()
+      const transferId: Buffer = await transfer.getTransferId()
       const { rootHash } = getRootHashFromTransferId(transferId)
       const transferRootId: string = await l1_bridge.getTransferRootId(rootHash, transfer.amount)
 
@@ -1177,35 +1106,23 @@ describe('L1_Bridge', () => {
       transfer.amountOutMin = BigNumber.from(0)
       transfer.deadline = BigNumber.from(0)
 
-      // Instantiate a sender and recipient Signer
-      const sender: Signer = user
-      const recipient: Signer = otherUser
-      expect(transfer.sender).to.eq(await sender.getAddress())
-      expect(transfer.recipient).to.eq(await recipient.getAddress())
-
       // User moves funds to L2
-      await l1_canonicalToken
-        .connect(user)
-        .approve(l1_bridge.address, transfer.amount)
-      await l1_bridge
-        .connect(user)
-        .sendToL2(l2ChainId, await user.getAddress(), transfer.amount)
-      await l2_messenger.relayNextMessage()
-
-      // Validate balances
-      await expectBalanceOf(
+      await sendTestTokensAcrossHopBridge(
         l1_canonicalToken,
+        l1_bridge,
+        l2_bridge,
+        l2_messenger,
         user,
-        user_l1_canonicalTokenOriginalBalance.sub(transfer.amount)
+        transfer.amount,
+        l2ChainId
       )
-      await expectBalanceOf(l2_bridge, user, transfer.amount)
 
       // User moves funds back to L1 across the liquidity bridge
       await l2_bridge
         .connect(user)
         .send(
           transfer.chainId,
-          transfer.recipient,
+          await transfer.recipient.getAddress(),
           transfer.amount,
           transfer.transferNonce,
           transfer.relayerFee,
@@ -1229,8 +1146,8 @@ describe('L1_Bridge', () => {
       await l1_bridge
         .connect(bonder)
         .bondWithdrawal(
-          transfer.sender,
-          transfer.recipient,
+          await transfer.sender.getAddress(),
+          await transfer.recipient.getAddress(),
           transfer.amount,
           transfer.transferNonce,
           transfer.relayerFee
@@ -1256,7 +1173,7 @@ describe('L1_Bridge', () => {
       // Validate state before commitTransfers
       const pendingAmountChainId = await l2_bridge.pendingAmountChainIds(0)
       const pendingTransferIdsForChainId: string = await l2_bridge.pendingTransferIdsForChainId(transfer.chainId, 0)
-      const expectedPendingTransferIdsForChainId: string = transfer.getTransferIdHex()
+      const expectedPendingTransferIdsForChainId: string = await transfer.getTransferIdHex()
       expect(pendingAmountChainId).to.eq(transfer.chainId)
       expect(pendingTransferIdsForChainId).to.eq(expectedPendingTransferIdsForChainId)
 
@@ -1286,7 +1203,7 @@ describe('L1_Bridge', () => {
         expect(err.message).to.eq(expectedErrorMsg)
       }
 
-      const transferId: Buffer = transfer.getTransferId()
+      const transferId: Buffer = await transfer.getTransferId()
       const { rootHash } = getRootHashFromTransferId(transferId)
       const transferRootId: string = await l1_bridge.getTransferRootId(rootHash, transfer.amount)
 
@@ -1355,35 +1272,23 @@ describe('L1_Bridge', () => {
       transfer.amountOutMin = BigNumber.from(0)
       transfer.deadline = BigNumber.from(0)
 
-      // Instantiate a sender and recipient Signer
-      const sender: Signer = user
-      const recipient: Signer = otherUser
-      expect(transfer.sender).to.eq(await sender.getAddress())
-      expect(transfer.recipient).to.eq(await recipient.getAddress())
-
       // User moves funds to L2
-      await l1_canonicalToken
-        .connect(user)
-        .approve(l1_bridge.address, transfer.amount)
-      await l1_bridge
-        .connect(user)
-        .sendToL2(l2ChainId, await user.getAddress(), transfer.amount)
-      await l2_messenger.relayNextMessage()
-
-      // Validate balances
-      await expectBalanceOf(
+      await sendTestTokensAcrossHopBridge(
         l1_canonicalToken,
+        l1_bridge,
+        l2_bridge,
+        l2_messenger,
         user,
-        user_l1_canonicalTokenOriginalBalance.sub(transfer.amount)
+        transfer.amount,
+        l2ChainId
       )
-      await expectBalanceOf(l2_bridge, user, transfer.amount)
 
       // User moves funds back to L1 across the liquidity bridge
       await l2_bridge
         .connect(user)
         .send(
           transfer.chainId,
-          transfer.recipient,
+          await transfer.recipient.getAddress(),
           transfer.amount,
           transfer.transferNonce,
           transfer.relayerFee,
@@ -1407,8 +1312,8 @@ describe('L1_Bridge', () => {
       await l1_bridge
         .connect(bonder)
         .bondWithdrawal(
-          transfer.sender,
-          transfer.recipient,
+          await transfer.sender.getAddress(),
+          await transfer.recipient.getAddress(),
           transfer.amount,
           transfer.transferNonce,
           transfer.relayerFee
@@ -1434,7 +1339,7 @@ describe('L1_Bridge', () => {
       // Validate state before commitTransfers
       const pendingAmountChainId = await l2_bridge.pendingAmountChainIds(0)
       const pendingTransferIdsForChainId: string = await l2_bridge.pendingTransferIdsForChainId(transfer.chainId, 0)
-      const expectedPendingTransferIdsForChainId: string = transfer.getTransferIdHex()
+      const expectedPendingTransferIdsForChainId: string = await transfer.getTransferIdHex()
       expect(pendingAmountChainId).to.eq(transfer.chainId)
       expect(pendingTransferIdsForChainId).to.eq(expectedPendingTransferIdsForChainId)
 
@@ -1464,7 +1369,7 @@ describe('L1_Bridge', () => {
         expect(err.message).to.eq(expectedErrorMsg)
       }
 
-      const transferId: Buffer = transfer.getTransferId()
+      const transferId: Buffer = await transfer.getTransferId()
       const { rootHash } = getRootHashFromTransferId(transferId)
       const transferRootId: string = await l1_bridge.getTransferRootId(rootHash, transfer.amount)
 
@@ -1646,7 +1551,7 @@ describe('L1_Bridge', () => {
       let transfer: any = transfers[0]
 
       // User withdraws from L1 bridge
-      const transferId: Buffer = transfer.getTransferId()
+      const transferId: Buffer = await transfer.getTransferId()
       const tree: MerkleTree = new MerkleTree([transferId])
 
       const chainId: BigNumber = CHAIN_IDS.ARBITRUM.TESTNET_3
@@ -1664,7 +1569,7 @@ describe('L1_Bridge', () => {
       let transfer: any = transfers[0]
 
       // User withdraws from L1 bridge
-      const transferId: Buffer = transfer.getTransferId()
+      const transferId: Buffer = await transfer.getTransferId()
       const tree: MerkleTree = new MerkleTree([transferId])
 
       await l1_canonicalToken
@@ -1690,32 +1595,23 @@ describe('L1_Bridge', () => {
       transfer.amountOutMin = BigNumber.from(0)
       transfer.deadline = BigNumber.from(0)
 
-      // Instantiate a sender and recipient Signer
-      const sender: Signer = user
-      const recipient: Signer = otherUser
-      expect(transfer.sender).to.eq(await sender.getAddress())
-      expect(transfer.recipient).to.eq(await recipient.getAddress())
-
       // User moves funds to L2
-      await l1_canonicalToken
-        .connect(user)
-        .approve(l1_bridge.address, transfer.amount)
-      await l1_bridge
-        .connect(user)
-        .sendToL2(
-          l2ChainId.toString(),
-          await user.getAddress(),
-          transfer.amount
-        )
-      await l2_messenger.relayNextMessage()
-      await expectBalanceOf(l2_bridge, user, transfer.amount)
+      await sendTestTokensAcrossHopBridge(
+        l1_canonicalToken,
+        l1_bridge,
+        l2_bridge,
+        l2_messenger,
+        user,
+        transfer.amount,
+        l2ChainId
+      )
 
       // User moves funds back to L1 across the liquidity bridge
       await l2_bridge
         .connect(user)
         .send(
           transfer.chainId,
-          transfer.recipient,
+          await transfer.recipient.getAddress(),
           transfer.amount,
           transfer.transferNonce,
           transfer.relayerFee,
@@ -1734,7 +1630,7 @@ describe('L1_Bridge', () => {
       await l1_messenger.relayNextMessage()
 
       // Bonder attempts to bond already-confirmed transfer root from L1 bridge
-      const transferId: Buffer = transfer.getTransferId()
+      const transferId: Buffer = await transfer.getTransferId()
       const tree: MerkleTree = new MerkleTree([transferId])
       const expectedErrorMsg: string = 'L1_BRG: Transfer Root has already been confirmed'
 
@@ -1747,7 +1643,7 @@ describe('L1_Bridge', () => {
       let transfer: any = transfers[0]
 
       // User withdraws from L1 bridge
-      const transferId: Buffer = transfer.getTransferId()
+      const transferId: Buffer = await transfer.getTransferId()
       const tree: MerkleTree = new MerkleTree([transferId])
 
       await l1_canonicalToken
@@ -1779,7 +1675,7 @@ describe('L1_Bridge', () => {
       let transfer: any = transfers[0]
 
       // User withdraws from L1 bridge
-      const transferId: Buffer = transfer.getTransferId()
+      const transferId: Buffer = await transfer.getTransferId()
       const tree: MerkleTree = new MerkleTree([transferId])
 
       await l1_canonicalToken
@@ -1809,7 +1705,7 @@ describe('L1_Bridge', () => {
       )
 
       // User withdraws from L1 bridge
-      const transferId: Buffer = transfer.getTransferId()
+      const transferId: Buffer = await transfer.getTransferId()
       const tree: MerkleTree = new MerkleTree([transferId])
 
       await l1_canonicalToken
@@ -1841,32 +1737,23 @@ describe('L1_Bridge', () => {
       transfer.amountOutMin = BigNumber.from(0)
       transfer.deadline = BigNumber.from(0)
 
-      // Instantiate a sender and recipient Signer
-      const sender: Signer = user
-      const recipient: Signer = otherUser
-      expect(transfer.sender).to.eq(await sender.getAddress())
-      expect(transfer.recipient).to.eq(await recipient.getAddress())
-
       // User moves funds to L2
-      await l1_canonicalToken
-        .connect(user)
-        .approve(l1_bridge.address, transfer.amount)
-      await l1_bridge
-        .connect(user)
-        .sendToL2(
-          l2ChainId.toString(),
-          await user.getAddress(),
-          transfer.amount
-        )
-      await l2_messenger.relayNextMessage()
-      await expectBalanceOf(l2_bridge, user, transfer.amount)
+      await sendTestTokensAcrossHopBridge(
+        l1_canonicalToken,
+        l1_bridge,
+        l2_bridge,
+        l2_messenger,
+        user,
+        transfer.amount,
+        l2ChainId
+      )
 
       // User moves funds back to L1 across the liquidity bridge
       await l2_bridge
         .connect(user)
         .send(
           transfer.chainId,
-          transfer.recipient,
+          await transfer.recipient.getAddress(),
           transfer.amount,
           transfer.transferNonce,
           transfer.relayerFee,
@@ -1910,12 +1797,6 @@ describe('L1_Bridge', () => {
       l2Transfer.amountOutMin = BigNumber.from(0)
       l2Transfer.deadline = BigNumber.from(0)
 
-      // Instantiate a sender and recipient Signer
-      const sender: Signer = user
-      const recipient: Signer = otherUser
-      expect(transfer.sender).to.eq(await sender.getAddress())
-      expect(transfer.recipient).to.eq(await recipient.getAddress())
-
       // User moves funds to first L2
       await l1_canonicalToken
         .connect(user)
@@ -1938,7 +1819,7 @@ describe('L1_Bridge', () => {
         .connect(user)
         .send(
           l2Transfer.chainId,
-          l2Transfer.recipient,
+          await l2Transfer.recipient.getAddress(),
           l2Transfer.amount,
           l2Transfer.transferNonce,
           l2Transfer.relayerFee,
@@ -2004,35 +1885,23 @@ describe('L1_Bridge', () => {
       transfer.amountOutMin = BigNumber.from(0)
       transfer.deadline = BigNumber.from(0)
 
-      // Instantiate a sender and recipient Signer
-      const sender: Signer = user
-      const recipient: Signer = otherUser
-      expect(transfer.sender).to.eq(await sender.getAddress())
-      expect(transfer.recipient).to.eq(await recipient.getAddress())
-
       // User moves funds to L2
-      await l1_canonicalToken
-        .connect(user)
-        .approve(l1_bridge.address, transfer.amount)
-      await l1_bridge
-        .connect(user)
-        .sendToL2(l2ChainId, await user.getAddress(), transfer.amount)
-      await l2_messenger.relayNextMessage()
-
-      // Validate balances
-      await expectBalanceOf(
+      await sendTestTokensAcrossHopBridge(
         l1_canonicalToken,
+        l1_bridge,
+        l2_bridge,
+        l2_messenger,
         user,
-        user_l1_canonicalTokenOriginalBalance.sub(transfer.amount)
+        transfer.amount,
+        l2ChainId
       )
-      await expectBalanceOf(l2_bridge, user, transfer.amount)
 
       // User moves funds back to L1 across the liquidity bridge
       await l2_bridge
         .connect(user)
         .send(
           transfer.chainId,
-          transfer.recipient,
+          await transfer.recipient.getAddress(),
           transfer.amount,
           transfer.transferNonce,
           transfer.relayerFee,
@@ -2056,8 +1925,8 @@ describe('L1_Bridge', () => {
       await l1_bridge
         .connect(bonder)
         .bondWithdrawal(
-          transfer.sender,
-          transfer.recipient,
+          await transfer.sender.getAddress(),
+          await transfer.recipient.getAddress(),
           transfer.amount,
           transfer.transferNonce,
           transfer.relayerFee
@@ -2083,7 +1952,7 @@ describe('L1_Bridge', () => {
       // Validate state before commitTransfers
       const pendingAmountChainId = await l2_bridge.pendingAmountChainIds(0)
       const pendingTransferIdsForChainId: string = await l2_bridge.pendingTransferIdsForChainId(transfer.chainId, 0)
-      const expectedPendingTransferIdsForChainId: string = transfer.getTransferIdHex()
+      const expectedPendingTransferIdsForChainId: string = await transfer.getTransferIdHex()
       expect(pendingAmountChainId).to.eq(transfer.chainId)
       expect(pendingTransferIdsForChainId).to.eq(expectedPendingTransferIdsForChainId)
 
@@ -2113,7 +1982,7 @@ describe('L1_Bridge', () => {
         expect(err.message).to.eq(expectedErrorMsg)
       }
 
-      const transferId: Buffer = transfer.getTransferId()
+      const transferId: Buffer = await transfer.getTransferId()
       const { rootHash } = getRootHashFromTransferId(transferId)
 
       // Bonder bonds the transfer root
@@ -2152,35 +2021,23 @@ describe('L1_Bridge', () => {
       transfer.amountOutMin = BigNumber.from(0)
       transfer.deadline = BigNumber.from(0)
 
-      // Instantiate a sender and recipient Signer
-      const sender: Signer = user
-      const recipient: Signer = otherUser
-      expect(transfer.sender).to.eq(await sender.getAddress())
-      expect(transfer.recipient).to.eq(await recipient.getAddress())
-
       // User moves funds to L2
-      await l1_canonicalToken
-        .connect(user)
-        .approve(l1_bridge.address, transfer.amount)
-      await l1_bridge
-        .connect(user)
-        .sendToL2(l2ChainId, await user.getAddress(), transfer.amount)
-      await l2_messenger.relayNextMessage()
-
-      // Validate balances
-      await expectBalanceOf(
+      await sendTestTokensAcrossHopBridge(
         l1_canonicalToken,
+        l1_bridge,
+        l2_bridge,
+        l2_messenger,
         user,
-        user_l1_canonicalTokenOriginalBalance.sub(transfer.amount)
+        transfer.amount,
+        l2ChainId
       )
-      await expectBalanceOf(l2_bridge, user, transfer.amount)
 
       // User moves funds back to L1 across the liquidity bridge
       await l2_bridge
         .connect(user)
         .send(
           transfer.chainId,
-          transfer.recipient,
+          await transfer.recipient.getAddress(),
           transfer.amount,
           transfer.transferNonce,
           transfer.relayerFee,
@@ -2204,8 +2061,8 @@ describe('L1_Bridge', () => {
       await l1_bridge
         .connect(bonder)
         .bondWithdrawal(
-          transfer.sender,
-          transfer.recipient,
+          await transfer.sender.getAddress(),
+          await transfer.recipient.getAddress(),
           transfer.amount,
           transfer.transferNonce,
           transfer.relayerFee
@@ -2231,7 +2088,7 @@ describe('L1_Bridge', () => {
       // Validate state before commitTransfers
       const pendingAmountChainId = await l2_bridge.pendingAmountChainIds(0)
       const pendingTransferIdsForChainId: string = await l2_bridge.pendingTransferIdsForChainId(transfer.chainId, 0)
-      const expectedPendingTransferIdsForChainId: string = transfer.getTransferIdHex()
+      const expectedPendingTransferIdsForChainId: string = await transfer.getTransferIdHex()
       expect(pendingAmountChainId).to.eq(transfer.chainId)
       expect(pendingTransferIdsForChainId).to.eq(expectedPendingTransferIdsForChainId)
 
@@ -2261,7 +2118,7 @@ describe('L1_Bridge', () => {
         expect(err.message).to.eq(expectedErrorMsg)
       }
 
-      const transferId: Buffer = transfer.getTransferId()
+      const transferId: Buffer = await transfer.getTransferId()
       const { rootHash } = getRootHashFromTransferId(transferId)
 
       // Bonder bonds the transfer root
@@ -2301,35 +2158,23 @@ describe('L1_Bridge', () => {
       transfer.amountOutMin = BigNumber.from(0)
       transfer.deadline = BigNumber.from(0)
 
-      // Instantiate a sender and recipient Signer
-      const sender: Signer = user
-      const recipient: Signer = otherUser
-      expect(transfer.sender).to.eq(await sender.getAddress())
-      expect(transfer.recipient).to.eq(await recipient.getAddress())
-
       // User moves funds to L2
-      await l1_canonicalToken
-        .connect(user)
-        .approve(l1_bridge.address, transfer.amount)
-      await l1_bridge
-        .connect(user)
-        .sendToL2(l2ChainId, await user.getAddress(), transfer.amount)
-      await l2_messenger.relayNextMessage()
-
-      // Validate balances
-      await expectBalanceOf(
+      await sendTestTokensAcrossHopBridge(
         l1_canonicalToken,
+        l1_bridge,
+        l2_bridge,
+        l2_messenger,
         user,
-        user_l1_canonicalTokenOriginalBalance.sub(transfer.amount)
+        transfer.amount,
+        l2ChainId
       )
-      await expectBalanceOf(l2_bridge, user, transfer.amount)
 
       // User moves funds back to L1 across the liquidity bridge
       await l2_bridge
         .connect(user)
         .send(
           transfer.chainId,
-          transfer.recipient,
+          await transfer.recipient.getAddress(),
           transfer.amount,
           transfer.transferNonce,
           transfer.relayerFee,
@@ -2353,8 +2198,8 @@ describe('L1_Bridge', () => {
       await l1_bridge
         .connect(bonder)
         .bondWithdrawal(
-          transfer.sender,
-          transfer.recipient,
+          await transfer.sender.getAddress(),
+          await transfer.recipient.getAddress(),
           transfer.amount,
           transfer.transferNonce,
           transfer.relayerFee
@@ -2380,7 +2225,7 @@ describe('L1_Bridge', () => {
       // Validate state before commitTransfers
       const pendingAmountChainId = await l2_bridge.pendingAmountChainIds(0)
       const pendingTransferIdsForChainId: string = await l2_bridge.pendingTransferIdsForChainId(transfer.chainId, 0)
-      const expectedPendingTransferIdsForChainId: string = transfer.getTransferIdHex()
+      const expectedPendingTransferIdsForChainId: string = await transfer.getTransferIdHex()
       expect(pendingAmountChainId).to.eq(transfer.chainId)
       expect(pendingTransferIdsForChainId).to.eq(expectedPendingTransferIdsForChainId)
 
@@ -2410,7 +2255,7 @@ describe('L1_Bridge', () => {
         expect(err.message).to.eq(expectedErrorMsg)
       }
 
-      const transferId: Buffer = transfer.getTransferId()
+      const transferId: Buffer = await transfer.getTransferId()
       const { rootHash } = getRootHashFromTransferId(transferId)
       const transferRootId: string = await l1_bridge.getTransferRootId(rootHash, transfer.amount)
 
@@ -2469,35 +2314,23 @@ describe('L1_Bridge', () => {
       transfer.amountOutMin = BigNumber.from(0)
       transfer.deadline = BigNumber.from(0)
 
-      // Instantiate a sender and recipient Signer
-      const sender: Signer = user
-      const recipient: Signer = otherUser
-      expect(transfer.sender).to.eq(await sender.getAddress())
-      expect(transfer.recipient).to.eq(await recipient.getAddress())
-
       // User moves funds to L2
-      await l1_canonicalToken
-        .connect(user)
-        .approve(l1_bridge.address, transfer.amount)
-      await l1_bridge
-        .connect(user)
-        .sendToL2(l2ChainId, await user.getAddress(), transfer.amount)
-      await l2_messenger.relayNextMessage()
-
-      // Validate balances
-      await expectBalanceOf(
+      await sendTestTokensAcrossHopBridge(
         l1_canonicalToken,
+        l1_bridge,
+        l2_bridge,
+        l2_messenger,
         user,
-        user_l1_canonicalTokenOriginalBalance.sub(transfer.amount)
+        transfer.amount,
+        l2ChainId
       )
-      await expectBalanceOf(l2_bridge, user, transfer.amount)
 
       // User moves funds back to L1 across the liquidity bridge
       await l2_bridge
         .connect(user)
         .send(
           transfer.chainId,
-          transfer.recipient,
+          await transfer.recipient.getAddress(),
           transfer.amount,
           transfer.transferNonce,
           transfer.relayerFee,
@@ -2521,8 +2354,8 @@ describe('L1_Bridge', () => {
       await l1_bridge
         .connect(bonder)
         .bondWithdrawal(
-          transfer.sender,
-          transfer.recipient,
+          await transfer.sender.getAddress(),
+          await transfer.recipient.getAddress(),
           transfer.amount,
           transfer.transferNonce,
           transfer.relayerFee
@@ -2548,7 +2381,7 @@ describe('L1_Bridge', () => {
       // Validate state before commitTransfers
       const pendingAmountChainId = await l2_bridge.pendingAmountChainIds(0)
       const pendingTransferIdsForChainId: string = await l2_bridge.pendingTransferIdsForChainId(transfer.chainId, 0)
-      const expectedPendingTransferIdsForChainId: string = transfer.getTransferIdHex()
+      const expectedPendingTransferIdsForChainId: string = await transfer.getTransferIdHex()
       expect(pendingAmountChainId).to.eq(transfer.chainId)
       expect(pendingTransferIdsForChainId).to.eq(expectedPendingTransferIdsForChainId)
 
@@ -2578,7 +2411,7 @@ describe('L1_Bridge', () => {
         expect(err.message).to.eq(expectedErrorMsg)
       }
 
-      const transferId: Buffer = transfer.getTransferId()
+      const transferId: Buffer = await transfer.getTransferId()
       const { rootHash } = getRootHashFromTransferId(transferId)
 
       // Bonder bonds the transfer root
@@ -2609,35 +2442,23 @@ describe('L1_Bridge', () => {
       transfer.amountOutMin = BigNumber.from(0)
       transfer.deadline = BigNumber.from(0)
 
-      // Instantiate a sender and recipient Signer
-      const sender: Signer = user
-      const recipient: Signer = otherUser
-      expect(transfer.sender).to.eq(await sender.getAddress())
-      expect(transfer.recipient).to.eq(await recipient.getAddress())
-
       // User moves funds to L2
-      await l1_canonicalToken
-        .connect(user)
-        .approve(l1_bridge.address, transfer.amount)
-      await l1_bridge
-        .connect(user)
-        .sendToL2(l2ChainId, await user.getAddress(), transfer.amount)
-      await l2_messenger.relayNextMessage()
-
-      // Validate balances
-      await expectBalanceOf(
+      await sendTestTokensAcrossHopBridge(
         l1_canonicalToken,
+        l1_bridge,
+        l2_bridge,
+        l2_messenger,
         user,
-        user_l1_canonicalTokenOriginalBalance.sub(transfer.amount)
+        transfer.amount,
+        l2ChainId
       )
-      await expectBalanceOf(l2_bridge, user, transfer.amount)
 
       // User moves funds back to L1 across the liquidity bridge
       await l2_bridge
         .connect(user)
         .send(
           transfer.chainId,
-          transfer.recipient,
+          await transfer.recipient.getAddress(),
           transfer.amount,
           transfer.transferNonce,
           transfer.relayerFee,
@@ -2661,8 +2482,8 @@ describe('L1_Bridge', () => {
       await l1_bridge
         .connect(bonder)
         .bondWithdrawal(
-          transfer.sender,
-          transfer.recipient,
+          await transfer.sender.getAddress(),
+          await transfer.recipient.getAddress(),
           transfer.amount,
           transfer.transferNonce,
           transfer.relayerFee
@@ -2688,7 +2509,7 @@ describe('L1_Bridge', () => {
       // Validate state before commitTransfers
       const pendingAmountChainId = await l2_bridge.pendingAmountChainIds(0)
       const pendingTransferIdsForChainId: string = await l2_bridge.pendingTransferIdsForChainId(transfer.chainId, 0)
-      const expectedPendingTransferIdsForChainId: string = transfer.getTransferIdHex()
+      const expectedPendingTransferIdsForChainId: string = await transfer.getTransferIdHex()
       expect(pendingAmountChainId).to.eq(transfer.chainId)
       expect(pendingTransferIdsForChainId).to.eq(expectedPendingTransferIdsForChainId)
 
@@ -2718,7 +2539,7 @@ describe('L1_Bridge', () => {
         expect(err.message).to.eq(expectedErrorMsg)
       }
 
-      const transferId: Buffer = transfer.getTransferId()
+      const transferId: Buffer = await transfer.getTransferId()
       const { rootHash } = getRootHashFromTransferId(transferId)
 
       // Bonder bonds the transfer root
@@ -2756,35 +2577,23 @@ describe('L1_Bridge', () => {
       transfer.amountOutMin = BigNumber.from(0)
       transfer.deadline = BigNumber.from(0)
 
-      // Instantiate a sender and recipient Signer
-      const sender: Signer = user
-      const recipient: Signer = otherUser
-      expect(transfer.sender).to.eq(await sender.getAddress())
-      expect(transfer.recipient).to.eq(await recipient.getAddress())
-
       // User moves funds to L2
-      await l1_canonicalToken
-        .connect(user)
-        .approve(l1_bridge.address, transfer.amount)
-      await l1_bridge
-        .connect(user)
-        .sendToL2(l2ChainId, await user.getAddress(), transfer.amount)
-      await l2_messenger.relayNextMessage()
-
-      // Validate balances
-      await expectBalanceOf(
+      await sendTestTokensAcrossHopBridge(
         l1_canonicalToken,
+        l1_bridge,
+        l2_bridge,
+        l2_messenger,
         user,
-        user_l1_canonicalTokenOriginalBalance.sub(transfer.amount)
+        transfer.amount,
+        l2ChainId
       )
-      await expectBalanceOf(l2_bridge, user, transfer.amount)
 
       // User moves funds back to L1 across the liquidity bridge
       await l2_bridge
         .connect(user)
         .send(
           transfer.chainId,
-          transfer.recipient,
+          await transfer.recipient.getAddress(),
           transfer.amount,
           transfer.transferNonce,
           transfer.relayerFee,
@@ -2808,8 +2617,8 @@ describe('L1_Bridge', () => {
       await l1_bridge
         .connect(bonder)
         .bondWithdrawal(
-          transfer.sender,
-          transfer.recipient,
+          await transfer.sender.getAddress(),
+          await transfer.recipient.getAddress(),
           transfer.amount,
           transfer.transferNonce,
           transfer.relayerFee
@@ -2835,7 +2644,7 @@ describe('L1_Bridge', () => {
       // Validate state before commitTransfers
       const pendingAmountChainId = await l2_bridge.pendingAmountChainIds(0)
       const pendingTransferIdsForChainId: string = await l2_bridge.pendingTransferIdsForChainId(transfer.chainId, 0)
-      const expectedPendingTransferIdsForChainId: string = transfer.getTransferIdHex()
+      const expectedPendingTransferIdsForChainId: string = await transfer.getTransferIdHex()
       expect(pendingAmountChainId).to.eq(transfer.chainId)
       expect(pendingTransferIdsForChainId).to.eq(expectedPendingTransferIdsForChainId)
 
@@ -2865,7 +2674,7 @@ describe('L1_Bridge', () => {
         expect(err.message).to.eq(expectedErrorMsg)
       }
 
-      const transferId: Buffer = transfer.getTransferId()
+      const transferId: Buffer = await transfer.getTransferId()
       const { rootHash } = getRootHashFromTransferId(transferId)
 
       // Bonder bonds the transfer root
@@ -2903,35 +2712,23 @@ describe('L1_Bridge', () => {
       transfer.amountOutMin = BigNumber.from(0)
       transfer.deadline = BigNumber.from(0)
 
-      // Instantiate a sender and recipient Signer
-      const sender: Signer = user
-      const recipient: Signer = otherUser
-      expect(transfer.sender).to.eq(await sender.getAddress())
-      expect(transfer.recipient).to.eq(await recipient.getAddress())
-
       // User moves funds to L2
-      await l1_canonicalToken
-        .connect(user)
-        .approve(l1_bridge.address, transfer.amount)
-      await l1_bridge
-        .connect(user)
-        .sendToL2(l2ChainId, await user.getAddress(), transfer.amount)
-      await l2_messenger.relayNextMessage()
-
-      // Validate balances
-      await expectBalanceOf(
+      await sendTestTokensAcrossHopBridge(
         l1_canonicalToken,
+        l1_bridge,
+        l2_bridge,
+        l2_messenger,
         user,
-        user_l1_canonicalTokenOriginalBalance.sub(transfer.amount)
+        transfer.amount,
+        l2ChainId
       )
-      await expectBalanceOf(l2_bridge, user, transfer.amount)
 
       // User moves funds back to L1 across the liquidity bridge
       await l2_bridge
         .connect(user)
         .send(
           transfer.chainId,
-          transfer.recipient,
+          await transfer.recipient.getAddress(),
           transfer.amount,
           transfer.transferNonce,
           transfer.relayerFee,
@@ -2955,8 +2752,8 @@ describe('L1_Bridge', () => {
       await l1_bridge
         .connect(bonder)
         .bondWithdrawal(
-          transfer.sender,
-          transfer.recipient,
+          await transfer.sender.getAddress(),
+          await transfer.recipient.getAddress(),
           transfer.amount,
           transfer.transferNonce,
           transfer.relayerFee
@@ -2982,7 +2779,7 @@ describe('L1_Bridge', () => {
       // Validate state before commitTransfers
       const pendingAmountChainId = await l2_bridge.pendingAmountChainIds(0)
       const pendingTransferIdsForChainId: string = await l2_bridge.pendingTransferIdsForChainId(transfer.chainId, 0)
-      const expectedPendingTransferIdsForChainId: string = transfer.getTransferIdHex()
+      const expectedPendingTransferIdsForChainId: string = await transfer.getTransferIdHex()
       expect(pendingAmountChainId).to.eq(transfer.chainId)
       expect(pendingTransferIdsForChainId).to.eq(expectedPendingTransferIdsForChainId)
 
@@ -3012,7 +2809,7 @@ describe('L1_Bridge', () => {
         expect(err.message).to.eq(expectedErrorMsg)
       }
 
-      const transferId: Buffer = transfer.getTransferId()
+      const transferId: Buffer = await transfer.getTransferId()
       const { rootHash } = getRootHashFromTransferId(transferId)
 
       // Bonder bonds the transfer root
@@ -3050,35 +2847,23 @@ describe('L1_Bridge', () => {
       transfer.amountOutMin = BigNumber.from(0)
       transfer.deadline = BigNumber.from(0)
 
-      // Instantiate a sender and recipient Signer
-      const sender: Signer = user
-      const recipient: Signer = otherUser
-      expect(transfer.sender).to.eq(await sender.getAddress())
-      expect(transfer.recipient).to.eq(await recipient.getAddress())
-
       // User moves funds to L2
-      await l1_canonicalToken
-        .connect(user)
-        .approve(l1_bridge.address, transfer.amount)
-      await l1_bridge
-        .connect(user)
-        .sendToL2(l2ChainId, await user.getAddress(), transfer.amount)
-      await l2_messenger.relayNextMessage()
-
-      // Validate balances
-      await expectBalanceOf(
+      await sendTestTokensAcrossHopBridge(
         l1_canonicalToken,
+        l1_bridge,
+        l2_bridge,
+        l2_messenger,
         user,
-        user_l1_canonicalTokenOriginalBalance.sub(transfer.amount)
+        transfer.amount,
+        l2ChainId
       )
-      await expectBalanceOf(l2_bridge, user, transfer.amount)
 
       // User moves funds back to L1 across the liquidity bridge
       await l2_bridge
         .connect(user)
         .send(
           transfer.chainId,
-          transfer.recipient,
+          await transfer.recipient.getAddress(),
           transfer.amount,
           transfer.transferNonce,
           transfer.relayerFee,
@@ -3102,8 +2887,8 @@ describe('L1_Bridge', () => {
       await l1_bridge
         .connect(bonder)
         .bondWithdrawal(
-          transfer.sender,
-          transfer.recipient,
+          await transfer.sender.getAddress(),
+          await transfer.recipient.getAddress(),
           transfer.amount,
           transfer.transferNonce,
           transfer.relayerFee
@@ -3129,7 +2914,7 @@ describe('L1_Bridge', () => {
       // Validate state before commitTransfers
       const pendingAmountChainId = await l2_bridge.pendingAmountChainIds(0)
       const pendingTransferIdsForChainId: string = await l2_bridge.pendingTransferIdsForChainId(transfer.chainId, 0)
-      const expectedPendingTransferIdsForChainId: string = transfer.getTransferIdHex()
+      const expectedPendingTransferIdsForChainId: string = await transfer.getTransferIdHex()
       expect(pendingAmountChainId).to.eq(transfer.chainId)
       expect(pendingTransferIdsForChainId).to.eq(expectedPendingTransferIdsForChainId)
 
@@ -3159,7 +2944,7 @@ describe('L1_Bridge', () => {
         expect(err.message).to.eq(expectedErrorMsg)
       }
 
-      const transferId: Buffer = transfer.getTransferId()
+      const transferId: Buffer = await transfer.getTransferId()
       const { rootHash } = getRootHashFromTransferId(transferId)
 
       // Bonder bonds the transfer root
@@ -3197,35 +2982,23 @@ describe('L1_Bridge', () => {
       transfer.amountOutMin = BigNumber.from(0)
       transfer.deadline = BigNumber.from(0)
 
-      // Instantiate a sender and recipient Signer
-      const sender: Signer = user
-      const recipient: Signer = otherUser
-      expect(transfer.sender).to.eq(await sender.getAddress())
-      expect(transfer.recipient).to.eq(await recipient.getAddress())
-
       // User moves funds to L2
-      await l1_canonicalToken
-        .connect(user)
-        .approve(l1_bridge.address, transfer.amount)
-      await l1_bridge
-        .connect(user)
-        .sendToL2(l2ChainId, await user.getAddress(), transfer.amount)
-      await l2_messenger.relayNextMessage()
-
-      // Validate balances
-      await expectBalanceOf(
+      await sendTestTokensAcrossHopBridge(
         l1_canonicalToken,
+        l1_bridge,
+        l2_bridge,
+        l2_messenger,
         user,
-        user_l1_canonicalTokenOriginalBalance.sub(transfer.amount)
+        transfer.amount,
+        l2ChainId
       )
-      await expectBalanceOf(l2_bridge, user, transfer.amount)
 
       // User moves funds back to L1 across the liquidity bridge
       await l2_bridge
         .connect(user)
         .send(
           transfer.chainId,
-          transfer.recipient,
+          await transfer.recipient.getAddress(),
           transfer.amount,
           transfer.transferNonce,
           transfer.relayerFee,
@@ -3249,8 +3022,8 @@ describe('L1_Bridge', () => {
       await l1_bridge
         .connect(bonder)
         .bondWithdrawal(
-          transfer.sender,
-          transfer.recipient,
+          await transfer.sender.getAddress(),
+          await transfer.recipient.getAddress(),
           transfer.amount,
           transfer.transferNonce,
           transfer.relayerFee
@@ -3276,7 +3049,7 @@ describe('L1_Bridge', () => {
       // Validate state before commitTransfers
       const pendingAmountChainId = await l2_bridge.pendingAmountChainIds(0)
       const pendingTransferIdsForChainId: string = await l2_bridge.pendingTransferIdsForChainId(transfer.chainId, 0)
-      const expectedPendingTransferIdsForChainId: string = transfer.getTransferIdHex()
+      const expectedPendingTransferIdsForChainId: string = await transfer.getTransferIdHex()
       expect(pendingAmountChainId).to.eq(transfer.chainId)
       expect(pendingTransferIdsForChainId).to.eq(expectedPendingTransferIdsForChainId)
 
@@ -3306,7 +3079,7 @@ describe('L1_Bridge', () => {
         expect(err.message).to.eq(expectedErrorMsg)
       }
 
-      const transferId: Buffer = transfer.getTransferId()
+      const transferId: Buffer = await transfer.getTransferId()
       const { rootHash } = getRootHashFromTransferId(transferId)
       const transferRootId: string = await l1_bridge.getTransferRootId(rootHash, transfer.amount)
 
@@ -3371,35 +3144,23 @@ describe('L1_Bridge', () => {
       transfer.amountOutMin = BigNumber.from(0)
       transfer.deadline = BigNumber.from(0)
 
-      // Instantiate a sender and recipient Signer
-      const sender: Signer = user
-      const recipient: Signer = otherUser
-      expect(transfer.sender).to.eq(await sender.getAddress())
-      expect(transfer.recipient).to.eq(await recipient.getAddress())
-
       // User moves funds to L2
-      await l1_canonicalToken
-        .connect(user)
-        .approve(l1_bridge.address, transfer.amount)
-      await l1_bridge
-        .connect(user)
-        .sendToL2(l2ChainId, await user.getAddress(), transfer.amount)
-      await l2_messenger.relayNextMessage()
-
-      // Validate balances
-      await expectBalanceOf(
+      await sendTestTokensAcrossHopBridge(
         l1_canonicalToken,
+        l1_bridge,
+        l2_bridge,
+        l2_messenger,
         user,
-        user_l1_canonicalTokenOriginalBalance.sub(transfer.amount)
+        transfer.amount,
+        l2ChainId
       )
-      await expectBalanceOf(l2_bridge, user, transfer.amount)
 
       // User moves funds back to L1 across the liquidity bridge
       await l2_bridge
         .connect(user)
         .send(
           transfer.chainId,
-          transfer.recipient,
+          await transfer.recipient.getAddress(),
           transfer.amount,
           transfer.transferNonce,
           transfer.relayerFee,
@@ -3423,8 +3184,8 @@ describe('L1_Bridge', () => {
       await l1_bridge
         .connect(bonder)
         .bondWithdrawal(
-          transfer.sender,
-          transfer.recipient,
+          await transfer.sender.getAddress(),
+          await transfer.recipient.getAddress(),
           transfer.amount,
           transfer.transferNonce,
           transfer.relayerFee
@@ -3450,7 +3211,7 @@ describe('L1_Bridge', () => {
       // Validate state before commitTransfers
       const pendingAmountChainId = await l2_bridge.pendingAmountChainIds(0)
       const pendingTransferIdsForChainId: string = await l2_bridge.pendingTransferIdsForChainId(transfer.chainId, 0)
-      const expectedPendingTransferIdsForChainId: string = transfer.getTransferIdHex()
+      const expectedPendingTransferIdsForChainId: string = await transfer.getTransferIdHex()
       expect(pendingAmountChainId).to.eq(transfer.chainId)
       expect(pendingTransferIdsForChainId).to.eq(expectedPendingTransferIdsForChainId)
 
@@ -3480,7 +3241,7 @@ describe('L1_Bridge', () => {
         expect(err.message).to.eq(expectedErrorMsg)
       }
 
-      const transferId: Buffer = transfer.getTransferId()
+      const transferId: Buffer = await transfer.getTransferId()
       const { rootHash } = getRootHashFromTransferId(transferId)
       const transferRootId: string = await l1_bridge.getTransferRootId(rootHash, transfer.amount)
 
@@ -3543,35 +3304,23 @@ describe('L1_Bridge', () => {
       transfer.amountOutMin = BigNumber.from(0)
       transfer.deadline = BigNumber.from(0)
 
-      // Instantiate a sender and recipient Signer
-      const sender: Signer = user
-      const recipient: Signer = otherUser
-      expect(transfer.sender).to.eq(await sender.getAddress())
-      expect(transfer.recipient).to.eq(await recipient.getAddress())
-
       // User moves funds to L2
-      await l1_canonicalToken
-        .connect(user)
-        .approve(l1_bridge.address, transfer.amount)
-      await l1_bridge
-        .connect(user)
-        .sendToL2(l2ChainId, await user.getAddress(), transfer.amount)
-      await l2_messenger.relayNextMessage()
-
-      // Validate balances
-      await expectBalanceOf(
+      await sendTestTokensAcrossHopBridge(
         l1_canonicalToken,
+        l1_bridge,
+        l2_bridge,
+        l2_messenger,
         user,
-        user_l1_canonicalTokenOriginalBalance.sub(transfer.amount)
+        transfer.amount,
+        l2ChainId
       )
-      await expectBalanceOf(l2_bridge, user, transfer.amount)
 
       // User moves funds back to L1 across the liquidity bridge
       await l2_bridge
         .connect(user)
         .send(
           transfer.chainId,
-          transfer.recipient,
+          await transfer.recipient.getAddress(),
           transfer.amount,
           transfer.transferNonce,
           transfer.relayerFee,
@@ -3595,8 +3344,8 @@ describe('L1_Bridge', () => {
       await l1_bridge
         .connect(bonder)
         .bondWithdrawal(
-          transfer.sender,
-          transfer.recipient,
+          await transfer.sender.getAddress(),
+          await transfer.recipient.getAddress(),
           transfer.amount,
           transfer.transferNonce,
           transfer.relayerFee
@@ -3622,7 +3371,7 @@ describe('L1_Bridge', () => {
       // Validate state before commitTransfers
       const pendingAmountChainId = await l2_bridge.pendingAmountChainIds(0)
       const pendingTransferIdsForChainId: string = await l2_bridge.pendingTransferIdsForChainId(transfer.chainId, 0)
-      const expectedPendingTransferIdsForChainId: string = transfer.getTransferIdHex()
+      const expectedPendingTransferIdsForChainId: string = await transfer.getTransferIdHex()
       expect(pendingAmountChainId).to.eq(transfer.chainId)
       expect(pendingTransferIdsForChainId).to.eq(expectedPendingTransferIdsForChainId)
 
@@ -3652,7 +3401,7 @@ describe('L1_Bridge', () => {
         expect(err.message).to.eq(expectedErrorMsg)
       }
 
-      const transferId: Buffer = transfer.getTransferId()
+      const transferId: Buffer = await transfer.getTransferId()
       const { rootHash } = getRootHashFromTransferId(transferId)
       const transferRootId: string = await l1_bridge.getTransferRootId(rootHash, transfer.amount)
 
@@ -3727,35 +3476,23 @@ describe('L1_Bridge', () => {
       transfer.amountOutMin = BigNumber.from(0)
       transfer.deadline = BigNumber.from(0)
 
-      // Instantiate a sender and recipient Signer
-      const sender: Signer = user
-      const recipient: Signer = otherUser
-      expect(transfer.sender).to.eq(await sender.getAddress())
-      expect(transfer.recipient).to.eq(await recipient.getAddress())
-
       // User moves funds to L2
-      await l1_canonicalToken
-        .connect(user)
-        .approve(l1_bridge.address, transfer.amount)
-      await l1_bridge
-        .connect(user)
-        .sendToL2(l2ChainId, await user.getAddress(), transfer.amount)
-      await l2_messenger.relayNextMessage()
-
-      // Validate balances
-      await expectBalanceOf(
+      await sendTestTokensAcrossHopBridge(
         l1_canonicalToken,
+        l1_bridge,
+        l2_bridge,
+        l2_messenger,
         user,
-        user_l1_canonicalTokenOriginalBalance.sub(transfer.amount)
+        transfer.amount,
+        l2ChainId
       )
-      await expectBalanceOf(l2_bridge, user, transfer.amount)
 
       // User moves funds back to L1 across the liquidity bridge
       await l2_bridge
         .connect(user)
         .send(
           transfer.chainId,
-          transfer.recipient,
+          await transfer.recipient.getAddress(),
           transfer.amount,
           transfer.transferNonce,
           transfer.relayerFee,
@@ -3779,8 +3516,8 @@ describe('L1_Bridge', () => {
       await l1_bridge
         .connect(bonder)
         .bondWithdrawal(
-          transfer.sender,
-          transfer.recipient,
+          await transfer.sender.getAddress(),
+          await transfer.recipient.getAddress(),
           transfer.amount,
           transfer.transferNonce,
           transfer.relayerFee
@@ -3806,7 +3543,7 @@ describe('L1_Bridge', () => {
       // Validate state before commitTransfers
       const pendingAmountChainId = await l2_bridge.pendingAmountChainIds(0)
       const pendingTransferIdsForChainId: string = await l2_bridge.pendingTransferIdsForChainId(transfer.chainId, 0)
-      const expectedPendingTransferIdsForChainId: string = transfer.getTransferIdHex()
+      const expectedPendingTransferIdsForChainId: string = await transfer.getTransferIdHex()
       expect(pendingAmountChainId).to.eq(transfer.chainId)
       expect(pendingTransferIdsForChainId).to.eq(expectedPendingTransferIdsForChainId)
 
@@ -3836,7 +3573,7 @@ describe('L1_Bridge', () => {
         expect(err.message).to.eq(expectedErrorMsg)
       }
 
-      const transferId: Buffer = transfer.getTransferId()
+      const transferId: Buffer = await transfer.getTransferId()
       const { rootHash } = getRootHashFromTransferId(transferId)
       const transferRootId: string = await l1_bridge.getTransferRootId(rootHash, transfer.amount)
 

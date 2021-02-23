@@ -200,7 +200,7 @@ describe('L2_Bridge', () => {
       .connect(user)
       .send(
         transfer.chainId,
-        transfer.recipient,
+        await transfer.recipient.getAddress(),
         transfer.amount,
         transfer.transferNonce,
         transfer.relayerFee,
@@ -212,7 +212,7 @@ describe('L2_Bridge', () => {
     const expectedCurrentBridgeBal = userSendTokenAmount.sub(TRANSFER_AMOUNT)
     await expectBalanceOf(l2_bridge, user, expectedCurrentBridgeBal)
 
-    const expectedPendingTransferHash: Buffer = transfer.getTransferId()
+    const expectedPendingTransferHash: Buffer = await transfer.getTransferId()
     const pendingAmountChainId = await l2_bridge.pendingAmountChainIds(0)
     const expectedPendingAmountChainId = transfer.chainId
     expect(pendingAmountChainId).to.eq(expectedPendingAmountChainId)
@@ -230,7 +230,7 @@ describe('L2_Bridge', () => {
     expect(transferSentArgs[0]).to.eq(
       '0x' + expectedPendingTransferHash.toString('hex')
     )
-    expect(transferSentArgs[1]).to.eq(transfer.recipient)
+    expect(transferSentArgs[1]).to.eq(await transfer.recipient.getAddress())
     expect(transferSentArgs[2]).to.eq(TRANSFER_AMOUNT)
     expect(transferSentArgs[3]).to.eq(transfer.transferNonce)
     expect(transferSentArgs[4]).to.eq(transfer.relayerFee)
@@ -266,7 +266,7 @@ describe('L2_Bridge', () => {
       .connect(user)
       .swapAndSend(
         transfer.chainId,
-        transfer.recipient,
+        await transfer.recipient.getAddress(),
         transfer.amount,
         transfer.transferNonce,
         transfer.relayerFee,
@@ -289,7 +289,7 @@ describe('L2_Bridge', () => {
     const transferAfterSlippage: Transfer = Object.assign(transfer, {
       amount: expectedAmountAfterSlippage
     })
-    const expectedPendingTransferHash: Buffer = transferAfterSlippage.getTransferId()
+    const expectedPendingTransferHash: Buffer = await transferAfterSlippage.getTransferId()
 
     const pendingAmountChainId = await l2_bridge.pendingAmountChainIds(0)
     const expectedPendingAmountChainId = transfer.chainId
@@ -308,7 +308,7 @@ describe('L2_Bridge', () => {
     expect(transferSentArgs[0]).to.eq(
       '0x' + expectedPendingTransferHash.toString('hex')
     )
-    expect(transferSentArgs[1]).to.eq(transfer.recipient)
+    expect(transferSentArgs[1]).to.eq(await transfer.recipient.getAddress())
     expect(transferSentArgs[2]).to.eq(transferAfterSlippage.amount)
     expect(transferSentArgs[3]).to.eq(transfer.transferNonce)
     expect(transferSentArgs[4]).to.eq(transfer.relayerFee)
@@ -335,7 +335,7 @@ describe('L2_Bridge', () => {
       .connect(user)
       .send(
         transfer.chainId,
-        transfer.recipient,
+        await transfer.recipient.getAddress(),
         transfer.amount,
         transfer.transferNonce,
         transfer.relayerFee,
@@ -360,7 +360,7 @@ describe('L2_Bridge', () => {
     )
     expect(pendingAmountForChainId).to.eq(0)
 
-    const expectedMerkleTree = new MerkleTree([transfer.getTransferId()])
+    const expectedMerkleTree = new MerkleTree([await transfer.getTransferId()])
 
     const transfersCommittedEvent = (
       await l2_bridge.queryFilter(l2_bridge.filters.TransfersCommitted())
@@ -519,7 +519,7 @@ describe('L2_Bridge', () => {
       .connect(user)
       .swapAndSend(
         transfer.chainId,
-        transfer.recipient,
+        await transfer.recipient.getAddress(),
         transfer.amount,
         transfer.transferNonce,
         transfer.relayerFee,

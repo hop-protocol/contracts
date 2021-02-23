@@ -55,11 +55,11 @@ describe('Bridge', () => {
   it('Should get the correct transfer id', async () => {
     for (let i = 0; i < transfers.length; i++) {
       const transfer: Transfer = transfers[i]
-      const expectedTransferId: Buffer = transfer.getTransferId()
+      const expectedTransferId: Buffer = await transfer.getTransferId()
       const transferId = await mockBridge.getTransferId(
         transfer.chainId,
-        transfer.sender,
-        transfer.recipient,
+        await transfer.sender.getAddress(),
+        await transfer.recipient.getAddress(),
         transfer.amount,
         transfer.transferNonce,
         transfer.relayerFee,
@@ -88,8 +88,8 @@ describe('Bridge', () => {
 
     await expect(
       mockBridge.withdraw(
-        transfer.sender,
-        transfer.recipient,
+        await transfer.sender.getAddress(),
+        await transfer.recipient.getAddress(),
         transfer.amount,
         transfer.transferNonce,
         transfer.relayerFee,
@@ -108,7 +108,7 @@ describe('Bridge', () => {
     transfer.deadline = BigNumber.from(0)
 
     // TODO: This can use the helper function getRootHashFromTransferId()
-    const transferId: Buffer = transfer.getTransferId()
+    const transferId: Buffer = await transfer.getTransferId()
     const tree: MerkleTree = new MerkleTree([transferId])
     const transferRootHash: Buffer = tree.getRoot()
     const proof: Buffer[] = tree.getProof(transferId)
@@ -118,8 +118,8 @@ describe('Bridge', () => {
     // TODO: The second to last param should be the ID. How is this working with the hash?
     await expect(
       mockBridge.withdraw(
-        transfer.sender,
-        transfer.recipient,
+        await transfer.sender.getAddress(),
+        await transfer.recipient.getAddress(),
         transfer.amount,
         transfer.transferNonce,
         transfer.relayerFee,

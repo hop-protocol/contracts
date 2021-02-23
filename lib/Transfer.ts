@@ -2,8 +2,8 @@ import * as ethers from 'ethers'
 
 export type TransferProps = {
   chainId: ethers.BigNumber
-  sender: string
-  recipient: string
+  sender: ethers.Signer 
+  recipient: ethers.Signer 
   amount: ethers.BigNumber
   transferNonce: number
   relayerFee: ethers.BigNumber
@@ -13,8 +13,8 @@ export type TransferProps = {
 
 export default class Transfer {
   chainId: ethers.BigNumber
-  sender: string
-  recipient: string
+  sender: ethers.Signer 
+  recipient: ethers.Signer 
   amount: ethers.BigNumber
   transferNonce: number
   relayerFee: ethers.BigNumber
@@ -32,7 +32,7 @@ export default class Transfer {
     this.deadline = props.deadline
   }
 
-  getTransferId (): Buffer {
+  async getTransferId (): Promise<Buffer> {
     const data = ethers.utils.defaultAbiCoder.encode(
       [
         'uint256',
@@ -46,8 +46,8 @@ export default class Transfer {
       ],
       [
         this.chainId,
-        this.sender,
-        this.recipient,
+        await this.sender.getAddress(),
+        await this.recipient.getAddress(),
         this.amount,
         this.transferNonce,
         this.relayerFee,
@@ -59,8 +59,8 @@ export default class Transfer {
     return Buffer.from(hash.slice(2), 'hex')
   }
 
-  getTransferIdHex (): string {
-    const transferId: Buffer = this.getTransferId()
+  async getTransferIdHex (): Promise<string> {
+    const transferId: Buffer = await this.getTransferId()
     return '0x' + transferId.toString('hex')
   }
 }

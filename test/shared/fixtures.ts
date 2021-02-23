@@ -149,8 +149,8 @@ export async function fixture (l2ChainId: BigNumber, l1AlreadySetOpts: any = {})
   const transfers: Transfer[] = [
     new Transfer({
       chainId: CHAIN_IDS.ARBITRUM.TESTNET_3,
-      sender: await user.getAddress(),
-      recipient: await otherUser.getAddress(),
+      sender: user,
+      recipient: otherUser,
       amount: TRANSFER_AMOUNT,
       transferNonce: 0,
       relayerFee: RELAYER_FEE,
@@ -159,8 +159,8 @@ export async function fixture (l2ChainId: BigNumber, l1AlreadySetOpts: any = {})
     }),
     new Transfer({
       chainId: CHAIN_IDS.ARBITRUM.TESTNET_3,
-      sender: await liquidityProvider.getAddress(),
-      recipient: await liquidityProvider.getAddress(),
+      sender: liquidityProvider,
+      recipient: liquidityProvider,
       amount: TRANSFER_AMOUNT,
       transferNonce: 0,
       relayerFee: RELAYER_FEE,
