@@ -702,8 +702,8 @@ describe('L1_Bridge', () => {
 
   describe('sendToL2', async () => {
     it('Should not allow a transfer to L2 via sendToL2 if the messenger wrapper for the L2 is not defined', async () => {
-      const expectedErrorMsg: string = 'L1_BRG: chainId not supported'
       const invalidChainId: BigNumber = BigNumber.from('123')
+      const expectedErrorMsg: string = 'L1_BRG: chainId not supported'
 
       await expect(
         executeL1BridgeSendToL2(
@@ -854,7 +854,7 @@ describe('L1_Bridge', () => {
     })
 
     it('Should not allow a transfer root to be bonded if the transfer root has already been confirmed', async () => {
-      const expectedErrorMsg: string = 'L1_BRG: Transfer Root has already been confirmed'
+      const expectedErrorMsg: string = '1'
 
       await executeL1BridgeSendToL2(
         l1_canonicalToken,
@@ -1185,6 +1185,7 @@ describe('L1_Bridge', () => {
 
     it('Should not allow a transfer root to be challenged if the transfer root is challenged after the challenge period', async () => {
       const expectedErrorMsg: string = 'L1_BRG: Transfer root cannot be challenged after challenge period'
+
       await executeL1BridgeSendToL2(
         l1_canonicalToken,
         l1_bridge,
@@ -1847,7 +1848,7 @@ describe('L1_Bridge', () => {
 
       const shouldResolveSuccessfully: boolean = false
       await expect(
-        await executeL1BridgeResolveChallenge(
+        executeL1BridgeResolveChallenge(
           l1_canonicalToken,
           l1_bridge,
           incorrectAmount,
