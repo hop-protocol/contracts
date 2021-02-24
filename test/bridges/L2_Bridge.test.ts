@@ -7,12 +7,14 @@ import MerkleTree from '../../lib/MerkleTree'
 import { fixture } from '../shared/fixtures'
 import {
   setUpDefaults,
-  sendTestTokensAcrossCanonicalBridge,
-  sendTestTokensAcrossHopBridge,
   expectBalanceOf,
   revertSnapshot,
   takeSnapshot
 } from '../shared/utils'
+import {
+  executeCanonicalBridgeSendMessage,
+  executeL1BridgeSendToL2
+} from '../shared/contractFunctionWrappers'
 import { IFixture } from '../shared/interfaces'
 
 import {
@@ -187,7 +189,7 @@ describe('L2_Bridge', () => {
 
   it('Should send tokens across the bridge via send', async () => {
     // Add hToken to the users' address on L2
-    await sendTestTokensAcrossHopBridge(
+    await executeL1BridgeSendToL2(
       l1_canonicalToken,
       l1_bridge,
       l2_bridge,
@@ -247,7 +249,7 @@ describe('L2_Bridge', () => {
     const expectedAmountAfterSlippage: BigNumber = expectedAmounts[1]
 
     // Add the canonical token to the users' address on L2
-    await sendTestTokensAcrossCanonicalBridge(
+    await executeCanonicalBridgeSendMessage(
       l1_canonicalToken,
       l1_canonicalBridge,
       l2_canonicalToken,
@@ -316,7 +318,7 @@ describe('L2_Bridge', () => {
   // TODO: Changed with contract updates
   it.skip('Should commit a transfer', async () => {
     // Add hToken to the users' address on L2
-    await sendTestTokensAcrossHopBridge(
+    await executeL1BridgeSendToL2(
       l1_canonicalToken,
       l1_bridge,
       l2_bridge,
@@ -432,7 +434,7 @@ describe('L2_Bridge', () => {
       await l1_canonicalToken.mint(await user.getAddress(), transfer.amount)
 
       // Add the canonical token to the users' address on L2
-      await sendTestTokensAcrossCanonicalBridge(
+      await executeCanonicalBridgeSendMessage(
         l1_canonicalToken,
         l1_canonicalBridge,
         l2_canonicalToken,
@@ -493,7 +495,7 @@ describe('L2_Bridge', () => {
     transfer.destinationDeadline = BigNumber.from(DEFAULT_DEADLINE)
 
     // Add the canonical token to the users' address on L2
-    await sendTestTokensAcrossCanonicalBridge(
+    await executeCanonicalBridgeSendMessage(
       l1_canonicalToken,
       l1_canonicalBridge,
       l2_canonicalToken,
