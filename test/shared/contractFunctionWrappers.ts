@@ -1,7 +1,7 @@
 import { BigNumber, Contract, Signer } from 'ethers'
 import Transfer from '../../lib/Transfer'
 import { expect } from 'chai'
-import { expectBalanceOf } from './utils'
+import { expectBalanceOf, getRootHashFromTransferId } from './utils'
 
 import {
   CHAIN_IDS,
@@ -137,9 +137,11 @@ export const executeL1BridgeBondWithdrawal = async (
 export const executeL1BridgeBondTransferRoot = async (
   l1_bridge: Contract,
   transfer: Transfer,
-  bonder: Signer,
-  rootHash: Buffer,
+  bonder: Signer
 ) => {
+  const transferId: Buffer = await transfer.getTransferId()
+  const { rootHash } = getRootHashFromTransferId(transferId)
+
   // Perform transaction
   await l1_bridge
     .connect(bonder)
@@ -163,10 +165,11 @@ export const executeL1BridgeBondTransferRoot = async (
 export const executeL1BridgeSettleBondedWithdrawals = async (
   l1_bridge: Contract,
   transfer: Transfer,
-  bonder: Signer,
-  transferId: Buffer,
-  rootHash: Buffer
+  bonder: Signer
 ) => {
+  const transferId: Buffer = await transfer.getTransferId()
+  const { rootHash } = getRootHashFromTransferId(transferId)
+
   // Get state before transaction
   const bondedAmountBefore: BigNumber = await l1_bridge.getCredit(await bonder.getAddress())
 
@@ -190,8 +193,9 @@ export const executeL1BridgeChallengeTransferBond = async (
   amount: BigNumber,
   bonder: Signer,
   challenger: Signer,
-  rootHash: Buffer | string
+  transferId: Buffer
 ) => {
+  const { rootHash } = getRootHashFromTransferId(transferId)
   const challengeAmount: BigNumber = await l1_bridge.getChallengeAmountForTransferAmount(amount)
   const transferRootId: string = await l1_bridge.getTransferRootId(rootHash, amount)
 
@@ -238,9 +242,10 @@ export const executeL1BridgeResolveChallenge = async (
   amount: BigNumber,
   bonder: Signer,
   challenger: Signer,
-  rootHash: Buffer | string,
+  transferId: Buffer,
   shouldResolveSuccessfully: boolean
 ) => {
+  const { rootHash } = getRootHashFromTransferId(transferId)
   const challengeAmount: BigNumber = await l1_bridge.getChallengeAmountForTransferAmount(amount)
   const bondAmount: BigNumber = await l1_bridge.getBondForTransferAmount(amount)
   const transferRootId: string = await l1_bridge.getTransferRootId(rootHash, amount)

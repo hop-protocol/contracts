@@ -2,14 +2,11 @@ import '@nomiclabs/hardhat-waffle'
 import { expect } from 'chai'
 import { Signer, Contract, BigNumber, utils } from 'ethers'
 import Transfer from '../../lib/Transfer'
-import MerkleTree from '../../lib/MerkleTree'
 
 import {
   setUpDefaults,
   expectBalanceOf,
-  getOriginalSignerBalances,
   getRootHashFromTransferId,
-  getTransferRootId,
   increaseTime,
   revertSnapshot,
   takeSnapshot
@@ -33,11 +30,9 @@ import {
   CHAIN_IDS,
   DEFAULT_AMOUNT_OUT_MIN,
   DEFAULT_DEADLINE,
-  USER_INITIAL_BALANCE,
   BONDER_INITIAL_BALANCE,
   INITIAL_BONDED_AMOUNT,
   LIQUIDITY_PROVIDER_UNISWAP_AMOUNT,
-  CHALLENGER_INITIAL_BALANCE,
   ZERO_ADDRESS,
   SECONDS_IN_A_DAY,
   TIMESTAMP_VARIANCE,
@@ -52,37 +47,21 @@ describe('L1_Bridge', () => {
 
   let user: Signer
   let bonder: Signer
-  let relayer: Signer
   let challenger: Signer
-  let otherUser: Signer
 
   let l1_canonicalToken: Contract
   let l1_bridge: Contract
   let l1_messenger: Contract
-  let l1_messengerWrapper: Contract
   let l2_canonicalToken: Contract
   let l2_bridge: Contract
   let l2_messenger: Contract
   let l2_uniswapRouter: Contract
-  let l22_canonicalToken: Contract
   let l22_bridge: Contract
   let l22_messenger: Contract
-  let l22_uniswapRouter: Contract
 
   let transfers: Transfer[]
   let transfer: Transfer
   let l2Transfer: Transfer
-
-  let originalBondedAmount: BigNumber
-  let user_l1_canonicalTokenOriginalBalance: BigNumber
-  let bonder_l1_canonicalTokenOriginalBalance: BigNumber
-  let challenger_l1_canonicalTokenOriginalBalance: BigNumber
-  let user_l2_canonicalTokenOriginalBalance: BigNumber
-  let bonder_l2_canonicalTokenOriginalBalance: BigNumber
-  let challenger_l2_canonicalTokenOriginalBalance: BigNumber
-  let user_l2_bridgeTokenOriginalBalance: BigNumber
-  let bonder_l2_bridgeTokenOriginalBalance: BigNumber
-  let challenger_l2_bridgeTokenOriginalBalance: BigNumber
 
   let beforeAllSnapshotId: string
   let snapshotId: string
@@ -98,13 +77,10 @@ describe('L1_Bridge', () => {
     ;({
       user,
       bonder,
-      relayer,
       challenger,
-      otherUser,
       l1_canonicalToken,
       l1_bridge,
       l1_messenger,
-      l1_messengerWrapper,
       l2_canonicalToken,
       l2_bridge,
       l2_messenger,
@@ -119,35 +95,14 @@ describe('L1_Bridge', () => {
     _fixture = await fixture(l22ChainId, l1AlreadySetOpts)
     await setUpDefaults(_fixture, l22ChainId)
     ;({
-      l2_canonicalToken: l22_canonicalToken,
       l2_bridge: l22_bridge,
       l2_messenger: l22_messenger,
-      l2_uniswapRouter: l22_uniswapRouter
     } = _fixture)
 
-    ;({
-      originalBondedAmount,
-      user_l1_canonicalTokenOriginalBalance,
-      bonder_l1_canonicalTokenOriginalBalance,
-      challenger_l1_canonicalTokenOriginalBalance,
-      user_l2_canonicalTokenOriginalBalance,
-      bonder_l2_canonicalTokenOriginalBalance,
-      challenger_l2_canonicalTokenOriginalBalance,
-      user_l2_bridgeTokenOriginalBalance,
-      bonder_l2_bridgeTokenOriginalBalance,
-      challenger_l2_bridgeTokenOriginalBalance
-    } = await getOriginalSignerBalances(
-      user,
-      bonder,
-      challenger,
-      l1_bridge,
-      l2_bridge,
-      l1_canonicalToken,
-      l2_canonicalToken
-    ))
-
-    transfer = Object.assign(transfers[0], {})
-    l2Transfer = Object.assign(transfers[1], {})
+    transfer = transfers[0]
+    l2Transfer = transfers[1]
+    // transfer = Object.assign({}, transfers[0])
+    // l2Transfer = Object.assign({}, transfers[1])
   })
 
   after(async() => {
@@ -229,27 +184,21 @@ describe('L1_Bridge', () => {
       bonder
     )
 
-    const transferId: Buffer = await transfer.getTransferId()
-    const { rootHash } = getRootHashFromTransferId(transferId)
-
     await executeL1BridgeBondTransferRoot(
       l1_bridge,
       transfer,
-      bonder,
-      rootHash
+      bonder
     )
 
     await executeL1BridgeSettleBondedWithdrawals(
       l1_bridge,
       transfer,
-      bonder,
-      transferId,
-      rootHash
+      bonder
     )
 
     await l1_messenger.relayNextMessage()
 
-    const transferRootId: string = await l1_bridge.getTransferRootId(rootHash, transfer.amount)
+    const transferRootId: string = await l1_bridge.getTransferRootId(await transfer.getTransferId(), transfer.amount)
     const transferRootConfirmed: boolean = await l1_bridge.transferRootConfirmed(transferRootId)
     const transferBondByTransferRootId = await l1_bridge.transferBonds(transferRootId)
     const expectedCommitTimeForChainId: number = Date.now()
@@ -356,14 +305,10 @@ describe('L1_Bridge', () => {
         bonder
       )
 
-      const transferId: Buffer = await transfer.getTransferId()
-      const { rootHash } = getRootHashFromTransferId(transferId)
-  
       await executeL1BridgeBondTransferRoot(
         l1_bridge,
         transfer,
-        bonder,
-        rootHash
+        bonder
       )
     })
 
@@ -396,21 +341,17 @@ describe('L1_Bridge', () => {
         bonder
       )
 
-      const transferId: Buffer = await l2Transfer.getTransferId()
-      const { rootHash } = getRootHashFromTransferId(transferId)
-  
       await executeL1BridgeBondTransferRoot(
         l1_bridge,
         l2Transfer,
-        bonder,
-        rootHash
+        bonder
       )
 
       // TODO: Maybe move this into its own function
       const nextMessage = await l22_messenger.nextMessage()
       const ABI: string[] = [ "function setTransferRoot(bytes32, uint256)" ]
       const setTransferRootInterface = new utils.Interface(ABI)
-      const expectedMessage: string  = setTransferRootInterface.encodeFunctionData("setTransferRoot", [ rootHash, l2Transfer.amount ])
+      const expectedMessage: string  = setTransferRootInterface.encodeFunctionData("setTransferRoot", [ await l2Transfer.getTransferId(), l2Transfer.amount ])
 
       expect(nextMessage[0]).to.eq(l22_bridge.address)
       expect(nextMessage[1]).to.eq(expectedMessage)
@@ -453,7 +394,7 @@ describe('L1_Bridge', () => {
       const transferId: Buffer = await transfer.getTransferId()
       const { rootHash } = getRootHashFromTransferId(transferId)
 
-      const transferRootId: string = await l1_bridge.getTransferRootId(rootHash, transfer.amount);
+      const transferRootId: string = await l1_bridge.getTransferRootId(await transfer.getTransferId(), transfer.amount);
       const transferRootConfirmed: boolean = await l1_bridge.transferRootConfirmed(transferRootId)
       const transferRoot = await l1_bridge.getTransferRoot(rootHash, transfer.amount)
 
@@ -507,7 +448,7 @@ describe('L1_Bridge', () => {
       const nextMessage = await l22_messenger.nextMessage()
       const ABI: string[] = [ "function setTransferRoot(bytes32, uint256)" ]
       const setTransferRootInterface = new utils.Interface(ABI)
-      const expectedMessage: string  = setTransferRootInterface.encodeFunctionData("setTransferRoot", [ rootHash, l2Transfer.amount ])
+      const expectedMessage: string  = setTransferRootInterface.encodeFunctionData("setTransferRoot", [ await l2Transfer.getTransferId(), l2Transfer.amount ])
       expect(nextMessage[0]).to.eq(l22_bridge.address)
       expect(nextMessage[1]).to.eq(expectedMessage)
     })
@@ -543,14 +484,10 @@ describe('L1_Bridge', () => {
         bonder
       )
 
-      const transferId: Buffer = await transfer.getTransferId()
-      const { rootHash } = getRootHashFromTransferId(transferId)
-  
       await executeL1BridgeBondTransferRoot(
         l1_bridge,
         transfer,
-        bonder,
-        rootHash
+        bonder
       )
 
       await executeL1BridgeChallengeTransferBond(
@@ -559,7 +496,7 @@ describe('L1_Bridge', () => {
         transfer.amount,
         bonder,
         challenger,
-        rootHash
+        await transfer.getTransferId()
       )
     })
   })
@@ -592,15 +529,11 @@ describe('L1_Bridge', () => {
         transfer,
         bonder
       )
-
-      const transferId: Buffer = await transfer.getTransferId()
-      const { rootHash } = getRootHashFromTransferId(transferId)
   
       await executeL1BridgeBondTransferRoot(
         l1_bridge,
         transfer,
-        bonder,
-        rootHash
+        bonder
       )
 
       await executeL1BridgeChallengeTransferBond(
@@ -609,7 +542,7 @@ describe('L1_Bridge', () => {
         transfer.amount,
         bonder,
         challenger,
-        rootHash
+        await transfer.getTransferId()
       )
 
       const numDaysToWait: number = 9 * SECONDS_IN_A_DAY
@@ -623,7 +556,7 @@ describe('L1_Bridge', () => {
         transfer.amount,
         bonder,
         challenger,
-        rootHash,
+        await transfer.getTransferId(),
         shouldResolveSuccessfully
       )
     })
@@ -656,15 +589,11 @@ describe('L1_Bridge', () => {
         transfer,
         bonder
       )
-
-      const transferId: Buffer = await transfer.getTransferId()
-      const { rootHash } = getRootHashFromTransferId(transferId)
   
       await executeL1BridgeBondTransferRoot(
         l1_bridge,
         transfer,
-        bonder,
-        rootHash
+        bonder
       )
 
       await executeL1BridgeChallengeTransferBond(
@@ -673,7 +602,7 @@ describe('L1_Bridge', () => {
         transfer.amount,
         bonder,
         challenger,
-        rootHash
+        await transfer.getTransferId()
       )
 
       const numDaysToWait: number = 9 * SECONDS_IN_A_DAY
@@ -688,7 +617,7 @@ describe('L1_Bridge', () => {
         transfer.amount,
         bonder,
         challenger,
-        rootHash,
+        await transfer.getTransferId(),
         shouldResolveSuccessfully
       )
     })
@@ -814,6 +743,9 @@ describe('L1_Bridge', () => {
 
     it('Should not allow a transfer root to be bonded that exceeds the bonders credit', async () => {
       const expectedErrorMsg: string = 'ACT: Not enough available credit'
+      const newTransfer: Transfer = new Transfer(transfer)
+      newTransfer.amount = BONDER_INITIAL_BALANCE.mul(2)
+
 
       await executeL1BridgeSendToL2(
         l1_canonicalToken,
@@ -837,18 +769,11 @@ describe('L1_Bridge', () => {
         bonder
       )
 
-      const transferId: Buffer = await transfer.getTransferId()
-      const { rootHash } = getRootHashFromTransferId(transferId)
-
-      const newTransfer: Transfer = Object.assign({}, transfer)
-      newTransfer.amount = BONDER_INITIAL_BALANCE.mul(2)
-
       await expect(
         executeL1BridgeBondTransferRoot(
           l1_bridge,
           newTransfer,
-          bonder,
-          rootHash
+          bonder
         )
       ).to.be.revertedWith(expectedErrorMsg)
     })
@@ -886,15 +811,11 @@ describe('L1_Bridge', () => {
 
       await l1_messenger.relayNextMessage()
 
-      const transferId: Buffer = await transfer.getTransferId()
-      const { rootHash } = getRootHashFromTransferId(transferId)
-
       await expect(
         executeL1BridgeBondTransferRoot(
           l1_bridge,
           transfer,
-          bonder,
-          rootHash
+          bonder
         )
       ).to.be.revertedWith(expectedErrorMsg)
     })
@@ -925,22 +846,17 @@ describe('L1_Bridge', () => {
         bonder
       )
 
-      const transferId: Buffer = await transfer.getTransferId()
-      const { rootHash } = getRootHashFromTransferId(transferId)
-
       await executeL1BridgeBondTransferRoot(
         l1_bridge,
         transfer,
-        bonder,
-        rootHash
+        bonder
       )
 
       await expect(
         executeL1BridgeBondTransferRoot(
           l1_bridge,
           transfer,
-          bonder,
-          rootHash
+          bonder
         )
       ).to.be.revertedWith(expectedErrorMsg)
     })
@@ -953,7 +869,7 @@ describe('L1_Bridge', () => {
     it('Should not allow a transfer root to be bonded if a mainnet transfer root amount is 0', async () => {
       const expectedErrorMsg: string =
         'BRG: Cannot set TransferRoot amount of 0'
-      const newTransfer: Transfer = Object.assign({}, transfer)
+      const newTransfer: Transfer = new Transfer(transfer)
       newTransfer.amount = BigNumber.from('0')
 
       await executeL1BridgeSendToL2(
@@ -978,15 +894,11 @@ describe('L1_Bridge', () => {
         bonder
       )
 
-      const transferId: Buffer = await transfer.getTransferId()
-      const { rootHash } = getRootHashFromTransferId(transferId)
-
       await expect(
         executeL1BridgeBondTransferRoot(
           l1_bridge,
           newTransfer,
-          bonder,
-          rootHash
+          bonder
         )
       ).to.be.revertedWith(expectedErrorMsg)
     })
@@ -1016,9 +928,6 @@ describe('L1_Bridge', () => {
         bonder
       )
 
-      const transferId: Buffer = await l2Transfer.getTransferId()
-      const { rootHash } = getRootHashFromTransferId(transferId)
-
       await l1_bridge.setCrossDomainMessengerWrapper(
         l2Transfer.chainId,
         ZERO_ADDRESS
@@ -1028,8 +937,7 @@ describe('L1_Bridge', () => {
         executeL1BridgeBondTransferRoot(
           l1_bridge,
           l2Transfer,
-          bonder,
-          rootHash
+          bonder
         )
       ).to.be.revertedWith(expectedErrorMsg)
     })
@@ -1158,14 +1066,10 @@ describe('L1_Bridge', () => {
         bonder
       )
 
-      const transferId: Buffer = await transfer.getTransferId()
-      const { rootHash } = getRootHashFromTransferId(transferId)
-  
       await executeL1BridgeBondTransferRoot(
         l1_bridge,
         transfer,
-        bonder,
-        rootHash
+        bonder
       )
 
       // Confirm the transfer root
@@ -1178,7 +1082,7 @@ describe('L1_Bridge', () => {
           transfer.amount,
           bonder,
           challenger,
-          rootHash
+          await transfer.getTransferId()
         )
       ).to.be.revertedWith(expectedErrorMsg)
     })
@@ -1214,14 +1118,10 @@ describe('L1_Bridge', () => {
         bonder
       )
 
-      const transferId: Buffer = await transfer.getTransferId()
-      const { rootHash } = getRootHashFromTransferId(transferId)
-  
       await executeL1BridgeBondTransferRoot(
         l1_bridge,
         transfer,
-        bonder,
-        rootHash
+        bonder
       )
 
       // Wait until after the challenge period
@@ -1235,7 +1135,7 @@ describe('L1_Bridge', () => {
           transfer.amount,
           bonder,
           challenger,
-          rootHash
+          await transfer.getTransferId()
         )
       ).to.be.revertedWith(expectedErrorMsg)
     })
@@ -1271,14 +1171,10 @@ describe('L1_Bridge', () => {
         bonder
       )
 
-      const transferId: Buffer = await transfer.getTransferId()
-      const { rootHash } = getRootHashFromTransferId(transferId)
-  
       await executeL1BridgeBondTransferRoot(
         l1_bridge,
         transfer,
-        bonder,
-        rootHash
+        bonder
       )
 
       await executeL1BridgeChallengeTransferBond(
@@ -1287,7 +1183,7 @@ describe('L1_Bridge', () => {
         transfer.amount,
         bonder,
         challenger,
-        rootHash
+        await transfer.getTransferId()
       )
 
       await expect(
@@ -1297,7 +1193,7 @@ describe('L1_Bridge', () => {
           transfer.amount,
           bonder,
           challenger,
-          rootHash
+          await transfer.getTransferId()
         )
       ).to.be.revertedWith(expectedErrorMsg)
     })
@@ -1333,20 +1229,16 @@ describe('L1_Bridge', () => {
         bonder
       )
 
-      const transferId: Buffer = await transfer.getTransferId()
-      const { rootHash } = getRootHashFromTransferId(transferId)
-  
       await executeL1BridgeBondTransferRoot(
         l1_bridge,
         transfer,
-        bonder,
-        rootHash
+        bonder
       )
 
       await expect(
         l1_bridge
           .connect(challenger)
-          .challengeTransferBond(rootHash, transfer.amount)
+          .challengeTransferBond(await transfer.getTransferId(), transfer.amount)
       ).to.be.revertedWith(expectedErrorMsg)
     })
 
@@ -1380,15 +1272,11 @@ describe('L1_Bridge', () => {
         transfer,
         bonder
       )
-
-      const transferId: Buffer = await transfer.getTransferId()
-      const { rootHash } = getRootHashFromTransferId(transferId)
   
       await executeL1BridgeBondTransferRoot(
         l1_bridge,
         transfer,
-        bonder,
-        rootHash
+        bonder
       )
 
       const challengerBalance: BigNumber = await l1_canonicalToken.balanceOf(await challenger.getAddress())
@@ -1401,7 +1289,7 @@ describe('L1_Bridge', () => {
           transfer.amount,
           bonder,
           challenger,
-          rootHash
+          await transfer.getTransferId()
         )
       ).to.be.revertedWith(expectedErrorMsg)
     })
@@ -1437,28 +1325,17 @@ describe('L1_Bridge', () => {
         bonder
       )
 
-      const transferId: Buffer = await transfer.getTransferId()
-      const { rootHash } = getRootHashFromTransferId(transferId)
-  
       await executeL1BridgeBondTransferRoot(
         l1_bridge,
         transfer,
-        bonder,
-        rootHash
+        bonder
       )
 
       const challengerBalance: BigNumber = await l1_canonicalToken.balanceOf(await challenger.getAddress())
       await l1_canonicalToken.connect(challenger).transfer(DEAD_ADDRESS, challengerBalance)
 
       await expect(
-        executeL1BridgeChallengeTransferBond(
-          l1_canonicalToken,
-          l1_bridge,
-          transfer.amount,
-          bonder,
-          challenger,
-          ARBITRARY_ROOT_HASH
-        )
+        l1_bridge.connect(challenger).challengeTransferBond(ARBITRARY_ROOT_HASH, transfer.amount)
       ).to.be.revertedWith(expectedErrorMsg)
     })
 
@@ -1494,14 +1371,10 @@ describe('L1_Bridge', () => {
         bonder
       )
 
-      const transferId: Buffer = await transfer.getTransferId()
-      const { rootHash } = getRootHashFromTransferId(transferId)
-  
       await executeL1BridgeBondTransferRoot(
         l1_bridge,
         transfer,
-        bonder,
-        rootHash
+        bonder
       )
 
       await expect(
@@ -1511,7 +1384,7 @@ describe('L1_Bridge', () => {
           incorrectAmount,
           bonder,
           challenger,
-          ARBITRARY_ROOT_HASH
+          await transfer.getTransferId()
         )
       ).to.be.revertedWith(expectedErrorMsg)
     })
@@ -1549,14 +1422,10 @@ describe('L1_Bridge', () => {
         bonder
       )
 
-      const transferId: Buffer = await transfer.getTransferId()
-      const { rootHash } = getRootHashFromTransferId(transferId)
-  
       await executeL1BridgeBondTransferRoot(
         l1_bridge,
         transfer,
-        bonder,
-        rootHash
+        bonder
       )
 
       const shouldResolveSuccessfully: boolean = false
@@ -1568,7 +1437,7 @@ describe('L1_Bridge', () => {
           transfer.amount,
           bonder,
           challenger,
-          rootHash,
+          await transfer.getTransferId(),
           shouldResolveSuccessfully
         )
       ).to.be.revertedWith(expectedErrorMsg)
@@ -1605,14 +1474,10 @@ describe('L1_Bridge', () => {
         bonder
       )
 
-      const transferId: Buffer = await transfer.getTransferId()
-      const { rootHash } = getRootHashFromTransferId(transferId)
-  
       await executeL1BridgeBondTransferRoot(
         l1_bridge,
         transfer,
-        bonder,
-        rootHash
+        bonder
       )
 
       await executeL1BridgeChallengeTransferBond(
@@ -1621,7 +1486,7 @@ describe('L1_Bridge', () => {
         transfer.amount,
         bonder,
         challenger,
-        rootHash
+        await transfer.getTransferId()
       )
 
       // Resolve the challenge
@@ -1636,7 +1501,7 @@ describe('L1_Bridge', () => {
           transfer.amount,
           bonder,
           challenger,
-          rootHash,
+          await transfer.getTransferId(),
           shouldResolveSuccessfully
         )
       ).to.be.revertedWith(expectedErrorMsg)
@@ -1673,14 +1538,10 @@ describe('L1_Bridge', () => {
         bonder
       )
 
-      const transferId: Buffer = await transfer.getTransferId()
-      const { rootHash } = getRootHashFromTransferId(transferId)
-  
       await executeL1BridgeBondTransferRoot(
         l1_bridge,
         transfer,
-        bonder,
-        rootHash
+        bonder
       )
 
       await executeL1BridgeChallengeTransferBond(
@@ -1689,7 +1550,7 @@ describe('L1_Bridge', () => {
         transfer.amount,
         bonder,
         challenger,
-        rootHash
+        await transfer.getTransferId()
       )
 
       // Resolve the challenge
@@ -1697,17 +1558,8 @@ describe('L1_Bridge', () => {
       await increaseTime(numDaysToWait)
       await l1_messenger.relayNextMessage()
 
-      const shouldResolveSuccessfully: boolean = false
       await expect(
-        executeL1BridgeResolveChallenge(
-          l1_canonicalToken,
-          l1_bridge,
-          transfer.amount,
-          bonder,
-          challenger,
-          ARBITRARY_ROOT_HASH,
-          shouldResolveSuccessfully
-        )
+        l1_bridge.resolveChallenge(ARBITRARY_ROOT_HASH, transfer.amount)
       ).to.be.revertedWith(expectedErrorMsg)
     })
 
@@ -1742,14 +1594,10 @@ describe('L1_Bridge', () => {
         bonder
       )
 
-      const transferId: Buffer = await transfer.getTransferId()
-      const { rootHash } = getRootHashFromTransferId(transferId)
-  
       await executeL1BridgeBondTransferRoot(
         l1_bridge,
         transfer,
-        bonder,
-        rootHash
+        bonder
       )
 
       await executeL1BridgeChallengeTransferBond(
@@ -1758,7 +1606,7 @@ describe('L1_Bridge', () => {
         transfer.amount,
         bonder,
         challenger,
-        rootHash
+        await transfer.getTransferId()
       )
 
       // Resolve the challenge
@@ -1773,7 +1621,7 @@ describe('L1_Bridge', () => {
         transfer.amount,
         bonder,
         challenger,
-        rootHash,
+        await transfer.getTransferId(),
         shouldResolveSuccessfully
       )
 
@@ -1784,7 +1632,7 @@ describe('L1_Bridge', () => {
           transfer.amount,
           bonder,
           challenger,
-          rootHash,
+          await transfer.getTransferId(),
           shouldResolveSuccessfully
         )
       ).to.be.revertedWith(expectedErrorMsg)
@@ -1822,14 +1670,10 @@ describe('L1_Bridge', () => {
         bonder
       )
 
-      const transferId: Buffer = await transfer.getTransferId()
-      const { rootHash } = getRootHashFromTransferId(transferId)
-  
       await executeL1BridgeBondTransferRoot(
         l1_bridge,
         transfer,
-        bonder,
-        rootHash
+        bonder
       )
 
       await executeL1BridgeChallengeTransferBond(
@@ -1838,7 +1682,7 @@ describe('L1_Bridge', () => {
         transfer.amount,
         bonder,
         challenger,
-        rootHash
+        await transfer.getTransferId()
       )
 
       // Resolve the challenge
@@ -1854,7 +1698,7 @@ describe('L1_Bridge', () => {
           incorrectAmount,
           bonder,
           challenger,
-          rootHash,
+          await transfer.getTransferId(),
           shouldResolveSuccessfully
         )
       ).to.be.revertedWith(expectedErrorMsg)
