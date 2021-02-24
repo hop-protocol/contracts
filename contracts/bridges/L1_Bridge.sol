@@ -237,10 +237,6 @@ contract L1_Bridge is Bridge {
         require(challengePeriodEnd >= block.timestamp, "L1_BRG: Transfer root cannot be challenged after challenge period");
         require(transferBond.challengeStartTime == 0, "L1_BRG: Transfer root already challenged");
 
-        // Get stake for challenge
-        uint256 challengeStakeAmount = getChallengeAmountForTransferAmount(transferRoot.total);
-        l1CanonicalToken.transferFrom(msg.sender, address(this), challengeStakeAmount);
-
         transferBond.challengeStartTime = now;
         transferBond.challenger = msg.sender;
 
