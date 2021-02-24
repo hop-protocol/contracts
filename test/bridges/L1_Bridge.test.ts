@@ -63,6 +63,8 @@ describe('L1_Bridge', () => {
   let transfer: Transfer
   let l2Transfer: Transfer
 
+  let originalBondedAmount: BigNumber
+
   let beforeAllSnapshotId: string
   let snapshotId: string
 
@@ -101,8 +103,8 @@ describe('L1_Bridge', () => {
 
     transfer = transfers[0]
     l2Transfer = transfers[1]
-    // transfer = Object.assign({}, transfers[0])
-    // l2Transfer = Object.assign({}, transfers[1])
+
+    originalBondedAmount = LIQUIDITY_PROVIDER_UNISWAP_AMOUNT.add(INITIAL_BONDED_AMOUNT)
   })
 
   after(async() => {
@@ -247,7 +249,7 @@ describe('L1_Bridge', () => {
 
       await l2_messenger.relayNextMessage()
 
-      expect(await l1_bridge.chainBalance(l2ChainId)).to.eq(LIQUIDITY_PROVIDER_UNISWAP_AMOUNT.add(INITIAL_BONDED_AMOUNT).add(transfer.amount))
+      expect(await l1_bridge.chainBalance(l2ChainId)).to.eq(originalBondedAmount.add(transfer.amount))
     })
   })
 
@@ -271,7 +273,7 @@ describe('L1_Bridge', () => {
 
       await expectBalanceOf(l2_canonicalToken, user, expectedAmountAfterSlippage)
       await expectBalanceOf(l2_bridge, user, 0)
-      expect(await l1_bridge.chainBalance(l2ChainId)).to.eq(LIQUIDITY_PROVIDER_UNISWAP_AMOUNT.add(INITIAL_BONDED_AMOUNT).add(transfer.amount))
+      expect(await l1_bridge.chainBalance(l2ChainId)).to.eq(originalBondedAmount.add(transfer.amount))
     })
   })
 
@@ -347,7 +349,6 @@ describe('L1_Bridge', () => {
         bonder
       )
 
-      // TODO: Maybe move this into its own function
       const nextMessage = await l22_messenger.nextMessage()
       const ABI: string[] = [ "function setTransferRoot(bytes32, uint256)" ]
       const setTransferRootInterface = new utils.Interface(ABI)
@@ -399,7 +400,7 @@ describe('L1_Bridge', () => {
       const transferRoot = await l1_bridge.getTransferRoot(rootHash, transfer.amount)
 
       expect(transferRootConfirmed).to.eq(true)
-      expect(await l1_bridge.chainBalance(l2ChainId)).to.eq(LIQUIDITY_PROVIDER_UNISWAP_AMOUNT.add(INITIAL_BONDED_AMOUNT))
+      expect(await l1_bridge.chainBalance(l2ChainId)).to.eq(originalBondedAmount)
       expect(transferRoot[0]).to.eq(transfer.amount)
       expect(transferRoot[1]).to.eq(BigNumber.from('0'))
     })
@@ -441,14 +442,15 @@ describe('L1_Bridge', () => {
 
       const transferRootId: string = await l1_bridge.getTransferRootId(rootHash, l2Transfer.amount);
       const transferRootConfirmed: boolean = await l1_bridge.transferRootConfirmed(transferRootId)
+
       expect(transferRootConfirmed).to.eq(true)
       expect(await l1_bridge.chainBalance(l22ChainId)).to.eq(LIQUIDITY_PROVIDER_UNISWAP_AMOUNT.add(INITIAL_BONDED_AMOUNT))
 
-      // TODO: Maybe move this into its own function
       const nextMessage = await l22_messenger.nextMessage()
       const ABI: string[] = [ "function setTransferRoot(bytes32, uint256)" ]
       const setTransferRootInterface = new utils.Interface(ABI)
       const expectedMessage: string  = setTransferRootInterface.encodeFunctionData("setTransferRoot", [ await l2Transfer.getTransferId(), l2Transfer.amount ])
+
       expect(nextMessage[0]).to.eq(l22_bridge.address)
       expect(nextMessage[1]).to.eq(expectedMessage)
     })
@@ -623,8 +625,6 @@ describe('L1_Bridge', () => {
     })
   })
 
-  // TODO: Test extreme relayer fees (0, max)
-  // TODO: Test the same recipient
   /**
    * Non-Happy Path
    */
@@ -1705,5 +1705,40 @@ describe('L1_Bridge', () => {
     })
   })
 
+  describe('Edge cases', async () => {
+    it('Should allow a user to sendToL2 with an amount of 0', async () => {
+    })
+
+    it('Should allow a user to sendToL2AndAttemptSwap with an amountOutMin that is greater than expected', async () => {
+    })
+
+    it('Should allow a user to sendToL2AndAttemptSwap with a deadline that expires', async () => {
+    })
+
+    it('Should bond a transfer root to L1 with a totalAmount of 0', async () => {
+    })
+
+    it('Should bond a transfer root to L2 with a totalAmount of 0', async () => {
+    })
+
+    it('Should confirm a transfer root to L1 with a totalAmount of 0', async () => {
+    })
+
+    it('Should confirm a transfer root to L2 with a totalAmount of 0', async () => {
+    })
+
+    it('Should challenge a transfer bond with an originalAmount of 0', async () => {
+    })
+
+    it('Should unsuccessfully resolve a transfer bond with an originalAmount of 0', async () => {
+    })
+
+    it('Should successfully resolve a transfer bond with an originalAmount of 0', async () => {
+    })
+  })
+
   // TODO: Edge cases
+  // TODO: Test extreme relayer fees (0, max)
+  // TODO: Test the same recipient
+  // TODO: Reentrancy?
 })

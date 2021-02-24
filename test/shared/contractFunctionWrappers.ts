@@ -270,8 +270,6 @@ export const executeL1BridgeResolveChallenge = async (
     // Credit should not have changed
     expect(creditAfter).to.eq(creditBefore)
 
-    // TODO: Get these 3 values from the contract
-
     // DEAD address should have tokens
     const balanceAfter: BigNumber = await l1_canonicalToken.balanceOf(DEAD_ADDRESS)
     expect(balanceAfter.toString()).to.eq(BigNumber.from(challengeAmount).div(4).toString())
