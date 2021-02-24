@@ -27,7 +27,6 @@ contract L1_Bridge is Bridge {
     mapping(bytes32 => bool) public transferRootConfirmed;
     mapping(bytes32 => TransferBond) public transferBonds;
     mapping(uint256 => uint256) public timeSlotToAmountBonded;
-    uint256 public amountChallenged;
     mapping(uint256 => uint256) public chainBalance;
 
     /* ========== Config State ========== */
@@ -70,10 +69,9 @@ contract L1_Bridge is Bridge {
 
     /* ========== Modifiers ========== */
 
-    modifier onlyL2Bridge {
-        // ToDo: Figure out how to check sender against an allowlist
-        // IMessengerWrapper messengerWrapper = crossDomainMessengerWrappers[_chainId];
-        // messengerWrapper.verifySender(msg.data);
+    modifier onlyL2Bridge(uint256 chainId) {
+        IMessengerWrapper messengerWrapper = crossDomainMessengerWrappers[chainId];
+        messengerWrapper.verifySender(msg.data);
         _;
     }
 
@@ -171,24 +169,24 @@ contract L1_Bridge is Bridge {
     /**
      * @dev Used by an L2 bridge to confirm a TransferRoot via cross-domain message. Once a TransferRoot
      * has been confirmed, any challenge against that TransferRoot can be resolved as unsuccessful.
-     * @param chainId The id of the destination chain
-     * @param rootHash The Merkle root of the TransferRoot Merkle tree
+     * @param originChainId The id of the origin chain
      * @param destinationChainId The id of the destination chain
+     * @param rootHash The Merkle root of the TransferRoot Merkle tree
      * @param totalAmount The amount destined for each destination chain
      */
     function confirmTransferRoot(
-        uint256 chainId,
-        bytes32 rootHash,
+        uint256 originChainId,
         uint256 destinationChainId,
+        bytes32 rootHash,
         uint256 totalAmount
     )
         public
-        onlyL2Bridge
+        onlyL2Bridge(originChainId)
     {
         bytes32 transferRootId = getTransferRootId(rootHash, totalAmount);
         require(transferRootConfirmed[transferRootId] == false, "L1_BRG: TransferRoot already confirmed");
         transferRootConfirmed[transferRootId] = true;
-        chainBalance[chainId] = chainBalance[chainId].sub(totalAmount, "L1_BRG: Amount exceeds chainBalance. This indicates a layer-2 failure.");
+        chainBalance[originChainId] = chainBalance[originChainId].sub(totalAmount, "L1_BRG: Amount exceeds chainBalance. This indicates a layer-2 failure.");
 
         // If the TransferRoot was never bonded, distribute the TransferRoot. If it has been bonded, 
         // require that the chainIds and chainAmounts match the values coming from the L2_Bridge.
@@ -197,7 +195,7 @@ contract L1_Bridge is Bridge {
             _distributeTransferRoot(rootHash, destinationChainId, totalAmount);
         }
 
-        emit TransferRootConfirmed(chainId, destinationChainId, rootHash, totalAmount);
+        emit TransferRootConfirmed(originChainId, destinationChainId, rootHash, totalAmount);
     }
 
     function _distributeTransferRoot(
@@ -232,14 +230,11 @@ contract L1_Bridge is Bridge {
         TransferRoot memory transferRoot = getTransferRoot(rootHash, originalAmount);
         TransferBond storage transferBond = transferBonds[transferRootId];
 
+        require(transferRoot.total > 0, "L1_BRG: Transfer root not found");
         require(transferRootConfirmed[transferRootId] == false, "L1_BRG: Transfer root has already been confirmed");
         uint256 challengePeriodEnd = transferBond.createdAt.add(challengePeriod);
         require(challengePeriodEnd >= block.timestamp, "L1_BRG: Transfer root cannot be challenged after challenge period");
         require(transferBond.challengeStartTime == 0, "L1_BRG: Transfer root already challenged");
-
-        // Get stake for challenge
-        uint256 challengeStakeAmount = getChallengeAmountForTransferAmount(transferRoot.total);
-        l1CanonicalToken.transferFrom(msg.sender, address(this), challengeStakeAmount);
 
         transferBond.challengeStartTime = now;
         transferBond.challenger = msg.sender;
@@ -250,6 +245,10 @@ contract L1_Bridge is Bridge {
         timeSlotToAmountBonded[timeSlot] = timeSlotToAmountBonded[timeSlot].sub(bondAmount);
 
         _addDebit(transferBond.bonder, bondAmount);
+
+        // Get stake for challenge
+        uint256 challengeStakeAmount = getChallengeAmountForTransferAmount(transferRoot.total);
+        l1CanonicalToken.transferFrom(msg.sender, address(this), challengeStakeAmount);
 
         emit TransferBondChallenged(transferRootId, rootHash, originalAmount);
     }
