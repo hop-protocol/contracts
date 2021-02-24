@@ -255,24 +255,17 @@ describe('L1_Bridge', () => {
 
   describe('sendToL2AndAttemptToSwap', async () => {
     it('Should send tokens across the bridge and swap via sendToL2AndAttemptSwap', async () => {
-      const expectedAmounts: BigNumber[] = await l2_uniswapRouter.getAmountsOut(
-        transfer.amount,
-        [l2_canonicalToken.address, l2_bridge.address]
-      )
-      const expectedAmountAfterSlippage: BigNumber = expectedAmounts[1]
-
       await executeL1BridgeSendToL2AndAttemptToSwap(
         l1_canonicalToken,
         l1_bridge,
-        transfer.sender,
-        transfer.amount,
+        l2_bridge,
+        l2_messenger,
+        l2_canonicalToken,
+        l2_uniswapRouter,
+        transfer,
         l2ChainId
       )
 
-      await l2_messenger.relayNextMessage()
-
-      await expectBalanceOf(l2_canonicalToken, user, expectedAmountAfterSlippage)
-      await expectBalanceOf(l2_bridge, user, 0)
       expect(await l1_bridge.chainBalance(l2ChainId)).to.eq(originalBondedAmount.add(transfer.amount))
     })
   })
@@ -689,8 +682,11 @@ describe('L1_Bridge', () => {
         executeL1BridgeSendToL2AndAttemptToSwap(
           l1_canonicalToken,
           l1_bridge,
-          transfer.sender,
-          transfer.amount,
+          l2_bridge,
+          l2_messenger,
+          l2_canonicalToken,
+          l2_uniswapRouter,
+          transfer,
           invalidChainId
         )
       ).to.be.revertedWith(expectedErrorMsg)
@@ -719,8 +715,11 @@ describe('L1_Bridge', () => {
         executeL1BridgeSendToL2AndAttemptToSwap(
           l1_canonicalToken,
           l1_bridge,
-          transfer.sender,
-          transfer.amount,
+          l2_bridge,
+          l2_messenger,
+          l2_canonicalToken,
+          l2_uniswapRouter,
+          transfer,
           l2ChainId
         )
       ).to.be.revertedWith(expectedErrorMsg)
@@ -743,9 +742,8 @@ describe('L1_Bridge', () => {
 
     it('Should not allow a transfer root to be bonded that exceeds the bonders credit', async () => {
       const expectedErrorMsg: string = 'ACT: Not enough available credit'
-      const newTransfer: Transfer = new Transfer(transfer)
-      newTransfer.amount = BONDER_INITIAL_BALANCE.mul(2)
-
+      const customTransfer: Transfer = new Transfer(transfer)
+      customTransfer.amount = BONDER_INITIAL_BALANCE.mul(2)
 
       await executeL1BridgeSendToL2(
         l1_canonicalToken,
@@ -772,7 +770,7 @@ describe('L1_Bridge', () => {
       await expect(
         executeL1BridgeBondTransferRoot(
           l1_bridge,
-          newTransfer,
+          customTransfer,
           bonder
         )
       ).to.be.revertedWith(expectedErrorMsg)
@@ -869,8 +867,8 @@ describe('L1_Bridge', () => {
     it('Should not allow a transfer root to be bonded if a mainnet transfer root amount is 0', async () => {
       const expectedErrorMsg: string =
         'BRG: Cannot set TransferRoot amount of 0'
-      const newTransfer: Transfer = new Transfer(transfer)
-      newTransfer.amount = BigNumber.from('0')
+      const customTransfer: Transfer = new Transfer(transfer)
+      customTransfer.amount = BigNumber.from('0')
 
       await executeL1BridgeSendToL2(
         l1_canonicalToken,
@@ -897,7 +895,7 @@ describe('L1_Bridge', () => {
       await expect(
         executeL1BridgeBondTransferRoot(
           l1_bridge,
-          newTransfer,
+          customTransfer,
           bonder
         )
       ).to.be.revertedWith(expectedErrorMsg)
@@ -944,8 +942,54 @@ describe('L1_Bridge', () => {
   })
 
   describe('confirmTransferRoot', async () => {
-    it('Should not allow a transfer root to be confirmed by anybody except the L2_Bridge', async () => {
-      // TODO -- wait until the `onlyL2Bridge` modifier has been implemented
+    it.skip('Should not allow a transfer root to be confirmed by anybody except the L2_Bridge', async () => {
+      const expectedErrorMsg: string = 'TODO'
+      await executeL1BridgeSendToL2(
+        l1_canonicalToken,
+        l1_bridge,
+        l2_bridge,
+        l2_messenger,
+        transfer.sender,
+        transfer.amount,
+        l2ChainId
+      )
+
+      await executeL2BridgeSend(
+        l2_bridge,
+        transfer
+      )
+
+      await executeL1BridgeBondWithdrawal(
+        l1_canonicalToken,
+        l1_bridge,
+        transfer,
+        bonder
+      )
+
+      await executeL2BridgeCommitTransfers(
+        l2_bridge,
+        transfer,
+        bonder
+      )
+
+      // Mimic the same data that would be sent with relayNextMessage()
+      const transferId: Buffer = await transfer.getTransferId()
+      const { rootHash } = getRootHashFromTransferId(transferId)
+      const mimicChainId: BigNumber = l2ChainId
+      const mimicDestinationChainId: BigNumber = transfer.chainId
+      const mimicRootHash: Buffer = rootHash
+      const mimicTotalAmount: BigNumber = await l2_bridge.pendingAmountForChainId(transfer.chainId)
+
+      await expect(
+        l1_bridge
+          .connect(user)
+          .confirmTransferRoot(
+            mimicChainId,
+            mimicDestinationChainId,
+            mimicRootHash,
+            mimicTotalAmount
+          )
+      ).to.be.revertedWith(expectedErrorMsg)
     })
 
     it('Should not allow a transfer root to be confirmed if it was already confirmed', async () => {
@@ -1295,7 +1339,7 @@ describe('L1_Bridge', () => {
     })
 
     it('Should not allow a transfer root to be challenged if an arbitrary root hash is passed in', async () => {
-      const expectedErrorMsg: string = 'L1_BRG: Transfer root cannot be challenged after challenge period'
+      const expectedErrorMsg: string = 'L1_BRG: Transfer root not found'
 
       await executeL1BridgeSendToL2(
         l1_canonicalToken,
@@ -1340,7 +1384,7 @@ describe('L1_Bridge', () => {
     })
 
     it('Should not allow a transfer root to be challenged if an incorrect originalAmount is passed in', async () => {
-      const expectedErrorMsg: string = 'L1_BRG: Transfer root cannot be challenged after challenge period'
+      const expectedErrorMsg: string = 'L1_BRG: Transfer root not found'
       const incorrectAmount: BigNumber = BigNumber.from('13371337')
 
       await executeL1BridgeSendToL2(

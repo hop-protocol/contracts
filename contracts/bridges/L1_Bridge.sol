@@ -307,7 +307,7 @@ contract L1_Bridge is Bridge {
 
     /* ========== External Config Management Setters ========== */
 
-    function setGoveranace(address _newGovernance) external onlyGovernance {
+    function setGovernance(address _newGovernance) external onlyGovernance {
         require(_newGovernance != address(0), "L1_BRG: _newGovernance cannot be address(0)");
         governance = _newGovernance;
     }
