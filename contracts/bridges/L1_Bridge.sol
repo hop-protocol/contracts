@@ -170,15 +170,15 @@ contract L1_Bridge is Bridge {
     /**
      * @dev Used by an L2 bridge to confirm a TransferRoot via cross-domain message. Once a TransferRoot
      * has been confirmed, any challenge against that TransferRoot can be resolved as unsuccessful.
-     * @param chainId The id of the destination chain
-     * @param rootHash The Merkle root of the TransferRoot Merkle tree
+     * @param originChainId The id of the origin chain
      * @param destinationChainId The id of the destination chain
+     * @param rootHash The Merkle root of the TransferRoot Merkle tree
      * @param totalAmount The amount destined for each destination chain
      */
     function confirmTransferRoot(
-        uint256 chainId,
-        bytes32 rootHash,
+        uint256 originChainId,
         uint256 destinationChainId,
+        bytes32 rootHash,
         uint256 totalAmount
     )
         public
@@ -187,7 +187,7 @@ contract L1_Bridge is Bridge {
         bytes32 transferRootId = getTransferRootId(rootHash, totalAmount);
         require(transferRootConfirmed[transferRootId] == false, "L1_BRG: TransferRoot already confirmed");
         transferRootConfirmed[transferRootId] = true;
-        chainBalance[chainId] = chainBalance[chainId].sub(totalAmount, "L1_BRG: Amount exceeds chainBalance. This indicates a layer-2 failure.");
+        chainBalance[originChainId] = chainBalance[originChainId].sub(totalAmount, "L1_BRG: Amount exceeds chainBalance. This indicates a layer-2 failure.");
 
         // If the TransferRoot was never bonded, distribute the TransferRoot. If it has been bonded, 
         // require that the chainIds and chainAmounts match the values coming from the L2_Bridge.
@@ -196,7 +196,7 @@ contract L1_Bridge is Bridge {
             _distributeTransferRoot(rootHash, destinationChainId, totalAmount);
         }
 
-        emit TransferRootConfirmed(chainId, destinationChainId, rootHash, totalAmount);
+        emit TransferRootConfirmed(originChainId, destinationChainId, rootHash, totalAmount);
     }
 
     function _distributeTransferRoot(
