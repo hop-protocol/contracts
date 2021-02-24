@@ -87,12 +87,16 @@ abstract contract L2_Bridge is ERC20, Bridge {
         messengerGasLimit = _messengerGasLimit;
     }
 
-    function addSupportedChainId(uint256 chainIds) public onlyGovernance {
-        supportedChainIds[chainIds] = true;
+    function addSupportedChainIds(uint256[] calldata chainIds) public onlyGovernance {
+        for (uint256 i = 0; i < chainIds.length; i++) {
+            supportedChainIds[chainIds[i]] = true;
+        }
     }
 
-    function removeSupportedChainId(uint256 chainIds) public onlyGovernance {
-        supportedChainIds[chainIds] = false;
+    function removeSupportedChainIds(uint256[] calldata chainIds) public onlyGovernance {
+        for (uint256 i = 0; i < chainIds.length; i++) {
+            supportedChainIds[chainIds[i]] = false;
+        }
     }
 
     function setMinimumForceCommitDelay(uint256 _minimumForceCommitDelay) public onlyGovernance {

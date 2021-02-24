@@ -25,9 +25,9 @@ async function deployL2 () {
   const l2_messengerAddress: string = ''
 
   // Variables
-  const l2_hTokenName: string = ''
-  const l2_hTokenSymbol: string = ''
-  const l2_hTokenDecimals: number = 0
+  const l2_hTokenName: string = DEFAULT_H_TOKEN_NAME
+  const l2_hTokenSymbol: string = DEFAULT_H_TOKEN_SYMBOL
+  const l2_hTokenDecimals: number = 18
 
   if (
     !l1_bridgeAddress ||

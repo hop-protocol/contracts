@@ -148,24 +148,28 @@ export async function fixture (l2ChainId: BigNumber, l1AlreadySetOpts: any = {})
   // Transfers
   const transfers: Transfer[] = [
     new Transfer({
-      chainId: CHAIN_IDS.ARBITRUM.TESTNET_3,
-      sender: await user.getAddress(),
-      recipient: await otherUser.getAddress(),
+      chainId: CHAIN_IDS.ETHEREUM.MAINNET,
+      sender: user,
+      recipient: otherUser,
       amount: TRANSFER_AMOUNT,
       transferNonce: 0,
       relayerFee: RELAYER_FEE,
       amountOutMin: BigNumber.from('0'),
-      deadline: BigNumber.from(DEFAULT_DEADLINE)
+      deadline: BigNumber.from('0'),
+      destinationAmountOutMin: BigNumber.from('0'),
+      destinationDeadline: DEFAULT_DEADLINE
     }),
     new Transfer({
       chainId: CHAIN_IDS.ARBITRUM.TESTNET_3,
-      sender: await liquidityProvider.getAddress(),
-      recipient: await liquidityProvider.getAddress(),
+      sender: user,
+      recipient: otherUser,
       amount: TRANSFER_AMOUNT,
       transferNonce: 0,
       relayerFee: RELAYER_FEE,
       amountOutMin: BigNumber.from('0'),
-      deadline: BigNumber.from(DEFAULT_DEADLINE)
+      deadline: BigNumber.from('0'),
+      destinationAmountOutMin: BigNumber.from('0'),
+      destinationDeadline: DEFAULT_DEADLINE
     })
   ]
 

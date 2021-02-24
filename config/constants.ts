@@ -42,7 +42,7 @@ export const DEFAULT_MESSENGER_WRAPPER_GAS_CALL_VALUE: number = 0
 export const DEFAULT_MESSENGER_WRAPPER_SUB_MESSAGE_TYPE: string = '0x01'
 
 export const DEFAULT_AMOUNT_OUT_MIN: number = 0
-export const DEFAULT_DEADLINE: number = 9999999999
+export const DEFAULT_DEADLINE: BigNumber = BigNumber.from('9999999999')
 
 export const MAX_NUM_SENDS_BEFORE_COMMIT: number = 100
 
