@@ -231,6 +231,7 @@ contract L1_Bridge is Bridge {
         TransferRoot memory transferRoot = getTransferRoot(rootHash, originalAmount);
         TransferBond storage transferBond = transferBonds[transferRootId];
 
+        require(transferRoot.total > 0, "L1_BRG: Transfer root not found");
         require(transferRootConfirmed[transferRootId] == false, "L1_BRG: Transfer root has already been confirmed");
         uint256 challengePeriodEnd = transferBond.createdAt.add(challengePeriod);
         require(challengePeriodEnd >= block.timestamp, "L1_BRG: Transfer root cannot be challenged after challenge period");
