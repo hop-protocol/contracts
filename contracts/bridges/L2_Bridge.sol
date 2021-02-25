@@ -24,6 +24,9 @@ abstract contract L2_Bridge is ERC20, Bridge {
     mapping(uint256 => uint256) public lastCommitTimeForChainId;
     uint256 public transferNonceIncrementer;
 
+    //keccak256("L2_Bridge v1.0");
+    bytes32 private constant NONCE_DOMAIN_SEPARATOR = 0xcd24e8e9844849186ed93126ac365bc3a49362579aee585431811ea50bd1694c;
+
     event TransfersCommitted (
         bytes32 indexed rootHash,
         uint256 totalAmount
@@ -57,6 +60,8 @@ abstract contract L2_Bridge is ERC20, Bridge {
         Bridge(bonders)
         ERC20(name, symbol)
     {
+        require(NONCE_DOMAIN_SEPARATOR == keccak256("L2_Bridge v1.0"));
+
         l1Governance = _l1Governance;
         l2CanonicalToken = _l2CanonicalToken;
         l1BridgeAddress = _l1BridgeAddress;
@@ -260,7 +265,7 @@ abstract contract L2_Bridge is ERC20, Bridge {
     /* ========== Public Getters ========== */
 
     function getNextTransferNonce() public view returns (bytes32) {
-        return keccak256(abi.encodePacked(getChainId(), transferNonceIncrementer));
+        return keccak256(abi.encodePacked(NONCE_DOMAIN_SEPARATOR, getChainId(), transferNonceIncrementer));
     }
 
     /* ========== Helper Functions ========== */
