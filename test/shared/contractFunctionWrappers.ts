@@ -68,11 +68,26 @@ export const executeL1BridgeSendToL2 = async (
 export const executeL1BridgeSendToL2AndAttemptToSwap = async (
   l1_canonicalToken: Contract,
   l1_bridge: Contract,
-  sender: Signer,
-  amount: BigNumber,
+  l2_bridge: Contract,
+  l2_messenger: Contract,
+  l2_canonicalToken: Contract,
+  l2_uniswapRouter: Contract,
+  transfer: Transfer,
   l2ChainId: BigNumber
 ) => {
+  const sender: Signer = transfer.sender
+  const recipient: Signer = transfer.recipient
+  const amount: BigNumber = transfer.amount
+  const amountOutMin: BigNumber = transfer.amountOutMin
+  const deadline: BigNumber = transfer.deadline
+
   // Get state before transaction
+  const expectedAmounts: BigNumber[] = await l2_uniswapRouter.getAmountsOut(
+    transfer.amount,
+    [l2_canonicalToken.address, l2_bridge.address]
+  )
+
+  const expectedAmountAfterSlippage: BigNumber = expectedAmounts[1]
   const senderBalanceBefore: BigNumber = await l1_canonicalToken.balanceOf(await sender.getAddress())
 
   // Perform transaction
@@ -83,14 +98,24 @@ export const executeL1BridgeSendToL2AndAttemptToSwap = async (
     .connect(sender)
     .sendToL2AndAttemptSwap(
       l2ChainId.toString(),
-      await sender.getAddress(),
+      await recipient.getAddress(),
       amount,
-      DEFAULT_AMOUNT_OUT_MIN,
-      DEFAULT_DEADLINE
+      amountOutMin,
+      deadline
     )
+  await l2_messenger.relayNextMessage()
 
   // Validate state after transaction
   await expectBalanceOf(l1_canonicalToken, sender, senderBalanceBefore.sub(amount))
+
+  // The recipient will either have the canonical token or the bridge token
+  try {
+    await expectBalanceOf(l2_canonicalToken, recipient, expectedAmountAfterSlippage)
+    await expectBalanceOf(l2_bridge, recipient, 0)
+  } catch {
+    await expectBalanceOf(l2_canonicalToken, recipient, 0)
+    await expectBalanceOf(l2_bridge, recipient, amount)
+  }
 }
 
 export const executeL1BridgeBondWithdrawal = async (
@@ -115,16 +140,26 @@ export const executeL1BridgeBondWithdrawal = async (
     )
 
   // Validate state after transaction
+  let senderL1CanonicalTokenBalance: BigNumber
+  let recipientL1CanonicalTokenBalance: BigNumber
+  if(transfer.sender === transfer.recipient) {
+    senderL1CanonicalTokenBalance = senderBalanceBefore.add(transfer.amount).sub(transfer.relayerFee)
+    recipientL1CanonicalTokenBalance = senderL1CanonicalTokenBalance
+  } else {
+    senderL1CanonicalTokenBalance = senderBalanceBefore
+    recipientL1CanonicalTokenBalance = transfer.amount.sub(transfer.relayerFee)
+  }
   await expectBalanceOf(
     l1_canonicalToken,
     transfer.sender,
-    senderBalanceBefore
+    senderL1CanonicalTokenBalance
   )
 
+  // Validate state after transaction
   await expectBalanceOf(
     l1_canonicalToken,
     transfer.recipient,
-    transfer.amount.sub(transfer.relayerFee)
+    recipientL1CanonicalTokenBalance
   )
 
   await expectBalanceOf(
@@ -269,8 +304,6 @@ export const executeL1BridgeResolveChallenge = async (
 
     // Credit should not have changed
     expect(creditAfter).to.eq(creditBefore)
-
-    // TODO: Get these 3 values from the contract
 
     // DEAD address should have tokens
     const balanceAfter: BigNumber = await l1_canonicalToken.balanceOf(DEAD_ADDRESS)

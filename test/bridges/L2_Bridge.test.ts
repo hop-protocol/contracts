@@ -559,4 +559,6 @@ describe('L2_Bridge', () => {
   // TODO: modifiers
   // TODO: Same nonce shouldn't work
   // TODO: Does 200 transfers without a bond event work?
+  // TODO: Test nonces
+  // TODO: Diff relayer fees
 })

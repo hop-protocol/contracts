@@ -41,7 +41,6 @@ contract L2_XDaiBridge is L2_Bridge {
         l1ChainId = _l1ChainId;
     }
 
-    // TODO: Use a valid gasLimit
     function _sendCrossDomainMessage(bytes memory message) internal override {
         messenger.requireToPassMessage(
             l1BridgeAddress,

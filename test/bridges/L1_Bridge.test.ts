@@ -63,6 +63,8 @@ describe('L1_Bridge', () => {
   let transfer: Transfer
   let l2Transfer: Transfer
 
+  let originalBondedAmount: BigNumber
+
   let beforeAllSnapshotId: string
   let snapshotId: string
 
@@ -101,8 +103,8 @@ describe('L1_Bridge', () => {
 
     transfer = transfers[0]
     l2Transfer = transfers[1]
-    // transfer = Object.assign({}, transfers[0])
-    // l2Transfer = Object.assign({}, transfers[1])
+
+    originalBondedAmount = LIQUIDITY_PROVIDER_UNISWAP_AMOUNT.add(INITIAL_BONDED_AMOUNT)
   })
 
   after(async() => {
@@ -247,31 +249,24 @@ describe('L1_Bridge', () => {
 
       await l2_messenger.relayNextMessage()
 
-      expect(await l1_bridge.chainBalance(l2ChainId)).to.eq(LIQUIDITY_PROVIDER_UNISWAP_AMOUNT.add(INITIAL_BONDED_AMOUNT).add(transfer.amount))
+      expect(await l1_bridge.chainBalance(l2ChainId)).to.eq(originalBondedAmount.add(transfer.amount))
     })
   })
 
   describe('sendToL2AndAttemptToSwap', async () => {
     it('Should send tokens across the bridge and swap via sendToL2AndAttemptSwap', async () => {
-      const expectedAmounts: BigNumber[] = await l2_uniswapRouter.getAmountsOut(
-        transfer.amount,
-        [l2_canonicalToken.address, l2_bridge.address]
-      )
-      const expectedAmountAfterSlippage: BigNumber = expectedAmounts[1]
-
       await executeL1BridgeSendToL2AndAttemptToSwap(
         l1_canonicalToken,
         l1_bridge,
-        transfer.sender,
-        transfer.amount,
+        l2_bridge,
+        l2_messenger,
+        l2_canonicalToken,
+        l2_uniswapRouter,
+        transfer,
         l2ChainId
       )
 
-      await l2_messenger.relayNextMessage()
-
-      await expectBalanceOf(l2_canonicalToken, user, expectedAmountAfterSlippage)
-      await expectBalanceOf(l2_bridge, user, 0)
-      expect(await l1_bridge.chainBalance(l2ChainId)).to.eq(LIQUIDITY_PROVIDER_UNISWAP_AMOUNT.add(INITIAL_BONDED_AMOUNT).add(transfer.amount))
+      expect(await l1_bridge.chainBalance(l2ChainId)).to.eq(originalBondedAmount.add(transfer.amount))
     })
   })
 
@@ -347,7 +342,6 @@ describe('L1_Bridge', () => {
         bonder
       )
 
-      // TODO: Maybe move this into its own function
       const nextMessage = await l22_messenger.nextMessage()
       const ABI: string[] = [ "function setTransferRoot(bytes32, uint256)" ]
       const setTransferRootInterface = new utils.Interface(ABI)
@@ -399,7 +393,7 @@ describe('L1_Bridge', () => {
       const transferRoot = await l1_bridge.getTransferRoot(rootHash, transfer.amount)
 
       expect(transferRootConfirmed).to.eq(true)
-      expect(await l1_bridge.chainBalance(l2ChainId)).to.eq(LIQUIDITY_PROVIDER_UNISWAP_AMOUNT.add(INITIAL_BONDED_AMOUNT))
+      expect(await l1_bridge.chainBalance(l2ChainId)).to.eq(originalBondedAmount)
       expect(transferRoot[0]).to.eq(transfer.amount)
       expect(transferRoot[1]).to.eq(BigNumber.from('0'))
     })
@@ -441,14 +435,15 @@ describe('L1_Bridge', () => {
 
       const transferRootId: string = await l1_bridge.getTransferRootId(rootHash, l2Transfer.amount);
       const transferRootConfirmed: boolean = await l1_bridge.transferRootConfirmed(transferRootId)
+
       expect(transferRootConfirmed).to.eq(true)
       expect(await l1_bridge.chainBalance(l22ChainId)).to.eq(LIQUIDITY_PROVIDER_UNISWAP_AMOUNT.add(INITIAL_BONDED_AMOUNT))
 
-      // TODO: Maybe move this into its own function
       const nextMessage = await l22_messenger.nextMessage()
       const ABI: string[] = [ "function setTransferRoot(bytes32, uint256)" ]
       const setTransferRootInterface = new utils.Interface(ABI)
       const expectedMessage: string  = setTransferRootInterface.encodeFunctionData("setTransferRoot", [ await l2Transfer.getTransferId(), l2Transfer.amount ])
+
       expect(nextMessage[0]).to.eq(l22_bridge.address)
       expect(nextMessage[1]).to.eq(expectedMessage)
     })
@@ -623,8 +618,6 @@ describe('L1_Bridge', () => {
     })
   })
 
-  // TODO: Test extreme relayer fees (0, max)
-  // TODO: Test the same recipient
   /**
    * Non-Happy Path
    */
@@ -689,8 +682,11 @@ describe('L1_Bridge', () => {
         executeL1BridgeSendToL2AndAttemptToSwap(
           l1_canonicalToken,
           l1_bridge,
-          transfer.sender,
-          transfer.amount,
+          l2_bridge,
+          l2_messenger,
+          l2_canonicalToken,
+          l2_uniswapRouter,
+          transfer,
           invalidChainId
         )
       ).to.be.revertedWith(expectedErrorMsg)
@@ -719,8 +715,11 @@ describe('L1_Bridge', () => {
         executeL1BridgeSendToL2AndAttemptToSwap(
           l1_canonicalToken,
           l1_bridge,
-          transfer.sender,
-          transfer.amount,
+          l2_bridge,
+          l2_messenger,
+          l2_canonicalToken,
+          l2_uniswapRouter,
+          transfer,
           l2ChainId
         )
       ).to.be.revertedWith(expectedErrorMsg)
@@ -743,9 +742,8 @@ describe('L1_Bridge', () => {
 
     it('Should not allow a transfer root to be bonded that exceeds the bonders credit', async () => {
       const expectedErrorMsg: string = 'ACT: Not enough available credit'
-      const newTransfer: Transfer = new Transfer(transfer)
-      newTransfer.amount = BONDER_INITIAL_BALANCE.mul(2)
-
+      const customTransfer: Transfer = new Transfer(transfer)
+      customTransfer.amount = BONDER_INITIAL_BALANCE.mul(2)
 
       await executeL1BridgeSendToL2(
         l1_canonicalToken,
@@ -772,7 +770,7 @@ describe('L1_Bridge', () => {
       await expect(
         executeL1BridgeBondTransferRoot(
           l1_bridge,
-          newTransfer,
+          customTransfer,
           bonder
         )
       ).to.be.revertedWith(expectedErrorMsg)
@@ -869,8 +867,8 @@ describe('L1_Bridge', () => {
     it('Should not allow a transfer root to be bonded if a mainnet transfer root amount is 0', async () => {
       const expectedErrorMsg: string =
         'BRG: Cannot set TransferRoot amount of 0'
-      const newTransfer: Transfer = new Transfer(transfer)
-      newTransfer.amount = BigNumber.from('0')
+      const customTransfer: Transfer = new Transfer(transfer)
+      customTransfer.amount = BigNumber.from('0')
 
       await executeL1BridgeSendToL2(
         l1_canonicalToken,
@@ -897,7 +895,7 @@ describe('L1_Bridge', () => {
       await expect(
         executeL1BridgeBondTransferRoot(
           l1_bridge,
-          newTransfer,
+          customTransfer,
           bonder
         )
       ).to.be.revertedWith(expectedErrorMsg)
@@ -944,8 +942,54 @@ describe('L1_Bridge', () => {
   })
 
   describe('confirmTransferRoot', async () => {
-    it('Should not allow a transfer root to be confirmed by anybody except the L2_Bridge', async () => {
-      // TODO -- wait until the `onlyL2Bridge` modifier has been implemented
+    it.skip('Should not allow a transfer root to be confirmed by anybody except the L2_Bridge', async () => {
+      const expectedErrorMsg: string = 'TODO'
+      await executeL1BridgeSendToL2(
+        l1_canonicalToken,
+        l1_bridge,
+        l2_bridge,
+        l2_messenger,
+        transfer.sender,
+        transfer.amount,
+        l2ChainId
+      )
+
+      await executeL2BridgeSend(
+        l2_bridge,
+        transfer
+      )
+
+      await executeL1BridgeBondWithdrawal(
+        l1_canonicalToken,
+        l1_bridge,
+        transfer,
+        bonder
+      )
+
+      await executeL2BridgeCommitTransfers(
+        l2_bridge,
+        transfer,
+        bonder
+      )
+
+      // Mimic the same data that would be sent with relayNextMessage()
+      const transferId: Buffer = await transfer.getTransferId()
+      const { rootHash } = getRootHashFromTransferId(transferId)
+      const mimicChainId: BigNumber = l2ChainId
+      const mimicDestinationChainId: BigNumber = transfer.chainId
+      const mimicRootHash: Buffer = rootHash
+      const mimicTotalAmount: BigNumber = await l2_bridge.pendingAmountForChainId(transfer.chainId)
+
+      await expect(
+        l1_bridge
+          .connect(user)
+          .confirmTransferRoot(
+            mimicChainId,
+            mimicDestinationChainId,
+            mimicRootHash,
+            mimicTotalAmount
+          )
+      ).to.be.revertedWith(expectedErrorMsg)
     })
 
     it('Should not allow a transfer root to be confirmed if it was already confirmed', async () => {
@@ -1295,7 +1339,7 @@ describe('L1_Bridge', () => {
     })
 
     it('Should not allow a transfer root to be challenged if an arbitrary root hash is passed in', async () => {
-      const expectedErrorMsg: string = 'L1_BRG: Transfer root cannot be challenged after challenge period'
+      const expectedErrorMsg: string = 'L1_BRG: Transfer root not found'
 
       await executeL1BridgeSendToL2(
         l1_canonicalToken,
@@ -1340,7 +1384,7 @@ describe('L1_Bridge', () => {
     })
 
     it('Should not allow a transfer root to be challenged if an incorrect originalAmount is passed in', async () => {
-      const expectedErrorMsg: string = 'L1_BRG: Transfer root cannot be challenged after challenge period'
+      const expectedErrorMsg: string = 'L1_BRG: Transfer root not found'
       const incorrectAmount: BigNumber = BigNumber.from('13371337')
 
       await executeL1BridgeSendToL2(
@@ -1705,5 +1749,137 @@ describe('L1_Bridge', () => {
     })
   })
 
-  // TODO: Edge cases
+  describe('Edge cases', async () => {
+    it('Should allow a user to sendToL2 with an amount of 0', async () => {
+      const customTransfer: Transfer = new Transfer(transfer)
+      customTransfer.amount = BigNumber.from('0')
+
+      await executeL1BridgeSendToL2(
+        l1_canonicalToken,
+        l1_bridge,
+        l2_bridge,
+        l2_messenger,
+        customTransfer.sender,
+        customTransfer.amount,
+        l2ChainId
+      )
+    })
+
+    it('Should allow a user to sendToL2AndAttemptSwap with an amountOutMin that is greater than expected', async () => {
+      const largeValue: BigNumber = BigNumber.from('999999999999999999999999999')
+      const customTransfer: Transfer = new Transfer(transfer)
+      customTransfer.amountOutMin = BigNumber.from(largeValue.mul(largeValue))
+
+      await executeL1BridgeSendToL2AndAttemptToSwap(
+        l1_canonicalToken,
+        l1_bridge,
+        l2_bridge,
+        l2_messenger,
+        l2_canonicalToken,
+        l2_uniswapRouter,
+        customTransfer,
+        l2ChainId
+      )
+    })
+
+    it('Should allow a user to sendToL2AndAttemptSwap with a deadline that is expired', async () => {
+      const customTransfer: Transfer = new Transfer(transfer)
+      customTransfer.deadline = BigNumber.from('0')
+
+      await executeL1BridgeSendToL2AndAttemptToSwap(
+        l1_canonicalToken,
+        l1_bridge,
+        l2_bridge,
+        l2_messenger,
+        l2_canonicalToken,
+        l2_uniswapRouter,
+        customTransfer,
+        l2ChainId
+      )
+    })
+
+    it('Should send a transaction to one\'s self from L2 to L1 and bond the transfer root on L1', async () => {
+      const customTransfer: Transfer = transfers[2]
+
+      await executeL1BridgeSendToL2(
+        l1_canonicalToken,
+        l1_bridge,
+        l2_bridge,
+        l2_messenger,
+        transfer.sender,
+        transfer.amount,
+        l2ChainId
+      )
+
+      await executeL2BridgeSend(
+        l2_bridge,
+        customTransfer
+      )
+
+      await executeL1BridgeBondWithdrawal(
+        l1_canonicalToken,
+        l1_bridge,
+        customTransfer,
+        bonder
+      )
+
+      await executeL2BridgeCommitTransfers(
+        l2_bridge,
+        customTransfer,
+        bonder
+      )
+
+      await executeL1BridgeBondTransferRoot(
+        l1_bridge,
+        customTransfer,
+        bonder
+      )
+    })
+
+    it('Should send a transaction to one\'s self from L2 to L2 and bond the transfer root on L1', async () => {
+      const customTransfer: Transfer = transfers[3]
+
+      await executeL1BridgeSendToL2(
+        l1_canonicalToken,
+        l1_bridge,
+        l2_bridge,
+        l2_messenger,
+        transfer.sender,
+        transfer.amount,
+        l2ChainId
+      )
+
+      await executeL2BridgeSend(
+        l2_bridge,
+        customTransfer
+      )
+
+      // Bond withdrawal on other L2
+      await executeL2BridgeBondWithdrawalAndAttemptSwap(
+        l22_bridge,
+        customTransfer,
+        bonder
+      )
+
+      await executeL2BridgeCommitTransfers(
+        l2_bridge,
+        customTransfer,
+        bonder
+      )
+
+      await executeL1BridgeBondTransferRoot(
+        l1_bridge,
+        customTransfer,
+        bonder
+      )
+
+      const nextMessage = await l22_messenger.nextMessage()
+      const ABI: string[] = [ "function setTransferRoot(bytes32, uint256)" ]
+      const setTransferRootInterface = new utils.Interface(ABI)
+      const expectedMessage: string  = setTransferRootInterface.encodeFunctionData("setTransferRoot", [ await customTransfer.getTransferId(), customTransfer.amount ])
+
+      expect(nextMessage[0]).to.eq(l22_bridge.address)
+      expect(nextMessage[1]).to.eq(expectedMessage)
+    })
+  })
 })

@@ -146,31 +146,41 @@ export async function fixture (l2ChainId: BigNumber, l1AlreadySetOpts: any = {})
   const mockBridge = await MockBridge.deploy([await bonder.getAddress()])
 
   // Transfers
+  const genericTransfer = {
+    amount: TRANSFER_AMOUNT,
+    transferNonce: 0,
+    relayerFee: RELAYER_FEE,
+    amountOutMin: BigNumber.from('0'),
+    deadline: BigNumber.from('0'),
+    destinationAmountOutMin: BigNumber.from('0'),
+    destinationDeadline: DEFAULT_DEADLINE
+  }
+
   const transfers: Transfer[] = [
     new Transfer({
       chainId: CHAIN_IDS.ETHEREUM.MAINNET,
       sender: user,
       recipient: otherUser,
-      amount: TRANSFER_AMOUNT,
-      transferNonce: 0,
-      relayerFee: RELAYER_FEE,
-      amountOutMin: BigNumber.from('0'),
-      deadline: BigNumber.from('0'),
-      destinationAmountOutMin: BigNumber.from('0'),
-      destinationDeadline: DEFAULT_DEADLINE
+      ...genericTransfer
     }),
     new Transfer({
       chainId: CHAIN_IDS.ARBITRUM.TESTNET_3,
       sender: user,
       recipient: otherUser,
-      amount: TRANSFER_AMOUNT,
-      transferNonce: 0,
-      relayerFee: RELAYER_FEE,
-      amountOutMin: BigNumber.from('0'),
-      deadline: BigNumber.from('0'),
-      destinationAmountOutMin: BigNumber.from('0'),
-      destinationDeadline: DEFAULT_DEADLINE
-    })
+      ...genericTransfer
+    }),
+    new Transfer({
+      chainId: CHAIN_IDS.ETHEREUM.MAINNET,
+      sender: user,
+      recipient: user,
+      ...genericTransfer
+    }),
+    new Transfer({
+      chainId: CHAIN_IDS.ARBITRUM.TESTNET_3,
+      sender: user,
+      recipient: user,
+      ...genericTransfer
+    }),
   ]
 
   return {
