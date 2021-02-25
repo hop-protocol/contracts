@@ -190,8 +190,8 @@ abstract contract L2_Bridge is ERC20, Bridge {
         _mint(recipient, amount);
     }
 
-    function mintAndAttemptSwap(address _recipient, uint256 amount, uint256 amountOutMin, uint256 _deadline) public onlyL1Bridge {
-        _mintAndAttemptSwap(_recipient, amount, amountOutMin, _deadline);
+    function mintAndAttemptSwap(address recipient, uint256 amount, uint256 amountOutMin, uint256 deadline) public onlyL1Bridge {
+        _mintAndAttemptSwap(recipient, amount, amountOutMin, deadline);
     }
 
     function withdrawAndAttemptSwap(
@@ -275,10 +275,10 @@ abstract contract L2_Bridge is ERC20, Bridge {
         emit TransfersCommitted(rootHash, totalAmount);
 
         bytes memory confirmTransferRootMessage = abi.encodeWithSignature(
-            "confirmTransferRoot(uint256,uint256,bytes32,uint256)",
+            "confirmTransferRoot(uint256,bytes32,uint256,uint256)",
             getChainId(),
-            destinationChainId,
             rootHash,
+            destinationChainId,
             totalAmount
         );
 

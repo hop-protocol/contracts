@@ -135,7 +135,7 @@ abstract contract Bridge is Accounting {
     }
 
     /**
-     * @dev Get the TransferRoot for a given rootHash
+     * @dev Get the amount bonded for the withdrawal of a transfer
      * @param bonder The Bonder of the withdrawal
      * @param transferId The Transfer's unique identifier
      */

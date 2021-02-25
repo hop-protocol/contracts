@@ -976,8 +976,8 @@ describe('L1_Bridge', () => {
       const transferId: Buffer = await transfer.getTransferId()
       const { rootHash } = getRootHashFromTransferId(transferId)
       const mimicChainId: BigNumber = l2ChainId
-      const mimicDestinationChainId: BigNumber = transfer.chainId
       const mimicRootHash: Buffer = rootHash
+      const mimicDestinationChainId: BigNumber = transfer.chainId
       const mimicTotalAmount: BigNumber = await l2_bridge.pendingAmountForChainId(transfer.chainId)
 
       await expect(
@@ -985,8 +985,8 @@ describe('L1_Bridge', () => {
           .connect(user)
           .confirmTransferRoot(
             mimicChainId,
-            mimicDestinationChainId,
             mimicRootHash,
+            mimicDestinationChainId,
             mimicTotalAmount
           )
       ).to.be.revertedWith(expectedErrorMsg)
