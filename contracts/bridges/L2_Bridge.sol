@@ -22,6 +22,7 @@ abstract contract L2_Bridge is ERC20, Bridge {
     mapping(uint256 => bytes32[]) public pendingTransferIdsForChainId;
     mapping(uint256 => uint256) public pendingAmountForChainId;
     mapping(uint256 => uint256) public lastCommitTimeForChainId;
+    uint256 public transferNonceIncrementer;
 
     event TransfersCommitted (
         bytes32 indexed rootHash,
@@ -32,7 +33,7 @@ abstract contract L2_Bridge is ERC20, Bridge {
         bytes32 indexed transferId,
         address indexed recipient,
         uint256 amount,
-        uint256 indexed transferNonce,
+        bytes32 indexed transferNonce,
         uint256 relayerFee
     );
 
@@ -108,7 +109,6 @@ abstract contract L2_Bridge is ERC20, Bridge {
         uint256 chainId,
         address recipient,
         uint256 amount,
-        uint256 transferNonce,
         uint256 relayerFee,
         uint256 amountOutMin,
         uint256 deadline
@@ -126,6 +126,9 @@ abstract contract L2_Bridge is ERC20, Bridge {
         }
 
         _burn(msg.sender, amount);
+
+        bytes32 transferNonce = getNextTransferNonce();
+        transferNonceIncrementer++;
 
         bytes32 transferId = getTransferId(
             chainId,
@@ -149,7 +152,6 @@ abstract contract L2_Bridge is ERC20, Bridge {
         uint256 chainId,
         address recipient,
         uint256 amount,
-        uint256 transferNonce,
         uint256 relayerFee,
         uint256 amountOutMin,
         uint256 deadline,
@@ -175,7 +177,7 @@ abstract contract L2_Bridge is ERC20, Bridge {
             deadline
         );
 
-        send(chainId, recipient, swapAmount, transferNonce, relayerFee, destinationAmountOutMin, destinationDeadline);
+        send(chainId, recipient, swapAmount, relayerFee, destinationAmountOutMin, destinationDeadline);
     }
 
     function commitTransfers(uint256 destinationChainId) external {
@@ -198,7 +200,7 @@ abstract contract L2_Bridge is ERC20, Bridge {
         address sender,
         address recipient,
         uint256 amount,
-        uint256 transferNonce,
+        bytes32 transferNonce,
         uint256 relayerFee,
         bytes32 rootHash,
         bytes32[] memory proof,
@@ -227,7 +229,7 @@ abstract contract L2_Bridge is ERC20, Bridge {
         address sender,
         address recipient,
         uint256 amount,
-        uint256 transferNonce,
+        bytes32 transferNonce,
         uint256 relayerFee,
         uint256 amountOutMin,
         uint256 deadline
@@ -253,6 +255,12 @@ abstract contract L2_Bridge is ERC20, Bridge {
 
     function setTransferRoot(bytes32 rootHash, uint256 totalAmount) public onlyL1Bridge {
         _setTransferRoot(rootHash, totalAmount);
+    }
+
+    /* ========== Public Getters ========== */
+
+    function getNextTransferNonce() public view returns (bytes32) {
+        return keccak256(abi.encodePacked(getChainId(), transferNonceIncrementer));
     }
 
     /* ========== Helper Functions ========== */
