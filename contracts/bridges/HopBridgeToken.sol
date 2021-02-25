@@ -7,12 +7,15 @@ contract HopBridgeToken is ERC20, Ownable {
     constructor (
         address _l1Governance,
         string memory name,
-        string memory symbol
+        string memory symbol,
+        uint8 decimals
     )
         public
         ERC20(name, symbol)
     {
         l1Governance = _l1Governance;
+
+        _setupDecimals(decimals);
     }
 
     function mint(address account, uint256 amount) external onlyOwner {
