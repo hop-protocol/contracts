@@ -325,7 +325,8 @@ export const executeL2BridgeSend = async (
   transfer: Transfer
 ) => {
   // Get state before transaction
-  const senderCanonicalBalanceBefore: BigNumber = await l2_bridge.balanceOf(await transfer.sender.getAddress())
+  const bridgeTotalSupplyBefore: BigNumber = await l2_bridge.totalSupply()
+  const senderBalanceBefore: BigNumber = await l2_bridge.balanceOf(await transfer.sender.getAddress())
 
   // Perform transaction
   await l2_bridge
@@ -341,10 +342,12 @@ export const executeL2BridgeSend = async (
     )
 
   // Validate state after transaction
+  const bridgeTotalSupplyAfter: BigNumber = await l2_bridge.totalSupply()
+  expect(bridgeTotalSupplyAfter).to.eq(bridgeTotalSupplyBefore.sub(transfer.amount))
   await expectBalanceOf(
     l2_bridge,
     transfer.sender,
-    senderCanonicalBalanceBefore.sub(transfer.amount)
+    senderBalanceBefore.sub(transfer.amount)
   )
 }
 
