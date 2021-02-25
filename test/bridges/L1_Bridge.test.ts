@@ -1751,38 +1751,135 @@ describe('L1_Bridge', () => {
 
   describe('Edge cases', async () => {
     it('Should allow a user to sendToL2 with an amount of 0', async () => {
+      const customTransfer: Transfer = new Transfer(transfer)
+      customTransfer.amount = BigNumber.from('0')
+
+      await executeL1BridgeSendToL2(
+        l1_canonicalToken,
+        l1_bridge,
+        l2_bridge,
+        l2_messenger,
+        customTransfer.sender,
+        customTransfer.amount,
+        l2ChainId
+      )
     })
 
     it('Should allow a user to sendToL2AndAttemptSwap with an amountOutMin that is greater than expected', async () => {
+      const largeValue: BigNumber = BigNumber.from('999999999999999999999999999')
+      const customTransfer: Transfer = new Transfer(transfer)
+      customTransfer.amountOutMin = BigNumber.from(largeValue.mul(largeValue))
+
+      await executeL1BridgeSendToL2AndAttemptToSwap(
+        l1_canonicalToken,
+        l1_bridge,
+        l2_bridge,
+        l2_messenger,
+        l2_canonicalToken,
+        l2_uniswapRouter,
+        customTransfer,
+        l2ChainId
+      )
     })
 
-    it('Should allow a user to sendToL2AndAttemptSwap with a deadline that expires', async () => {
+    it('Should allow a user to sendToL2AndAttemptSwap with a deadline that is expired', async () => {
+      const customTransfer: Transfer = new Transfer(transfer)
+      customTransfer.deadline = BigNumber.from('0')
+
+      await executeL1BridgeSendToL2AndAttemptToSwap(
+        l1_canonicalToken,
+        l1_bridge,
+        l2_bridge,
+        l2_messenger,
+        l2_canonicalToken,
+        l2_uniswapRouter,
+        customTransfer,
+        l2ChainId
+      )
     })
 
-    it('Should bond a transfer root to L1 with a totalAmount of 0', async () => {
+    it('Should send a transaction to one\'s self from L2 to L1 and bond the transfer root on L1', async () => {
+      const customTransfer: Transfer = transfers[2]
+
+      await executeL1BridgeSendToL2(
+        l1_canonicalToken,
+        l1_bridge,
+        l2_bridge,
+        l2_messenger,
+        transfer.sender,
+        transfer.amount,
+        l2ChainId
+      )
+
+      await executeL2BridgeSend(
+        l2_bridge,
+        customTransfer
+      )
+
+      await executeL1BridgeBondWithdrawal(
+        l1_canonicalToken,
+        l1_bridge,
+        customTransfer,
+        bonder
+      )
+
+      await executeL2BridgeCommitTransfers(
+        l2_bridge,
+        customTransfer,
+        bonder
+      )
+
+      await executeL1BridgeBondTransferRoot(
+        l1_bridge,
+        customTransfer,
+        bonder
+      )
     })
 
-    it('Should bond a transfer root to L2 with a totalAmount of 0', async () => {
-    })
+    it('Should send a transaction to one\'s self from L2 to L2 and bond the transfer root on L1', async () => {
+      const customTransfer: Transfer = transfers[3]
 
-    it('Should confirm a transfer root to L1 with a totalAmount of 0', async () => {
-    })
+      await executeL1BridgeSendToL2(
+        l1_canonicalToken,
+        l1_bridge,
+        l2_bridge,
+        l2_messenger,
+        transfer.sender,
+        transfer.amount,
+        l2ChainId
+      )
 
-    it('Should confirm a transfer root to L2 with a totalAmount of 0', async () => {
-    })
+      await executeL2BridgeSend(
+        l2_bridge,
+        customTransfer
+      )
 
-    it('Should challenge a transfer bond with an originalAmount of 0', async () => {
-    })
+      // Bond withdrawal on other L2
+      await executeL2BridgeBondWithdrawalAndAttemptSwap(
+        l22_bridge,
+        customTransfer,
+        bonder
+      )
 
-    it('Should unsuccessfully resolve a transfer bond with an originalAmount of 0', async () => {
-    })
+      await executeL2BridgeCommitTransfers(
+        l2_bridge,
+        customTransfer,
+        bonder
+      )
 
-    it('Should successfully resolve a transfer bond with an originalAmount of 0', async () => {
+      await executeL1BridgeBondTransferRoot(
+        l1_bridge,
+        customTransfer,
+        bonder
+      )
+
+      const nextMessage = await l22_messenger.nextMessage()
+      const ABI: string[] = [ "function setTransferRoot(bytes32, uint256)" ]
+      const setTransferRootInterface = new utils.Interface(ABI)
+      const expectedMessage: string  = setTransferRootInterface.encodeFunctionData("setTransferRoot", [ await customTransfer.getTransferId(), customTransfer.amount ])
+
+      expect(nextMessage[0]).to.eq(l22_bridge.address)
+      expect(nextMessage[1]).to.eq(expectedMessage)
     })
   })
-
-  // TODO: Edge cases
-  // TODO: Test extreme relayer fees (0, max)
-  // TODO: Test the same recipient
-  // TODO: Reentrancy?
 })

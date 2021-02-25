@@ -140,16 +140,26 @@ export const executeL1BridgeBondWithdrawal = async (
     )
 
   // Validate state after transaction
+  let senderL1CanonicalTokenBalance: BigNumber
+  let recipientL1CanonicalTokenBalance: BigNumber
+  if(transfer.sender === transfer.recipient) {
+    senderL1CanonicalTokenBalance = senderBalanceBefore.add(transfer.amount).sub(transfer.relayerFee)
+    recipientL1CanonicalTokenBalance = senderL1CanonicalTokenBalance
+  } else {
+    senderL1CanonicalTokenBalance = senderBalanceBefore
+    recipientL1CanonicalTokenBalance = transfer.amount.sub(transfer.relayerFee)
+  }
   await expectBalanceOf(
     l1_canonicalToken,
     transfer.sender,
-    senderBalanceBefore
+    senderL1CanonicalTokenBalance
   )
 
+  // Validate state after transaction
   await expectBalanceOf(
     l1_canonicalToken,
     transfer.recipient,
-    transfer.amount.sub(transfer.relayerFee)
+    recipientL1CanonicalTokenBalance
   )
 
   await expectBalanceOf(
