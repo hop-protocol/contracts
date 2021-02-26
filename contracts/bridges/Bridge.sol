@@ -31,7 +31,7 @@ abstract contract Bridge is Accounting {
         address indexed sender,
         address indexed recipient,
         uint256 amount,
-        uint256 transferNonce,
+        bytes32 transferNonce,
         uint256 relayerFee
     );
 
@@ -40,7 +40,7 @@ abstract contract Bridge is Accounting {
         address indexed sender,
         address indexed recipient,
         uint256 amount,
-        uint256 transferNonce,
+        bytes32 transferNonce,
         uint256 relayerFee
     );
 
@@ -84,7 +84,7 @@ abstract contract Bridge is Accounting {
         address sender,
         address recipient,
         uint256 amount,
-        uint256 transferNonce,
+        bytes32 transferNonce,
         uint256 relayerFee,
         uint256 amountOutMin,
         uint256 deadline
@@ -160,7 +160,7 @@ abstract contract Bridge is Accounting {
         address sender,
         address recipient,
         uint256 amount,
-        uint256 transferNonce,
+        bytes32 transferNonce,
         uint256 relayerFee,
         bytes32 transferRootId,
         bytes32[] memory proof
@@ -185,8 +185,6 @@ abstract contract Bridge is Accounting {
         emit Withdrew(transferId, sender, recipient, amount, transferNonce, relayerFee);
     }
 
-    // ToDo: enforce _transferNonce can't collide on send or autogenerate nonce
-
     /**
      * @dev Allows the bonder to bond individual withdrawals before their TransferRoot has been committed.
      * @param sender The address sending the Transfer
@@ -199,7 +197,7 @@ abstract contract Bridge is Accounting {
         address sender,
         address recipient,
         uint256 amount,
-        uint256 transferNonce,
+        bytes32 transferNonce,
         uint256 relayerFee
     )
         public
