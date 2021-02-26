@@ -236,7 +236,7 @@ contract L1_Bridge is Bridge {
         require(challengePeriodEnd >= block.timestamp, "L1_BRG: Transfer root cannot be challenged after challenge period");
         require(transferBond.challengeStartTime == 0, "L1_BRG: Transfer root already challenged");
 
-        transferBond.challengeStartTime = now;
+        transferBond.challengeStartTime = block.timestamp;
         transferBond.challenger = msg.sender;
 
         // Move amount from timeSlotToAmountBonded to debit
@@ -260,7 +260,7 @@ contract L1_Bridge is Bridge {
 
         require(transferRoot.total > 0, "L1_BRG: Transfer root not found");
         require(transferBond.challengeStartTime != 0, "L1_BRG: Transfer root has not been challenged");
-        require(now > transferBond.challengeStartTime.add(challengeResolutionPeriod), "L1_BRG: Challenge period has not ended");
+        require(block.timestamp > transferBond.challengeStartTime.add(challengeResolutionPeriod), "L1_BRG: Challenge period has not ended");
         require(transferBond.challengeResolved == false, "L1_BRG: Transfer root already resolved");
         transferBond.challengeResolved = true;
 
@@ -292,7 +292,7 @@ contract L1_Bridge is Bridge {
     }
 
     function _additionalDebit() internal view override returns (uint256) {
-        uint256 currentTimeSlot = getTimeSlot(now);
+        uint256 currentTimeSlot = getTimeSlot(block.timestamp);
         uint256 bonded = 0;
 
         for (uint256 i = 0; i < 4; i++) {
