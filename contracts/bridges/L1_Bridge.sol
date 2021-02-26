@@ -126,7 +126,7 @@ contract L1_Bridge is Bridge {
         messengerWrapper.sendCrossDomainMessage(mintAndAttemptSwapCalldata);
     }
 
-    /* ========== Public Transfer Root Functions ========== */
+    /* ========== Public TransferRoot Functions ========== */
 
     /**
      * @dev Setting a TransferRoot is a two step process.
@@ -152,8 +152,8 @@ contract L1_Bridge is Bridge {
         requirePositiveBalance
     {
         bytes32 transferRootId = getTransferRootId(rootHash, totalAmount);
-        require(transferRootConfirmed[transferRootId] == false, "L1_BRG: Transfer Root has already been confirmed");
-        require(transferBonds[transferRootId].createdAt == 0, "L1_BRG: Transfer Root has already been bonded");
+        require(transferRootConfirmed[transferRootId] == false, "L1_BRG: TransferRoot has already been confirmed");
+        require(transferBonds[transferRootId].createdAt == 0, "L1_BRG: TransferRoot has already been bonded");
 
         uint256 currentTimeSlot = getTimeSlot(block.timestamp);
         uint256 bondAmount = getBondForTransferAmount(totalAmount);
@@ -207,13 +207,13 @@ contract L1_Bridge is Bridge {
     {
         // Set TransferRoot on recipient Bridge
         if (chainId == getChainId()) {
-            // Set L1 transfer root
+            // Set L1 TransferRoot
             _setTransferRoot(rootHash, totalAmount);
         } else {
             IMessengerWrapper messengerWrapper = crossDomainMessengerWrappers[chainId];
             require(messengerWrapper != IMessengerWrapper(0), "L1_BRG: chainId not supported");
 
-            // Set L2 transfer root
+            // Set L2 TransferRoot
             bytes memory setTransferRootMessage = abi.encodeWithSignature(
                 "setTransferRoot(bytes32,uint256)",
                 rootHash,
@@ -230,11 +230,11 @@ contract L1_Bridge is Bridge {
         TransferRoot memory transferRoot = getTransferRoot(rootHash, originalAmount);
         TransferBond storage transferBond = transferBonds[transferRootId];
 
-        require(transferRoot.total > 0, "L1_BRG: Transfer root not found");
-        require(transferRootConfirmed[transferRootId] == false, "L1_BRG: Transfer root has already been confirmed");
+        require(transferRoot.total > 0, "L1_BRG: TransferRoot not found");
+        require(transferRootConfirmed[transferRootId] == false, "L1_BRG: TransferRoot has already been confirmed");
         uint256 challengePeriodEnd = transferBond.createdAt.add(challengePeriod);
-        require(challengePeriodEnd >= block.timestamp, "L1_BRG: Transfer root cannot be challenged after challenge period");
-        require(transferBond.challengeStartTime == 0, "L1_BRG: Transfer root already challenged");
+        require(challengePeriodEnd >= block.timestamp, "L1_BRG: TransferRoot cannot be challenged after challenge period");
+        require(transferBond.challengeStartTime == 0, "L1_BRG: TransferRoot already challenged");
 
         transferBond.challengeStartTime = block.timestamp;
         transferBond.challenger = msg.sender;
@@ -258,10 +258,10 @@ contract L1_Bridge is Bridge {
         TransferRoot memory transferRoot = getTransferRoot(rootHash, originalAmount);
         TransferBond storage transferBond = transferBonds[transferRootId];
 
-        require(transferRoot.total > 0, "L1_BRG: Transfer root not found");
-        require(transferBond.challengeStartTime != 0, "L1_BRG: Transfer root has not been challenged");
+        require(transferRoot.total > 0, "L1_BRG: TransferRoot not found");
+        require(transferBond.challengeStartTime != 0, "L1_BRG: TransferRoot has not been challenged");
         require(block.timestamp > transferBond.challengeStartTime.add(challengeResolutionPeriod), "L1_BRG: Challenge period has not ended");
-        require(transferBond.challengeResolved == false, "L1_BRG: Transfer root already resolved");
+        require(transferBond.challengeResolved == false, "L1_BRG: TransferRoot already resolved");
         transferBond.challengeResolved = true;
 
         uint256 challengeStakeAmount = getChallengeAmountForTransferAmount(transferRoot.total);
