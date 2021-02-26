@@ -225,9 +225,9 @@ contract L1_Bridge is Bridge {
 
     /* ========== Public TransferRoot Challenges ========== */
 
-    function challengeTransferBond(bytes32 rootHash, uint256 originalAmount) public {
-        bytes32 transferRootId = getTransferRootId(rootHash, originalAmount);
-        TransferRoot memory transferRoot = getTransferRoot(rootHash, originalAmount);
+    function challengeTransferBond(bytes32 rootHash, uint256 totalAmountBonded) public {
+        bytes32 transferRootId = getTransferRootId(rootHash, totalAmountBonded);
+        TransferRoot memory transferRoot = getTransferRoot(rootHash, totalAmountBonded);
         TransferBond storage transferBond = transferBonds[transferRootId];
 
         require(transferRoot.total > 0, "L1_BRG: TransferRoot not found");
