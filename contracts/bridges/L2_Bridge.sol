@@ -167,7 +167,7 @@ abstract contract L2_Bridge is ERC20, Bridge {
     {
         require(amount >= relayerFee, "L2_BRG: relayer fee cannot exceed amount");
 
-        l2CanonicalToken.transferFrom(msg.sender, address(this), amount);
+        l2CanonicalToken.safeTransferFrom(msg.sender, address(this), amount);
 
         address[] memory exchangePath = _getCHPath();
         uint256[] memory swapAmounts = IUniswapV2Router02(exchangeAddress).getAmountsOut(amount, exchangePath);
