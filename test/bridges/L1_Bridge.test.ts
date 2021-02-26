@@ -56,8 +56,10 @@ describe('L1_Bridge', () => {
   let l2_bridge: Contract
   let l2_messenger: Contract
   let l2_uniswapRouter: Contract
+  let l22_canonicalToken: Contract
   let l22_bridge: Contract
   let l22_messenger: Contract
+  let l22_uniswapRouter: Contract
 
   let transfers: Transfer[]
   let transfer: Transfer
@@ -97,8 +99,10 @@ describe('L1_Bridge', () => {
     _fixture = await fixture(l22ChainId, l1AlreadySetOpts)
     await setUpDefaults(_fixture, l22ChainId)
     ;({
+      l2_canonicalToken: l22_canonicalToken,
       l2_bridge: l22_bridge,
       l2_messenger: l22_messenger,
+      l2_uniswapRouter: l22_uniswapRouter
     } = _fixture)
 
     transfer = transfers[0]
@@ -324,10 +328,14 @@ describe('L1_Bridge', () => {
       )
 
       // Bond withdrawal on other L2
+      const actualTransferAmount: BigNumber = l2Transfer.amount
       await executeL2BridgeBondWithdrawalAndAttemptSwap(
         l22_bridge,
+        l22_canonicalToken,
+        l22_uniswapRouter,
         l2Transfer,
-        bonder
+        bonder,
+        actualTransferAmount
       )
 
       await executeL2BridgeCommitTransfers(
@@ -415,10 +423,14 @@ describe('L1_Bridge', () => {
       )
 
       // Bond withdrawal on other L2
+      const actualTransferAmount: BigNumber = transfer.amount
       await executeL2BridgeBondWithdrawalAndAttemptSwap(
         l22_bridge,
+        l22_canonicalToken,
+        l22_uniswapRouter,
         l2Transfer,
-        bonder
+        bonder,
+        actualTransferAmount
       )
 
       await executeL2BridgeCommitTransfers(
@@ -1855,10 +1867,14 @@ describe('L1_Bridge', () => {
       )
 
       // Bond withdrawal on other L2
+      const actualTransferAmount: BigNumber = customTransfer.amount
       await executeL2BridgeBondWithdrawalAndAttemptSwap(
         l22_bridge,
+        l22_canonicalToken,
+        l22_uniswapRouter,
         customTransfer,
-        bonder
+        bonder,
+        actualTransferAmount
       )
 
       await executeL2BridgeCommitTransfers(

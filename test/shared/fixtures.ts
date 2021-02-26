@@ -151,7 +151,6 @@ export async function fixture (l2ChainId: BigNumber, l1AlreadySetOpts: any = {})
     transferNonce: 0,
     relayerFee: RELAYER_FEE,
     amountOutMin: BigNumber.from('0'),
-    deadline: BigNumber.from('0'),
     destinationAmountOutMin: BigNumber.from('0'),
     destinationDeadline: DEFAULT_DEADLINE
   }
@@ -161,24 +160,28 @@ export async function fixture (l2ChainId: BigNumber, l1AlreadySetOpts: any = {})
       chainId: CHAIN_IDS.ETHEREUM.MAINNET,
       sender: user,
       recipient: otherUser,
+      deadline: BigNumber.from('0'),
       ...genericTransfer
     }),
     new Transfer({
       chainId: CHAIN_IDS.ARBITRUM.TESTNET_3,
       sender: user,
       recipient: otherUser,
+      deadline: DEFAULT_DEADLINE,
       ...genericTransfer
     }),
     new Transfer({
       chainId: CHAIN_IDS.ETHEREUM.MAINNET,
       sender: user,
       recipient: user,
+      deadline: BigNumber.from('0'),
       ...genericTransfer
     }),
     new Transfer({
       chainId: CHAIN_IDS.ARBITRUM.TESTNET_3,
       sender: user,
       recipient: user,
+      deadline: DEFAULT_DEADLINE,
       ...genericTransfer
     }),
   ]
