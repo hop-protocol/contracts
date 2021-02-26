@@ -12,6 +12,7 @@ import {
   takeSnapshot
 } from '../shared/utils'
 import {
+  executeCanonicalBridgeSendMessage,
   executeL1BridgeSendToL2,
   executeL1BridgeSendToL2AndAttemptToSwap,
   executeL1BridgeBondWithdrawal,
@@ -20,6 +21,7 @@ import {
   executeL1BridgeChallengeTransferBond,
   executeL1BridgeResolveChallenge,
   executeL2BridgeSend,
+  executeL2BridgeSwapAndSend,
   executeL2BridgeCommitTransfers,
   executeL2BridgeBondWithdrawalAndAttemptSwap
 } from '../shared/contractFunctionWrappers'
@@ -35,13 +37,14 @@ import {
   INITIAL_BONDED_AMOUNT,
   LIQUIDITY_PROVIDER_UNISWAP_AMOUNT,
   ZERO_ADDRESS,
-  SECONDS_IN_A_DAY,
+  SECONDS_IN_AN_HOUR,
   TIMESTAMP_VARIANCE,
   DEAD_ADDRESS,
   ARBITRARY_ROOT_HASH,
   DEFAULT_H_TOKEN_NAME,
   DEFAULT_H_TOKEN_SYMBOL,
-  DEFAULT_H_TOKEN_DECIMALS
+  DEFAULT_H_TOKEN_DECIMALS,
+  DEFAULT_TIME_TO_WAIT
 } from '../../config/constants'
 
 describe('L2_Bridge', () => {
@@ -55,6 +58,7 @@ describe('L2_Bridge', () => {
 
   let l1_canonicalToken: Contract
   let l1_bridge: Contract
+  let l1_canonicalBridge: Contract
   let l1_messenger: Contract
   let l2_canonicalToken: Contract
   let l2_bridge: Contract
@@ -87,6 +91,7 @@ describe('L2_Bridge', () => {
       l1_canonicalToken,
       l1_bridge,
       l1_messenger,
+      l1_canonicalBridge,
       l2_canonicalToken,
       l2_bridge,
       l2_messenger,

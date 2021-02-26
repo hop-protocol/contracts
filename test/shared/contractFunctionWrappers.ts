@@ -354,7 +354,8 @@ export const executeL2BridgeSend = async (
 export const executeL2BridgeCommitTransfers = async (
   l2_bridge: Contract,
   transfer: Transfer,
-  bonder: Signer
+  bonder: Signer,
+  timeIncrease: number
 ) => {
   // Get state before transaction
   const pendingAmountChainId = await l2_bridge.pendingAmountChainIds(BigNumber.from('0'))
@@ -370,8 +371,10 @@ export const executeL2BridgeCommitTransfers = async (
 
   // Validate state after transaction
   const lastCommitTimeForChainId: BigNumber = await l2_bridge.lastCommitTimeForChainId(transfer.chainId)
-  const expectedCommitTimeForChainId: number = Date.now()
-  expect(lastCommitTimeForChainId.mul(1000).toNumber()).to.be.closeTo(
+  const expectedCommitTimeForChainId: number = Date.now() 
+  // NOTE: The `increaseTime()` function converts the EVM time to ms instead of s. When time has been increased, adjust accordingly.
+  const lastCommitTimeMultiplier = timeIncrease ? 1 : 1000
+  expect(lastCommitTimeForChainId.mul(lastCommitTimeMultiplier).toNumber()).to.be.closeTo(
     expectedCommitTimeForChainId,
     TIMESTAMP_VARIANCE
   )
