@@ -88,6 +88,10 @@ abstract contract Accounting {
         return _credit[bonder];
     }
 
+    function getRawDebit(address bonder) external view returns (uint256) {
+        return _debit[bonder];
+    }
+
     function getDebitAndAdditionalDebit(address bonder) public view returns (uint256) {
         return _debit[bonder].add(_additionalDebit());
     }
