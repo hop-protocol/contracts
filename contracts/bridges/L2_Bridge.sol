@@ -76,33 +76,33 @@ abstract contract L2_Bridge is Bridge {
     function _sendCrossDomainMessage(bytes memory message) internal virtual;
     function _verifySender(address expectedSender) internal virtual; 
 
-    /* ========== Public functions ========== */
+    /* ========== Public/External functions ========== */
 
-    function setExchangeAddress(address _exchangeAddress) public onlyGovernance {
+    function setExchangeAddress(address _exchangeAddress) external onlyGovernance {
         exchangeAddress = _exchangeAddress;
     }
 
-    function setL1BridgeAddress(address _l1BridgeAddress) public onlyGovernance {
+    function setL1BridgeAddress(address _l1BridgeAddress) external onlyGovernance {
         l1BridgeAddress = _l1BridgeAddress;
     }
 
-    function setMessengerGasLimit(uint256 _messengerGasLimit) public onlyGovernance {
+    function setMessengerGasLimit(uint256 _messengerGasLimit) external onlyGovernance {
         messengerGasLimit = _messengerGasLimit;
     }
 
-    function addSupportedChainIds(uint256[] calldata chainIds) public onlyGovernance {
+    function addSupportedChainIds(uint256[] calldata chainIds) external onlyGovernance {
         for (uint256 i = 0; i < chainIds.length; i++) {
             supportedChainIds[chainIds[i]] = true;
         }
     }
 
-    function removeSupportedChainIds(uint256[] calldata chainIds) public onlyGovernance {
+    function removeSupportedChainIds(uint256[] calldata chainIds) external onlyGovernance {
         for (uint256 i = 0; i < chainIds.length; i++) {
             supportedChainIds[chainIds[i]] = false;
         }
     }
 
-    function setMinimumForceCommitDelay(uint256 _minimumForceCommitDelay) public onlyGovernance {
+    function setMinimumForceCommitDelay(uint256 _minimumForceCommitDelay) external onlyGovernance {
         minimumForceCommitDelay = _minimumForceCommitDelay;
     }
 
@@ -160,11 +160,11 @@ abstract contract L2_Bridge is Bridge {
         uint256 destinationAmountOutMin,
         uint256 destinationDeadline
     )
-        public
+        external
     {
         require(amount >= relayerFee, "L2_BRG: relayer fee cannot exceed amount");
 
-        l2CanonicalToken.transferFrom(msg.sender, address(this), amount);
+        l2CanonicalToken.safeTransferFrom(msg.sender, address(this), amount);
 
         address[] memory exchangePath = _getCHPath();
         uint256[] memory swapAmounts = IUniswapV2Router02(exchangeAddress).getAmountsOut(amount, exchangePath);
@@ -194,7 +194,7 @@ abstract contract L2_Bridge is Bridge {
         hToken.mint(recipient, amount);
     }
 
-    function mintAndAttemptSwap(address recipient, uint256 amount, uint256 amountOutMin, uint256 deadline) public onlyL1Bridge {
+    function mintAndAttemptSwap(address recipient, uint256 amount, uint256 amountOutMin, uint256 deadline) external onlyL1Bridge {
         _mintAndAttemptSwap(recipient, amount, amountOutMin, deadline);
     }
 
@@ -209,7 +209,7 @@ abstract contract L2_Bridge is Bridge {
         uint256 amountOutMin,
         uint256 deadline
     )
-        public
+        external
     {
         bytes32 transferId = getTransferId(
             getChainId(),
@@ -236,7 +236,7 @@ abstract contract L2_Bridge is Bridge {
         uint256 amountOutMin,
         uint256 deadline
     )
-        public
+        external
         onlyBonder
         requirePositiveBalance
     {
@@ -255,7 +255,7 @@ abstract contract L2_Bridge is Bridge {
         _withdrawAndAttemptSwap(transferId, recipient, amount, relayerFee, amountOutMin, deadline);
     }
 
-    function setTransferRoot(bytes32 rootHash, uint256 totalAmount) public onlyL1Bridge {
+    function setTransferRoot(bytes32 rootHash, uint256 totalAmount) external onlyL1Bridge {
         _setTransferRoot(rootHash, totalAmount);
     }
 
