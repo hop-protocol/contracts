@@ -64,7 +64,7 @@ abstract contract Bridge is Accounting {
 
     constructor(address[] memory bonders) public Accounting(bonders) {}
 
-    /* ========== Public getters ========== */
+    /* ========== Public Getters ========== */
 
     /**
      * @dev Get the hash that represents an individual Transfer.
@@ -143,7 +143,7 @@ abstract contract Bridge is Accounting {
         return _bondedWithdrawalAmounts[bonder][transferId];
     }
 
-    /* ========== User/relayer public functions ========== */
+    /* ========== User/Relayer External Functions ========== */
 
     /**
      * @notice Can be called by anyone (recipient or relayer)
@@ -165,7 +165,7 @@ abstract contract Bridge is Accounting {
         bytes32 transferRootId,
         bytes32[] memory proof
     )
-        public
+        external
     {
         bytes32 transferId = getTransferId(
             getChainId(),
@@ -200,7 +200,7 @@ abstract contract Bridge is Accounting {
         bytes32 transferNonce,
         uint256 relayerFee
     )
-        public
+        external
         onlyBonder
         requirePositiveBalance
     {
@@ -236,7 +236,7 @@ abstract contract Bridge is Accounting {
         uint256 transferRootTotalAmount,
         bytes32[] memory proof
     )
-        public
+        external
     {
         require(proof.verify(rootHash, transferId), "L2_BRG: Invalid transfer proof");
 
@@ -255,7 +255,7 @@ abstract contract Bridge is Accounting {
         bytes32[] memory transferIds,
         uint256 totalAmount
     )
-        public
+        external
     {
         bytes32 rootHash = MerkleUtils.getMerkleRoot(transferIds);
 
@@ -279,7 +279,7 @@ abstract contract Bridge is Accounting {
         emit MultipleWithdrawalsSettled(bonder, rootHash, totalBondsSettled);
     }
 
-    /* ========== Internal functions ========== */
+    /* ========== Internal Functions ========== */
 
     function _markTransferSpent(bytes32 transferId) internal {
         require(!_spentTransferIds[transferId], "BRG: The transfer has already been withdrawn");
@@ -315,7 +315,7 @@ abstract contract Bridge is Accounting {
         _bondedWithdrawalAmounts[msg.sender][transferId] = amount;
     }
 
-    /* ========== Private functions ========== */
+    /* ========== Private Functions ========== */
 
     /// @dev Completes the Transfer, distributes the relayer fee and marks the Transfer as spent.
     function _fulfillWithdraw(

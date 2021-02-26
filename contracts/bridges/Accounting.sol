@@ -78,7 +78,7 @@ abstract contract Accounting {
         return 0;
     }
 
-    /* ========== Public getters ========== */
+    /* ========== Public/external getters ========== */
 
     function getIsBonder(address maybeBonder) public view returns (bool) {
         return _isBonder[maybeBonder];
@@ -96,7 +96,7 @@ abstract contract Accounting {
         return _debit[bonder].add(_additionalDebit());
     }
 
-    /* ========== Bonder public functions ========== */
+    /* ========== Bonder external functions ========== */
 
     /** 
      * @dev Allows the bonder to deposit tokens and increase its credit balance

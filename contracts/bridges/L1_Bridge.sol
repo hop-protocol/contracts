@@ -87,7 +87,7 @@ contract L1_Bridge is Bridge {
         address recipient,
         uint256 amount
     )
-        public
+        external
     {
         IMessengerWrapper messengerWrapper = crossDomainMessengerWrappers[chainId];
         require(messengerWrapper != IMessengerWrapper(0), "L1_BRG: chainId not supported");
@@ -107,7 +107,7 @@ contract L1_Bridge is Bridge {
         uint256 amountOutMin,
         uint256 deadline
     )
-        public
+        external
     {
         IMessengerWrapper messengerWrapper = crossDomainMessengerWrappers[chainId];
         require(messengerWrapper != IMessengerWrapper(0), "L1_BRG: chainId not supported");
@@ -180,7 +180,7 @@ contract L1_Bridge is Bridge {
         bytes32 rootHash,
         uint256 totalAmount
     )
-        public
+        external
         onlyL2Bridge(originChainId)
     {
         bytes32 transferRootId = getTransferRootId(rootHash, totalAmount);
@@ -223,9 +223,9 @@ contract L1_Bridge is Bridge {
         }
     }
 
-    /* ========== Public TransferRoot Challenges ========== */
+    /* ========== External TransferRoot Challenges ========== */
 
-    function challengeTransferBond(bytes32 rootHash, uint256 totalAmountBonded) public {
+    function challengeTransferBond(bytes32 rootHash, uint256 totalAmountBonded) external {
         bytes32 transferRootId = getTransferRootId(rootHash, totalAmountBonded);
         TransferRoot memory transferRoot = getTransferRoot(rootHash, totalAmountBonded);
         TransferBond storage transferBond = transferBonds[transferRootId];
@@ -253,7 +253,7 @@ contract L1_Bridge is Bridge {
         emit TransferBondChallenged(transferRootId, rootHash, totalAmountBonded);
     }
 
-    function resolveChallenge(bytes32 rootHash, uint256 originalAmount) public {
+    function resolveChallenge(bytes32 rootHash, uint256 originalAmount) external {
         bytes32 transferRootId = getTransferRootId(rootHash, originalAmount);
         TransferRoot memory transferRoot = getTransferRoot(rootHash, originalAmount);
         TransferBond storage transferBond = transferBonds[transferRootId];
@@ -281,7 +281,7 @@ contract L1_Bridge is Bridge {
         emit ChallengeResolved(transferRootId, rootHash, originalAmount);
     }
 
-    /* ========== Override functions ========== */
+    /* ========== Override Functions ========== */
 
     function _transferFromBridge(address recipient, uint256 amount) internal override {
         l1CanonicalToken.safeTransfer(recipient, amount);

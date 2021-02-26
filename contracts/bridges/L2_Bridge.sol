@@ -79,33 +79,33 @@ abstract contract L2_Bridge is ERC20, Bridge {
     function _sendCrossDomainMessage(bytes memory message) internal virtual;
     function _verifySender(address expectedSender) internal virtual; 
 
-    /* ========== Public functions ========== */
+    /* ========== Public/External functions ========== */
 
-    function setExchangeAddress(address _exchangeAddress) public onlyGovernance {
+    function setExchangeAddress(address _exchangeAddress) external onlyGovernance {
         exchangeAddress = _exchangeAddress;
     }
 
-    function setL1BridgeAddress(address _l1BridgeAddress) public onlyGovernance {
+    function setL1BridgeAddress(address _l1BridgeAddress) external onlyGovernance {
         l1BridgeAddress = _l1BridgeAddress;
     }
 
-    function setMessengerGasLimit(uint256 _messengerGasLimit) public onlyGovernance {
+    function setMessengerGasLimit(uint256 _messengerGasLimit) external onlyGovernance {
         messengerGasLimit = _messengerGasLimit;
     }
 
-    function addSupportedChainIds(uint256[] calldata chainIds) public onlyGovernance {
+    function addSupportedChainIds(uint256[] calldata chainIds) external onlyGovernance {
         for (uint256 i = 0; i < chainIds.length; i++) {
             supportedChainIds[chainIds[i]] = true;
         }
     }
 
-    function removeSupportedChainIds(uint256[] calldata chainIds) public onlyGovernance {
+    function removeSupportedChainIds(uint256[] calldata chainIds) external onlyGovernance {
         for (uint256 i = 0; i < chainIds.length; i++) {
             supportedChainIds[chainIds[i]] = false;
         }
     }
 
-    function setMinimumForceCommitDelay(uint256 _minimumForceCommitDelay) public onlyGovernance {
+    function setMinimumForceCommitDelay(uint256 _minimumForceCommitDelay) external onlyGovernance {
         minimumForceCommitDelay = _minimumForceCommitDelay;
     }
 
@@ -163,7 +163,7 @@ abstract contract L2_Bridge is ERC20, Bridge {
         uint256 destinationAmountOutMin,
         uint256 destinationDeadline
     )
-        public
+        external
     {
         require(amount >= relayerFee, "L2_BRG: relayer fee cannot exceed amount");
 
@@ -193,11 +193,11 @@ abstract contract L2_Bridge is ERC20, Bridge {
         _commitTransfers(destinationChainId);
     }
 
-    function mint(address recipient, uint256 amount) public onlyL1Bridge {
+    function mint(address recipient, uint256 amount) external onlyL1Bridge {
         _mint(recipient, amount);
     }
 
-    function mintAndAttemptSwap(address _recipient, uint256 amount, uint256 amountOutMin, uint256 _deadline) public onlyL1Bridge {
+    function mintAndAttemptSwap(address _recipient, uint256 amount, uint256 amountOutMin, uint256 _deadline) external onlyL1Bridge {
         _mintAndAttemptSwap(_recipient, amount, amountOutMin, _deadline);
     }
 
@@ -212,7 +212,7 @@ abstract contract L2_Bridge is ERC20, Bridge {
         uint256 amountOutMin,
         uint256 deadline
     )
-        public
+        external
     {
         bytes32 transferId = getTransferId(
             getChainId(),
@@ -239,7 +239,7 @@ abstract contract L2_Bridge is ERC20, Bridge {
         uint256 amountOutMin,
         uint256 deadline
     )
-        public
+        external
         onlyBonder
         requirePositiveBalance
     {
@@ -258,7 +258,7 @@ abstract contract L2_Bridge is ERC20, Bridge {
         _withdrawAndAttemptSwap(transferId, recipient, amount, relayerFee, amountOutMin, deadline);
     }
 
-    function setTransferRoot(bytes32 rootHash, uint256 totalAmount) public onlyL1Bridge {
+    function setTransferRoot(bytes32 rootHash, uint256 totalAmount) external onlyL1Bridge {
         _setTransferRoot(rootHash, totalAmount);
     }
 
