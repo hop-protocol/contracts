@@ -99,6 +99,7 @@ abstract contract Accounting {
      * @param amount The amount being staked
      */
     function stake(address bonder, uint256 amount) external {
+        require(_isBonder[bonder] == true, "ACT: Address is not bonder");
         _transferToBridge(msg.sender, amount);
         _addCredit(bonder, amount);
     }
@@ -118,7 +119,7 @@ abstract contract Accounting {
     }
 
     function removeBonder(address bonder) external onlyGovernance {
-        require(_isBonder[bonder] == true, "ACT: Address is Bonder");
+        require(_isBonder[bonder] == true, "ACT: Address is not Bonder");
         _isBonder[bonder] = false;
     }
 
