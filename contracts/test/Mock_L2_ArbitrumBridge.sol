@@ -6,39 +6,35 @@ pragma experimental ABIEncoderV2;
 import "../bridges/L2_ArbitrumBridge.sol";
 
 contract Mock_L2_ArbitrumBridge is L2_ArbitrumBridge {
-    uint256 private _chainId;
+    uint256 private chainId;
 
     constructor (
-        uint256 chainId_,
-        IArbSys _messenger,
-        address _l1Governance,
-        IERC20 _canonicalToken,
-        address _l1BridgeAddress,
-        uint256[] memory _supportedChainIds,
-        address[] memory _bonders,
-        address _exchangeAddress,
-        string memory _name,
-        string memory _symbol,
-        uint8 _decimals
+        uint256 _chainId,
+        IArbSys messenger,
+        address l1Governance,
+        HopBridgeToken hToken,
+        IERC20 canonicalToken,
+        address l1BridgeAddress,
+        uint256[] memory supportedChainIds,
+        address exchangeAddress,
+        address[] memory bonders
     )
         public
         L2_ArbitrumBridge(
-            _messenger,
-            _l1Governance,
-            _canonicalToken,
-            _l1BridgeAddress,
-            _supportedChainIds,
-            _bonders,
-            _exchangeAddress,
-            _name,
-            _symbol,
-            _decimals
+            messenger,
+            l1Governance,
+            hToken,
+            canonicalToken,
+            l1BridgeAddress,
+            supportedChainIds,
+            exchangeAddress,
+            bonders
         )
     {
-        _chainId = chainId_;
+        chainId = _chainId;
     }
 
     function getChainId() public override view returns (uint256) {
-        return _chainId;
+        return chainId;
     }
 }

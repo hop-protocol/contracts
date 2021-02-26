@@ -3,14 +3,15 @@
 pragma solidity 0.6.12;
 pragma experimental ABIEncoderV2;
 
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol";
 
 import "./Bridge.sol";
+import "./HopBridgeToken.sol";
 import "../libraries/MerkleUtils.sol";
 
-abstract contract L2_Bridge is ERC20, Bridge {
+abstract contract L2_Bridge is Bridge {
     address public l1Governance;
+    HopBridgeToken public hToken;
     address public l1BridgeAddress;
     address public exchangeAddress;
     IERC20 public l2CanonicalToken;
@@ -47,22 +48,20 @@ abstract contract L2_Bridge is ERC20, Bridge {
 
     constructor (
         address _l1Governance,
+        HopBridgeToken _hToken, 
         IERC20 _l2CanonicalToken,
         address _l1BridgeAddress,
         uint256[] memory _supportedChainIds,
-        address[] memory bonders,
         address _exchangeAddress,
-        string memory name,
-        string memory symbol,
-        uint8 _decimals
+        address[] memory bonders
     )
         public
         Bridge(bonders)
-        ERC20(name, symbol)
     {
         require(NONCE_DOMAIN_SEPARATOR == keccak256("L2_Bridge v1.0"));
 
         l1Governance = _l1Governance;
+        hToken = _hToken;
         l2CanonicalToken = _l2CanonicalToken;
         l1BridgeAddress = _l1BridgeAddress;
         exchangeAddress = _exchangeAddress;
@@ -70,8 +69,6 @@ abstract contract L2_Bridge is ERC20, Bridge {
         for (uint256 i = 0; i < _supportedChainIds.length; i++) {
             supportedChainIds[_supportedChainIds[i]] = true;
         }
-
-        _setupDecimals(_decimals);
     }
 
     /* ========== Virtual functions ========== */
@@ -130,7 +127,7 @@ abstract contract L2_Bridge is ERC20, Bridge {
             _commitTransfers(chainId);
         }
 
-        _burn(msg.sender, amount);
+        hToken.burn(msg.sender, amount);
 
         bytes32 transferNonce = getNextTransferNonce();
         transferNonceIncrementer++;
@@ -193,8 +190,8 @@ abstract contract L2_Bridge is ERC20, Bridge {
         _commitTransfers(destinationChainId);
     }
 
-    function mint(address recipient, uint256 amount) external onlyL1Bridge {
-        _mint(recipient, amount);
+    function mint(address recipient, uint256 amount) public onlyL1Bridge {
+        hToken.mint(recipient, amount);
     }
 
     function mintAndAttemptSwap(address recipient, uint256 amount, uint256 amountOutMin, uint256 deadline) external onlyL1Bridge {
@@ -302,8 +299,8 @@ abstract contract L2_Bridge is ERC20, Bridge {
     }
 
     function _mintAndAttemptSwap(address recipient, uint256 amount, uint256 amountOutMin, uint256 deadline) internal {
-        _mint(address(this), amount);
-        _approve(address(this), exchangeAddress, amount);
+        hToken.mint(address(this), amount);
+        hToken.approve(exchangeAddress, amount);
 
         try IUniswapV2Router02(exchangeAddress).swapExactTokensForTokens(
             amount,
@@ -313,7 +310,7 @@ abstract contract L2_Bridge is ERC20, Bridge {
             deadline
         ) returns (uint[] memory) {} catch {
             // Transfer hToken to recipient if swap fails
-            _transfer(address(this), recipient, amount);
+            hToken.transfer(recipient, amount);
         }
     }
 
@@ -350,11 +347,11 @@ abstract contract L2_Bridge is ERC20, Bridge {
     /* ========== Override Functions ========== */
 
     function _transferFromBridge(address recipient, uint256 amount) internal override {
-        _mint(recipient, amount);
+        hToken.mint(recipient, amount);
     }
 
     function _transferToBridge(address from, uint256 amount) internal override {
-        _burn(from, amount);
+        hToken.burn(from, amount);
     }
 
     function _requireIsGovernance() internal override {

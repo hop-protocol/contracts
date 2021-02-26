@@ -12,26 +12,22 @@ contract L2_OptimismBridge is L2_Bridge {
     constructor (
         iOVM_L2CrossDomainMessenger _messenger,
         address l1Governance,
+        HopBridgeToken hToken,
         IERC20 canonicalToken,
         address l1BridgeAddress,
         uint256[] memory supportedChainIds,
-        address[] memory bonders,
         address exchangeAddress,
-        string memory name,
-        string memory symbol,
-        uint8 decimals
+        address[] memory bonders
     )
         public
         L2_Bridge(
             l1Governance,
+            hToken,
             canonicalToken,
             l1BridgeAddress,
             supportedChainIds,
-            bonders,
             exchangeAddress,
-            name,
-            symbol,
-            decimals
+            bonders
         )
     {
         messenger = _messenger;
