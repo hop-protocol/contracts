@@ -170,14 +170,14 @@ contract L1_Bridge is Bridge {
      * @dev Used by an L2 bridge to confirm a TransferRoot via cross-domain message. Once a TransferRoot
      * has been confirmed, any challenge against that TransferRoot can be resolved as unsuccessful.
      * @param originChainId The id of the origin chain
-     * @param destinationChainId The id of the destination chain
      * @param rootHash The Merkle root of the TransferRoot Merkle tree
+     * @param destinationChainId The id of the destination chain
      * @param totalAmount The amount destined for each destination chain
      */
     function confirmTransferRoot(
         uint256 originChainId,
-        uint256 destinationChainId,
         bytes32 rootHash,
+        uint256 destinationChainId,
         uint256 totalAmount
     )
         external

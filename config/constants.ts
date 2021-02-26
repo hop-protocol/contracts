@@ -70,5 +70,7 @@ export const DEFAULT_H_TOKEN_NAME = 'DAI Hop Token'
 export const DEFAULT_H_TOKEN_SYMBOL = 'hDAI'
 export const DEFAULT_H_TOKEN_DECIMALS = 18
 
+export const SECONDS_IN_AN_HOUR = 3600
 export const SECONDS_IN_A_DAY = 86400
+export const DEFAULT_TIME_TO_WAIT = 0
 export const TIMESTAMP_VARIANCE = 1000000

@@ -1,5 +1,6 @@
 import { BigNumber, Contract, Signer } from 'ethers'
 import Transfer from '../../lib/Transfer'
+import MerkleTree from '../../lib/MerkleTree'
 import { expect } from 'chai'
 import { expectBalanceOf, getRootHashFromTransferId } from './utils'
 
@@ -349,19 +350,118 @@ export const executeL2BridgeSend = async (
     transfer.sender,
     senderBalanceBefore.sub(transfer.amount)
   )
+
+  // Verify state
+  const expectedPendingTransferHash: Buffer = await transfer.getTransferId()
+  const pendingAmountChainId = await l2_bridge.pendingAmountChainIds(0)
+  const expectedPendingAmountChainId = transfer.chainId
+  expect(pendingAmountChainId).to.eq(expectedPendingAmountChainId)
+
+  const pendingAmount = await l2_bridge.pendingAmountForChainId(
+    transfer.chainId
+  )
+  const expectedPendingAmount = transfer.amount
+  expect(pendingAmount).to.eq(expectedPendingAmount)
+
+  const transfersSentEvent = (
+    await l2_bridge.queryFilter(l2_bridge.filters.TransferSent())
+  )[0]
+  const transferSentArgs = transfersSentEvent.args
+  expect(transferSentArgs[0]).to.eq(
+    '0x' + expectedPendingTransferHash.toString('hex')
+  )
+  expect(transferSentArgs[1]).to.eq(await transfer.recipient.getAddress())
+  expect(transferSentArgs[2]).to.eq(transfer.amount)
+  expect(transferSentArgs[3]).to.eq(transfer.transferNonce)
+  expect(transferSentArgs[4]).to.eq(transfer.relayerFee)
+}
+
+export const executeL2BridgeSwapAndSend = async (
+  l2_bridge: Contract,
+  l2_canonicalToken: Contract,
+  l2_uniswapRouter: Contract,
+  transfer: Transfer
+) => {
+  // Get state before transaction
+  const senderBalanceBefore: BigNumber = await l2_canonicalToken.balanceOf(await transfer.sender.getAddress())
+  const expectedAmounts: BigNumber[] = await l2_uniswapRouter.getAmountsOut(
+    transfer.amount,
+    [l2_canonicalToken.address, l2_bridge.address]
+  )
+  const expectedAmountAfterSlippage: BigNumber = expectedAmounts[1]
+
+  // Perform transaction
+  await l2_canonicalToken
+    .connect(transfer.sender)
+    .approve(l2_bridge.address, transfer.amount)
+  await l2_bridge
+    .connect(transfer.sender)
+    .swapAndSend(
+      transfer.chainId,
+      await transfer.recipient.getAddress(),
+      transfer.amount,
+      transfer.transferNonce,
+      transfer.relayerFee,
+      transfer.amountOutMin,
+      transfer.deadline,
+      transfer.destinationAmountOutMin,
+      transfer.destinationDeadline
+    )
+
+  // Validate state after transaction
+  await expectBalanceOf(
+    l2_canonicalToken,
+    transfer.sender,
+    senderBalanceBefore.sub(transfer.amount)
+  )
+
+  const transferAfterSlippage: Transfer = Object.assign(transfer, {
+    amount: expectedAmountAfterSlippage
+  })
+  const expectedPendingTransferHash: Buffer = await transferAfterSlippage.getTransferId()
+
+  const pendingAmountChainId = await l2_bridge.pendingAmountChainIds(0)
+  const expectedPendingAmountChainId = transfer.chainId
+  expect(pendingAmountChainId).to.eq(expectedPendingAmountChainId)
+
+  const pendingAmount = await l2_bridge.pendingAmountForChainId(
+    transfer.chainId
+  )
+  const expectedPendingAmount = transfer.amount
+  expect(pendingAmount).to.eq(expectedPendingAmount)
+
+  const transfersSentEvent = (
+    await l2_bridge.queryFilter(l2_bridge.filters.TransferSent())
+  )[0]
+  const transferSentArgs = transfersSentEvent.args
+  expect(transferSentArgs[0]).to.eq(
+    '0x' + expectedPendingTransferHash.toString('hex')
+  )
+  expect(transferSentArgs[1]).to.eq(await transfer.recipient.getAddress())
+  expect(transferSentArgs[2]).to.eq(transferAfterSlippage.amount)
+  expect(transferSentArgs[3]).to.eq(transfer.transferNonce)
+  expect(transferSentArgs[4]).to.eq(transfer.relayerFee)
 }
 
 export const executeL2BridgeCommitTransfers = async (
   l2_bridge: Contract,
   transfer: Transfer,
-  bonder: Signer
+  bonder: Signer,
+  timeIncrease: number
 ) => {
   // Get state before transaction
-  const pendingAmountChainId = await l2_bridge.pendingAmountChainIds(BigNumber.from('0'))
+  let pendingAmountChainIdBefore = await l2_bridge.pendingAmountChainIds(BigNumber.from('0'))
   const pendingTransferIdsForChainId: string = await l2_bridge.pendingTransferIdsForChainId(transfer.chainId, 0)
   const expectedPendingTransferIdsForChainId: string = await transfer.getTransferIdHex()
-  expect(pendingAmountChainId).to.eq(transfer.chainId)
+  expect(pendingAmountChainIdBefore).to.eq(transfer.chainId)
   expect(pendingTransferIdsForChainId).to.eq(expectedPendingTransferIdsForChainId)
+  // TODO: Figure out if this state is relevant
+  let pendingAmountForChainId = await l2_bridge.pendingAmountForChainId(
+    transfer.chainId
+  )
+  expect(pendingAmountForChainId).to.eq(transfer.amount)
+  let pendingAmountChainIds = await l2_bridge.pendingAmountChainIds(0)
+  expect(pendingAmountChainIds).to.eq(transfer.chainId)
 
   // Perform transaction
   await l2_bridge
@@ -370,8 +470,10 @@ export const executeL2BridgeCommitTransfers = async (
 
   // Validate state after transaction
   const lastCommitTimeForChainId: BigNumber = await l2_bridge.lastCommitTimeForChainId(transfer.chainId)
-  const expectedCommitTimeForChainId: number = Date.now()
-  expect(lastCommitTimeForChainId.mul(1000).toNumber()).to.be.closeTo(
+  const expectedCommitTimeForChainId: number = Date.now() 
+  // NOTE: The `increaseTime()` function converts the EVM time to ms instead of s. When time has been increased, adjust accordingly.
+  const lastCommitTimeMultiplier = timeIncrease ? 1 : 1000
+  expect(lastCommitTimeForChainId.mul(lastCommitTimeMultiplier).toNumber()).to.be.closeTo(
     expectedCommitTimeForChainId,
     TIMESTAMP_VARIANCE
   )
@@ -388,15 +490,42 @@ export const executeL2BridgeCommitTransfers = async (
   } catch (err) {
     expect(err.message).to.eq(expectedErrorMsg)
   }
+
+  // Verify state post-transaction
+  pendingAmountForChainId = await l2_bridge.pendingAmountForChainId(
+    transfer.chainId
+  )
+  expect(pendingAmountForChainId).to.eq(0)
+
+  const expectedMerkleTree = new MerkleTree([await transfer.getTransferId()])
+
+  const transfersCommittedEvent = (
+    await l2_bridge.queryFilter(l2_bridge.filters.TransfersCommitted())
+  )[0]
+  const transfersCommittedArgs = transfersCommittedEvent.args
+  expect(transfersCommittedArgs[0]).to.eq(expectedMerkleTree.getHexRoot())
+  const pendingAmountChainIdAfter = transfersCommittedArgs[1][0]
+  expect(pendingAmountChainIdAfter).to.eq(transfer.chainId)
+  const pendingChainAmounts = transfersCommittedArgs[2][0]
+  expect(pendingChainAmounts).to.eq(transfer.amount)
 }
 
 export const executeL2BridgeBondWithdrawalAndAttemptSwap = async (
   l2_bridge: Contract,
+  l2_canonicalToken: Contract,
+  l2_uniswapRouter: Contract,
   transfer: Transfer,
   bonder: Signer,
+  actualTransferAmount: BigNumber
 ) => {
   // Get state before transaction
   const bonderBalanceBefore: BigNumber = await l2_bridge.balanceOf(await bonder.getAddress())
+
+  const expectedAmountsRecipientBridge: BigNumber[] = await l2_uniswapRouter.getAmountsOut(
+    actualTransferAmount.sub(transfer.relayerFee),
+    [l2_canonicalToken.address, l2_bridge.address]
+  )
+  const expectedRecipientAmountAfterSlippage: BigNumber = expectedAmountsRecipientBridge[1]
 
   // Perform transaction
   await l2_bridge
@@ -416,11 +545,16 @@ export const executeL2BridgeBondWithdrawalAndAttemptSwap = async (
   await expectBalanceOf(
     l2_bridge,
     transfer.recipient,
-    transfer.amount.sub(transfer.relayerFee)
+    0
   )
   await expectBalanceOf(
     l2_bridge,
     bonder,
     bonderBalanceBefore.add(transfer.relayerFee)
+  )
+  await expectBalanceOf(
+    l2_canonicalToken,
+    transfer.recipient,
+    expectedRecipientAmountAfterSlippage
   )
 }

@@ -12,6 +12,7 @@ import {
   takeSnapshot
 } from '../shared/utils'
 import {
+  executeCanonicalBridgeSendMessage,
   executeL1BridgeSendToL2,
   executeL1BridgeSendToL2AndAttemptToSwap,
   executeL1BridgeBondWithdrawal,
@@ -20,6 +21,7 @@ import {
   executeL1BridgeChallengeTransferBond,
   executeL1BridgeResolveChallenge,
   executeL2BridgeSend,
+  executeL2BridgeSwapAndSend,
   executeL2BridgeCommitTransfers,
   executeL2BridgeBondWithdrawalAndAttemptSwap
 } from '../shared/contractFunctionWrappers'
@@ -35,13 +37,14 @@ import {
   INITIAL_BONDED_AMOUNT,
   LIQUIDITY_PROVIDER_UNISWAP_AMOUNT,
   ZERO_ADDRESS,
-  SECONDS_IN_A_DAY,
+  SECONDS_IN_AN_HOUR,
   TIMESTAMP_VARIANCE,
   DEAD_ADDRESS,
   ARBITRARY_ROOT_HASH,
   DEFAULT_H_TOKEN_NAME,
   DEFAULT_H_TOKEN_SYMBOL,
-  DEFAULT_H_TOKEN_DECIMALS
+  DEFAULT_H_TOKEN_DECIMALS,
+  DEFAULT_TIME_TO_WAIT
 } from '../../config/constants'
 
 describe('L2_Bridge', () => {
@@ -55,6 +58,7 @@ describe('L2_Bridge', () => {
 
   let l1_canonicalToken: Contract
   let l1_bridge: Contract
+  let l1_canonicalBridge: Contract
   let l1_messenger: Contract
   let l2_canonicalToken: Contract
   let l2_bridge: Contract
@@ -87,6 +91,7 @@ describe('L2_Bridge', () => {
       l1_canonicalToken,
       l1_bridge,
       l1_messenger,
+      l1_canonicalBridge,
       l2_canonicalToken,
       l2_bridge,
       l2_messenger,
@@ -246,30 +251,38 @@ describe('L2_Bridge', () => {
         l2_bridge,
         transfer
       )
+    })
+  })
 
-      // Verify state
-      const expectedPendingTransferHash: Buffer = await transfer.getTransferId()
-      const pendingAmountChainId = await l2_bridge.pendingAmountChainIds(0)
-      const expectedPendingAmountChainId = transfer.chainId
-      expect(pendingAmountChainId).to.eq(expectedPendingAmountChainId)
-
-      const pendingAmount = await l2_bridge.pendingAmountForChainId(
-        transfer.chainId
+  describe('swapAndSend', async () => {
+    it('Should send tokens to L2 via swapAndSend', async () => {
+      // Add the canonical token to the users' address on L2
+      await executeCanonicalBridgeSendMessage(
+        l1_canonicalToken,
+        l1_canonicalBridge,
+        l2_canonicalToken,
+        l2_messenger,
+        user,
+        transfer.amount
       )
-      const expectedPendingAmount = transfer.amount
-      expect(pendingAmount).to.eq(expectedPendingAmount)
 
-      const transfersSentEvent = (
-        await l2_bridge.queryFilter(l2_bridge.filters.TransferSent())
-      )[0]
-      const transferSentArgs = transfersSentEvent.args
-      expect(transferSentArgs[0]).to.eq(
-        '0x' + expectedPendingTransferHash.toString('hex')
+      await executeL2BridgeSwapAndSend(
+        l2_bridge,
+        l2_canonicalToken,
+        l2_uniswapRouter,
+        l2Transfer
       )
-      expect(transferSentArgs[1]).to.eq(await transfer.recipient.getAddress())
-      expect(transferSentArgs[2]).to.eq(transfer.amount)
-      expect(transferSentArgs[3]).to.eq(transfer.transferNonce)
-      expect(transferSentArgs[4]).to.eq(transfer.relayerFee)
+    })
+  })
+
+  describe('commitTransfers', async () => {
+    it('Should commit a transfer automatically after 100 sends', async () => {
+    })
+    it.only('Should commit a transfer after the minForceCommitTime', async () => {
+      await executeL2BridgeSend(
+        l2_bridge,
+        transfer
+      )
 
       await executeL1BridgeBondWithdrawal(
         l1_canonicalToken,
@@ -277,140 +290,38 @@ describe('L2_Bridge', () => {
         transfer,
         bonder
       )
+
+
+      const timeToWait: number = 4 * SECONDS_IN_AN_HOUR
+      await increaseTime(timeToWait)
+
+      await executeL2BridgeCommitTransfers(
+        l2_bridge,
+        transfer,
+        user,
+       timeToWait 
+      )
     })
-  })
+    it('Should commit a transfer by the bonder at any time', async () => {
+      await executeL2BridgeSend(
+        l2_bridge,
+        transfer
+      )
 
-  describe('swapAndSend', async () => {
-    it('Should send tokens to L2 via swapAndSend', async () => {
-    //   const expectedAmounts: BigNumber[] = await l2_uniswapRouter.getAmountsOut(
-    //     transfer.amount,
-    //     [l2_canonicalToken.address, l2_bridge.address]
-    //   )
-    //   const expectedAmountAfterSlippage: BigNumber = expectedAmounts[1]
+      await executeL1BridgeBondWithdrawal(
+        l1_canonicalToken,
+        l1_bridge,
+        transfer,
+        bonder
+      )
 
-    //   // Add the canonical token to the users' address on L2
-    //   await executeCanonicalBridgeSendMessage(
-    //     l1_canonicalToken,
-    //     l1_canonicalBridge,
-    //     l2_canonicalToken,
-    //     l2_messenger,
-    //     user,
-    //     userSendTokenAmount
-    //   )
-
-    //   // Execute transaction
-    //   await l2_bridge.connect(governance).addSupportedChainIds([transfer.chainId])
-    //   await l2_canonicalToken
-    //     .connect(user)
-    //     .approve(l2_bridge.address, userSendTokenAmount)
-    //   await l2_bridge
-    //     .connect(user)
-    //     .swapAndSend(
-    //       transfer.chainId,
-    //       await transfer.recipient.getAddress(),
-    //       transfer.amount,
-    //       transfer.transferNonce,
-    //       transfer.relayerFee,
-    //       transfer.amountOutMin,
-    //       transfer.deadline,
-    //       transfer.destinationAmountOutMin,
-    //       transfer.destinationDeadline
-    //     )
-
-    //   // Verify state
-    //   const expectedCurrentCanonicalTokenBal = userSendTokenAmount.sub(
-    //     TRANSFER_AMOUNT
-    //   )
-    //   await expectBalanceOf(
-    //     l2_canonicalToken,
-    //     user,
-    //     expectedCurrentCanonicalTokenBal
-    //   )
-
-    //   const transferAfterSlippage: Transfer = Object.assign(transfer, {
-    //     amount: expectedAmountAfterSlippage
-    //   })
-    //   const expectedPendingTransferHash: Buffer = await transferAfterSlippage.getTransferId()
-
-    //   const pendingAmountChainId = await l2_bridge.pendingAmountChainIds(0)
-    //   const expectedPendingAmountChainId = transfer.chainId
-    //   expect(pendingAmountChainId).to.eq(expectedPendingAmountChainId)
-
-    //   const pendingAmount = await l2_bridge.pendingAmountForChainId(
-    //     transfer.chainId
-    //   )
-    //   const expectedPendingAmount = transfer.amount
-    //   expect(pendingAmount).to.eq(expectedPendingAmount)
-
-    //   const transfersSentEvent = (
-    //     await l2_bridge.queryFilter(l2_bridge.filters.TransferSent())
-    //   )[0]
-    //   const transferSentArgs = transfersSentEvent.args
-    //   expect(transferSentArgs[0]).to.eq(
-    //     '0x' + expectedPendingTransferHash.toString('hex')
-    //   )
-    //   expect(transferSentArgs[1]).to.eq(await transfer.recipient.getAddress())
-    //   expect(transferSentArgs[2]).to.eq(transferAfterSlippage.amount)
-    //   expect(transferSentArgs[3]).to.eq(transfer.transferNonce)
-    //   expect(transferSentArgs[4]).to.eq(transfer.relayerFee)
-  })
-
-  // // TODO: Changed with contract updates
-  it.skip('Should commit a transfer', async () => {
-  //   // Add hToken to the users' address on L2
-  //   await executeL1BridgeSendToL2(
-  //     l1_canonicalToken,
-  //     l1_bridge,
-  //     l2_bridge,
-  //     l2_messenger,
-  //     user,
-  //     userSendTokenAmount,
-  //     l2ChainId
-  //   )
-
-  //   // Execute transaction
-  //   await l2_bridge.connect(governance).addSupportedChainIds([transfer.chainId])
-  //   await l2_bridge
-  //     .connect(user)
-  //     .send(
-  //       transfer.chainId,
-  //       await transfer.recipient.getAddress(),
-  //       transfer.amount,
-  //       transfer.transferNonce,
-  //       transfer.relayerFee,
-  //       transfer.amountOutMin,
-  //       transfer.deadline
-  //     )
-
-  //   // Verify state pre-transaction
-  //   let pendingAmountForChainId = await l2_bridge.pendingAmountForChainId(
-  //     transfer.chainId
-  //   )
-  //   expect(pendingAmountForChainId).to.eq(transfer.amount)
-  //   let pendingAmountChainIds = await l2_bridge.pendingAmountChainIds(0)
-  //   expect(pendingAmountChainIds).to.eq(transfer.chainId)
-
-  //   // Commit the transfer
-  //   await l2_bridge.connect(bonder).commitTransfers(transfer.chainId)
-
-  //   // Verify state post-transaction
-  //   pendingAmountForChainId = await l2_bridge.pendingAmountForChainId(
-  //     transfer.chainId
-  //   )
-  //   expect(pendingAmountForChainId).to.eq(0)
-
-  //   const expectedMerkleTree = new MerkleTree([await transfer.getTransferId()])
-
-  //   const transfersCommittedEvent = (
-  //     await l2_bridge.queryFilter(l2_bridge.filters.TransfersCommitted())
-  //   )[0]
-  //   const transfersCommittedArgs = transfersCommittedEvent.args
-  //   expect(transfersCommittedArgs[0]).to.eq(expectedMerkleTree.getHexRoot())
-  //   const pendingAmountChainId = transfersCommittedArgs[1][0]
-  //   expect(pendingAmountChainId).to.eq(transfer.chainId)
-  //   const pendingChainAmounts = transfersCommittedArgs[2][0]
-  //   expect(pendingChainAmounts).to.eq(transfer.amount)
-  })
+      await executeL2BridgeCommitTransfers(
+        l2_bridge,
+        transfer,
+        bonder,
+        DEFAULT_TIME_TO_WAIT
+      )
+    })
 
   it('Should mint hTokens', async () => {
   //   const tokenAmount: BigNumber = USER_INITIAL_BALANCE
@@ -595,36 +506,6 @@ describe('L2_Bridge', () => {
       await executeL2BridgeSend(
         l2_bridge,
         l2Transfer
-      )
-
-      // Verify state
-      const expectedPendingTransferHash: Buffer = await l2Transfer.getTransferId()
-      const pendingAmountChainId = await l2_bridge.pendingAmountChainIds(0)
-      const expectedPendingAmountChainId = l2Transfer.chainId
-      expect(pendingAmountChainId).to.eq(expectedPendingAmountChainId)
-
-      const pendingAmount = await l2_bridge.pendingAmountForChainId(
-        l2Transfer.chainId
-      )
-      const expectedPendingAmount = l2Transfer.amount
-      expect(pendingAmount).to.eq(expectedPendingAmount)
-
-      const transfersSentEvent = (
-        await l2_bridge.queryFilter(l2_bridge.filters.TransferSent())
-      )[0]
-      const transferSentArgs = transfersSentEvent.args
-      expect(transferSentArgs[0]).to.eq(
-        '0x' + expectedPendingTransferHash.toString('hex')
-      )
-      expect(transferSentArgs[1]).to.eq(await l2Transfer.recipient.getAddress())
-      expect(transferSentArgs[2]).to.eq(l2Transfer.amount)
-      expect(transferSentArgs[3]).to.eq(l2Transfer.transferNonce)
-      expect(transferSentArgs[4]).to.eq(l2Transfer.relayerFee)
-
-      await executeL2BridgeBondWithdrawalAndAttemptSwap(
-        l22_bridge,
-        l2Transfer,
-        bonder
       )
     })
 
