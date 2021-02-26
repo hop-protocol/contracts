@@ -6,40 +6,36 @@ pragma experimental ABIEncoderV2;
 import "../bridges/L2_XDaiBridge.sol";
 
 contract Mock_L2_XDaiBridge is L2_XDaiBridge {
-    uint256 private _chainId;
+    uint256 private chainId;
 
     constructor (
-        iArbitraryMessageBridge _messenger,
+        iArbitraryMessageBridge messenger,
+        bytes32 l1ChainId,
         address l1Governance,
+        HopBridgeToken hToken,
         IERC20 canonicalToken,
         address l1BridgeAddress,
         uint256[] memory supportedChainIds,
-        address[] memory bonders,
         address exchangeAddress,
-        string memory name,
-        string memory symbol,
-        uint8 decimals,
-        bytes32 _l1ChainId
+        address[] memory bonders
     )
         public
         L2_XDaiBridge(
-            _messenger,
+            messenger,
+            l1ChainId,
             l1Governance,
+            hToken,
             canonicalToken,
             l1BridgeAddress,
             supportedChainIds,
-            bonders,
             exchangeAddress,
-            name,
-            symbol,
-            decimals,
-            _l1ChainId
+            bonders
         )
     {
-        _chainId = 77;
+        chainId = 77;
     }
 
     function getChainId() public override view returns (uint256) {
-        return _chainId;
+        return chainId;
     }
 }
