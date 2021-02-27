@@ -4,17 +4,23 @@ pragma solidity 0.6.12;
 pragma experimental ABIEncoderV2;
 
 import "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol";
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 
 import "./Bridge.sol";
 import "./HopBridgeToken.sol";
 import "../libraries/MerkleUtils.sol";
+import "../interfaces/IWETH.sol";
 
 abstract contract L2_Bridge is Bridge {
+    using SafeERC20 for IERC20;
+
     address public l1Governance;
     HopBridgeToken public hToken;
     address public l1BridgeAddress;
     address public exchangeAddress;
     IERC20 public l2CanonicalToken;
+    bool public l2CanonicalTokenIsWeth;
     mapping(uint256 => bool) public supportedChainIds;
     uint256 public minimumForceCommitDelay = 4 hours;
     uint256 public messengerGasLimit = 250000;
@@ -50,6 +56,7 @@ abstract contract L2_Bridge is Bridge {
         address _l1Governance,
         HopBridgeToken _hToken, 
         IERC20 _l2CanonicalToken,
+        bool _l2CanonicalTokenIsWeth,
         address _l1BridgeAddress,
         uint256[] memory _supportedChainIds,
         address _exchangeAddress,
@@ -63,6 +70,7 @@ abstract contract L2_Bridge is Bridge {
         l1Governance = _l1Governance;
         hToken = _hToken;
         l2CanonicalToken = _l2CanonicalToken;
+        l2CanonicalTokenIsWeth = _l2CanonicalTokenIsWeth;
         l1BridgeAddress = _l1BridgeAddress;
         exchangeAddress = _exchangeAddress;
 
@@ -161,10 +169,16 @@ abstract contract L2_Bridge is Bridge {
         uint256 destinationDeadline
     )
         external
+        payable
     {
         require(amount >= relayerFee, "L2_BRG: relayer fee cannot exceed amount");
 
-        l2CanonicalToken.safeTransferFrom(msg.sender, address(this), amount);
+        if (l2CanonicalTokenIsWeth) {
+            require(msg.value == amount, "L2_BRG: Value does not match amount");
+            IWETH(address(l2CanonicalToken)).deposit{value: amount}();
+        } else {
+            l2CanonicalToken.safeTransferFrom(msg.sender, address(this), amount);
+        }
 
         address[] memory exchangePath = _getCHPath();
         uint256[] memory swapAmounts = IUniswapV2Router02(exchangeAddress).getAmountsOut(amount, exchangePath);
@@ -302,15 +316,32 @@ abstract contract L2_Bridge is Bridge {
         hToken.mint(address(this), amount);
         hToken.approve(exchangeAddress, amount);
 
-        try IUniswapV2Router02(exchangeAddress).swapExactTokensForTokens(
-            amount,
-            amountOutMin,
-            _getHCPath(),
-            recipient,
-            deadline
-        ) returns (uint[] memory) {} catch {
+        bool success = true;
+        if (l2CanonicalTokenIsWeth) {
+            try IUniswapV2Router02(exchangeAddress).swapExactTokensForETH(
+                amount,
+                amountOutMin,
+                _getHCPath(),
+                recipient,
+                deadline
+            ) returns (uint[] memory) {} catch {
+                success = false;
+            }
+        } else {
+            try IUniswapV2Router02(exchangeAddress).swapExactTokensForTokens(
+                amount,
+                amountOutMin,
+                _getHCPath(),
+                recipient,
+                deadline
+            ) returns (uint[] memory) {} catch {
+                success = false;
+            }
+        }
+
+        if (!success) {
             // Transfer hToken to recipient if swap fails
-            hToken.transfer(recipient, amount);
+            IERC20(hToken).safeTransfer(recipient, amount);
         }
     }
 

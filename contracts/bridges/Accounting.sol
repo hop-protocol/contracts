@@ -4,8 +4,6 @@ pragma solidity 0.6.12;
 pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/math/SafeMath.sol";
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 
 /**
  * @dev Accounting is an abstract contract that encapsulates the most critical logic in the Hop system.
@@ -21,7 +19,6 @@ import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 
 abstract contract Accounting {
     using SafeMath for uint256;
-    using SafeERC20 for IERC20;
 
     mapping(address => bool) private _isBonder;
 
@@ -102,7 +99,7 @@ abstract contract Accounting {
      * @dev Allows the bonder to deposit tokens and increase its credit balance
      * @param amount The amount being staked
      */
-    function stake(address bonder, uint256 amount) external {
+    function stake(address bonder, uint256 amount) external payable {
         require(_isBonder[bonder] == true, "ACT: Address is not bonder");
         _transferToBridge(msg.sender, amount);
         _addCredit(bonder, amount);

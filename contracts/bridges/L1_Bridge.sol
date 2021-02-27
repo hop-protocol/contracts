@@ -11,7 +11,7 @@ import "../interfaces/IMessengerWrapper.sol";
  * originate in the L1_Bridge through `bondTransferRoot` and are propagated up to destination L2s.
  */
 
-contract L1_Bridge is Bridge {
+abstract contract L1_Bridge is Bridge {
 
     struct TransferBond {
         address bonder;
@@ -32,7 +32,6 @@ contract L1_Bridge is Bridge {
     /* ========== Config State ========== */
 
     address public governance;
-    IERC20 public l1CanonicalToken;
     mapping(uint256 => IMessengerWrapper) public crossDomainMessengerWrappers;
     uint256 public challengeAmountMultiplier = 1;
     uint256 public challengeAmountDivisor = 10;
@@ -75,9 +74,8 @@ contract L1_Bridge is Bridge {
         _;
     }
 
-    constructor (IERC20 _l1CanonicalToken, address[] memory bonders) public Bridge(bonders) {
+    constructor (address[] memory bonders) public Bridge(bonders) {
         governance = msg.sender;
-        l1CanonicalToken = _l1CanonicalToken;
     }
 
     /* ========== Public Transfers Functions ========== */
@@ -88,11 +86,12 @@ contract L1_Bridge is Bridge {
         uint256 amount
     )
         external
+        payable
     {
         IMessengerWrapper messengerWrapper = crossDomainMessengerWrappers[chainId];
         require(messengerWrapper != IMessengerWrapper(0), "L1_BRG: chainId not supported");
 
-        l1CanonicalToken.safeTransferFrom(msg.sender, address(this), amount);
+        _transferToBridge(msg.sender, amount);
 
         bytes memory mintCalldata = abi.encodeWithSignature("mint(address,uint256)", recipient, amount);
 
@@ -108,11 +107,12 @@ contract L1_Bridge is Bridge {
         uint256 deadline
     )
         external
+        payable
     {
         IMessengerWrapper messengerWrapper = crossDomainMessengerWrappers[chainId];
         require(messengerWrapper != IMessengerWrapper(0), "L1_BRG: chainId not supported");
 
-        l1CanonicalToken.safeTransferFrom(msg.sender, address(this), amount);
+        _transferToBridge(msg.sender, amount);
 
         bytes memory mintAndAttemptSwapCalldata = abi.encodeWithSignature(
             "mintAndAttemptSwap(address,uint256,uint256,uint256)",
@@ -225,7 +225,7 @@ contract L1_Bridge is Bridge {
 
     /* ========== External TransferRoot Challenges ========== */
 
-    function challengeTransferBond(bytes32 rootHash, uint256 totalAmountBonded) external {
+    function challengeTransferBond(bytes32 rootHash, uint256 totalAmountBonded) external payable {
         bytes32 transferRootId = getTransferRootId(rootHash, totalAmountBonded);
         TransferRoot memory transferRoot = getTransferRoot(rootHash, totalAmountBonded);
         TransferBond storage transferBond = transferBonds[transferRootId];
@@ -248,7 +248,7 @@ contract L1_Bridge is Bridge {
 
         // Get stake for challenge
         uint256 challengeStakeAmount = getChallengeAmountForTransferAmount(transferRoot.total);
-        l1CanonicalToken.safeTransferFrom(msg.sender, address(this), challengeStakeAmount);
+        _transferToBridge(msg.sender, challengeStakeAmount);
 
         emit TransferBondChallenged(transferRootId, rootHash, totalAmountBonded);
     }
@@ -273,23 +273,15 @@ contract L1_Bridge is Bridge {
         } else {
             // Valid challenge
             // Burn 25% of the challengers stake
-            l1CanonicalToken.safeTransfer(address(0xdead), challengeStakeAmount.mul(1).div(4));
+            _transferFromBridge(address(0xdead), challengeStakeAmount.mul(1).div(4));
             // Reward challenger with the remaining 75% of their stake plus 100% of the Bonder's stake
-            l1CanonicalToken.safeTransfer(transferBond.challenger, challengeStakeAmount.mul(7).div(4));
+            _transferFromBridge(transferBond.challenger, challengeStakeAmount.mul(7).div(4));
         }
 
         emit ChallengeResolved(transferRootId, rootHash, originalAmount);
     }
 
     /* ========== Override Functions ========== */
-
-    function _transferFromBridge(address recipient, uint256 amount) internal override {
-        l1CanonicalToken.safeTransfer(recipient, amount);
-    }
-
-    function _transferToBridge(address from, uint256 amount) internal override {
-        l1CanonicalToken.safeTransferFrom(from, address(this), amount);
-    }
 
     function _additionalDebit() internal view override returns (uint256) {
         uint256 currentTimeSlot = getTimeSlot(block.timestamp);
