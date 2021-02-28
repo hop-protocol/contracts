@@ -9,30 +9,31 @@ contract Mock_L2_XDaiBridge is L2_XDaiBridge {
     uint256 private chainId;
 
     constructor (
+        uint256 _chainId,
         iArbitraryMessageBridge messenger,
-        bytes32 l1ChainId,
         address l1Governance,
         HopBridgeToken hToken,
         IERC20 canonicalToken,
         address l1BridgeAddress,
         uint256[] memory supportedChainIds,
         address exchangeAddress,
-        address[] memory bonders
+        address[] memory bonders,
+        bytes32 l1ChainId
     )
         public
         L2_XDaiBridge(
             messenger,
-            l1ChainId,
             l1Governance,
             hToken,
             canonicalToken,
             l1BridgeAddress,
             supportedChainIds,
             exchangeAddress,
-            bonders
+            bonders,
+            l1ChainId
         )
     {
-        chainId = 77;
+        chainId = _chainId;
     }
 
     function getChainId() public override view returns (uint256) {

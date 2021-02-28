@@ -6,8 +6,8 @@ import Transfer from '../../lib/Transfer'
 import { getL2SpecificArtifact } from './utils'
 import { IFixture } from './interfaces'
 
-import { getMessengerWrapperDefaults } from '../../config/utils'
-import { IGetMessengerWrapperDefaults } from '../../config/interfaces'
+import { getMessengerWrapperDefaults, getL2BridgeDefaults } from '../../config/utils'
+import { IGetMessengerWrapperDefaults, IGetL2BridgeDefaults } from '../../config/interfaces'
 import {
   CHAIN_IDS,
   DEFAULT_DEADLINE,
@@ -120,25 +120,27 @@ export async function fixture (l1ChainId: BigNumber, l2ChainId: BigNumber, l1Alr
 
   // Deploy Hop bridge token
   const l2_hopBridgeToken = await L2_HopBridgeToken.deploy(
-    governance.getAddress(),
+    await governance.getAddress(),
     DEFAULT_H_TOKEN_NAME,
     DEFAULT_H_TOKEN_SYMBOL,
     DEFAULT_H_TOKEN_DECIMALS
   )
 
   // Deploy Hop L2 contracts
-  // TODO: Figure out how to handle XDAI
-  const l2_bridge = await L2_Bridge.deploy(
+  let l2BridgeDefaults: IGetL2BridgeDefaults[] = getL2BridgeDefaults(
     l2ChainId,
     l2_messenger.address,
-    // l1ChainId,
-    governance.getAddress(),
+    await governance.getAddress(),
     l2_hopBridgeToken.address,
     l2_canonicalToken.address,
     l1_bridge.address,
     ALL_SUPPORTED_CHAIN_IDS,
     l2_uniswapRouter.address,
-    [bonder.getAddress()]
+    [await bonder.getAddress()],
+    l1ChainId
+  )
+  const l2_bridge = await L2_Bridge.deploy(
+    ...l2BridgeDefaults
   )
 
   // Deploy Messenger Wrapper
