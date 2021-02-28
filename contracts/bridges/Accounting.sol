@@ -118,12 +118,12 @@ abstract contract Accounting {
     }
 
     function addBonder(address bonder) external onlyGovernance {
-        require(_isBonder[bonder] == false, "ACT: Address is already Bonder");
+        require(_isBonder[bonder] == false, "ACT: Address is already bonder");
         _isBonder[bonder] = true;
     }
 
     function removeBonder(address bonder) external onlyGovernance {
-        require(_isBonder[bonder] == true, "ACT: Address is not Bonder");
+        require(_isBonder[bonder] == true, "ACT: Address is not bonder");
         _isBonder[bonder] = false;
     }
 

@@ -470,7 +470,6 @@ export const executeL2BridgeCommitTransfers = async (
   const expectedPendingTransferIdsForChainId: string = await transfer.getTransferIdHex(transferNonce)
   expect(pendingAmountChainIdBefore).to.eq(transfer.chainId)
   expect(pendingTransferIdsForChainId).to.eq(expectedPendingTransferIdsForChainId)
-  // TODO: Figure out if this state is relevant
   let pendingAmountForChainId = await l2_bridge.pendingAmountForChainId(
     transfer.chainId
   )
