@@ -55,13 +55,14 @@ describe('Bridge', () => {
   it('Should get the correct transfer id', async () => {
     for (let i = 0; i < transfers.length; i++) {
       const transfer: Transfer = transfers[i]
-      const expectedTransferId: Buffer = await transfer.getTransferId()
+      const transferNonce: string = transfer.getTransferNonce(BigNumber.from('0'))
+      const expectedTransferId: Buffer = await transfer.getTransferId(transferNonce)
       const transferId = await mockBridge.getTransferId(
         transfer.chainId,
         await transfer.sender.getAddress(),
         await transfer.recipient.getAddress(),
         transfer.amount,
-        transfer.transferNonce,
+        transfer.getTransferNonce(BigNumber.from('0')),
         transfer.relayerFee,
         transfer.amountOutMin,
         transfer.deadline
@@ -91,7 +92,7 @@ describe('Bridge', () => {
         await transfer.sender.getAddress(),
         await transfer.recipient.getAddress(),
         transfer.amount,
-        transfer.transferNonce,
+        transfer.getTransferNonce(BigNumber.from('0')),
         transfer.relayerFee,
         ARBITRARY_ROOT_HASH,
         arbitraryProof
@@ -108,7 +109,8 @@ describe('Bridge', () => {
     transfer.deadline = BigNumber.from(0)
 
     // TODO: This can use the helper function getRootHashFromTransferId()
-    const transferId: Buffer = await transfer.getTransferId()
+    const transferNonce: string = transfer.getTransferNonce(BigNumber.from('0'))
+    const transferId: Buffer = await transfer.getTransferId(transferNonce)
     const tree: MerkleTree = new MerkleTree([transferId])
     const transferRootHash: Buffer = tree.getRoot()
     const proof: Buffer[] = tree.getProof(transferId)
@@ -121,7 +123,7 @@ describe('Bridge', () => {
         await transfer.sender.getAddress(),
         await transfer.recipient.getAddress(),
         transfer.amount,
-        transfer.transferNonce,
+        transfer.getTransferNonce(BigNumber.from('0')),
         transfer.relayerFee,
         transferRootHash,
         proof

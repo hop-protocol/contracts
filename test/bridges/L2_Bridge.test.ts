@@ -278,7 +278,7 @@ describe('L2_Bridge', () => {
   describe('commitTransfers', async () => {
     it('Should commit a transfer automatically after 100 sends', async () => {
     })
-    it.only('Should commit a transfer after the minForceCommitTime', async () => {
+    it('Should commit a transfer after the minForceCommitTime', async () => {
       await executeL2BridgeSend(
         l2_bridge,
         transfer
@@ -287,10 +287,10 @@ describe('L2_Bridge', () => {
       await executeL1BridgeBondWithdrawal(
         l1_canonicalToken,
         l1_bridge,
+        l2_bridge,
         transfer,
         bonder
       )
-
 
       const timeToWait: number = 4 * SECONDS_IN_AN_HOUR
       await increaseTime(timeToWait)
@@ -311,6 +311,7 @@ describe('L2_Bridge', () => {
       await executeL1BridgeBondWithdrawal(
         l1_canonicalToken,
         l1_bridge,
+        l2_bridge,
         transfer,
         bonder
       )

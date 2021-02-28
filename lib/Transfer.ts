@@ -5,7 +5,6 @@ export type TransferProps = {
   sender: ethers.Signer 
   recipient: ethers.Signer 
   amount: ethers.BigNumber
-  transferNonce: number
   relayerFee: ethers.BigNumber
   amountOutMin: ethers.BigNumber
   deadline: ethers.BigNumber
@@ -18,7 +17,6 @@ export default class Transfer {
   sender: ethers.Signer 
   recipient: ethers.Signer 
   amount: ethers.BigNumber
-  transferNonce: number
   relayerFee: ethers.BigNumber
   amountOutMin: ethers.BigNumber
   deadline: ethers.BigNumber
@@ -30,7 +28,6 @@ export default class Transfer {
     this.sender = props.sender
     this.recipient = props.recipient
     this.amount = props.amount
-    this.transferNonce = props.transferNonce
     this.relayerFee = props.relayerFee
     this.amountOutMin = props.amountOutMin
     this.deadline = props.deadline
@@ -38,7 +35,7 @@ export default class Transfer {
     this.destinationDeadline = props.destinationDeadline
   }
 
-  async getTransferId (): Promise<Buffer> {
+  async getTransferId (transferNonce: string): Promise<Buffer> {
     const data = ethers.utils.defaultAbiCoder.encode(
       [
         'uint256',
@@ -55,7 +52,7 @@ export default class Transfer {
         await this.sender.getAddress(),
         await this.recipient.getAddress(),
         this.amount,
-        this.transferNonce,
+        transferNonce,
         this.relayerFee,
         this.amountOutMin,
         this.deadline
@@ -65,8 +62,21 @@ export default class Transfer {
     return Buffer.from(hash.slice(2), 'hex')
   }
 
-  async getTransferIdHex (): Promise<string> {
-    const transferId: Buffer = await this.getTransferId()
+  async getTransferIdHex (transferNonce: string): Promise<string> {
+    const transferId: Buffer = await this.getTransferId(transferNonce)
     return '0x' + transferId.toString('hex')
+  }
+
+  getTransferNonce (transferNonceIncrementer: ethers.BigNumber): string {
+    const nonceDomainSeparator = this.getNonceDomainSeparator()
+    return ethers.utils.solidityKeccak256(
+      ['string', 'uint256', 'uint256'],
+      [nonceDomainSeparator, this.chainId, transferNonceIncrementer])
+  }
+
+  getNonceDomainSeparator (): string {
+    // keccak256(abi.encodePacked("L2_Bridge v1.0"));
+    const domainSeparatorString: string = 'L2_Bridge v1.0'
+    return ethers.utils.solidityKeccak256(['string'], [domainSeparatorString])
   }
 }

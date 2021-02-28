@@ -326,6 +326,13 @@ export const getTransferRootId = (rootHash: string, totalAmount: BigNumber) => {
   return ethers.utils.solidityKeccak256(['bytes32', 'uint256'], [rootHash, totalAmount])
 }
 
+export const getTransferNonceFromEvent = async (l2_bridge: Contract): Promise<string> => {
+  const transfersSentEvent = (
+    await l2_bridge.queryFilter(l2_bridge.filters.TransferSent())
+  )
+  return transfersSentEvent[0].topics[3]
+}
+
 /**
  * Timing functions
  */

@@ -2,7 +2,7 @@ import { BigNumber, Contract, Signer } from 'ethers'
 import Transfer from '../../lib/Transfer'
 import MerkleTree from '../../lib/MerkleTree'
 import { expect } from 'chai'
-import { expectBalanceOf, getRootHashFromTransferId } from './utils'
+import { expectBalanceOf, getRootHashFromTransferId, getTransferNonceFromEvent } from './utils'
 
 import {
   CHAIN_IDS,
@@ -122,10 +122,12 @@ export const executeL1BridgeSendToL2AndAttemptToSwap = async (
 export const executeL1BridgeBondWithdrawal = async (
   l1_canonicalToken: Contract,
   l1_bridge: Contract,
+  l2_bridge: Contract,
   transfer: Transfer,
   bonder: Signer
 ) => {
   // Get state before transaction
+  const transferNonce = await getTransferNonceFromEvent(l2_bridge)
   const senderBalanceBefore: BigNumber = await l1_canonicalToken.balanceOf(await transfer.sender.getAddress())
   const bonderBalanceBefore: BigNumber = await l1_canonicalToken.balanceOf(await bonder.getAddress())
 
@@ -136,7 +138,7 @@ export const executeL1BridgeBondWithdrawal = async (
       await transfer.sender.getAddress(),
       await transfer.recipient.getAddress(),
       transfer.amount,
-      transfer.transferNonce,
+      transferNonce,
       transfer.relayerFee
     )
 
@@ -172,10 +174,12 @@ export const executeL1BridgeBondWithdrawal = async (
 
 export const executeL1BridgeBondTransferRoot = async (
   l1_bridge: Contract,
+  l2_bridge: Contract,
   transfer: Transfer,
   bonder: Signer
 ) => {
-  const transferId: Buffer = await transfer.getTransferId()
+  const transferNonce = await getTransferNonceFromEvent(l2_bridge)
+  const transferId: Buffer = await transfer.getTransferId(transferNonce)
   const { rootHash } = getRootHashFromTransferId(transferId)
 
   // Perform transaction
@@ -200,10 +204,12 @@ export const executeL1BridgeBondTransferRoot = async (
 
 export const executeL1BridgeSettleBondedWithdrawals = async (
   l1_bridge: Contract,
+  l2_bridge: Contract,
   transfer: Transfer,
   bonder: Signer
 ) => {
-  const transferId: Buffer = await transfer.getTransferId()
+  const transferNonce = await getTransferNonceFromEvent(l2_bridge)
+  const transferId: Buffer = await transfer.getTransferId(transferNonce)
   const { rootHash } = getRootHashFromTransferId(transferId)
 
   // Get state before transaction
@@ -226,11 +232,14 @@ export const executeL1BridgeSettleBondedWithdrawals = async (
 export const executeL1BridgeChallengeTransferBond = async (
   l1_canonicalToken: Contract,
   l1_bridge: Contract,
+  l2_bridge: Contract,
   amount: BigNumber,
   bonder: Signer,
   challenger: Signer,
-  transferId: Buffer
+  transfer: Transfer
 ) => {
+  const transferNonce = await getTransferNonceFromEvent(l2_bridge)
+  const transferId: Buffer = await transfer.getTransferId(transferNonce)
   const { rootHash } = getRootHashFromTransferId(transferId)
   const challengeAmount: BigNumber = await l1_bridge.getChallengeAmountForTransferAmount(amount)
   const transferRootId: string = await l1_bridge.getTransferRootId(rootHash, amount)
@@ -275,12 +284,15 @@ export const executeL1BridgeChallengeTransferBond = async (
 export const executeL1BridgeResolveChallenge = async (
   l1_canonicalToken: Contract,
   l1_bridge: Contract,
+  l2_bridge: Contract,
   amount: BigNumber,
   bonder: Signer,
   challenger: Signer,
-  transferId: Buffer,
+  transfer: Transfer,
   shouldResolveSuccessfully: boolean
 ) => {
+  const transferNonce = await getTransferNonceFromEvent(l2_bridge)
+  const transferId: Buffer = await transfer.getTransferId(transferNonce)
   const { rootHash } = getRootHashFromTransferId(transferId)
   const challengeAmount: BigNumber = await l1_bridge.getChallengeAmountForTransferAmount(amount)
   const bondAmount: BigNumber = await l1_bridge.getBondForTransferAmount(amount)
@@ -336,7 +348,6 @@ export const executeL2BridgeSend = async (
       transfer.chainId,
       await transfer.recipient.getAddress(),
       transfer.amount,
-      transfer.transferNonce,
       transfer.relayerFee,
       transfer.amountOutMin,
       transfer.deadline
@@ -352,7 +363,8 @@ export const executeL2BridgeSend = async (
   )
 
   // Verify state
-  const expectedPendingTransferHash: Buffer = await transfer.getTransferId()
+  const transferNonce = await getTransferNonceFromEvent(l2_bridge)
+  const expectedPendingTransferHash: Buffer = await transfer.getTransferId(transferNonce)
   const pendingAmountChainId = await l2_bridge.pendingAmountChainIds(0)
   const expectedPendingAmountChainId = transfer.chainId
   expect(pendingAmountChainId).to.eq(expectedPendingAmountChainId)
@@ -372,7 +384,7 @@ export const executeL2BridgeSend = async (
   )
   expect(transferSentArgs[1]).to.eq(await transfer.recipient.getAddress())
   expect(transferSentArgs[2]).to.eq(transfer.amount)
-  expect(transferSentArgs[3]).to.eq(transfer.transferNonce)
+  expect(transferSentArgs[3]).to.eq(transferNonce)
   expect(transferSentArgs[4]).to.eq(transfer.relayerFee)
 }
 
@@ -400,7 +412,6 @@ export const executeL2BridgeSwapAndSend = async (
       transfer.chainId,
       await transfer.recipient.getAddress(),
       transfer.amount,
-      transfer.transferNonce,
       transfer.relayerFee,
       transfer.amountOutMin,
       transfer.deadline,
@@ -415,10 +426,11 @@ export const executeL2BridgeSwapAndSend = async (
     senderBalanceBefore.sub(transfer.amount)
   )
 
+  const transferNonce = await getTransferNonceFromEvent(l2_bridge)
   const transferAfterSlippage: Transfer = Object.assign(transfer, {
     amount: expectedAmountAfterSlippage
   })
-  const expectedPendingTransferHash: Buffer = await transferAfterSlippage.getTransferId()
+  const expectedPendingTransferHash: Buffer = await transferAfterSlippage.getTransferId(transferNonce)
 
   const pendingAmountChainId = await l2_bridge.pendingAmountChainIds(0)
   const expectedPendingAmountChainId = transfer.chainId
@@ -439,7 +451,7 @@ export const executeL2BridgeSwapAndSend = async (
   )
   expect(transferSentArgs[1]).to.eq(await transfer.recipient.getAddress())
   expect(transferSentArgs[2]).to.eq(transferAfterSlippage.amount)
-  expect(transferSentArgs[3]).to.eq(transfer.transferNonce)
+  expect(transferSentArgs[3]).to.eq(transferNonce)
   expect(transferSentArgs[4]).to.eq(transfer.relayerFee)
 }
 
@@ -450,9 +462,10 @@ export const executeL2BridgeCommitTransfers = async (
   timeIncrease: number
 ) => {
   // Get state before transaction
+  const transferNonce = await getTransferNonceFromEvent(l2_bridge)
   let pendingAmountChainIdBefore = await l2_bridge.pendingAmountChainIds(BigNumber.from('0'))
   const pendingTransferIdsForChainId: string = await l2_bridge.pendingTransferIdsForChainId(transfer.chainId, 0)
-  const expectedPendingTransferIdsForChainId: string = await transfer.getTransferIdHex()
+  const expectedPendingTransferIdsForChainId: string = await transfer.getTransferIdHex(transferNonce)
   expect(pendingAmountChainIdBefore).to.eq(transfer.chainId)
   expect(pendingTransferIdsForChainId).to.eq(expectedPendingTransferIdsForChainId)
   // TODO: Figure out if this state is relevant
@@ -495,22 +508,21 @@ export const executeL2BridgeCommitTransfers = async (
   pendingAmountForChainId = await l2_bridge.pendingAmountForChainId(
     transfer.chainId
   )
-  expect(pendingAmountForChainId).to.eq(0)
+  expect(pendingAmountForChainId).to.eq(transfer.amount)
 
-  const expectedMerkleTree = new MerkleTree([await transfer.getTransferId()])
+  const expectedMerkleTree = new MerkleTree([await transfer.getTransferId(transferNonce)])
 
   const transfersCommittedEvent = (
     await l2_bridge.queryFilter(l2_bridge.filters.TransfersCommitted())
   )[0]
   const transfersCommittedArgs = transfersCommittedEvent.args
   expect(transfersCommittedArgs[0]).to.eq(expectedMerkleTree.getHexRoot())
-  const pendingAmountChainIdAfter = transfersCommittedArgs[1][0]
-  expect(pendingAmountChainIdAfter).to.eq(transfer.chainId)
-  const pendingChainAmounts = transfersCommittedArgs[2][0]
+  const pendingChainAmounts = transfersCommittedArgs[1]
   expect(pendingChainAmounts).to.eq(transfer.amount)
 }
 
 export const executeL2BridgeBondWithdrawalAndAttemptSwap = async (
+  l2_bridgeOrigin: Contract,
   l2_bridge: Contract,
   l2_canonicalToken: Contract,
   l2_uniswapRouter: Contract,
@@ -519,6 +531,7 @@ export const executeL2BridgeBondWithdrawalAndAttemptSwap = async (
   actualTransferAmount: BigNumber
 ) => {
   // Get state before transaction
+  const transferNonce = await getTransferNonceFromEvent(l2_bridgeOrigin)
   const bonderBalanceBefore: BigNumber = await l2_bridge.balanceOf(await bonder.getAddress())
 
   const expectedAmountsRecipientBridge: BigNumber[] = await l2_uniswapRouter.getAmountsOut(
@@ -534,7 +547,7 @@ export const executeL2BridgeBondWithdrawalAndAttemptSwap = async (
       await transfer.sender.getAddress(),
       await transfer.recipient.getAddress(),
       transfer.amount,
-      transfer.transferNonce,
+      transferNonce,
       transfer.relayerFee,
       transfer.amountOutMin,
       transfer.deadline
