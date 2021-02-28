@@ -44,6 +44,7 @@ import {
 
 describe('L1_Bridge', () => {
   let _fixture: IFixture
+  let l1ChainId: BigNumber
   let l2ChainId: BigNumber
   let l22ChainId: BigNumber
 
@@ -55,9 +56,11 @@ describe('L1_Bridge', () => {
   let l1_bridge: Contract
   let l1_messenger: Contract
   let l2_canonicalToken: Contract
+  let l2_hopBridgeToken: Contract
   let l2_bridge: Contract
   let l2_messenger: Contract
   let l2_uniswapRouter: Contract
+  let l22_hopBridgeToken: Contract
   let l22_canonicalToken: Contract
   let l22_bridge: Contract
   let l22_messenger: Contract
@@ -75,10 +78,11 @@ describe('L1_Bridge', () => {
   before(async () => {
     beforeAllSnapshotId = await takeSnapshot()
 
+    l1ChainId = CHAIN_IDS.ETHEREUM.KOVAN
     l2ChainId = CHAIN_IDS.OPTIMISM.TESTNET_1
     l22ChainId = CHAIN_IDS.ARBITRUM.TESTNET_3
 
-    _fixture = await fixture(l2ChainId)
+    _fixture = await fixture(l1ChainId, l2ChainId)
     await setUpDefaults(_fixture, l2ChainId)
     ;({
       user,
@@ -88,6 +92,7 @@ describe('L1_Bridge', () => {
       l1_bridge,
       l1_messenger,
       l2_canonicalToken,
+      l2_hopBridgeToken,
       l2_bridge,
       l2_messenger,
       l2_uniswapRouter,
@@ -98,10 +103,11 @@ describe('L1_Bridge', () => {
       l1BridgeAddress: l1_bridge.address,
       l1CanonicalTokenAddress: l1_canonicalToken.address
     }
-    _fixture = await fixture(l22ChainId, l1AlreadySetOpts)
+    _fixture = await fixture(l1ChainId, l22ChainId, l1AlreadySetOpts)
     await setUpDefaults(_fixture, l22ChainId)
     ;({
       l2_canonicalToken: l22_canonicalToken,
+      l2_hopBridgeToken: l22_hopBridgeToken,
       l2_bridge: l22_bridge,
       l2_messenger: l22_messenger,
       l2_uniswapRouter: l22_uniswapRouter
@@ -143,7 +149,7 @@ describe('L1_Bridge', () => {
     await executeL1BridgeSendToL2(
       l1_canonicalToken,
       l1_bridge,
-      l2_bridge,
+      l2_hopBridgeToken,
       l2_messenger,
       transfer.sender,
       transfer.amount,
@@ -151,6 +157,7 @@ describe('L1_Bridge', () => {
     )
 
     await executeL2BridgeSend(
+      l2_hopBridgeToken,
       l2_bridge,
       transfer
     )
@@ -168,7 +175,7 @@ describe('L1_Bridge', () => {
     await executeL1BridgeSendToL2(
       l1_canonicalToken,
       l1_bridge,
-      l2_bridge,
+      l2_hopBridgeToken,
       l2_messenger,
       transfer.sender,
       transfer.amount,
@@ -176,6 +183,7 @@ describe('L1_Bridge', () => {
     )
 
     await executeL2BridgeSend(
+      l2_hopBridgeToken,
       l2_bridge,
       transfer
     )
@@ -254,7 +262,7 @@ describe('L1_Bridge', () => {
       await executeL1BridgeSendToL2(
         l1_canonicalToken,
         l1_bridge,
-        l2_bridge,
+        l2_hopBridgeToken,
         l2_messenger,
         transfer.sender,
         transfer.amount,
@@ -272,7 +280,7 @@ describe('L1_Bridge', () => {
       await executeL1BridgeSendToL2AndAttemptToSwap(
         l1_canonicalToken,
         l1_bridge,
-        l2_bridge,
+        l2_hopBridgeToken,
         l2_messenger,
         l2_canonicalToken,
         l2_uniswapRouter,
@@ -289,7 +297,7 @@ describe('L1_Bridge', () => {
       await executeL1BridgeSendToL2(
         l1_canonicalToken,
         l1_bridge,
-        l2_bridge,
+        l2_hopBridgeToken,
         l2_messenger,
         transfer.sender,
         transfer.amount,
@@ -297,6 +305,7 @@ describe('L1_Bridge', () => {
       )
 
       await executeL2BridgeSend(
+        l2_hopBridgeToken,
         l2_bridge,
         transfer
       )
@@ -328,7 +337,7 @@ describe('L1_Bridge', () => {
       await executeL1BridgeSendToL2(
         l1_canonicalToken,
         l1_bridge,
-        l2_bridge,
+        l2_hopBridgeToken,
         l2_messenger,
         transfer.sender,
         transfer.amount,
@@ -336,6 +345,7 @@ describe('L1_Bridge', () => {
       )
 
       await executeL2BridgeSend(
+        l2_hopBridgeToken,
         l2_bridge,
         l2Transfer
       )
@@ -344,6 +354,7 @@ describe('L1_Bridge', () => {
       const actualTransferAmount: BigNumber = l2Transfer.amount
       await executeL2BridgeBondWithdrawalAndAttemptSwap(
         l2_bridge,
+        l22_hopBridgeToken,
         l22_bridge,
         l22_canonicalToken,
         l22_uniswapRouter,
@@ -383,7 +394,7 @@ describe('L1_Bridge', () => {
       await executeL1BridgeSendToL2(
         l1_canonicalToken,
         l1_bridge,
-        l2_bridge,
+        l2_hopBridgeToken,
         l2_messenger,
         transfer.sender,
         transfer.amount,
@@ -391,6 +402,7 @@ describe('L1_Bridge', () => {
       )
 
       await executeL2BridgeSend(
+        l2_hopBridgeToken,
         l2_bridge,
         transfer
       )
@@ -431,7 +443,7 @@ describe('L1_Bridge', () => {
       await executeL1BridgeSendToL2(
         l1_canonicalToken,
         l1_bridge,
-        l2_bridge,
+        l2_hopBridgeToken,
         l2_messenger,
         transfer.sender,
         transfer.amount,
@@ -439,6 +451,7 @@ describe('L1_Bridge', () => {
       )
 
       await executeL2BridgeSend(
+        l2_hopBridgeToken,
         l2_bridge,
         l2Transfer
       )
@@ -447,6 +460,7 @@ describe('L1_Bridge', () => {
       const actualTransferAmount: BigNumber = transfer.amount
       await executeL2BridgeBondWithdrawalAndAttemptSwap(
         l2_bridge,
+        l22_hopBridgeToken,
         l22_bridge,
         l22_canonicalToken,
         l22_uniswapRouter,
@@ -490,7 +504,7 @@ describe('L1_Bridge', () => {
       await executeL1BridgeSendToL2(
         l1_canonicalToken,
         l1_bridge,
-        l2_bridge,
+        l2_hopBridgeToken,
         l2_messenger,
         transfer.sender,
         transfer.amount,
@@ -498,6 +512,7 @@ describe('L1_Bridge', () => {
       )
 
       await executeL2BridgeSend(
+        l2_hopBridgeToken,
         l2_bridge,
         transfer
       )
@@ -540,7 +555,7 @@ describe('L1_Bridge', () => {
       await executeL1BridgeSendToL2(
         l1_canonicalToken,
         l1_bridge,
-        l2_bridge,
+        l2_hopBridgeToken,
         l2_messenger,
         transfer.sender,
         transfer.amount,
@@ -548,6 +563,7 @@ describe('L1_Bridge', () => {
       )
 
       await executeL2BridgeSend(
+        l2_hopBridgeToken,
         l2_bridge,
         transfer
       )
@@ -605,7 +621,7 @@ describe('L1_Bridge', () => {
       await executeL1BridgeSendToL2(
         l1_canonicalToken,
         l1_bridge,
-        l2_bridge,
+        l2_hopBridgeToken,
         l2_messenger,
         transfer.sender,
         transfer.amount,
@@ -613,6 +629,7 @@ describe('L1_Bridge', () => {
       )
 
       await executeL2BridgeSend(
+        l2_hopBridgeToken,
         l2_bridge,
         transfer
       )
@@ -681,7 +698,7 @@ describe('L1_Bridge', () => {
         executeL1BridgeSendToL2(
           l1_canonicalToken,
           l1_bridge,
-          l2_bridge,
+          l2_hopBridgeToken,
           l2_messenger,
           transfer.sender,
           transfer.amount,
@@ -713,7 +730,7 @@ describe('L1_Bridge', () => {
         executeL1BridgeSendToL2(
           l1_canonicalToken,
           l1_bridge,
-          l2_bridge,
+          l2_hopBridgeToken,
           l2_messenger,
           transfer.sender,
           transfer.amount,
@@ -732,7 +749,7 @@ describe('L1_Bridge', () => {
         executeL1BridgeSendToL2AndAttemptToSwap(
           l1_canonicalToken,
           l1_bridge,
-          l2_bridge,
+          l2_hopBridgeToken,
           l2_messenger,
           l2_canonicalToken,
           l2_uniswapRouter,
@@ -765,7 +782,7 @@ describe('L1_Bridge', () => {
         executeL1BridgeSendToL2AndAttemptToSwap(
           l1_canonicalToken,
           l1_bridge,
-          l2_bridge,
+          l2_hopBridgeToken,
           l2_messenger,
           l2_canonicalToken,
           l2_uniswapRouter,
@@ -800,7 +817,7 @@ describe('L1_Bridge', () => {
       await executeL1BridgeSendToL2(
         l1_canonicalToken,
         l1_bridge,
-        l2_bridge,
+        l2_hopBridgeToken,
         l2_messenger,
         transfer.sender,
         transfer.amount,
@@ -808,6 +825,7 @@ describe('L1_Bridge', () => {
       )
 
       await executeL2BridgeSend(
+        l2_hopBridgeToken,
         l2_bridge,
         transfer
       )
@@ -836,7 +854,7 @@ describe('L1_Bridge', () => {
       await executeL1BridgeSendToL2(
         l1_canonicalToken,
         l1_bridge,
-        l2_bridge,
+        l2_hopBridgeToken,
         l2_messenger,
         transfer.sender,
         transfer.amount,
@@ -844,6 +862,7 @@ describe('L1_Bridge', () => {
       )
 
       await executeL2BridgeSend(
+        l2_hopBridgeToken,
         l2_bridge,
         transfer
       )
@@ -877,12 +896,12 @@ describe('L1_Bridge', () => {
 
     it('Should not allow a transfer root to be bonded if the transfer root has already been bonded', async () => {
       const expectedErrorMsg: string =
-        'L1_BRG: Transfer Root has already been bonded'
+        'L1_BRG: TransferRoot has already been bonded'
 
       await executeL1BridgeSendToL2(
         l1_canonicalToken,
         l1_bridge,
-        l2_bridge,
+        l2_hopBridgeToken,
         l2_messenger,
         transfer.sender,
         transfer.amount,
@@ -890,6 +909,7 @@ describe('L1_Bridge', () => {
       )
 
       await executeL2BridgeSend(
+        l2_hopBridgeToken,
         l2_bridge,
         transfer
       )
@@ -933,7 +953,7 @@ describe('L1_Bridge', () => {
       await executeL1BridgeSendToL2(
         l1_canonicalToken,
         l1_bridge,
-        l2_bridge,
+        l2_hopBridgeToken,
         l2_messenger,
         transfer.sender,
         transfer.amount,
@@ -941,6 +961,7 @@ describe('L1_Bridge', () => {
       )
 
       await executeL2BridgeSend(
+        l2_hopBridgeToken,
         l2_bridge,
         transfer
       )
@@ -969,7 +990,7 @@ describe('L1_Bridge', () => {
       await executeL1BridgeSendToL2(
         l1_canonicalToken,
         l1_bridge,
-        l2_bridge,
+        l2_hopBridgeToken,
         l2_messenger,
         l2Transfer.sender,
         l2Transfer.amount,
@@ -977,6 +998,7 @@ describe('L1_Bridge', () => {
       )
 
       await executeL2BridgeSend(
+        l2_hopBridgeToken,
         l2_bridge,
         l2Transfer 
       )
@@ -1011,7 +1033,7 @@ describe('L1_Bridge', () => {
       await executeL1BridgeSendToL2(
         l1_canonicalToken,
         l1_bridge,
-        l2_bridge,
+        l2_hopBridgeToken,
         l2_messenger,
         transfer.sender,
         transfer.amount,
@@ -1019,6 +1041,7 @@ describe('L1_Bridge', () => {
       )
 
       await executeL2BridgeSend(
+        l2_hopBridgeToken,
         l2_bridge,
         transfer
       )
@@ -1065,7 +1088,7 @@ describe('L1_Bridge', () => {
       await executeL1BridgeSendToL2(
         l1_canonicalToken,
         l1_bridge,
-        l2_bridge,
+        l2_hopBridgeToken,
         l2_messenger,
         transfer.sender,
         transfer.amount,
@@ -1073,6 +1096,7 @@ describe('L1_Bridge', () => {
       )
 
       await executeL2BridgeSend(
+        l2_hopBridgeToken,
         l2_bridge,
         transfer
       )
@@ -1113,7 +1137,7 @@ describe('L1_Bridge', () => {
       await executeL1BridgeSendToL2(
         l1_canonicalToken,
         l1_bridge,
-        l2_bridge,
+        l2_hopBridgeToken,
         l2_messenger,
         transfer.sender,
         transfer.amount,
@@ -1121,6 +1145,7 @@ describe('L1_Bridge', () => {
       )
 
       await executeL2BridgeSend(
+        l2_hopBridgeToken,
         l2_bridge,
         l2Transfer 
       )
@@ -1151,12 +1176,12 @@ describe('L1_Bridge', () => {
 
   describe('challengeTransferBond', async () => {
     it('Should not allow a transfer root to be challenged if the transfer root has already been confirmed', async () => {
-      const expectedErrorMsg: string = 'L1_BRG: Transfer root has already been confirmed'
+      const expectedErrorMsg: string = 'L1_BRG: TransferRoot has already been confirmed'
 
       await executeL1BridgeSendToL2(
         l1_canonicalToken,
         l1_bridge,
-        l2_bridge,
+        l2_hopBridgeToken,
         l2_messenger,
         transfer.sender,
         transfer.amount,
@@ -1164,6 +1189,7 @@ describe('L1_Bridge', () => {
       )
 
       await executeL2BridgeSend(
+        l2_hopBridgeToken,
         l2_bridge,
         transfer
       )
@@ -1207,12 +1233,12 @@ describe('L1_Bridge', () => {
     })
 
     it('Should not allow a transfer root to be challenged if the transfer root is challenged after the challenge period', async () => {
-      const expectedErrorMsg: string = 'L1_BRG: Transfer root cannot be challenged after challenge period'
+      const expectedErrorMsg: string = 'L1_BRG: TransferRoot cannot be challenged after challenge period'
 
       await executeL1BridgeSendToL2(
         l1_canonicalToken,
         l1_bridge,
-        l2_bridge,
+        l2_hopBridgeToken,
         l2_messenger,
         transfer.sender,
         transfer.amount,
@@ -1220,6 +1246,7 @@ describe('L1_Bridge', () => {
       )
 
       await executeL2BridgeSend(
+        l2_hopBridgeToken,
         l2_bridge,
         transfer
       )
@@ -1264,12 +1291,12 @@ describe('L1_Bridge', () => {
     })
 
     it('Should not allow a transfer root to be challenged if the transfer root has already been challenged', async () => {
-      const expectedErrorMsg: string = 'L1_BRG: Transfer root already challenged'
+      const expectedErrorMsg: string = 'L1_BRG: TransferRoot already challenged'
 
       await executeL1BridgeSendToL2(
         l1_canonicalToken,
         l1_bridge,
-        l2_bridge,
+        l2_hopBridgeToken,
         l2_messenger,
         transfer.sender,
         transfer.amount,
@@ -1277,6 +1304,7 @@ describe('L1_Bridge', () => {
       )
 
       await executeL2BridgeSend(
+        l2_hopBridgeToken,
         l2_bridge,
         transfer
       )
@@ -1332,7 +1360,7 @@ describe('L1_Bridge', () => {
       await executeL1BridgeSendToL2(
         l1_canonicalToken,
         l1_bridge,
-        l2_bridge,
+        l2_hopBridgeToken,
         l2_messenger,
         transfer.sender,
         transfer.amount,
@@ -1340,6 +1368,7 @@ describe('L1_Bridge', () => {
       )
 
       await executeL2BridgeSend(
+        l2_hopBridgeToken,
         l2_bridge,
         transfer
       )
@@ -1381,7 +1410,7 @@ describe('L1_Bridge', () => {
       await executeL1BridgeSendToL2(
         l1_canonicalToken,
         l1_bridge,
-        l2_bridge,
+        l2_hopBridgeToken,
         l2_messenger,
         transfer.sender,
         transfer.amount,
@@ -1389,6 +1418,7 @@ describe('L1_Bridge', () => {
       )
 
       await executeL2BridgeSend(
+        l2_hopBridgeToken,
         l2_bridge,
         transfer
       )
@@ -1432,12 +1462,12 @@ describe('L1_Bridge', () => {
     })
 
     it('Should not allow a transfer root to be challenged if an arbitrary root hash is passed in', async () => {
-      const expectedErrorMsg: string = 'L1_BRG: Transfer root not found'
+      const expectedErrorMsg: string = 'L1_BRG: TransferRoot not found'
 
       await executeL1BridgeSendToL2(
         l1_canonicalToken,
         l1_bridge,
-        l2_bridge,
+        l2_hopBridgeToken,
         l2_messenger,
         transfer.sender,
         transfer.amount,
@@ -1445,6 +1475,7 @@ describe('L1_Bridge', () => {
       )
 
       await executeL2BridgeSend(
+        l2_hopBridgeToken,
         l2_bridge,
         transfer
       )
@@ -1480,13 +1511,13 @@ describe('L1_Bridge', () => {
     })
 
     it('Should not allow a transfer root to be challenged if an incorrect originalAmount is passed in', async () => {
-      const expectedErrorMsg: string = 'L1_BRG: Transfer root not found'
+      const expectedErrorMsg: string = 'L1_BRG: TransferRoot not found'
       const incorrectAmount: BigNumber = BigNumber.from('13371337')
 
       await executeL1BridgeSendToL2(
         l1_canonicalToken,
         l1_bridge,
-        l2_bridge,
+        l2_hopBridgeToken,
         l2_messenger,
         transfer.sender,
         transfer.amount,
@@ -1494,6 +1525,7 @@ describe('L1_Bridge', () => {
       )
 
       await executeL2BridgeSend(
+        l2_hopBridgeToken,
         l2_bridge,
         transfer
       )
@@ -1536,12 +1568,12 @@ describe('L1_Bridge', () => {
 
   describe('resolveChallenge', async () => {
     it('Should not allow a transfer root challenge to be resolved if the transfer root was never challenged', async () => {
-      const expectedErrorMsg: string = 'L1_BRG: Transfer root has not been challenged'
+      const expectedErrorMsg: string = 'L1_BRG: TransferRoot has not been challenged'
 
       await executeL1BridgeSendToL2(
         l1_canonicalToken,
         l1_bridge,
-        l2_bridge,
+        l2_hopBridgeToken,
         l2_messenger,
         transfer.sender,
         transfer.amount,
@@ -1549,6 +1581,7 @@ describe('L1_Bridge', () => {
       )
 
       await executeL2BridgeSend(
+        l2_hopBridgeToken,
         l2_bridge,
         transfer
       )
@@ -1597,7 +1630,7 @@ describe('L1_Bridge', () => {
       await executeL1BridgeSendToL2(
         l1_canonicalToken,
         l1_bridge,
-        l2_bridge,
+        l2_hopBridgeToken,
         l2_messenger,
         transfer.sender,
         transfer.amount,
@@ -1605,6 +1638,7 @@ describe('L1_Bridge', () => {
       )
 
       await executeL2BridgeSend(
+        l2_hopBridgeToken,
         l2_bridge,
         transfer
       )
@@ -1661,12 +1695,12 @@ describe('L1_Bridge', () => {
     })
 
     it('Should not allow a transfer root challenge to be resolved if an arbitrary root hash is passed in', async () => {
-      const expectedErrorMsg: string = 'L1_BRG: Transfer root has not been challenged'
+      const expectedErrorMsg: string = 'L1_BRG: TransferRoot not found'
 
       await executeL1BridgeSendToL2(
         l1_canonicalToken,
         l1_bridge,
-        l2_bridge,
+        l2_hopBridgeToken,
         l2_messenger,
         transfer.sender,
         transfer.amount,
@@ -1674,6 +1708,7 @@ describe('L1_Bridge', () => {
       )
 
       await executeL2BridgeSend(
+        l2_hopBridgeToken,
         l2_bridge,
         transfer
       )
@@ -1721,12 +1756,12 @@ describe('L1_Bridge', () => {
     })
 
     it('Should not allow a transfer root challenge to be resolved if it has already been resolved', async () => {
-      const expectedErrorMsg: string = 'L1_BRG: Transfer root already resolved'
+      const expectedErrorMsg: string = 'L1_BRG: TransferRoot already resolved'
 
       await executeL1BridgeSendToL2(
         l1_canonicalToken,
         l1_bridge,
-        l2_bridge,
+        l2_hopBridgeToken,
         l2_messenger,
         transfer.sender,
         transfer.amount,
@@ -1734,6 +1769,7 @@ describe('L1_Bridge', () => {
       )
 
       await executeL2BridgeSend(
+        l2_hopBridgeToken,
         l2_bridge,
         transfer
       )
@@ -1802,13 +1838,13 @@ describe('L1_Bridge', () => {
     })
 
     it('Should not allow a transfer root challenge to be resolved if an incorrect originalAmount is passed in', async () => {
-      const expectedErrorMsg: string = 'L1_BRG: Transfer root has not been challenged'
+      const expectedErrorMsg: string = 'L1_BRG: TransferRoot not found'
       const incorrectAmount: BigNumber = BigNumber.from('13371337')
 
       await executeL1BridgeSendToL2(
         l1_canonicalToken,
         l1_bridge,
-        l2_bridge,
+        l2_hopBridgeToken,
         l2_messenger,
         transfer.sender,
         transfer.amount,
@@ -1816,6 +1852,7 @@ describe('L1_Bridge', () => {
       )
 
       await executeL2BridgeSend(
+        l2_hopBridgeToken,
         l2_bridge,
         transfer
       )
@@ -1881,7 +1918,7 @@ describe('L1_Bridge', () => {
       await executeL1BridgeSendToL2(
         l1_canonicalToken,
         l1_bridge,
-        l2_bridge,
+        l2_hopBridgeToken,
         l2_messenger,
         customTransfer.sender,
         customTransfer.amount,
@@ -1897,7 +1934,7 @@ describe('L1_Bridge', () => {
       await executeL1BridgeSendToL2AndAttemptToSwap(
         l1_canonicalToken,
         l1_bridge,
-        l2_bridge,
+        l2_hopBridgeToken,
         l2_messenger,
         l2_canonicalToken,
         l2_uniswapRouter,
@@ -1913,7 +1950,7 @@ describe('L1_Bridge', () => {
       await executeL1BridgeSendToL2AndAttemptToSwap(
         l1_canonicalToken,
         l1_bridge,
-        l2_bridge,
+        l2_hopBridgeToken,
         l2_messenger,
         l2_canonicalToken,
         l2_uniswapRouter,
@@ -1928,7 +1965,7 @@ describe('L1_Bridge', () => {
       await executeL1BridgeSendToL2(
         l1_canonicalToken,
         l1_bridge,
-        l2_bridge,
+        l2_hopBridgeToken,
         l2_messenger,
         transfer.sender,
         transfer.amount,
@@ -1936,6 +1973,7 @@ describe('L1_Bridge', () => {
       )
 
       await executeL2BridgeSend(
+        l2_hopBridgeToken,
         l2_bridge,
         customTransfer
       )
@@ -1969,7 +2007,7 @@ describe('L1_Bridge', () => {
       await executeL1BridgeSendToL2(
         l1_canonicalToken,
         l1_bridge,
-        l2_bridge,
+        l2_hopBridgeToken,
         l2_messenger,
         transfer.sender,
         transfer.amount,
@@ -1977,6 +2015,7 @@ describe('L1_Bridge', () => {
       )
 
       await executeL2BridgeSend(
+        l2_hopBridgeToken,
         l2_bridge,
         customTransfer
       )
@@ -1985,6 +2024,7 @@ describe('L1_Bridge', () => {
       const actualTransferAmount: BigNumber = customTransfer.amount
       await executeL2BridgeBondWithdrawalAndAttemptSwap(
         l2_bridge,
+        l22_hopBridgeToken,
         l22_bridge,
         l22_canonicalToken,
         l22_uniswapRouter,

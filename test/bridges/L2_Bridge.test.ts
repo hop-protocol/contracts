@@ -49,6 +49,7 @@ import {
 
 describe('L2_Bridge', () => {
   let _fixture: IFixture
+  let l1ChainId: BigNumber
   let l2ChainId: BigNumber
   let l22ChainId: BigNumber
 
@@ -61,6 +62,7 @@ describe('L2_Bridge', () => {
   let l1_canonicalBridge: Contract
   let l1_messenger: Contract
   let l2_canonicalToken: Contract
+  let l2_hopBridgeToken: Contract
   let l2_bridge: Contract
   let l2_messenger: Contract
   let l2_uniswapRouter: Contract
@@ -79,10 +81,11 @@ describe('L2_Bridge', () => {
   before(async () => {
     beforeAllSnapshotId = await takeSnapshot()
 
+    l1ChainId = CHAIN_IDS.ETHEREUM.KOVAN
     l2ChainId = CHAIN_IDS.OPTIMISM.TESTNET_1
     l22ChainId = CHAIN_IDS.ARBITRUM.TESTNET_3
 
-    _fixture = await fixture(l2ChainId)
+    _fixture = await fixture(l1ChainId, l2ChainId)
     await setUpDefaults(_fixture, l2ChainId)
     ;({
       user,
@@ -93,6 +96,7 @@ describe('L2_Bridge', () => {
       l1_messenger,
       l1_canonicalBridge,
       l2_canonicalToken,
+      l2_hopBridgeToken,
       l2_bridge,
       l2_messenger,
       l2_uniswapRouter,
@@ -103,7 +107,7 @@ describe('L2_Bridge', () => {
       l1BridgeAddress: l1_bridge.address,
       l1CanonicalTokenAddress: l1_canonicalToken.address
     }
-    _fixture = await fixture(l22ChainId, l1AlreadySetOpts)
+    _fixture = await fixture(l1ChainId, l22ChainId, l1AlreadySetOpts)
     await setUpDefaults(_fixture, l22ChainId)
     ;({
       l2_bridge: l22_bridge,
@@ -119,7 +123,7 @@ describe('L2_Bridge', () => {
     await executeL1BridgeSendToL2(
       l1_canonicalToken,
       l1_bridge,
-      l2_bridge,
+      l2_hopBridgeToken,
       l2_messenger,
       transfer.sender,
       transfer.amount,
@@ -160,9 +164,9 @@ describe('L2_Bridge', () => {
     const l1BridgeAddress = await l2_bridge.l1BridgeAddress()
     const isBonder = await l2_bridge.getIsBonder(await bonder.getAddress())
     const exchangeAddress: string = await l2_bridge.exchangeAddress()
-    const name: string = await l2_bridge.name()
-    const symbol: string = await l2_bridge.symbol()
-    const decimals: number = await l2_bridge.decimals()
+    const name: string = await l2_hopBridgeToken.name()
+    const symbol: string = await l2_hopBridgeToken.symbol()
+    const decimals: number = await l2_hopBridgeToken.decimals()
 
     expect(expectedL1GovernanceAddress).to.eq(l1GovernanceAddress)
     expect(expectedL2CanonicalTokenAddress).to.eq(l2CanonicalTokenAddress)
@@ -248,6 +252,7 @@ describe('L2_Bridge', () => {
   describe('send', async () => {
     it('Should send tokens to L1 via send', async () => {
       await executeL2BridgeSend(
+        l2_hopBridgeToken,
         l2_bridge,
         transfer
       )
@@ -269,6 +274,7 @@ describe('L2_Bridge', () => {
       await executeL2BridgeSwapAndSend(
         l2_bridge,
         l2_canonicalToken,
+        l2_hopBridgeToken,
         l2_uniswapRouter,
         l2Transfer
       )
@@ -280,6 +286,7 @@ describe('L2_Bridge', () => {
     })
     it('Should commit a transfer after the minForceCommitTime', async () => {
       await executeL2BridgeSend(
+        l2_hopBridgeToken,
         l2_bridge,
         transfer
       )
@@ -304,6 +311,7 @@ describe('L2_Bridge', () => {
     })
     it('Should commit a transfer by the bonder at any time', async () => {
       await executeL2BridgeSend(
+        l2_hopBridgeToken,
         l2_bridge,
         transfer
       )
@@ -505,6 +513,7 @@ describe('L2_Bridge', () => {
   describe('Edge cases', async () => {
     it('Should send tokens to L2 via send', async () => {
       await executeL2BridgeSend(
+        l2_hopBridgeToken,
         l2_bridge,
         l2Transfer
       )

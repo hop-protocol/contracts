@@ -8,6 +8,7 @@ import {
   LIQUIDITY_PROVIDER_UNISWAP_AMOUNT,
   BONDER_INITIAL_BALANCE,
   INITIAL_BONDED_AMOUNT,
+  DEFAULT_DEADLINE,
   CHALLENGER_INITIAL_BALANCE,
   UNISWAP_LP_MINIMUM_LIQUIDITY
 } from '../../config/constants'
@@ -50,11 +51,21 @@ export const setUpDefaults = async (
     liquidityProviderBalance: LIQUIDITY_PROVIDER_UNISWAP_AMOUNT
   }
 
+  await setUpL2HopBridgeToken(fixture)
   await setUpL1AndL2Bridges(fixture, setUpL1AndL2BridgesOpts)
   await setUpL1AndL2Messengers(fixture)
   await distributeCanonicalTokens(fixture, distributeCanonicalTokensOpts)
   await setUpBonderStake(fixture, setUpBonderStakeOpts)
   await setUpL2UniswapMarket(fixture, setUpL2UniswapMarketOpts)
+}
+
+export const setUpL2HopBridgeToken = async (fixture: IFixture) => {
+  const {
+    l2_hopBridgeToken,
+    l2_bridge
+  } = fixture
+
+  await l2_hopBridgeToken.transferOwnership(l2_bridge.address)
 }
 
 export const setUpL1AndL2Bridges = async (fixture: IFixture, opts: any) => {
@@ -124,6 +135,7 @@ export const setUpBonderStake = async (fixture: IFixture, opts: any) => {
     bonder,
     l1_bridge,
     l1_canonicalToken,
+    l2_hopBridgeToken,
     l2_bridge,
     l2_messenger,
   } = fixture
@@ -140,14 +152,14 @@ export const setUpBonderStake = async (fixture: IFixture, opts: any) => {
   await executeL1BridgeSendToL2(
     l1_canonicalToken,
     l1_bridge,
-    l2_bridge,
+    l2_hopBridgeToken,
     l2_messenger,
     bonder,
     bondAmount,
     l2ChainId
   )
 
-  await l2_bridge
+  await l2_hopBridgeToken
     .connect(bonder)
     .approve(l2_bridge.address, bondAmount)
   await l2_bridge.connect(bonder).stake(await bonder.getAddress(), bondAmount)
@@ -158,6 +170,7 @@ export const setUpL2UniswapMarket = async (fixture: IFixture, opts: any) => {
     l1_bridge,
     l1_canonicalToken,
     l1_canonicalBridge,
+    l2_hopBridgeToken,
     l2_bridge,
     l2_messenger,
     liquidityProvider,
@@ -182,7 +195,7 @@ export const setUpL2UniswapMarket = async (fixture: IFixture, opts: any) => {
   await executeL1BridgeSendToL2(
     l1_canonicalToken,
     l1_bridge,
-    l2_bridge,
+    l2_hopBridgeToken,
     l2_messenger,
     liquidityProvider,
     liquidityProviderBalance,
@@ -193,27 +206,27 @@ export const setUpL2UniswapMarket = async (fixture: IFixture, opts: any) => {
   await l2_canonicalToken
     .connect(liquidityProvider)
     .approve(l2_uniswapRouter.address, liquidityProviderBalance)
-  await l2_bridge
+  await l2_hopBridgeToken
     .connect(liquidityProvider)
     .approve(l2_uniswapRouter.address, liquidityProviderBalance)
   await l2_uniswapRouter
     .connect(liquidityProvider)
     .addLiquidity(
       l2_canonicalToken.address,
-      l2_bridge.address,
+      l2_hopBridgeToken.address,
       liquidityProviderBalance,
       liquidityProviderBalance,
       '0',
       '0',
       await liquidityProvider.getAddress(),
-      '999999999999'
+      DEFAULT_DEADLINE
     )
   await expectBalanceOf(l2_canonicalToken, liquidityProvider, '0')
-  await expectBalanceOf(l2_bridge, liquidityProvider, '0')
+  await expectBalanceOf(l2_hopBridgeToken, liquidityProvider, '0')
 
   const l2_uniswapPairAddress: string = await l2_uniswapFactory.getPair(
     l2_canonicalToken.address,
-    l2_bridge.address
+    l2_hopBridgeToken.address
   )
   const l2_uniswapPair: Contract = await ethers.getContractAt(
     '@uniswap/v2-core/contracts/UniswapV2Pair.sol:UniswapV2Pair',
@@ -233,7 +246,7 @@ export const setUpL2UniswapMarket = async (fixture: IFixture, opts: any) => {
     l2_uniswapPair,
     liquidityProviderBalance
   )
-  await expectBalanceOf(l2_bridge, l2_uniswapPair, liquidityProviderBalance)
+  await expectBalanceOf(l2_hopBridgeToken, l2_uniswapPair, liquidityProviderBalance)
 }
 
 /**
@@ -272,42 +285,6 @@ export const getL2SpecificArtifact = (chainId: BigNumber) => {
   return {
     l2_bridgeArtifact,
     l1_messengerWrapperArtifact
-  }
-}
-
-export const getOriginalSignerBalances = async (
-  user: Signer,
-  bonder: Signer,
-  challenger: Signer,
-  l1_bridge: Contract,
-  l2_bridge: Contract,
-  l1_canonicalToken: Contract,
-  l2_canonicalToken: Contract,
-) => {
-  const originalBondedAmount: BigNumber = await l1_bridge.getCredit(await bonder.getAddress())
-  const user_l1_canonicalTokenOriginalBalance: BigNumber = await l1_canonicalToken.balanceOf(await user.getAddress())
-  const bonder_l1_canonicalTokenOriginalBalance: BigNumber = await l1_canonicalToken.balanceOf(await bonder.getAddress())
-  const challenger_l1_canonicalTokenOriginalBalance: BigNumber = await l1_canonicalToken.balanceOf(await challenger.getAddress())
-
-  const user_l2_canonicalTokenOriginalBalance: BigNumber = await l2_canonicalToken.balanceOf(await user.getAddress())
-  const bonder_l2_canonicalTokenOriginalBalance: BigNumber = await l2_canonicalToken.balanceOf(await bonder.getAddress())
-  const challenger_l2_canonicalTokenOriginalBalance: BigNumber = await l2_canonicalToken.balanceOf(await challenger.getAddress())
-
-  const user_l2_bridgeTokenOriginalBalance: BigNumber = await l2_bridge.balanceOf(await user.getAddress())
-  const bonder_l2_bridgeTokenOriginalBalance: BigNumber = await l2_bridge.balanceOf(await bonder.getAddress())
-  const challenger_l2_bridgeTokenOriginalBalance: BigNumber = await l2_bridge.balanceOf(await challenger.getAddress())
-
-  return {
-    originalBondedAmount,
-    user_l1_canonicalTokenOriginalBalance,
-    bonder_l1_canonicalTokenOriginalBalance,
-    challenger_l1_canonicalTokenOriginalBalance,
-    user_l2_canonicalTokenOriginalBalance,
-    bonder_l2_canonicalTokenOriginalBalance,
-    challenger_l2_canonicalTokenOriginalBalance,
-    user_l2_bridgeTokenOriginalBalance,
-    bonder_l2_bridgeTokenOriginalBalance,
-    challenger_l2_bridgeTokenOriginalBalance
   }
 }
 

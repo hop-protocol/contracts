@@ -19,7 +19,7 @@ import {
   DEFAULT_H_TOKEN_DECIMALS
 } from '../../config/constants'
 
-export async function fixture (l2ChainId: BigNumber, l1AlreadySetOpts: any = {}): Promise<IFixture> {
+export async function fixture (l1ChainId: BigNumber, l2ChainId: BigNumber, l1AlreadySetOpts: any = {}): Promise<IFixture> {
   const {
     l2_bridgeArtifact,
     l1_messengerWrapperArtifact
@@ -50,6 +50,9 @@ export async function fixture (l2ChainId: BigNumber, l1AlreadySetOpts: any = {})
   )
   const L1_MessengerWrapper = await ethers.getContractFactory(
     `contracts/wrappers/${l1_messengerWrapperArtifact}`
+  )
+  const L2_HopBridgeToken = await ethers.getContractFactory(
+    'contracts/bridges/HopBridgeToken.sol:HopBridgeToken'
   )
   const L2_Messenger = await ethers.getContractFactory(
     'contracts/test/Mock_L2_Messenger.sol:Mock_L2_Messenger'
@@ -115,19 +118,27 @@ export async function fixture (l2ChainId: BigNumber, l1AlreadySetOpts: any = {})
     )
   }
 
-  // Deploy Hop L2 contracts
-  const l2_bridge = await L2_Bridge.deploy(
-    l2ChainId,
-    l2_messenger.address,
+  // Deploy Hop bridge token
+  const l2_hopBridgeToken = await L2_HopBridgeToken.deploy(
     governance.getAddress(),
-    l2_canonicalToken.address,
-    l1_bridge.address,
-    ALL_SUPPORTED_CHAIN_IDS,
-    [bonder.getAddress()],
-    l2_uniswapRouter.address,
     DEFAULT_H_TOKEN_NAME,
     DEFAULT_H_TOKEN_SYMBOL,
     DEFAULT_H_TOKEN_DECIMALS
+  )
+
+  // Deploy Hop L2 contracts
+  // TODO: Figure out how to handle XDAI
+  const l2_bridge = await L2_Bridge.deploy(
+    l2ChainId,
+    l2_messenger.address,
+    // l1ChainId,
+    governance.getAddress(),
+    l2_hopBridgeToken.address,
+    l2_canonicalToken.address,
+    l1_bridge.address,
+    ALL_SUPPORTED_CHAIN_IDS,
+    l2_uniswapRouter.address,
+    [bonder.getAddress()]
   )
 
   // Deploy Messenger Wrapper
@@ -197,6 +208,7 @@ export async function fixture (l2ChainId: BigNumber, l1AlreadySetOpts: any = {})
     otherUser,
     L1_CanonicalBridge,
     L1_Bridge,
+    L2_HopBridgeToken,
     L2_Bridge,
     MockERC20,
     L1_MessengerWrapper,
@@ -212,6 +224,7 @@ export async function fixture (l2ChainId: BigNumber, l1AlreadySetOpts: any = {})
     l1_messengerWrapper,
     l1_bridge,
     l2_messenger,
+    l2_hopBridgeToken,
     l2_bridge,
     l2_canonicalToken,
     l2_uniswapFactory,

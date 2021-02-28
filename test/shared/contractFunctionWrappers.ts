@@ -41,7 +41,7 @@ export const executeCanonicalBridgeSendMessage = async (
 export const executeL1BridgeSendToL2 = async (
   l1_canonicalToken: Contract,
   l1_bridge: Contract,
-  l2_bridge: Contract,
+  l2_hopBridgeToken: Contract,
   l2_messenger: Contract,
   sender: Signer,
   amount: BigNumber,
@@ -63,13 +63,13 @@ export const executeL1BridgeSendToL2 = async (
     sender,
     accountBalanceBefore.sub(amount)
   )
-  await expectBalanceOf(l2_bridge, sender, amount)
+  await expectBalanceOf(l2_hopBridgeToken, sender, amount)
 }
 
 export const executeL1BridgeSendToL2AndAttemptToSwap = async (
   l1_canonicalToken: Contract,
   l1_bridge: Contract,
-  l2_bridge: Contract,
+  l2_hopBridgeToken: Contract,
   l2_messenger: Contract,
   l2_canonicalToken: Contract,
   l2_uniswapRouter: Contract,
@@ -85,7 +85,7 @@ export const executeL1BridgeSendToL2AndAttemptToSwap = async (
   // Get state before transaction
   const expectedAmounts: BigNumber[] = await l2_uniswapRouter.getAmountsOut(
     transfer.amount,
-    [l2_canonicalToken.address, l2_bridge.address]
+    [l2_canonicalToken.address, l2_hopBridgeToken.address]
   )
 
   const expectedAmountAfterSlippage: BigNumber = expectedAmounts[1]
@@ -112,10 +112,10 @@ export const executeL1BridgeSendToL2AndAttemptToSwap = async (
   // The recipient will either have the canonical token or the bridge token
   try {
     await expectBalanceOf(l2_canonicalToken, recipient, expectedAmountAfterSlippage)
-    await expectBalanceOf(l2_bridge, recipient, 0)
+    await expectBalanceOf(l2_hopBridgeToken, recipient, 0)
   } catch {
     await expectBalanceOf(l2_canonicalToken, recipient, 0)
-    await expectBalanceOf(l2_bridge, recipient, amount)
+    await expectBalanceOf(l2_hopBridgeToken, recipient, amount)
   }
 }
 
@@ -334,12 +334,13 @@ export const executeL1BridgeResolveChallenge = async (
  */
 
 export const executeL2BridgeSend = async (
+  l2_hopBridgeToken: Contract,
   l2_bridge: Contract,
   transfer: Transfer
 ) => {
   // Get state before transaction
-  const bridgeTotalSupplyBefore: BigNumber = await l2_bridge.totalSupply()
-  const senderBalanceBefore: BigNumber = await l2_bridge.balanceOf(await transfer.sender.getAddress())
+  const bridgeTotalSupplyBefore: BigNumber = await l2_hopBridgeToken.totalSupply()
+  const senderBalanceBefore: BigNumber = await l2_hopBridgeToken.balanceOf(await transfer.sender.getAddress())
 
   // Perform transaction
   await l2_bridge
@@ -354,10 +355,10 @@ export const executeL2BridgeSend = async (
     )
 
   // Validate state after transaction
-  const bridgeTotalSupplyAfter: BigNumber = await l2_bridge.totalSupply()
+  const bridgeTotalSupplyAfter: BigNumber = await l2_hopBridgeToken.totalSupply()
   expect(bridgeTotalSupplyAfter).to.eq(bridgeTotalSupplyBefore.sub(transfer.amount))
   await expectBalanceOf(
-    l2_bridge,
+    l2_hopBridgeToken,
     transfer.sender,
     senderBalanceBefore.sub(transfer.amount)
   )
@@ -391,6 +392,7 @@ export const executeL2BridgeSend = async (
 export const executeL2BridgeSwapAndSend = async (
   l2_bridge: Contract,
   l2_canonicalToken: Contract,
+  l2_hopBridgeToken: Contract,
   l2_uniswapRouter: Contract,
   transfer: Transfer
 ) => {
@@ -398,7 +400,7 @@ export const executeL2BridgeSwapAndSend = async (
   const senderBalanceBefore: BigNumber = await l2_canonicalToken.balanceOf(await transfer.sender.getAddress())
   const expectedAmounts: BigNumber[] = await l2_uniswapRouter.getAmountsOut(
     transfer.amount,
-    [l2_canonicalToken.address, l2_bridge.address]
+    [l2_canonicalToken.address, l2_hopBridgeToken.address]
   )
   const expectedAmountAfterSlippage: BigNumber = expectedAmounts[1]
 
@@ -523,6 +525,7 @@ export const executeL2BridgeCommitTransfers = async (
 
 export const executeL2BridgeBondWithdrawalAndAttemptSwap = async (
   l2_bridgeOrigin: Contract,
+  l2_hopBridgeToken: Contract,
   l2_bridge: Contract,
   l2_canonicalToken: Contract,
   l2_uniswapRouter: Contract,
@@ -532,11 +535,11 @@ export const executeL2BridgeBondWithdrawalAndAttemptSwap = async (
 ) => {
   // Get state before transaction
   const transferNonce = await getTransferNonceFromEvent(l2_bridgeOrigin)
-  const bonderBalanceBefore: BigNumber = await l2_bridge.balanceOf(await bonder.getAddress())
+  const bonderBalanceBefore: BigNumber = await l2_hopBridgeToken.balanceOf(await bonder.getAddress())
 
   const expectedAmountsRecipientBridge: BigNumber[] = await l2_uniswapRouter.getAmountsOut(
     actualTransferAmount.sub(transfer.relayerFee),
-    [l2_canonicalToken.address, l2_bridge.address]
+    [l2_canonicalToken.address, l2_hopBridgeToken.address]
   )
   const expectedRecipientAmountAfterSlippage: BigNumber = expectedAmountsRecipientBridge[1]
 
@@ -556,12 +559,12 @@ export const executeL2BridgeBondWithdrawalAndAttemptSwap = async (
 
   // Validate state after transaction
   await expectBalanceOf(
-    l2_bridge,
+    l2_hopBridgeToken,
     transfer.recipient,
     0
   )
   await expectBalanceOf(
-    l2_bridge,
+    l2_hopBridgeToken,
     bonder,
     bonderBalanceBefore.add(transfer.relayerFee)
   )

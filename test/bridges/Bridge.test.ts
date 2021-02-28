@@ -17,10 +17,12 @@ import { CHAIN_IDS, ARBITRARY_ROOT_HASH } from '../../config/constants'
 describe('Bridge', () => {
   let _fixture: IFixture
 
+  let l1ChainId: BigNumber
+  let l2ChainId: BigNumber
+
   let mockBridge: Contract
   let transfers: Transfer[]
 
-  let l2ChainId: BigNumber
 
   let beforeAllSnapshotId: string
   let snapshotId: string
@@ -28,8 +30,9 @@ describe('Bridge', () => {
   before(async () => {
     beforeAllSnapshotId = await takeSnapshot()
 
+    l1ChainId = CHAIN_IDS.ETHEREUM.KOVAN
     l2ChainId = CHAIN_IDS.OPTIMISM.TESTNET_1
-    _fixture = await fixture(l2ChainId)
+    _fixture = await fixture(l1ChainId, l2ChainId)
     await setUpDefaults(_fixture, l2ChainId)
     ;({ mockBridge, transfers } = _fixture)
   })

@@ -332,7 +332,7 @@ abstract contract L2_Bridge is Bridge {
 
     function _getHCPath() internal view returns (address[] memory) {
         address[] memory exchangePath = new address[](2);
-        exchangePath[0] = address(this);
+        exchangePath[0] = address(hToken);
         exchangePath[1] = address(l2CanonicalToken);
         return exchangePath;
     }
@@ -340,7 +340,7 @@ abstract contract L2_Bridge is Bridge {
     function _getCHPath() internal view returns (address[] memory) {
         address[] memory exchangePath = new address[](2);
         exchangePath[0] = address(l2CanonicalToken);
-        exchangePath[1] = address(this);
+        exchangePath[1] = address(hToken);
         return exchangePath;
     }
 

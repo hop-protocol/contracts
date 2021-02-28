@@ -14,6 +14,8 @@ import { CHAIN_IDS } from '../../config/constants'
 
 describe('Accounting', () => {
   let _fixture: IFixture
+  let l1ChainId: BigNumber
+  let l2ChainId: BigNumber
 
   let bonder: Signer
   let user: Signer
@@ -27,8 +29,9 @@ describe('Accounting', () => {
   before(async () => {
     beforeAllSnapshotId = await takeSnapshot()
 
-    const l2ChainId: BigNumber = CHAIN_IDS.OPTIMISM.TESTNET_1
-    _fixture = await fixture(l2ChainId)
+    l1ChainId = CHAIN_IDS.ETHEREUM.KOVAN
+    l2ChainId = CHAIN_IDS.OPTIMISM.TESTNET_1
+    _fixture = await fixture(l1ChainId, l2ChainId)
     await setUpDefaults(_fixture, l2ChainId)
     ;({ bonder, user, otherUser, mockAccounting } = _fixture)
   })
