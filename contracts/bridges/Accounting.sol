@@ -78,7 +78,7 @@ abstract contract Accounting {
         return 0;
     }
 
-    /* ========== Public getters ========== */
+    /* ========== Public/external getters ========== */
 
     function getIsBonder(address maybeBonder) public view returns (bool) {
         return _isBonder[maybeBonder];
@@ -88,17 +88,22 @@ abstract contract Accounting {
         return _credit[bonder];
     }
 
+    function getRawDebit(address bonder) external view returns (uint256) {
+        return _debit[bonder];
+    }
+
     function getDebitAndAdditionalDebit(address bonder) public view returns (uint256) {
         return _debit[bonder].add(_additionalDebit());
     }
 
-    /* ========== Bonder public functions ========== */
+    /* ========== Bonder external functions ========== */
 
     /** 
      * @dev Allows the bonder to deposit tokens and increase its credit balance
      * @param amount The amount being staked
      */
     function stake(address bonder, uint256 amount) external {
+        require(_isBonder[bonder] == true, "ACT: Address is not bonder");
         _transferToBridge(msg.sender, amount);
         _addCredit(bonder, amount);
     }
@@ -118,7 +123,7 @@ abstract contract Accounting {
     }
 
     function removeBonder(address bonder) external onlyGovernance {
-        require(_isBonder[bonder] == true, "ACT: Address is Bonder");
+        require(_isBonder[bonder] == true, "ACT: Address is not Bonder");
         _isBonder[bonder] = false;
     }
 

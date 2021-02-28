@@ -3,14 +3,15 @@
 pragma solidity 0.6.12;
 pragma experimental ABIEncoderV2;
 
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol";
 
 import "./Bridge.sol";
+import "./HopBridgeToken.sol";
 import "../libraries/MerkleUtils.sol";
 
-abstract contract L2_Bridge is ERC20, Bridge {
+abstract contract L2_Bridge is Bridge {
     address public l1Governance;
+    HopBridgeToken public hToken;
     address public l1BridgeAddress;
     address public exchangeAddress;
     IERC20 public l2CanonicalToken;
@@ -47,22 +48,20 @@ abstract contract L2_Bridge is ERC20, Bridge {
 
     constructor (
         address _l1Governance,
+        HopBridgeToken _hToken, 
         IERC20 _l2CanonicalToken,
         address _l1BridgeAddress,
         uint256[] memory _supportedChainIds,
-        address[] memory bonders,
         address _exchangeAddress,
-        string memory name,
-        string memory symbol,
-        uint8 _decimals
+        address[] memory bonders
     )
         public
         Bridge(bonders)
-        ERC20(name, symbol)
     {
         require(NONCE_DOMAIN_SEPARATOR == keccak256("L2_Bridge v1.0"));
 
         l1Governance = _l1Governance;
+        hToken = _hToken;
         l2CanonicalToken = _l2CanonicalToken;
         l1BridgeAddress = _l1BridgeAddress;
         exchangeAddress = _exchangeAddress;
@@ -70,8 +69,6 @@ abstract contract L2_Bridge is ERC20, Bridge {
         for (uint256 i = 0; i < _supportedChainIds.length; i++) {
             supportedChainIds[_supportedChainIds[i]] = true;
         }
-
-        _setupDecimals(_decimals);
     }
 
     /* ========== Virtual functions ========== */
@@ -79,33 +76,33 @@ abstract contract L2_Bridge is ERC20, Bridge {
     function _sendCrossDomainMessage(bytes memory message) internal virtual;
     function _verifySender(address expectedSender) internal virtual; 
 
-    /* ========== Public functions ========== */
+    /* ========== Public/External functions ========== */
 
-    function setExchangeAddress(address _exchangeAddress) public onlyGovernance {
+    function setExchangeAddress(address _exchangeAddress) external onlyGovernance {
         exchangeAddress = _exchangeAddress;
     }
 
-    function setL1BridgeAddress(address _l1BridgeAddress) public onlyGovernance {
+    function setL1BridgeAddress(address _l1BridgeAddress) external onlyGovernance {
         l1BridgeAddress = _l1BridgeAddress;
     }
 
-    function setMessengerGasLimit(uint256 _messengerGasLimit) public onlyGovernance {
+    function setMessengerGasLimit(uint256 _messengerGasLimit) external onlyGovernance {
         messengerGasLimit = _messengerGasLimit;
     }
 
-    function addSupportedChainIds(uint256[] calldata chainIds) public onlyGovernance {
+    function addSupportedChainIds(uint256[] calldata chainIds) external onlyGovernance {
         for (uint256 i = 0; i < chainIds.length; i++) {
             supportedChainIds[chainIds[i]] = true;
         }
     }
 
-    function removeSupportedChainIds(uint256[] calldata chainIds) public onlyGovernance {
+    function removeSupportedChainIds(uint256[] calldata chainIds) external onlyGovernance {
         for (uint256 i = 0; i < chainIds.length; i++) {
             supportedChainIds[chainIds[i]] = false;
         }
     }
 
-    function setMinimumForceCommitDelay(uint256 _minimumForceCommitDelay) public onlyGovernance {
+    function setMinimumForceCommitDelay(uint256 _minimumForceCommitDelay) external onlyGovernance {
         minimumForceCommitDelay = _minimumForceCommitDelay;
     }
 
@@ -130,7 +127,7 @@ abstract contract L2_Bridge is ERC20, Bridge {
             _commitTransfers(chainId);
         }
 
-        _burn(msg.sender, amount);
+        hToken.burn(msg.sender, amount);
 
         bytes32 transferNonce = getNextTransferNonce();
         transferNonceIncrementer++;
@@ -163,11 +160,11 @@ abstract contract L2_Bridge is ERC20, Bridge {
         uint256 destinationAmountOutMin,
         uint256 destinationDeadline
     )
-        public
+        external
     {
         require(amount >= relayerFee, "L2_BRG: relayer fee cannot exceed amount");
 
-        l2CanonicalToken.transferFrom(msg.sender, address(this), amount);
+        l2CanonicalToken.safeTransferFrom(msg.sender, address(this), amount);
 
         address[] memory exchangePath = _getCHPath();
         uint256[] memory swapAmounts = IUniswapV2Router02(exchangeAddress).getAmountsOut(amount, exchangePath);
@@ -194,10 +191,10 @@ abstract contract L2_Bridge is ERC20, Bridge {
     }
 
     function mint(address recipient, uint256 amount) public onlyL1Bridge {
-        _mint(recipient, amount);
+        hToken.mint(recipient, amount);
     }
 
-    function mintAndAttemptSwap(address recipient, uint256 amount, uint256 amountOutMin, uint256 deadline) public onlyL1Bridge {
+    function mintAndAttemptSwap(address recipient, uint256 amount, uint256 amountOutMin, uint256 deadline) external onlyL1Bridge {
         _mintAndAttemptSwap(recipient, amount, amountOutMin, deadline);
     }
 
@@ -212,7 +209,7 @@ abstract contract L2_Bridge is ERC20, Bridge {
         uint256 amountOutMin,
         uint256 deadline
     )
-        public
+        external
     {
         bytes32 transferId = getTransferId(
             getChainId(),
@@ -239,7 +236,7 @@ abstract contract L2_Bridge is ERC20, Bridge {
         uint256 amountOutMin,
         uint256 deadline
     )
-        public
+        external
         onlyBonder
         requirePositiveBalance
     {
@@ -258,7 +255,7 @@ abstract contract L2_Bridge is ERC20, Bridge {
         _withdrawAndAttemptSwap(transferId, recipient, amount, relayerFee, amountOutMin, deadline);
     }
 
-    function setTransferRoot(bytes32 rootHash, uint256 totalAmount) public onlyL1Bridge {
+    function setTransferRoot(bytes32 rootHash, uint256 totalAmount) external onlyL1Bridge {
         _setTransferRoot(rootHash, totalAmount);
     }
 
@@ -302,8 +299,8 @@ abstract contract L2_Bridge is ERC20, Bridge {
     }
 
     function _mintAndAttemptSwap(address recipient, uint256 amount, uint256 amountOutMin, uint256 deadline) internal {
-        _mint(address(this), amount);
-        _approve(address(this), exchangeAddress, amount);
+        hToken.mint(address(this), amount);
+        hToken.approve(exchangeAddress, amount);
 
         try IUniswapV2Router02(exchangeAddress).swapExactTokensForTokens(
             amount,
@@ -313,7 +310,7 @@ abstract contract L2_Bridge is ERC20, Bridge {
             deadline
         ) returns (uint[] memory) {} catch {
             // Transfer hToken to recipient if swap fails
-            _transfer(address(this), recipient, amount);
+            hToken.transfer(recipient, amount);
         }
     }
 
@@ -350,11 +347,11 @@ abstract contract L2_Bridge is ERC20, Bridge {
     /* ========== Override Functions ========== */
 
     function _transferFromBridge(address recipient, uint256 amount) internal override {
-        _mint(recipient, amount);
+        hToken.mint(recipient, amount);
     }
 
     function _transferToBridge(address from, uint256 amount) internal override {
-        _burn(from, amount);
+        hToken.burn(from, amount);
     }
 
     function _requireIsGovernance() internal override {

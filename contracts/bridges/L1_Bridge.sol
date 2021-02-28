@@ -87,7 +87,7 @@ contract L1_Bridge is Bridge {
         address recipient,
         uint256 amount
     )
-        public
+        external
     {
         IMessengerWrapper messengerWrapper = crossDomainMessengerWrappers[chainId];
         require(messengerWrapper != IMessengerWrapper(0), "L1_BRG: chainId not supported");
@@ -107,7 +107,7 @@ contract L1_Bridge is Bridge {
         uint256 amountOutMin,
         uint256 deadline
     )
-        public
+        external
     {
         IMessengerWrapper messengerWrapper = crossDomainMessengerWrappers[chainId];
         require(messengerWrapper != IMessengerWrapper(0), "L1_BRG: chainId not supported");
@@ -126,7 +126,7 @@ contract L1_Bridge is Bridge {
         messengerWrapper.sendCrossDomainMessage(mintAndAttemptSwapCalldata);
     }
 
-    /* ========== Public Transfer Root Functions ========== */
+    /* ========== Public TransferRoot Functions ========== */
 
     /**
      * @dev Setting a TransferRoot is a two step process.
@@ -152,8 +152,8 @@ contract L1_Bridge is Bridge {
         requirePositiveBalance
     {
         bytes32 transferRootId = getTransferRootId(rootHash, totalAmount);
-        require(transferRootConfirmed[transferRootId] == false, "L1_BRG: Transfer Root has already been confirmed");
-        require(transferBonds[transferRootId].createdAt == 0, "L1_BRG: Transfer Root has already been bonded");
+        require(transferRootConfirmed[transferRootId] == false, "L1_BRG: TransferRoot has already been confirmed");
+        require(transferBonds[transferRootId].createdAt == 0, "L1_BRG: TransferRoot has already been bonded");
 
         uint256 currentTimeSlot = getTimeSlot(block.timestamp);
         uint256 bondAmount = getBondForTransferAmount(totalAmount);
@@ -180,7 +180,7 @@ contract L1_Bridge is Bridge {
         uint256 destinationChainId,
         uint256 totalAmount
     )
-        public
+        external
         onlyL2Bridge(originChainId)
     {
         bytes32 transferRootId = getTransferRootId(rootHash, totalAmount);
@@ -207,13 +207,13 @@ contract L1_Bridge is Bridge {
     {
         // Set TransferRoot on recipient Bridge
         if (chainId == getChainId()) {
-            // Set L1 transfer root
+            // Set L1 TransferRoot
             _setTransferRoot(rootHash, totalAmount);
         } else {
             IMessengerWrapper messengerWrapper = crossDomainMessengerWrappers[chainId];
             require(messengerWrapper != IMessengerWrapper(0), "L1_BRG: chainId not supported");
 
-            // Set L2 transfer root
+            // Set L2 TransferRoot
             bytes memory setTransferRootMessage = abi.encodeWithSignature(
                 "setTransferRoot(bytes32,uint256)",
                 rootHash,
@@ -223,20 +223,20 @@ contract L1_Bridge is Bridge {
         }
     }
 
-    /* ========== Public TransferRoot Challenges ========== */
+    /* ========== External TransferRoot Challenges ========== */
 
-    function challengeTransferBond(bytes32 rootHash, uint256 originalAmount) public {
-        bytes32 transferRootId = getTransferRootId(rootHash, originalAmount);
-        TransferRoot memory transferRoot = getTransferRoot(rootHash, originalAmount);
+    function challengeTransferBond(bytes32 rootHash, uint256 totalAmountBonded) external {
+        bytes32 transferRootId = getTransferRootId(rootHash, totalAmountBonded);
+        TransferRoot memory transferRoot = getTransferRoot(rootHash, totalAmountBonded);
         TransferBond storage transferBond = transferBonds[transferRootId];
 
-        require(transferRoot.total > 0, "L1_BRG: Transfer root not found");
-        require(transferRootConfirmed[transferRootId] == false, "L1_BRG: Transfer root has already been confirmed");
+        require(transferRoot.total > 0, "L1_BRG: TransferRoot not found");
+        require(transferRootConfirmed[transferRootId] == false, "L1_BRG: TransferRoot has already been confirmed");
         uint256 challengePeriodEnd = transferBond.createdAt.add(challengePeriod);
-        require(challengePeriodEnd >= block.timestamp, "L1_BRG: Transfer root cannot be challenged after challenge period");
-        require(transferBond.challengeStartTime == 0, "L1_BRG: Transfer root already challenged");
+        require(challengePeriodEnd >= block.timestamp, "L1_BRG: TransferRoot cannot be challenged after challenge period");
+        require(transferBond.challengeStartTime == 0, "L1_BRG: TransferRoot already challenged");
 
-        transferBond.challengeStartTime = now;
+        transferBond.challengeStartTime = block.timestamp;
         transferBond.challenger = msg.sender;
 
         // Move amount from timeSlotToAmountBonded to debit
@@ -248,19 +248,20 @@ contract L1_Bridge is Bridge {
 
         // Get stake for challenge
         uint256 challengeStakeAmount = getChallengeAmountForTransferAmount(transferRoot.total);
-        l1CanonicalToken.transferFrom(msg.sender, address(this), challengeStakeAmount);
+        l1CanonicalToken.safeTransferFrom(msg.sender, address(this), challengeStakeAmount);
 
-        emit TransferBondChallenged(transferRootId, rootHash, originalAmount);
+        emit TransferBondChallenged(transferRootId, rootHash, totalAmountBonded);
     }
 
-    function resolveChallenge(bytes32 rootHash, uint256 originalAmount) public {
+    function resolveChallenge(bytes32 rootHash, uint256 originalAmount) external {
         bytes32 transferRootId = getTransferRootId(rootHash, originalAmount);
         TransferRoot memory transferRoot = getTransferRoot(rootHash, originalAmount);
         TransferBond storage transferBond = transferBonds[transferRootId];
 
-        require(transferBond.challengeStartTime != 0, "L1_BRG: Transfer root has not been challenged");
-        require(now > transferBond.challengeStartTime.add(challengeResolutionPeriod), "L1_BRG: Challenge period has not ended");
-        require(transferBond.challengeResolved == false, "L1_BRG: Transfer root already resolved");
+        require(transferRoot.total > 0, "L1_BRG: TransferRoot not found");
+        require(transferBond.challengeStartTime != 0, "L1_BRG: TransferRoot has not been challenged");
+        require(block.timestamp > transferBond.challengeStartTime.add(challengeResolutionPeriod), "L1_BRG: Challenge period has not ended");
+        require(transferBond.challengeResolved == false, "L1_BRG: TransferRoot already resolved");
         transferBond.challengeResolved = true;
 
         uint256 challengeStakeAmount = getChallengeAmountForTransferAmount(transferRoot.total);
@@ -272,15 +273,15 @@ contract L1_Bridge is Bridge {
         } else {
             // Valid challenge
             // Burn 25% of the challengers stake
-            l1CanonicalToken.transfer(address(0xdead), challengeStakeAmount.mul(1).div(4));
+            l1CanonicalToken.safeTransfer(address(0xdead), challengeStakeAmount.mul(1).div(4));
             // Reward challenger with the remaining 75% of their stake plus 100% of the Bonder's stake
-            l1CanonicalToken.transfer(transferBond.challenger, challengeStakeAmount.mul(7).div(4));
+            l1CanonicalToken.safeTransfer(transferBond.challenger, challengeStakeAmount.mul(7).div(4));
         }
 
         emit ChallengeResolved(transferRootId, rootHash, originalAmount);
     }
 
-    /* ========== Override functions ========== */
+    /* ========== Override Functions ========== */
 
     function _transferFromBridge(address recipient, uint256 amount) internal override {
         l1CanonicalToken.safeTransfer(recipient, amount);
@@ -291,7 +292,7 @@ contract L1_Bridge is Bridge {
     }
 
     function _additionalDebit() internal view override returns (uint256) {
-        uint256 currentTimeSlot = getTimeSlot(now);
+        uint256 currentTimeSlot = getTimeSlot(block.timestamp);
         uint256 bonded = 0;
 
         for (uint256 i = 0; i < 4; i++) {
