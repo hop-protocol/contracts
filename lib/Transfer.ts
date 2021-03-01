@@ -66,17 +66,4 @@ export default class Transfer {
     const transferId: Buffer = await this.getTransferId(transferNonce)
     return '0x' + transferId.toString('hex')
   }
-
-  getTransferNonce (transferNonceIncrementer: ethers.BigNumber): string {
-    const nonceDomainSeparator = this.getNonceDomainSeparator()
-    return ethers.utils.solidityKeccak256(
-      ['string', 'uint256', 'uint256'],
-      [nonceDomainSeparator, this.chainId, transferNonceIncrementer])
-  }
-
-  getNonceDomainSeparator (): string {
-    // keccak256(abi.encodePacked("L2_Bridge v1.0"));
-    const domainSeparatorString: string = 'L2_Bridge v1.0'
-    return ethers.utils.solidityKeccak256(['string'], [domainSeparatorString])
-  }
 }
