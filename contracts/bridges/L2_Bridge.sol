@@ -19,7 +19,6 @@ abstract contract L2_Bridge is Bridge {
     uint256 public minimumForceCommitDelay = 4 hours;
     uint256 public messengerGasLimit = 250000;
 
-    uint256[] public pendingAmountChainIds;
     mapping(uint256 => bytes32[]) public pendingTransferIdsForChainId;
     mapping(uint256 => uint256) public pendingAmountForChainId;
     mapping(uint256 => uint256) public lastCommitTimeForChainId;
@@ -144,7 +143,7 @@ abstract contract L2_Bridge is Bridge {
         );
         pendingTransfers.push(transferId);
 
-        _addToPendingAmount(chainId, amount);
+        pendingAmountForChainId[chainId] = pendingAmountForChainId[chainId].add(amount);
 
         emit TransferSent(transferId, recipient, amount, transferNonce, relayerFee);
     }
@@ -267,14 +266,6 @@ abstract contract L2_Bridge is Bridge {
 
     /* ========== Helper Functions ========== */
 
-    function _addToPendingAmount(uint256 chainId, uint256 amount) internal {
-        if (pendingAmountForChainId[chainId] == 0) {
-            pendingAmountChainIds.push(chainId);
-        }
-
-        pendingAmountForChainId[chainId] = pendingAmountForChainId[chainId].add(amount);
-    }
-
     function _commitTransfers(uint256 destinationChainId) internal {
         bytes32[] storage pendingTransfers = pendingTransferIdsForChainId[destinationChainId];
         require(pendingTransfers.length > 0, "L2_BRG: Must commit at least 1 Transfer");
@@ -292,7 +283,6 @@ abstract contract L2_Bridge is Bridge {
             totalAmount
         );
 
-        delete pendingAmountChainIds;
         delete pendingTransferIdsForChainId[destinationChainId];
 
         _sendCrossDomainMessage(confirmTransferRootMessage);

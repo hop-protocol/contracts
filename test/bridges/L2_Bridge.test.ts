@@ -301,15 +301,8 @@ describe('L2_Bridge', () => {
         )
       }
 
-      // After the commit, the contract state should have no index for pendingAmountChainIds and a
-      // single index for pendingTransferIdsForChainId.
+      // After the commit, the contract state should have a single index for pendingTransferIdsForChainId.
       const expectedErrorMsg: string = 'VM Exception while processing transaction: invalid opcode'
-      try {
-        await l2_bridge.pendingAmountChainIds(0)
-      } catch (err) {
-        expect(err.message).to.eq(expectedErrorMsg)
-      }
-
       try {
         await l2_bridge.pendingTransferIdsForChainId(transfer.chainId, 1)
       } catch (err) {
@@ -499,16 +492,6 @@ describe('L2_Bridge', () => {
     //       )
 
     //     transfer.transferNonce += 1
-    //   }
-
-    //   try {
-    //     // The array should have been deleted and only a single item (index 0) should exist
-    //     await l2_bridge.pendingAmountChainIds(1)
-    //     throw new Error('There should not be a pending transfer in this slot.')
-    //   } catch (err) {
-    //     const expectedErrorMsg: string =
-    //       'VM Exception while processing transaction: invalid opcode'
-    //     expect(err.message).to.eq(expectedErrorMsg)
     //   }
 
     //   try {
