@@ -6,6 +6,7 @@ import Transfer from '../../lib/Transfer'
 
 import { fixture } from '../shared/fixtures'
 import {
+  getTransferNonce,
   setUpDefaults,
   revertSnapshot,
   takeSnapshot
@@ -58,14 +59,14 @@ describe('Bridge', () => {
   it('Should get the correct transfer id', async () => {
     for (let i = 0; i < transfers.length; i++) {
       const transfer: Transfer = transfers[i]
-      const transferNonce: string = transfer.getTransferNonce(BigNumber.from('0'))
+      const transferNonce: string = getTransferNonce(BigNumber.from('0'), transfer.chainId)
       const expectedTransferId: Buffer = await transfer.getTransferId(transferNonce)
       const transferId = await mockBridge.getTransferId(
         transfer.chainId,
         await transfer.sender.getAddress(),
         await transfer.recipient.getAddress(),
         transfer.amount,
-        transfer.getTransferNonce(BigNumber.from('0')),
+        transferNonce,
         transfer.relayerFee,
         transfer.amountOutMin,
         transfer.deadline
@@ -95,7 +96,7 @@ describe('Bridge', () => {
         await transfer.sender.getAddress(),
         await transfer.recipient.getAddress(),
         transfer.amount,
-        transfer.getTransferNonce(BigNumber.from('0')),
+        getTransferNonce(BigNumber.from('0'), transfer.chainId),
         transfer.relayerFee,
         ARBITRARY_ROOT_HASH,
         arbitraryProof
@@ -112,7 +113,7 @@ describe('Bridge', () => {
     transfer.deadline = BigNumber.from(0)
 
     // TODO: This can use the helper function getRootHashFromTransferId()
-    const transferNonce: string = transfer.getTransferNonce(BigNumber.from('0'))
+    const transferNonce: string = getTransferNonce(BigNumber.from('0'), transfer.chainId)
     const transferId: Buffer = await transfer.getTransferId(transferNonce)
     const tree: MerkleTree = new MerkleTree([transferId])
     const transferRootHash: Buffer = tree.getRoot()
@@ -126,7 +127,7 @@ describe('Bridge', () => {
         await transfer.sender.getAddress(),
         await transfer.recipient.getAddress(),
         transfer.amount,
-        transfer.getTransferNonce(BigNumber.from('0')),
+        transferNonce,
         transfer.relayerFee,
         transferRootHash,
         proof
