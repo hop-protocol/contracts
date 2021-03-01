@@ -336,11 +336,15 @@ export const executeL1BridgeResolveChallenge = async (
 export const executeL2BridgeSend = async (
   l2_hopBridgeToken: Contract,
   l2_bridge: Contract,
-  transfer: Transfer
+  transfer: Transfer,
+  expectedTransferIndex: BigNumber = BigNumber.from('0')
 ) => {
   // Get state before transaction
   const bridgeTotalSupplyBefore: BigNumber = await l2_hopBridgeToken.totalSupply()
   const senderBalanceBefore: BigNumber = await l2_hopBridgeToken.balanceOf(await transfer.sender.getAddress())
+  const pendingAmountBefore: BigNumber = await l2_bridge.pendingAmountForChainId(
+    transfer.chainId
+  )
 
   // Perform transaction
   await l2_bridge
@@ -354,6 +358,7 @@ export const executeL2BridgeSend = async (
       transfer.deadline
     )
 
+  // Perform transaction
   // Validate state after transaction
   const bridgeTotalSupplyAfter: BigNumber = await l2_hopBridgeToken.totalSupply()
   expect(bridgeTotalSupplyAfter).to.eq(bridgeTotalSupplyBefore.sub(transfer.amount))
@@ -364,21 +369,29 @@ export const executeL2BridgeSend = async (
   )
 
   // Verify state
-  const transferNonce = await getTransferNonceFromEvent(l2_bridge)
+  const transferNonce = await getTransferNonceFromEvent(l2_bridge, expectedTransferIndex)
   const expectedPendingTransferHash: Buffer = await transfer.getTransferId(transferNonce)
-  const pendingAmountChainId = await l2_bridge.pendingAmountChainIds(0)
-  const expectedPendingAmountChainId = transfer.chainId
-  expect(pendingAmountChainId).to.eq(expectedPendingAmountChainId)
 
-  const pendingAmount = await l2_bridge.pendingAmountForChainId(
+  try {
+    const pendingAmountChainId = await l2_bridge.pendingAmountChainIds(expectedTransferIndex)
+    const expectedPendingAmountChainId = transfer.chainId
+    expect(pendingAmountChainId).to.eq(expectedPendingAmountChainId)
+  } catch (err) {
+    // After the 100th `send()`, `_commitTransfers()` will be called and clear `pendingAmountChainIds()`
+    // In that case, the call above will fail and we can verify the correct error message here
+    const expectedErrorMsg: string = 'VM Exception while processing transaction: invalid opcode'
+    expect(err.message).to.eq(expectedErrorMsg)
+  }
+
+  const pendingAmount: BigNumber = await l2_bridge.pendingAmountForChainId(
     transfer.chainId
   )
-  const expectedPendingAmount = transfer.amount
+  const expectedPendingAmount: BigNumber = pendingAmountBefore.add(transfer.amount)
   expect(pendingAmount).to.eq(expectedPendingAmount)
 
   const transfersSentEvent = (
     await l2_bridge.queryFilter(l2_bridge.filters.TransferSent())
-  )[0]
+  )[expectedTransferIndex.toNumber()]
   const transferSentArgs = transfersSentEvent.args
   expect(transferSentArgs[0]).to.eq(
     '0x' + expectedPendingTransferHash.toString('hex')
@@ -461,10 +474,11 @@ export const executeL2BridgeCommitTransfers = async (
   l2_bridge: Contract,
   transfer: Transfer,
   bonder: Signer,
-  timeIncrease: number
+  timeIncrease: number,
+  expectedTransferIndex: BigNumber = BigNumber.from('0')
 ) => {
   // Get state before transaction
-  const transferNonce = await getTransferNonceFromEvent(l2_bridge)
+  const transferNonce = await getTransferNonceFromEvent(l2_bridge, expectedTransferIndex)
   let pendingAmountChainIdBefore = await l2_bridge.pendingAmountChainIds(BigNumber.from('0'))
   const pendingTransferIdsForChainId: string = await l2_bridge.pendingTransferIdsForChainId(transfer.chainId, 0)
   const expectedPendingTransferIdsForChainId: string = await transfer.getTransferIdHex(transferNonce)

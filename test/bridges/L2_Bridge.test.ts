@@ -66,8 +66,11 @@ describe('L2_Bridge', () => {
   let l2_bridge: Contract
   let l2_messenger: Contract
   let l2_uniswapRouter: Contract
+  let l22_canonicalToken: Contract
+  let l22_hopBridgeToken: Contract
   let l22_bridge: Contract
   let l22_messenger: Contract
+  let l22_uniswapRouter: Contract
 
   let transfers: Transfer[]
   let transfer: Transfer
@@ -110,8 +113,11 @@ describe('L2_Bridge', () => {
     _fixture = await fixture(l1ChainId, l22ChainId, l1AlreadySetOpts)
     await setUpDefaults(_fixture, l22ChainId)
     ;({
+      l2_canonicalToken: l22_canonicalToken,
+      l2_hopBridgeToken: l22_hopBridgeToken,
       l2_bridge: l22_bridge,
       l2_messenger: l22_messenger,
+      l2_uniswapRouter: l22_uniswapRouter,
     } = _fixture)
 
     transfer = transfers[0]
@@ -283,7 +289,34 @@ describe('L2_Bridge', () => {
 
   describe('commitTransfers', async () => {
     it('Should commit a transfer automatically after 100 sends', async () => {
+      const customTransfer: Transfer = new Transfer(transfer)
+      customTransfer.amount = BigNumber.from('100')
+      customTransfer.relayerFee = BigNumber.from('0')
+
+      for (let i = 0; i < 101; i++) {
+        await executeL2BridgeSend(
+          l2_hopBridgeToken,
+          l2_bridge,
+          customTransfer
+        )
+      }
+
+      // After the commit, the contract state should have no index for pendingAmountChainIds and a
+      // single index for pendingTransferIdsForChainId.
+      const expectedErrorMsg: string = 'VM Exception while processing transaction: invalid opcode'
+      try {
+        await l2_bridge.pendingAmountChainIds(0)
+      } catch (err) {
+        expect(err.message).to.eq(expectedErrorMsg)
+      }
+
+      try {
+        await l2_bridge.pendingTransferIdsForChainId(transfer.chainId, 1)
+      } catch (err) {
+        expect(err.message).to.eq(expectedErrorMsg)
+      }
     })
+
     it('Should commit a transfer after the minForceCommitTime', async () => {
       await executeL2BridgeSend(
         l2_hopBridgeToken,
@@ -309,6 +342,7 @@ describe('L2_Bridge', () => {
        timeToWait 
       )
     })
+
     it('Should commit a transfer by the bonder at any time', async () => {
       await executeL2BridgeSend(
         l2_hopBridgeToken,
@@ -327,6 +361,62 @@ describe('L2_Bridge', () => {
       await executeL2BridgeCommitTransfers(
         l2_bridge,
         transfer,
+        bonder,
+        DEFAULT_TIME_TO_WAIT
+      )
+    })
+
+    it.only('Should commit a transfer with two sends -- to L1 and to L2', async () => {
+      const customTransfer: Transfer = new Transfer(transfer)
+      const customL2Transfer: Transfer = new Transfer(l2Transfer)
+      customTransfer.amount = transfer.amount.div(4)
+      customL2Transfer.amount = transfer.amount.div(4)
+
+      await executeL2BridgeSend(
+        l2_hopBridgeToken,
+        l2_bridge,
+        customTransfer
+      )
+
+      const expectedTransferIndex: BigNumber = BigNumber.from('1')
+      await executeL2BridgeSend(
+        l2_hopBridgeToken,
+        l2_bridge,
+        customL2Transfer,
+        expectedTransferIndex
+      )
+
+      await executeL1BridgeBondWithdrawal(
+        l1_canonicalToken,
+        l1_bridge,
+        l2_bridge,
+        customTransfer,
+        bonder
+      )
+
+      // Bond withdrawal on other L2
+      const actualTransferAmount: BigNumber = customL2Transfer.amount
+      await executeL2BridgeBondWithdrawalAndAttemptSwap(
+        l2_bridge,
+        l22_hopBridgeToken,
+        l22_bridge,
+        l22_canonicalToken,
+        l22_uniswapRouter,
+        customL2Transfer,
+        bonder,
+        actualTransferAmount
+      )
+
+      await executeL2BridgeCommitTransfers(
+        l2_bridge,
+        customTransfer,
+        bonder,
+        DEFAULT_TIME_TO_WAIT
+      )
+
+      await executeL2BridgeCommitTransfers(
+        l2_bridge,
+        customL2Transfer,
         bonder,
         DEFAULT_TIME_TO_WAIT
       )
