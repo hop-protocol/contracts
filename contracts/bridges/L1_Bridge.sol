@@ -286,7 +286,7 @@ abstract contract L1_Bridge is Bridge {
         uint256 currentTimeSlot = getTimeSlot(block.timestamp);
         uint256 bonded = 0;
 
-        uint numTimeSlots = challengePeriod / timeSlotSize;
+        uint256 numTimeSlots = challengePeriod / timeSlotSize;
         for (uint256 i = 0; i < numTimeSlots; i++) {
             bonded = bonded.add(timeSlotToAmountBonded[currentTimeSlot - i]);
         }
