@@ -54,6 +54,11 @@ abstract contract Bridge is Accounting {
         uint256 totalBondsSettled
     );
 
+    event TransferRootSet(
+        bytes32 rootHash,
+        uint256 totalAmount
+    );
+
     /* ========== State ========== */
 
     mapping(bytes32 => TransferRoot) private _transferRoots;
@@ -290,12 +295,14 @@ abstract contract Bridge is Accounting {
         transferRoot.amountWithdrawn = newAmountWithdrawn;
     }
 
-    function _setTransferRoot(bytes32 rootHash, uint256 amount) internal {
-        bytes32 transferRootId = getTransferRootId(rootHash, amount);
+    function _setTransferRoot(bytes32 rootHash, uint256 totalAmount) internal {
+        bytes32 transferRootId = getTransferRootId(rootHash, totalAmount);
         require(_transferRoots[transferRootId].total == 0, "BRG: Transfer root already set");
-        require(amount > 0, "BRG: Cannot set TransferRoot amount of 0");
+        require(totalAmount > 0, "BRG: Cannot set TransferRoot totalAmount of 0");
 
-        _transferRoots[transferRootId] = TransferRoot(amount, 0);
+        _transferRoots[transferRootId] = TransferRoot(totalAmount, 0);
+
+        emit TransferRootSet(rootHash, totalAmount);
     }
 
     function _bondWithdrawal(bytes32 transferId, uint256 amount) internal {
