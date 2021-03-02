@@ -504,7 +504,7 @@ export const executeL2BridgeCommitTransfers = async (
 
   const transfersCommittedEvent = (
     await l2_bridge.queryFilter(l2_bridge.filters.TransfersCommitted())
-  )[0]
+  )[expectedTransferIndex.toNumber()]
   const transfersCommittedArgs = transfersCommittedEvent.args
   expect(transfersCommittedArgs[0]).to.eq(expectedMerkleTree.getHexRoot())
   const pendingChainAmounts = transfersCommittedArgs[1]
@@ -532,10 +532,11 @@ export const executeL2BridgeBondWithdrawalAndAttemptSwap = async (
   l2_uniswapRouter: Contract,
   transfer: Transfer,
   bonder: Signer,
-  actualTransferAmount: BigNumber
+  actualTransferAmount: BigNumber,
+  expectedTransferIndex: BigNumber = BigNumber.from('0')
 ) => {
   // Get state before transaction
-  const transferNonce = await getTransferNonceFromEvent(l2_bridgeOrigin)
+  const transferNonce = await getTransferNonceFromEvent(l2_bridgeOrigin, expectedTransferIndex)
   const bonderBalanceBefore: BigNumber = await l2_hopBridgeToken.balanceOf(await bonder.getAddress())
 
   const expectedAmountsRecipientBridge: BigNumber[] = await l2_uniswapRouter.getAmountsOut(

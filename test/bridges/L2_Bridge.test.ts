@@ -397,7 +397,8 @@ describe('L2_Bridge', () => {
         l22_uniswapRouter,
         customL2Transfer,
         bonder,
-        actualTransferAmount
+        actualTransferAmount,
+        expectedTransferIndex
       )
 
       await executeL2BridgeCommitTransfers(
@@ -411,7 +412,8 @@ describe('L2_Bridge', () => {
         l2_bridge,
         customL2Transfer,
         bonder,
-        DEFAULT_TIME_TO_WAIT
+        DEFAULT_TIME_TO_WAIT,
+        expectedTransferIndex
       )
     })
   })
