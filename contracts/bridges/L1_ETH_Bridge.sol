@@ -4,9 +4,7 @@ pragma experimental ABIEncoderV2;
 import "./L1_Bridge.sol";
 
 contract L1_ETH_Bridge is L1_Bridge {
-    constructor (address[] memory bonders) public L1_Bridge(bonders) {
-        governance = msg.sender;
-    }
+    constructor (address[] memory bonders) public L1_Bridge(bonders) {}
 
     /* ========== Override Functions ========== */
 
