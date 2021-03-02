@@ -40,7 +40,6 @@ export default class Transfer {
       [
         'uint256',
         'address',
-        'address',
         'uint256',
         'uint256',
         'uint256',
@@ -49,7 +48,6 @@ export default class Transfer {
       ],
       [
         this.chainId,
-        await this.sender.getAddress(),
         await this.recipient.getAddress(),
         this.amount,
         transferNonce,

@@ -946,7 +946,7 @@ describe('L1_Bridge', () => {
 
     it('Should not allow a transfer root to be bonded if a mainnet transfer root amount is 0', async () => {
       const expectedErrorMsg: string =
-        'BRG: Cannot set TransferRoot amount of 0'
+        'BRG: Cannot set TransferRoot totalAmount of 0'
       const customTransfer: Transfer = new Transfer(transfer)
       customTransfer.amount = BigNumber.from('0')
 
@@ -1028,7 +1028,7 @@ describe('L1_Bridge', () => {
   })
 
   describe('confirmTransferRoot', async () => {
-    it('Should not allow a transfer root to be confirmed by anybody except the L2_Bridge', async () => {
+    it.skip('Should not allow a transfer root to be confirmed by anybody except the L2_Bridge', async () => {
       // TODO: Introduce this when `messengerWrapper.verifySender()` has been implemented
       const expectedErrorMsg: string = 'TODO'
       await executeL1BridgeSendToL2(

@@ -135,7 +135,6 @@ export const executeL1BridgeBondWithdrawal = async (
   await l1_bridge
     .connect(bonder)
     .bondWithdrawal(
-      await transfer.sender.getAddress(),
       await transfer.recipient.getAddress(),
       transfer.amount,
       transferNonce,
@@ -549,7 +548,6 @@ export const executeL2BridgeBondWithdrawalAndAttemptSwap = async (
   await l2_bridge
     .connect(bonder)
     .bondWithdrawalAndAttemptSwap(
-      await transfer.sender.getAddress(),
       await transfer.recipient.getAddress(),
       transfer.amount,
       transferNonce,

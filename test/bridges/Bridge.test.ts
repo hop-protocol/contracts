@@ -63,7 +63,6 @@ describe('Bridge', () => {
       const expectedTransferId: Buffer = await transfer.getTransferId(transferNonce)
       const transferId = await mockBridge.getTransferId(
         transfer.chainId,
-        await transfer.sender.getAddress(),
         await transfer.recipient.getAddress(),
         transfer.amount,
         transferNonce,
@@ -93,7 +92,6 @@ describe('Bridge', () => {
 
     await expect(
       mockBridge.withdraw(
-        await transfer.sender.getAddress(),
         await transfer.recipient.getAddress(),
         transfer.amount,
         getTransferNonce(BigNumber.from('0'), transfer.chainId),
@@ -124,7 +122,6 @@ describe('Bridge', () => {
     // TODO: The second to last param should be the ID. How is this working with the hash?
     await expect(
       mockBridge.withdraw(
-        await transfer.sender.getAddress(),
         await transfer.recipient.getAddress(),
         transfer.amount,
         transferNonce,
