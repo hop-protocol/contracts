@@ -10,7 +10,7 @@ contract L1_ETH_Bridge is L1_Bridge {
 
     function _transferFromBridge(address recipient, uint256 amount) internal override {
         (bool success, ) = recipient.call{value: amount}(new bytes(0));
-        require(success, 'TransferHelper::safeTransferETH: ETH transfer failed');
+        require(success, 'L1_ERC20_BRG: ETH transfer failed');
     }
 
     function _transferToBridge(address /*from*/, uint256 amount) internal override {
