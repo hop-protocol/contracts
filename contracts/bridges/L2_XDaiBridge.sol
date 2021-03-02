@@ -13,7 +13,6 @@ contract L2_XDaiBridge is L2_Bridge {
 
     constructor (
         iArbitraryMessageBridge _messenger,
-        bytes32 _l1ChainId,
         address l1Governance,
         HopBridgeToken hToken,
         IERC20 l2CanonicalToken,
@@ -21,7 +20,8 @@ contract L2_XDaiBridge is L2_Bridge {
         address l1BridgeAddress,
         uint256[] memory supportedChainIds,
         address exchangeAddress,
-        address[] memory bonders
+        address[] memory bonders,
+        bytes32 _l1ChainId
     )
         public
         L2_Bridge(

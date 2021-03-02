@@ -20,14 +20,19 @@ export const MAX_NUM_SENDS_BEFORE_COMMIT = 10
 describe('Arbitrum Messenger Wrapper', () => {
   let _fixture: IFixture
 
+  let l1ChainId: BigNumber
+  let l2ChainId: BigNumber
+
   let l1_messenger: Contract
   let l1_bridge: Contract
   let l1_messengerWrapper: Contract
   let l2_bridge: Contract
 
   beforeEach(async () => {
-    const l2ChainId: BigNumber = CHAIN_IDS.ARBITRUM.TESTNET_3
-    _fixture = await fixture(l2ChainId)
+    l1ChainId = CHAIN_IDS.ETHEREUM.KOVAN
+    l2ChainId = CHAIN_IDS.ARBITRUM.TESTNET_3
+
+    _fixture = await fixture(l1ChainId, l2ChainId)
     await setUpDefaults(_fixture, l2ChainId)
     ;({ l1_messenger, l1_bridge, l1_messengerWrapper, l2_bridge } = _fixture)
   })

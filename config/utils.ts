@@ -1,5 +1,5 @@
-import { BigNumber } from 'ethers'
-import { IGetMessengerWrapperDefaults } from './interfaces'
+import { BigNumber, utils as ethersUtils } from 'ethers'
+import { IGetMessengerWrapperDefaults, IGetL2BridgeDefaults } from './interfaces'
 import {
   CHAIN_IDS,
   DEFAULT_MESSENGER_WRAPPER_GAS_LIMIT,
@@ -44,6 +44,48 @@ export const getMessengerWrapperDefaults = (
     l2BridgeAddress,
     gasLimit,
     l1MessengerAddress
+  )
+
+  if (additionalData.length !== 0) {
+    defaults.push(...additionalData)
+  }
+
+  return defaults
+}
+
+export const getL2BridgeDefaults = (
+  chainId: BigNumber,
+  l2MessengerAddress: string,
+  governanceAddress: string,
+  l2HopBridgeTokenAddress: string,
+  l2CanonicalTokenAddress: string,
+  l1BridgeAddress: string,
+  getAllSupportedChainIds: string[],
+  l2UniswapRouterAddress: string,
+  bonderAddresses: string[],
+  l1ChainId: BigNumber
+): IGetL2BridgeDefaults[] => {
+  let defaults: IGetL2BridgeDefaults[] = []
+
+  let additionalData = []
+
+  if (isChainIdArbitrum(chainId)) {
+  } else if (isChainIdOptimism(chainId)) {
+  } else if (isChainIdXDai(chainId)) {
+    const l1ChainIdBytes32 = ethersUtils.formatBytes32String(l1ChainId.toString())
+    additionalData.push(l1ChainIdBytes32)
+  }
+
+  defaults.push(
+    chainId,
+    l2MessengerAddress,
+    governanceAddress,
+    l2HopBridgeTokenAddress,
+    l2CanonicalTokenAddress,
+    l1BridgeAddress,
+    getAllSupportedChainIds,
+    l2UniswapRouterAddress,
+    bonderAddresses
   )
 
   if (additionalData.length !== 0) {

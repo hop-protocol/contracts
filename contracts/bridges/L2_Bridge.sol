@@ -25,7 +25,6 @@ abstract contract L2_Bridge is Bridge {
     uint256 public minimumForceCommitDelay = 4 hours;
     uint256 public messengerGasLimit = 250000;
 
-    uint256[] public pendingAmountChainIds;
     mapping(uint256 => bytes32[]) public pendingTransferIdsForChainId;
     mapping(uint256 => uint256) public pendingAmountForChainId;
     mapping(uint256 => uint256) public lastCommitTimeForChainId;
@@ -152,7 +151,7 @@ abstract contract L2_Bridge is Bridge {
         );
         pendingTransfers.push(transferId);
 
-        _addToPendingAmount(chainId, amount);
+        pendingAmountForChainId[chainId] = pendingAmountForChainId[chainId].add(amount);
 
         emit TransferSent(transferId, recipient, amount, transferNonce, relayerFee);
     }
@@ -281,14 +280,6 @@ abstract contract L2_Bridge is Bridge {
 
     /* ========== Helper Functions ========== */
 
-    function _addToPendingAmount(uint256 chainId, uint256 amount) internal {
-        if (pendingAmountForChainId[chainId] == 0) {
-            pendingAmountChainIds.push(chainId);
-        }
-
-        pendingAmountForChainId[chainId] = pendingAmountForChainId[chainId].add(amount);
-    }
-
     function _commitTransfers(uint256 destinationChainId) internal {
         bytes32[] storage pendingTransfers = pendingTransferIdsForChainId[destinationChainId];
         require(pendingTransfers.length > 0, "L2_BRG: Must commit at least 1 Transfer");
@@ -306,7 +297,6 @@ abstract contract L2_Bridge is Bridge {
             totalAmount
         );
 
-        delete pendingAmountChainIds;
         delete pendingTransferIdsForChainId[destinationChainId];
 
         _sendCrossDomainMessage(confirmTransferRootMessage);
@@ -363,7 +353,7 @@ abstract contract L2_Bridge is Bridge {
 
     function _getHCPath() internal view returns (address[] memory) {
         address[] memory exchangePath = new address[](2);
-        exchangePath[0] = address(this);
+        exchangePath[0] = address(hToken);
         exchangePath[1] = address(l2CanonicalToken);
         return exchangePath;
     }
@@ -371,7 +361,7 @@ abstract contract L2_Bridge is Bridge {
     function _getCHPath() internal view returns (address[] memory) {
         address[] memory exchangePath = new address[](2);
         exchangePath[0] = address(l2CanonicalToken);
-        exchangePath[1] = address(this);
+        exchangePath[1] = address(hToken);
         return exchangePath;
     }
 

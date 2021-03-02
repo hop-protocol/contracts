@@ -49,6 +49,7 @@ import {
 
 describe('L2_Bridge', () => {
   let _fixture: IFixture
+  let l1ChainId: BigNumber
   let l2ChainId: BigNumber
   let l22ChainId: BigNumber
 
@@ -61,11 +62,15 @@ describe('L2_Bridge', () => {
   let l1_canonicalBridge: Contract
   let l1_messenger: Contract
   let l2_canonicalToken: Contract
+  let l2_hopBridgeToken: Contract
   let l2_bridge: Contract
   let l2_messenger: Contract
   let l2_uniswapRouter: Contract
+  let l22_canonicalToken: Contract
+  let l22_hopBridgeToken: Contract
   let l22_bridge: Contract
   let l22_messenger: Contract
+  let l22_uniswapRouter: Contract
 
   let transfers: Transfer[]
   let transfer: Transfer
@@ -79,10 +84,11 @@ describe('L2_Bridge', () => {
   before(async () => {
     beforeAllSnapshotId = await takeSnapshot()
 
+    l1ChainId = CHAIN_IDS.ETHEREUM.KOVAN
     l2ChainId = CHAIN_IDS.OPTIMISM.TESTNET_1
     l22ChainId = CHAIN_IDS.ARBITRUM.TESTNET_3
 
-    _fixture = await fixture(l2ChainId)
+    _fixture = await fixture(l1ChainId, l2ChainId)
     await setUpDefaults(_fixture, l2ChainId)
     ;({
       user,
@@ -93,6 +99,7 @@ describe('L2_Bridge', () => {
       l1_messenger,
       l1_canonicalBridge,
       l2_canonicalToken,
+      l2_hopBridgeToken,
       l2_bridge,
       l2_messenger,
       l2_uniswapRouter,
@@ -103,11 +110,14 @@ describe('L2_Bridge', () => {
       l1BridgeAddress: l1_bridge.address,
       l1CanonicalTokenAddress: l1_canonicalToken.address
     }
-    _fixture = await fixture(l22ChainId, l1AlreadySetOpts)
+    _fixture = await fixture(l1ChainId, l22ChainId, l1AlreadySetOpts)
     await setUpDefaults(_fixture, l22ChainId)
     ;({
+      l2_canonicalToken: l22_canonicalToken,
+      l2_hopBridgeToken: l22_hopBridgeToken,
       l2_bridge: l22_bridge,
       l2_messenger: l22_messenger,
+      l2_uniswapRouter: l22_uniswapRouter,
     } = _fixture)
 
     transfer = transfers[0]
@@ -119,7 +129,7 @@ describe('L2_Bridge', () => {
     await executeL1BridgeSendToL2(
       l1_canonicalToken,
       l1_bridge,
-      l2_bridge,
+      l2_hopBridgeToken,
       l2_messenger,
       transfer.sender,
       transfer.amount,
@@ -160,9 +170,9 @@ describe('L2_Bridge', () => {
     const l1BridgeAddress = await l2_bridge.l1BridgeAddress()
     const isBonder = await l2_bridge.getIsBonder(await bonder.getAddress())
     const exchangeAddress: string = await l2_bridge.exchangeAddress()
-    const name: string = await l2_bridge.name()
-    const symbol: string = await l2_bridge.symbol()
-    const decimals: number = await l2_bridge.decimals()
+    const name: string = await l2_hopBridgeToken.name()
+    const symbol: string = await l2_hopBridgeToken.symbol()
+    const decimals: number = await l2_hopBridgeToken.decimals()
 
     expect(expectedL1GovernanceAddress).to.eq(l1GovernanceAddress)
     expect(expectedL2CanonicalTokenAddress).to.eq(l2CanonicalTokenAddress)
@@ -248,6 +258,7 @@ describe('L2_Bridge', () => {
   describe('send', async () => {
     it('Should send tokens to L1 via send', async () => {
       await executeL2BridgeSend(
+        l2_hopBridgeToken,
         l2_bridge,
         transfer
       )
@@ -269,6 +280,7 @@ describe('L2_Bridge', () => {
       await executeL2BridgeSwapAndSend(
         l2_bridge,
         l2_canonicalToken,
+        l2_hopBridgeToken,
         l2_uniswapRouter,
         l2Transfer
       )
@@ -277,9 +289,30 @@ describe('L2_Bridge', () => {
 
   describe('commitTransfers', async () => {
     it('Should commit a transfer automatically after 100 sends', async () => {
+      const customTransfer: Transfer = new Transfer(transfer)
+      customTransfer.amount = BigNumber.from('100')
+      customTransfer.relayerFee = BigNumber.from('0')
+
+      for (let i = 0; i < 101; i++) {
+        await executeL2BridgeSend(
+          l2_hopBridgeToken,
+          l2_bridge,
+          customTransfer
+        )
+      }
+
+      // After the commit, the contract state should have a single index for pendingTransferIdsForChainId.
+      const expectedErrorMsg: string = 'VM Exception while processing transaction: invalid opcode'
+      try {
+        await l2_bridge.pendingTransferIdsForChainId(transfer.chainId, 1)
+      } catch (err) {
+        expect(err.message).to.eq(expectedErrorMsg)
+      }
     })
-    it.only('Should commit a transfer after the minForceCommitTime', async () => {
+
+    it('Should commit a transfer after the minForceCommitTime', async () => {
       await executeL2BridgeSend(
+        l2_hopBridgeToken,
         l2_bridge,
         transfer
       )
@@ -287,10 +320,10 @@ describe('L2_Bridge', () => {
       await executeL1BridgeBondWithdrawal(
         l1_canonicalToken,
         l1_bridge,
+        l2_bridge,
         transfer,
         bonder
       )
-
 
       const timeToWait: number = 4 * SECONDS_IN_AN_HOUR
       await increaseTime(timeToWait)
@@ -302,8 +335,10 @@ describe('L2_Bridge', () => {
        timeToWait 
       )
     })
+
     it('Should commit a transfer by the bonder at any time', async () => {
       await executeL2BridgeSend(
+        l2_hopBridgeToken,
         l2_bridge,
         transfer
       )
@@ -311,6 +346,7 @@ describe('L2_Bridge', () => {
       await executeL1BridgeBondWithdrawal(
         l1_canonicalToken,
         l1_bridge,
+        l2_bridge,
         transfer,
         bonder
       )
@@ -323,187 +359,231 @@ describe('L2_Bridge', () => {
       )
     })
 
-  it('Should mint hTokens', async () => {
-  //   const tokenAmount: BigNumber = USER_INITIAL_BALANCE
+    it('Should commit a transfer with two sends -- to L1 and to L2', async () => {
+      const customTransfer: Transfer = new Transfer(transfer)
+      const customL2Transfer: Transfer = new Transfer(l2Transfer)
+      customTransfer.amount = transfer.amount.div(4)
+      customL2Transfer.amount = transfer.amount.div(4)
 
-  //   // Verify no tokens available
-  //   let expectedBalance: BigNumber = BigNumber.from('0')
-  //   await expectBalanceOf(l2_bridge, user, expectedBalance)
+      await executeL2BridgeSend(
+        l2_hopBridgeToken,
+        l2_bridge,
+        customTransfer
+      )
 
-  //   // Make swap from l1 bridge
-  //   await l1_canonicalToken
-  //     .connect(user)
-  //     .approve(l1_bridge.address, tokenAmount)
-  //   await l1_bridge
-  //     .connect(user)
-  //     .sendToL2(l2ChainId.toString(), await user.getAddress(), tokenAmount)
-  //   await l2_messenger.relayNextMessage()
+      const expectedTransferIndex: BigNumber = BigNumber.from('1')
+      await executeL2BridgeSend(
+        l2_hopBridgeToken,
+        l2_bridge,
+        customL2Transfer,
+        expectedTransferIndex
+      )
 
-  //   // Verify token mint on L2
-  //   expectedBalance = BigNumber.from(tokenAmount)
-  //   await expectBalanceOf(l2_bridge, user, expectedBalance)
-  // })
+      await executeL1BridgeBondWithdrawal(
+        l1_canonicalToken,
+        l1_bridge,
+        l2_bridge,
+        customTransfer,
+        bonder
+      )
 
-  // it('Should mint hTokens and swap for canonical tokens', async () => {
-  //   const tokenAmount: BigNumber = USER_INITIAL_BALANCE
+      // Bond withdrawal on other L2
+      const actualTransferAmount: BigNumber = customL2Transfer.amount
+      await executeL2BridgeBondWithdrawalAndAttemptSwap(
+        l2_bridge,
+        l22_hopBridgeToken,
+        l22_bridge,
+        l22_canonicalToken,
+        l22_uniswapRouter,
+        customL2Transfer,
+        bonder,
+        actualTransferAmount,
+        expectedTransferIndex
+      )
 
-  //   // Verify no tokens available
-  //   let expectedBalance: BigNumber = BigNumber.from('0')
-  //   await expectBalanceOf(l2_canonicalToken, user, expectedBalance)
+      await executeL2BridgeCommitTransfers(
+        l2_bridge,
+        customTransfer,
+        bonder,
+        DEFAULT_TIME_TO_WAIT
+      )
 
-  //   // Make swap from l1 bridge
-  //   const expectedAmounts: BigNumber[] = await l2_uniswapRouter.getAmountsOut(
-  //     tokenAmount,
-  //     [l2_canonicalToken.address, l2_bridge.address]
-  //   )
-  //   const expectedAmountAfterSlippage: BigNumber = expectedAmounts[1]
-
-  //   await l1_canonicalToken
-  //     .connect(user)
-  //     .approve(l1_bridge.address, tokenAmount)
-  //   await l1_bridge
-  //     .connect(user)
-  //     .sendToL2AndAttemptSwap(
-  //       l2ChainId.toString(),
-  //       await user.getAddress(),
-  //       tokenAmount,
-  //       DEFAULT_AMOUNT_OUT_MIN,
-  //       DEFAULT_DEADLINE
-  //     )
-  //   await l2_messenger.relayNextMessage()
-
-  //   // Verify token mint on L2
-  //   expectedBalance = BigNumber.from(expectedAmountAfterSlippage)
-  //   await expectBalanceOf(l2_canonicalToken, user, expectedBalance)
+      await executeL2BridgeCommitTransfers(
+        l2_bridge,
+        customL2Transfer,
+        bonder,
+        DEFAULT_TIME_TO_WAIT,
+        expectedTransferIndex
+      )
+    })
   })
 
-  // // TODO: Changed with contract updates
-  it.skip('Should send tokens from one L2 to another while the bonder is offline via withdrawAndAttemptSwap', async () => {
-  //   const numberOfSendsToOverflow: number = MAX_NUM_SENDS_BEFORE_COMMIT + 1
-  //   for (let i = 0; i < numberOfSendsToOverflow; i++) {
-  //     // Mint canonical tokens on L1
-  //     await l1_canonicalToken.mint(await user.getAddress(), transfer.amount)
+  describe('mint', async () => {
+    it('Should mint hop bridge tokens', async () => {
+      let expectedBalance: BigNumber = await l2_hopBridgeToken.balanceOf(await user.getAddress())
+      await expectBalanceOf(l2_hopBridgeToken, user, expectedBalance)
 
-  //     // Add the canonical token to the users' address on L2
-  //     await executeCanonicalBridgeSendMessage(
-  //       l1_canonicalToken,
-  //       l1_canonicalBridge,
-  //       l2_canonicalToken,
-  //       l2_messenger,
-  //       user,
-  //       userSendTokenAmount
-  //     )
+      await l2_bridge.mint(await user.getAddress(), transfer.amount)
 
-  //     // Execute transaction
-  //     await l2_bridge.connect(governance).addSupportedChainIds([transfer.chainId])
-  //     await l2_canonicalToken
-  //       .connect(user)
-  //       .approve(l2_bridge.address, userSendTokenAmount)
-  //     await l2_bridge
-  //       .connect(user)
-  //       .swapAndSend(
-  //         transfer.chainId,
-  //         transfer.recipient,
-  //         transfer.amount,
-  //         transfer.transferNonce,
-  //         transfer.relayerFee,
-  //         transfer.amountOutMin,
-  //         transfer.deadline,
-  //         transfer.destinationAmountOutMin,
-  //         transfer.destinationDeadline
-  //       )
-
-  //     transfer.transferNonce += 1
-  //   }
-
-  //   try {
-  //     // The array should have been deleted and only a single item (index 0) should exist
-  //     await l2_bridge.pendingAmountChainIds(1)
-  //     throw new Error('There should not be a pending transfer in this slot.')
-  //   } catch (err) {
-  //     const expectedErrorMsg: string =
-  //       'VM Exception while processing transaction: invalid opcode'
-  //     expect(err.message).to.eq(expectedErrorMsg)
-  //   }
-
-  //   try {
-  //     // The array should have been deleted and only a single item (index 0) should exist
-  //     await l2_bridge.pendingTransfers(1)
-  //     throw new Error('There should not be a pending transfer in this slot.')
-  //   } catch (err) {
-  //     const expectedErrorMsg: string =
-  //       'VM Exception while processing transaction: invalid opcode'
-  //     expect(err.message).to.eq(expectedErrorMsg)
-  //   }
-
-  //   // TODO: When _sendCrossDomainImplementation is implemented, the last l2_bridge.swapAndSend() should atomically
-  //   // call the l2_canonicalMessenger, which should automatically call l1_bridge.confirmTransferRoot() which should
-  //   // atomically call recipientL2Bridge.setTransferRoot(). Then I can test the recipientL2Bridge.withdrawAndAttemptSwap()
+      expectedBalance = expectedBalance.add(transfer.amount)
+      await expectBalanceOf(l2_hopBridgeToken, user, expectedBalance)
+    })
   })
 
-  it('Should send a transfer from one L2 to another L2 via bondWithdrawalAndAttemptSwap', async () => {
-  //   transfer.destinationAmountOutMin = BigNumber.from(0)
-  //   transfer.destinationDeadline = BigNumber.from(DEFAULT_DEADLINE)
+  describe('mintAndAttemptSwap', async () => {
+    it('Should mint hop bridge tokens and swap them for canonical tokens', async () => {
+      let expectedBalanceHopBridgeToken: BigNumber = await l2_hopBridgeToken.balanceOf(await user.getAddress())
+      let expectedBalanceCanonicalToken: BigNumber = await l2_canonicalToken.balanceOf(await user.getAddress())
+      await expectBalanceOf(l2_hopBridgeToken, user, expectedBalanceHopBridgeToken)
+      await expectBalanceOf(l2_canonicalToken, user, expectedBalanceCanonicalToken)
 
-  //   // Add the canonical token to the users' address on L2
-  //   await executeCanonicalBridgeSendMessage(
-  //     l1_canonicalToken,
-  //     l1_canonicalBridge,
-  //     l2_canonicalToken,
-  //     l2_messenger,
-  //     user,
-  //     userSendTokenAmount
-  //   )
+      const expectedAmountsRecipientBridge: BigNumber[] = await l2_uniswapRouter.getAmountsOut(
+        transfer.amount,
+        [l2_canonicalToken.address, l2_hopBridgeToken.address]
+      )
+      const expectedRecipientAmountAfterSlippage: BigNumber = expectedAmountsRecipientBridge[1]
 
-  //   // Execute transaction
-  //   await l2_bridge.connect(governance).addSupportedChainIds([transfer.chainId])
-  //   await l2_canonicalToken
-  //     .connect(user)
-  //     .approve(l2_bridge.address, userSendTokenAmount)
-  //   await l2_bridge
-  //     .connect(user)
-  //     .swapAndSend(
-  //       transfer.chainId,
-  //       await transfer.recipient.getAddress(),
-  //       transfer.amount,
-  //       transfer.transferNonce,
-  //       transfer.relayerFee,
-  //       transfer.amountOutMin,
-  //       transfer.deadline,
-  //       transfer.destinationAmountOutMin,
-  //       transfer.destinationDeadline
-  //     )
+      await l2_bridge.mintAndAttemptSwap(
+        await user.getAddress(),
+        transfer.amount,
+        0,
+        DEFAULT_DEADLINE
+      )
 
-  //   // TODO: Mimic the cross chain test and verify state
+      expectedBalanceHopBridgeToken = expectedBalanceHopBridgeToken
+      expectedBalanceCanonicalToken = expectedBalanceCanonicalToken.add(expectedRecipientAmountAfterSlippage)
+      await expectBalanceOf(l2_hopBridgeToken, user, expectedBalanceHopBridgeToken)
+      await expectBalanceOf(l2_canonicalToken, user, expectedBalanceCanonicalToken)
+    })
   })
 
-  it('Should set the transfer root', async () => {
-  //   const arbitraryAmount: number = 123
+  describe('withdrawAndAttemptSwap', async () => {
+    it('Should send tokens from one L2 to another while the bonder is offline via withdrawAndAttemptSwap', async () => {
+    //   const numberOfSendsToOverflow: number = MAX_NUM_SENDS_BEFORE_COMMIT + 1
+    //   for (let i = 0; i < numberOfSendsToOverflow; i++) {
+    //     // Mint canonical tokens on L1
+    //     await l1_canonicalToken.mint(await user.getAddress(), transfer.amount)
 
-  //   // Verify that the l1 bridge is the only account who can set it
-  //   // TODO: Introduce this when `_verifySender()` implementation is added
-  //   // expect(await l2_bridge.setTransferRoot(ARBITRARY_ROOT_HASH, arbitraryAmount)).to.throw('hi')
+    //     // Add the canonical token to the users' address on L2
+    //     await executeCanonicalBridgeSendMessage(
+    //       l1_canonicalToken,
+    //       l1_canonicalBridge,
+    //       l2_canonicalToken,
+    //       l2_messenger,
+    //       user,
+    //       userSendTokenAmount
+    //     )
 
-  //   // Update l1 bridge address for testing purposes
-  //   await l2_bridge.setL1BridgeAddress(await user.getAddress())
-  //   expect(await l2_bridge.l1BridgeAddress()).to.eq(await user.getAddress())
+    //     // Execute transaction
+    //     await l2_bridge.connect(governance).addSupportedChainIds([transfer.chainId])
+    //     await l2_canonicalToken
+    //       .connect(user)
+    //       .approve(l2_bridge.address, userSendTokenAmount)
+    //     await l2_bridge
+    //       .connect(user)
+    //       .swapAndSend(
+    //         transfer.chainId,
+    //         transfer.recipient,
+    //         transfer.amount,
+    //         transfer.transferNonce,
+    //         transfer.relayerFee,
+    //         transfer.amountOutMin,
+    //         transfer.deadline,
+    //         transfer.destinationAmountOutMin,
+    //         transfer.destinationDeadline
+    //       )
 
-  //   await l2_bridge.setTransferRoot(ARBITRARY_ROOT_HASH, arbitraryAmount)
+    //     transfer.transferNonce += 1
+    //   }
 
-  //   const transferRoot = await l2_bridge.getTransferRoot(ARBITRARY_ROOT_HASH, arbitraryAmount)
-  //   expect(transferRoot[0]).to.eq(arbitraryAmount)
-  //   expect(transferRoot[1]).to.eq(0)
+    //   try {
+    //     // The array should have been deleted and only a single item (index 0) should exist
+    //     await l2_bridge.pendingTransfers(1)
+    //     throw new Error('There should not be a pending transfer in this slot.')
+    //   } catch (err) {
+    //     const expectedErrorMsg: string =
+    //       'VM Exception while processing transaction: invalid opcode'
+    //     expect(err.message).to.eq(expectedErrorMsg)
+    //   }
+
+    //   // TODO: When _sendCrossDomainImplementation is implemented, the last l2_bridge.swapAndSend() should atomically
+    //   // call the l2_canonicalMessenger, which should automatically call l1_bridge.confirmTransferRoot() which should
+    //   // atomically call recipientL2Bridge.setTransferRoot(). Then I can test the recipientL2Bridge.withdrawAndAttemptSwap()
+    })
   })
+
+  describe('bondWithdrawalAndAttemptSwap', async () => {
+    it('Should send a transfer from one L2 to another L2 via bondWithdrawalAndAttemptSwap', async () => {
+    //   transfer.destinationAmountOutMin = BigNumber.from(0)
+    //   transfer.destinationDeadline = BigNumber.from(DEFAULT_DEADLINE)
+
+    //   // Add the canonical token to the users' address on L2
+    //   await executeCanonicalBridgeSendMessage(
+    //     l1_canonicalToken,
+    //     l1_canonicalBridge,
+    //     l2_canonicalToken,
+    //     l2_messenger,
+    //     user,
+    //     userSendTokenAmount
+    //   )
+
+    //   // Execute transaction
+    //   await l2_bridge.connect(governance).addSupportedChainIds([transfer.chainId])
+    //   await l2_canonicalToken
+    //     .connect(user)
+    //     .approve(l2_bridge.address, userSendTokenAmount)
+    //   await l2_bridge
+    //     .connect(user)
+    //     .swapAndSend(
+    //       transfer.chainId,
+    //       await transfer.recipient.getAddress(),
+    //       transfer.amount,
+    //       transfer.transferNonce,
+    //       transfer.relayerFee,
+    //       transfer.amountOutMin,
+    //       transfer.deadline,
+    //       transfer.destinationAmountOutMin,
+    //       transfer.destinationDeadline
+    //     )
+
+    //   // TODO: Mimic the cross chain test and verify state
+    })
+  })
+
+  describe('setTransferRoot', async () => {
+    it('Should set the transfer root', async () => {
+      const arbitraryAmount: BigNumber = BigNumber.from('13371337')
+      // Update l1 bridge address for testing purposes
+      await l2_bridge.setL1BridgeAddress(await user.getAddress())
+      expect(await l2_bridge.l1BridgeAddress()).to.eq(await user.getAddress())
+
+      await l2_bridge.setTransferRoot(ARBITRARY_ROOT_HASH, arbitraryAmount)
+
+      const transferRoot = await l2_bridge.getTransferRoot(ARBITRARY_ROOT_HASH, arbitraryAmount)
+      expect(transferRoot[0]).to.eq(arbitraryAmount)
+      expect(transferRoot[1]).to.eq(0)
+    })
+  })
+
+  describe('getNextTransferNonce', async () => {
+    it('Should get the next transfer nonce', async () => {
+      // const expectedNextTransferNonce: string = trans
+      // const nextTransferNonce: string = await l2_bridge.getNextTransferNonce()
+
+      // const transferRoot = await l2_bridge.getTransferRoot(ARBITRARY_ROOT_HASH, arbitraryAmount)
+      // expect(transferRoot[0]).to.eq(arbitraryAmount)
+      // expect(transferRoot[1]).to.eq(0)
+    })
   })
 
   /**
    * Non-Happy Path
    */
 
-
   describe('Edge cases', async () => {
     it('Should send tokens to L2 via send', async () => {
       await executeL2BridgeSend(
+        l2_hopBridgeToken,
         l2_bridge,
         l2Transfer
       )

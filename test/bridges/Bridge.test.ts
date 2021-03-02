@@ -6,6 +6,7 @@ import Transfer from '../../lib/Transfer'
 
 import { fixture } from '../shared/fixtures'
 import {
+  getTransferNonce,
   setUpDefaults,
   revertSnapshot,
   takeSnapshot
@@ -17,10 +18,12 @@ import { CHAIN_IDS, ARBITRARY_ROOT_HASH } from '../../config/constants'
 describe('Bridge', () => {
   let _fixture: IFixture
 
+  let l1ChainId: BigNumber
+  let l2ChainId: BigNumber
+
   let mockBridge: Contract
   let transfers: Transfer[]
 
-  let l2ChainId: BigNumber
 
   let beforeAllSnapshotId: string
   let snapshotId: string
@@ -28,8 +31,9 @@ describe('Bridge', () => {
   before(async () => {
     beforeAllSnapshotId = await takeSnapshot()
 
+    l1ChainId = CHAIN_IDS.ETHEREUM.KOVAN
     l2ChainId = CHAIN_IDS.OPTIMISM.TESTNET_1
-    _fixture = await fixture(l2ChainId)
+    _fixture = await fixture(l1ChainId, l2ChainId)
     await setUpDefaults(_fixture, l2ChainId)
     ;({ mockBridge, transfers } = _fixture)
   })
@@ -55,13 +59,14 @@ describe('Bridge', () => {
   it('Should get the correct transfer id', async () => {
     for (let i = 0; i < transfers.length; i++) {
       const transfer: Transfer = transfers[i]
-      const expectedTransferId: Buffer = await transfer.getTransferId()
+      const transferNonce: string = getTransferNonce(BigNumber.from('0'), transfer.chainId)
+      const expectedTransferId: Buffer = await transfer.getTransferId(transferNonce)
       const transferId = await mockBridge.getTransferId(
         transfer.chainId,
         await transfer.sender.getAddress(),
         await transfer.recipient.getAddress(),
         transfer.amount,
-        transfer.transferNonce,
+        transferNonce,
         transfer.relayerFee,
         transfer.amountOutMin,
         transfer.deadline
@@ -91,7 +96,7 @@ describe('Bridge', () => {
         await transfer.sender.getAddress(),
         await transfer.recipient.getAddress(),
         transfer.amount,
-        transfer.transferNonce,
+        getTransferNonce(BigNumber.from('0'), transfer.chainId),
         transfer.relayerFee,
         ARBITRARY_ROOT_HASH,
         arbitraryProof
@@ -108,7 +113,8 @@ describe('Bridge', () => {
     transfer.deadline = BigNumber.from(0)
 
     // TODO: This can use the helper function getRootHashFromTransferId()
-    const transferId: Buffer = await transfer.getTransferId()
+    const transferNonce: string = getTransferNonce(BigNumber.from('0'), transfer.chainId)
+    const transferId: Buffer = await transfer.getTransferId(transferNonce)
     const tree: MerkleTree = new MerkleTree([transferId])
     const transferRootHash: Buffer = tree.getRoot()
     const proof: Buffer[] = tree.getProof(transferId)
@@ -121,7 +127,7 @@ describe('Bridge', () => {
         await transfer.sender.getAddress(),
         await transfer.recipient.getAddress(),
         transfer.amount,
-        transfer.transferNonce,
+        transferNonce,
         transfer.relayerFee,
         transferRootHash,
         proof
