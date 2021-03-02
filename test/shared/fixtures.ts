@@ -40,7 +40,7 @@ export async function fixture (l1ChainId: BigNumber, l2ChainId: BigNumber, l1Alr
     'contracts/test/Mock_L1_CanonicalBridge.sol:Mock_L1_CanonicalBridge'
   )
   const L1_Bridge = await ethers.getContractFactory(
-    'contracts/test/Mock_L1_Bridge.sol:Mock_L1_Bridge'
+    'contracts/test/Mock_L1_ERC20_Bridge.sol:Mock_L1_ERC20_Bridge'
   )
   const L2_Bridge = await ethers.getContractFactory(
     `contracts/test/${l2_bridgeArtifact}`
@@ -127,12 +127,14 @@ export async function fixture (l1ChainId: BigNumber, l2ChainId: BigNumber, l1Alr
   )
 
   // Deploy Hop L2 contracts
+  const l2CanonicalTokenIsEth: boolean = false
   let l2BridgeDefaults: IGetL2BridgeDefaults[] = getL2BridgeDefaults(
     l2ChainId,
     l2_messenger.address,
     await governance.getAddress(),
     l2_hopBridgeToken.address,
     l2_canonicalToken.address,
+    l2CanonicalTokenIsEth,
     l1_bridge.address,
     ALL_SUPPORTED_CHAIN_IDS,
     l2_uniswapRouter.address,
