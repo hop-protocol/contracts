@@ -20,7 +20,7 @@ abstract contract L2_Bridge is Bridge {
     address public l1BridgeAddress;
     address public exchangeAddress;
     IERC20 public l2CanonicalToken;
-    bool public l2CanonicalTokenIsWeth;
+    bool public l2CanonicalTokenIsEth;
     mapping(uint256 => bool) public supportedChainIds;
     uint256 public minimumForceCommitDelay = 4 hours;
     uint256 public messengerGasLimit = 250000;
@@ -52,11 +52,12 @@ abstract contract L2_Bridge is Bridge {
         _;
     }
 
+    /// @notice When l2CanonicalTokenIsEth is true, l2CanonicalToken should be set to the WETH address
     constructor (
         address _l1Governance,
         HopBridgeToken _hToken, 
         IERC20 _l2CanonicalToken,
-        bool _l2CanonicalTokenIsWeth,
+        bool _l2CanonicalTokenIsEth,
         address _l1BridgeAddress,
         uint256[] memory _supportedChainIds,
         address _exchangeAddress,
@@ -70,7 +71,7 @@ abstract contract L2_Bridge is Bridge {
         l1Governance = _l1Governance;
         hToken = _hToken;
         l2CanonicalToken = _l2CanonicalToken;
-        l2CanonicalTokenIsWeth = _l2CanonicalTokenIsWeth;
+        l2CanonicalTokenIsEth = _l2CanonicalTokenIsEth;
         l1BridgeAddress = _l1BridgeAddress;
         exchangeAddress = _exchangeAddress;
 
@@ -144,7 +145,7 @@ abstract contract L2_Bridge is Bridge {
     {
         require(amount >= relayerFee, "L2_BRG: relayer fee cannot exceed amount");
 
-        if (l2CanonicalTokenIsWeth) {
+        if (l2CanonicalTokenIsEth) {
             require(msg.value == amount, "L2_BRG: Value does not match amount");
             IWETH(address(l2CanonicalToken)).deposit{value: amount}();
         } else {
@@ -269,7 +270,7 @@ abstract contract L2_Bridge is Bridge {
         hToken.approve(exchangeAddress, amount);
 
         bool success = true;
-        if (l2CanonicalTokenIsWeth) {
+        if (l2CanonicalTokenIsEth) {
             try IUniswapV2Router02(exchangeAddress).swapExactTokensForETH(
                 amount,
                 amountOutMin,
