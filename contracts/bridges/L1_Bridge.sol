@@ -37,7 +37,7 @@ abstract contract L1_Bridge is Bridge {
     uint256 public challengeAmountDivisor = 10;
     uint256 public timeSlotSize = 3 hours;
     uint256 public challengePeriod = 1 days;
-    uint256 public challengeResolutionPeriod = 8 days;
+    uint256 public challengeResolutionPeriod = 10 days;
 
     /* ========== Events ========== */
 
