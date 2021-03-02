@@ -253,6 +253,17 @@ describe('L2_Bridge', () => {
       const minimumForceCommitDelay: BigNumber = await l2_bridge.minimumForceCommitDelay()
       expect(minimumForceCommitDelay).to.eq(expectedMinimumForceCommitDelay)
     })
+
+    it('Should set a new owner of the HopBridgeToken', async () => {
+      let hopBridgeTokenOwner: string = await l2_hopBridgeToken.owner()
+      expect(hopBridgeTokenOwner).to.eq(l2_bridge.address)
+
+      const newOwner: Signer = user
+      await l2_bridge.setHopBridgeTokenOwner(await newOwner.getAddress())
+
+      hopBridgeTokenOwner = await l2_hopBridgeToken.owner()
+      expect(hopBridgeTokenOwner).to.eq(await newOwner.getAddress())
+    })
   })
 
   describe('send', async () => {
