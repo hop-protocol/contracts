@@ -313,10 +313,12 @@ abstract contract L1_Bridge is Bridge {
         challengeAmountDivisor = _challengeAmountDivisor;
     }
 
+    /// @notice challengePeriod must be divisible by timeSlotSize
     function setTimeSlotSize(uint256 _timeSlotSize) external onlyGovernance {
         timeSlotSize = _timeSlotSize;
     }
 
+    /// @notice challengePeriod must be divisible by timeSlotSize
     function setChallengePeriod(uint256 _challengePeriod) external onlyGovernance {
         challengePeriod = _challengePeriod;
     }
