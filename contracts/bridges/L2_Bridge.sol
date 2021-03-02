@@ -113,6 +113,10 @@ abstract contract L2_Bridge is Bridge {
         minimumForceCommitDelay = _minimumForceCommitDelay;
     }
 
+    function setHopBridgeTokenOwner(address newOwner) external onlyGovernance {
+        hToken.transferOwnership(newOwner);
+    }
+
     /// @notice _amount is the amount the user wants to send plus the relayer fee
     function send(
         uint256 chainId,
