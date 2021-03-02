@@ -7,6 +7,7 @@ import {
   setUpDefaults,
   expectBalanceOf,
   getRootHashFromTransferId,
+  getTransferNonce,
   increaseTime,
   revertSnapshot,
   takeSnapshot
@@ -252,6 +253,17 @@ describe('L2_Bridge', () => {
         .setMinimumForceCommitDelay(expectedMinimumForceCommitDelay)
       const minimumForceCommitDelay: BigNumber = await l2_bridge.minimumForceCommitDelay()
       expect(minimumForceCommitDelay).to.eq(expectedMinimumForceCommitDelay)
+    })
+
+    it('Should set a new owner of the HopBridgeToken', async () => {
+      let hopBridgeTokenOwner: string = await l2_hopBridgeToken.owner()
+      expect(hopBridgeTokenOwner).to.eq(l2_bridge.address)
+
+      const newOwner: Signer = user
+      await l2_bridge.setHopBridgeTokenOwner(await newOwner.getAddress())
+
+      hopBridgeTokenOwner = await l2_hopBridgeToken.owner()
+      expect(hopBridgeTokenOwner).to.eq(await newOwner.getAddress())
     })
   })
 
@@ -567,12 +579,10 @@ describe('L2_Bridge', () => {
 
   describe('getNextTransferNonce', async () => {
     it('Should get the next transfer nonce', async () => {
-      // const expectedNextTransferNonce: string = trans
-      // const nextTransferNonce: string = await l2_bridge.getNextTransferNonce()
-
-      // const transferRoot = await l2_bridge.getTransferRoot(ARBITRARY_ROOT_HASH, arbitraryAmount)
-      // expect(transferRoot[0]).to.eq(arbitraryAmount)
-      // expect(transferRoot[1]).to.eq(0)
+      const transferNonceIncrementer: BigNumber = await l2_bridge.transferNonceIncrementer()
+      const expectedNextTransferNonce: string = getTransferNonce(transferNonceIncrementer, l2ChainId)
+      const nextTransferNonce: string = await l2_bridge.getNextTransferNonce()
+      expect(expectedNextTransferNonce).to.eq(nextTransferNonce)
     })
   })
 

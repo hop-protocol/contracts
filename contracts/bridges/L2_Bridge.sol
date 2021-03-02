@@ -376,6 +376,10 @@ abstract contract L2_Bridge is Bridge {
         maxPendingTransfers = _maxPendingTransfers;
     }
 
+    function setHopBridgeTokenOwner(address newOwner) external onlyGovernance {
+        hToken.transferOwnership(newOwner);
+    }
+
     /* ========== Public Getters ========== */
 
     function getNextTransferNonce() public view returns (bytes32) {

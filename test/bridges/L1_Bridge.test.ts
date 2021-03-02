@@ -1028,7 +1028,8 @@ describe('L1_Bridge', () => {
   })
 
   describe('confirmTransferRoot', async () => {
-    it.skip('Should not allow a transfer root to be confirmed by anybody except the L2_Bridge', async () => {
+    it('Should not allow a transfer root to be confirmed by anybody except the L2_Bridge', async () => {
+      // TODO: Introduce this when `messengerWrapper.verifySender()` has been implemented
       const expectedErrorMsg: string = 'TODO'
       await executeL1BridgeSendToL2(
         l1_canonicalToken,
