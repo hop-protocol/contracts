@@ -313,7 +313,7 @@ export const getTransferNonceFromEvent = async (l2_bridge: Contract, transferInd
 export const getTransferNonce = (transferNonceIncrementer: BigNumber, chainId: BigNumber): string => {
   const nonceDomainSeparator = getNonceDomainSeparator()
   return ethers.utils.solidityKeccak256(
-    ['string', 'uint256', 'uint256'],
+    ['bytes32', 'uint256', 'uint256'],
     [nonceDomainSeparator, chainId, transferNonceIncrementer])
 }
 
