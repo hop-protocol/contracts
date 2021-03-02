@@ -20,10 +20,11 @@ abstract contract L2_Bridge is Bridge {
     address public l1BridgeAddress;
     address public exchangeAddress;
     IERC20 public l2CanonicalToken;
-    bool public l2CanonicalTokenIsWeth;
+    bool public l2CanonicalTokenIsEth;
     mapping(uint256 => bool) public supportedChainIds;
     uint256 public minimumForceCommitDelay = 4 hours;
     uint256 public messengerGasLimit = 250000;
+    uint256 public maxPendingTransfers = 100;
 
     mapping(uint256 => bytes32[]) public pendingTransferIdsForChainId;
     mapping(uint256 => uint256) public pendingAmountForChainId;
@@ -51,11 +52,12 @@ abstract contract L2_Bridge is Bridge {
         _;
     }
 
+    /// @notice When l2CanonicalTokenIsEth is true, l2CanonicalToken should be set to the WETH address
     constructor (
         address _l1Governance,
         HopBridgeToken _hToken, 
         IERC20 _l2CanonicalToken,
-        bool _l2CanonicalTokenIsWeth,
+        bool _l2CanonicalTokenIsEth,
         address _l1BridgeAddress,
         uint256[] memory _supportedChainIds,
         address _exchangeAddress,
@@ -69,7 +71,7 @@ abstract contract L2_Bridge is Bridge {
         l1Governance = _l1Governance;
         hToken = _hToken;
         l2CanonicalToken = _l2CanonicalToken;
-        l2CanonicalTokenIsWeth = _l2CanonicalTokenIsWeth;
+        l2CanonicalTokenIsEth = _l2CanonicalTokenIsEth;
         l1BridgeAddress = _l1BridgeAddress;
         exchangeAddress = _exchangeAddress;
 
@@ -84,38 +86,6 @@ abstract contract L2_Bridge is Bridge {
     function _verifySender(address expectedSender) internal virtual; 
 
     /* ========== Public/External functions ========== */
-
-    function setExchangeAddress(address _exchangeAddress) external onlyGovernance {
-        exchangeAddress = _exchangeAddress;
-    }
-
-    function setL1BridgeAddress(address _l1BridgeAddress) external onlyGovernance {
-        l1BridgeAddress = _l1BridgeAddress;
-    }
-
-    function setMessengerGasLimit(uint256 _messengerGasLimit) external onlyGovernance {
-        messengerGasLimit = _messengerGasLimit;
-    }
-
-    function addSupportedChainIds(uint256[] calldata chainIds) external onlyGovernance {
-        for (uint256 i = 0; i < chainIds.length; i++) {
-            supportedChainIds[chainIds[i]] = true;
-        }
-    }
-
-    function removeSupportedChainIds(uint256[] calldata chainIds) external onlyGovernance {
-        for (uint256 i = 0; i < chainIds.length; i++) {
-            supportedChainIds[chainIds[i]] = false;
-        }
-    }
-
-    function setMinimumForceCommitDelay(uint256 _minimumForceCommitDelay) external onlyGovernance {
-        minimumForceCommitDelay = _minimumForceCommitDelay;
-    }
-
-    function setHopBridgeTokenOwner(address newOwner) external onlyGovernance {
-        hToken.transferOwnership(newOwner);
-    }
 
     /// @notice _amount is the amount the user wants to send plus the relayer fee
     function send(
@@ -134,7 +104,7 @@ abstract contract L2_Bridge is Bridge {
 
         bytes32[] storage pendingTransfers = pendingTransferIdsForChainId[chainId];
 
-        if (pendingTransfers.length >= 100) {
+        if (pendingTransfers.length >= maxPendingTransfers) {
             _commitTransfers(chainId);
         }
 
@@ -145,7 +115,6 @@ abstract contract L2_Bridge is Bridge {
 
         bytes32 transferId = getTransferId(
             chainId,
-            msg.sender,
             recipient,
             amount,
             transferNonce,
@@ -176,7 +145,7 @@ abstract contract L2_Bridge is Bridge {
     {
         require(amount >= relayerFee, "L2_BRG: relayer fee cannot exceed amount");
 
-        if (l2CanonicalTokenIsWeth) {
+        if (l2CanonicalTokenIsEth) {
             require(msg.value == amount, "L2_BRG: Value does not match amount");
             IWETH(address(l2CanonicalToken)).deposit{value: amount}();
         } else {
@@ -216,7 +185,6 @@ abstract contract L2_Bridge is Bridge {
     }
 
     function withdrawAndAttemptSwap(
-        address sender,
         address recipient,
         uint256 amount,
         bytes32 transferNonce,
@@ -230,7 +198,6 @@ abstract contract L2_Bridge is Bridge {
     {
         bytes32 transferId = getTransferId(
             getChainId(),
-            sender,
             recipient,
             amount,
             transferNonce,
@@ -245,7 +212,6 @@ abstract contract L2_Bridge is Bridge {
     }
 
     function bondWithdrawalAndAttemptSwap(
-        address sender,
         address recipient,
         uint256 amount,
         bytes32 transferNonce,
@@ -259,7 +225,6 @@ abstract contract L2_Bridge is Bridge {
     {
         bytes32 transferId = getTransferId(
             getChainId(),
-            sender,
             recipient,
             amount,
             transferNonce,
@@ -274,12 +239,6 @@ abstract contract L2_Bridge is Bridge {
 
     function setTransferRoot(bytes32 rootHash, uint256 totalAmount) external onlyL1Bridge {
         _setTransferRoot(rootHash, totalAmount);
-    }
-
-    /* ========== Public Getters ========== */
-
-    function getNextTransferNonce() public view returns (bytes32) {
-        return keccak256(abi.encodePacked(NONCE_DOMAIN_SEPARATOR, getChainId(), transferNonceIncrementer));
     }
 
     /* ========== Helper Functions ========== */
@@ -311,7 +270,7 @@ abstract contract L2_Bridge is Bridge {
         hToken.approve(exchangeAddress, amount);
 
         bool success = true;
-        if (l2CanonicalTokenIsWeth) {
+        if (l2CanonicalTokenIsEth) {
             try IUniswapV2Router02(exchangeAddress).swapExactTokensForETH(
                 amount,
                 amountOutMin,
@@ -381,5 +340,49 @@ abstract contract L2_Bridge is Bridge {
 
     function _requireIsGovernance() internal override {
         _verifySender(l1Governance);
+    }
+
+    /* ========== External Config Management Functions ========== */
+
+    function setExchangeAddress(address _exchangeAddress) external onlyGovernance {
+        exchangeAddress = _exchangeAddress;
+    }
+
+    function setL1BridgeAddress(address _l1BridgeAddress) external onlyGovernance {
+        l1BridgeAddress = _l1BridgeAddress;
+    }
+
+    function setMessengerGasLimit(uint256 _messengerGasLimit) external onlyGovernance {
+        messengerGasLimit = _messengerGasLimit;
+    }
+
+    function addSupportedChainIds(uint256[] calldata chainIds) external onlyGovernance {
+        for (uint256 i = 0; i < chainIds.length; i++) {
+            supportedChainIds[chainIds[i]] = true;
+        }
+    }
+
+    function removeSupportedChainIds(uint256[] calldata chainIds) external onlyGovernance {
+        for (uint256 i = 0; i < chainIds.length; i++) {
+            supportedChainIds[chainIds[i]] = false;
+        }
+    }
+
+    function setMinimumForceCommitDelay(uint256 _minimumForceCommitDelay) external onlyGovernance {
+        minimumForceCommitDelay = _minimumForceCommitDelay;
+    }
+
+    function setMaxPendingTransfers(uint256 _maxPendingTransfers) external onlyGovernance {
+        maxPendingTransfers = _maxPendingTransfers;
+    }
+
+    function setHopBridgeTokenOwner(address newOwner) external onlyGovernance {
+        hToken.transferOwnership(newOwner);
+    }
+
+    /* ========== Public Getters ========== */
+
+    function getNextTransferNonce() public view returns (bytes32) {
+        return keccak256(abi.encodePacked(NONCE_DOMAIN_SEPARATOR, getChainId(), transferNonceIncrementer));
     }
 }

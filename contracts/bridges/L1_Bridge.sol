@@ -37,8 +37,7 @@ abstract contract L1_Bridge is Bridge {
     uint256 public challengeAmountDivisor = 10;
     uint256 public timeSlotSize = 3 hours;
     uint256 public challengePeriod = 1 days;
-    uint256 public challengeResolutionPeriod = 8 days;
-    uint256 public unstakePeriod = 9 days; 
+    uint256 public challengeResolutionPeriod = 10 days;
 
     /* ========== Events ========== */
 
@@ -287,7 +286,8 @@ abstract contract L1_Bridge is Bridge {
         uint256 currentTimeSlot = getTimeSlot(block.timestamp);
         uint256 bonded = 0;
 
-        for (uint256 i = 0; i < 4; i++) {
+        uint256 numTimeSlots = challengePeriod / timeSlotSize;
+        for (uint256 i = 0; i < numTimeSlots; i++) {
             bonded = bonded.add(timeSlotToAmountBonded[currentTimeSlot - i]);
         }
 
@@ -313,12 +313,10 @@ abstract contract L1_Bridge is Bridge {
         challengeAmountDivisor = _challengeAmountDivisor;
     }
 
-    function setTimeSlotSize(uint256 _timeSlotSize) external onlyGovernance {
-        timeSlotSize = _timeSlotSize;
-    }
-
-    function setChallengePeriod(uint256 _challengePeriod) external onlyGovernance {
+    function setChallengePeriodAndTimeSlotSize(uint256 _challengePeriod, uint256 _timeSlotSize) external onlyGovernance {
+        require(challengePeriod % timeSlotSize == 0, "L1_BRG: challengePeriod must be divisible by timeSlotSize");
         challengePeriod = _challengePeriod;
+        timeSlotSize = _timeSlotSize;
     }
 
     function setChallengeAmountMultiplier(uint256 _challengeAmountMultiplier) external onlyGovernance {
@@ -327,10 +325,6 @@ abstract contract L1_Bridge is Bridge {
 
     function setChallengeResolutionPeriod(uint256 _challengeResolutionPeriod) external onlyGovernance {
         challengeResolutionPeriod = _challengeResolutionPeriod;
-    }
-
-    function setUnstakePeriod(uint256 _unstakePeriod) external onlyGovernance {
-        unstakePeriod = _unstakePeriod;
     }
 
     /* ========== Public Getters ========== */
@@ -347,9 +341,5 @@ abstract contract L1_Bridge is Bridge {
 
     function getTimeSlot(uint256 time) public view returns (uint256) {
         return time / timeSlotSize;
-    }
-
-    function getNumberOfChallengeableTimeSlots() public view returns (uint256) {
-        return timeSlotSize / challengePeriod;
     }
 }
