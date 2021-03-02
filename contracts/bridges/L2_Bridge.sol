@@ -24,6 +24,7 @@ abstract contract L2_Bridge is Bridge {
     mapping(uint256 => bool) public supportedChainIds;
     uint256 public minimumForceCommitDelay = 4 hours;
     uint256 public messengerGasLimit = 250000;
+    uint256 public maxPendingTransfers = 100;
 
     mapping(uint256 => bytes32[]) public pendingTransferIdsForChainId;
     mapping(uint256 => uint256) public pendingAmountForChainId;
@@ -85,34 +86,6 @@ abstract contract L2_Bridge is Bridge {
 
     /* ========== Public/External functions ========== */
 
-    function setExchangeAddress(address _exchangeAddress) external onlyGovernance {
-        exchangeAddress = _exchangeAddress;
-    }
-
-    function setL1BridgeAddress(address _l1BridgeAddress) external onlyGovernance {
-        l1BridgeAddress = _l1BridgeAddress;
-    }
-
-    function setMessengerGasLimit(uint256 _messengerGasLimit) external onlyGovernance {
-        messengerGasLimit = _messengerGasLimit;
-    }
-
-    function addSupportedChainIds(uint256[] calldata chainIds) external onlyGovernance {
-        for (uint256 i = 0; i < chainIds.length; i++) {
-            supportedChainIds[chainIds[i]] = true;
-        }
-    }
-
-    function removeSupportedChainIds(uint256[] calldata chainIds) external onlyGovernance {
-        for (uint256 i = 0; i < chainIds.length; i++) {
-            supportedChainIds[chainIds[i]] = false;
-        }
-    }
-
-    function setMinimumForceCommitDelay(uint256 _minimumForceCommitDelay) external onlyGovernance {
-        minimumForceCommitDelay = _minimumForceCommitDelay;
-    }
-
     /// @notice _amount is the amount the user wants to send plus the relayer fee
     function send(
         uint256 chainId,
@@ -130,7 +103,7 @@ abstract contract L2_Bridge is Bridge {
 
         bytes32[] storage pendingTransfers = pendingTransferIdsForChainId[chainId];
 
-        if (pendingTransfers.length >= 100) {
+        if (pendingTransfers.length >= maxPendingTransfers) {
             _commitTransfers(chainId);
         }
 
@@ -272,12 +245,6 @@ abstract contract L2_Bridge is Bridge {
         _setTransferRoot(rootHash, totalAmount);
     }
 
-    /* ========== Public Getters ========== */
-
-    function getNextTransferNonce() public view returns (bytes32) {
-        return keccak256(abi.encodePacked(NONCE_DOMAIN_SEPARATOR, getChainId(), transferNonceIncrementer));
-    }
-
     /* ========== Helper Functions ========== */
 
     function _commitTransfers(uint256 destinationChainId) internal {
@@ -377,5 +344,45 @@ abstract contract L2_Bridge is Bridge {
 
     function _requireIsGovernance() internal override {
         _verifySender(l1Governance);
+    }
+
+    /* ========== External Config Management Functions ========== */
+
+    function setExchangeAddress(address _exchangeAddress) external onlyGovernance {
+        exchangeAddress = _exchangeAddress;
+    }
+
+    function setL1BridgeAddress(address _l1BridgeAddress) external onlyGovernance {
+        l1BridgeAddress = _l1BridgeAddress;
+    }
+
+    function setMessengerGasLimit(uint256 _messengerGasLimit) external onlyGovernance {
+        messengerGasLimit = _messengerGasLimit;
+    }
+
+    function addSupportedChainIds(uint256[] calldata chainIds) external onlyGovernance {
+        for (uint256 i = 0; i < chainIds.length; i++) {
+            supportedChainIds[chainIds[i]] = true;
+        }
+    }
+
+    function removeSupportedChainIds(uint256[] calldata chainIds) external onlyGovernance {
+        for (uint256 i = 0; i < chainIds.length; i++) {
+            supportedChainIds[chainIds[i]] = false;
+        }
+    }
+
+    function setMinimumForceCommitDelay(uint256 _minimumForceCommitDelay) external onlyGovernance {
+        minimumForceCommitDelay = _minimumForceCommitDelay;
+    }
+
+    function setMaxPendingTransfers(uint256 _maxPendingTransfers) external onlyGovernance {
+        maxPendingTransfers = _maxPendingTransfers;
+    }
+
+    /* ========== Public Getters ========== */
+
+    function getNextTransferNonce() public view returns (bytes32) {
+        return keccak256(abi.encodePacked(NONCE_DOMAIN_SEPARATOR, getChainId(), transferNonceIncrementer));
     }
 }

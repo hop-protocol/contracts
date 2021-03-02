@@ -38,7 +38,6 @@ abstract contract L1_Bridge is Bridge {
     uint256 public timeSlotSize = 3 hours;
     uint256 public challengePeriod = 1 days;
     uint256 public challengeResolutionPeriod = 8 days;
-    uint256 public unstakePeriod = 9 days; 
 
     /* ========== Events ========== */
 
@@ -287,7 +286,8 @@ abstract contract L1_Bridge is Bridge {
         uint256 currentTimeSlot = getTimeSlot(block.timestamp);
         uint256 bonded = 0;
 
-        for (uint256 i = 0; i < 4; i++) {
+        uint numTimeSlots = challengePeriod / timeSlotSize;
+        for (uint256 i = 0; i < numTimeSlots; i++) {
             bonded = bonded.add(timeSlotToAmountBonded[currentTimeSlot - i]);
         }
 
@@ -329,10 +329,6 @@ abstract contract L1_Bridge is Bridge {
         challengeResolutionPeriod = _challengeResolutionPeriod;
     }
 
-    function setUnstakePeriod(uint256 _unstakePeriod) external onlyGovernance {
-        unstakePeriod = _unstakePeriod;
-    }
-
     /* ========== Public Getters ========== */
 
     function getBondForTransferAmount(uint256 amount) public view returns (uint256) {
@@ -347,9 +343,5 @@ abstract contract L1_Bridge is Bridge {
 
     function getTimeSlot(uint256 time) public view returns (uint256) {
         return time / timeSlotSize;
-    }
-
-    function getNumberOfChallengeableTimeSlots() public view returns (uint256) {
-        return timeSlotSize / challengePeriod;
     }
 }
