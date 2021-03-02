@@ -114,7 +114,6 @@ abstract contract L2_Bridge is Bridge {
 
         bytes32 transferId = getTransferId(
             chainId,
-            msg.sender,
             recipient,
             amount,
             transferNonce,
@@ -185,7 +184,6 @@ abstract contract L2_Bridge is Bridge {
     }
 
     function withdrawAndAttemptSwap(
-        address sender,
         address recipient,
         uint256 amount,
         bytes32 transferNonce,
@@ -199,7 +197,6 @@ abstract contract L2_Bridge is Bridge {
     {
         bytes32 transferId = getTransferId(
             getChainId(),
-            sender,
             recipient,
             amount,
             transferNonce,
@@ -214,7 +211,6 @@ abstract contract L2_Bridge is Bridge {
     }
 
     function bondWithdrawalAndAttemptSwap(
-        address sender,
         address recipient,
         uint256 amount,
         bytes32 transferNonce,
@@ -228,7 +224,6 @@ abstract contract L2_Bridge is Bridge {
     {
         bytes32 transferId = getTransferId(
             getChainId(),
-            sender,
             recipient,
             amount,
             transferNonce,

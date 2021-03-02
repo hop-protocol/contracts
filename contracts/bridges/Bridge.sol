@@ -28,7 +28,6 @@ abstract contract Bridge is Accounting {
 
     event Withdrew(
         bytes32 indexed transferId,
-        address indexed sender,
         address indexed recipient,
         uint256 amount,
         bytes32 transferNonce,
@@ -37,7 +36,6 @@ abstract contract Bridge is Accounting {
 
     event WithdrawalBonded(
         bytes32 indexed transferId,
-        address indexed sender,
         address indexed recipient,
         uint256 amount,
         bytes32 transferNonce,
@@ -69,7 +67,6 @@ abstract contract Bridge is Accounting {
     /**
      * @dev Get the hash that represents an individual Transfer.
      * @param chainId The id of the destination chain
-     * @param sender The address sending the Transfer
      * @param recipient The address receiving the Transfer
      * @param amount The amount being transferred including the `_relayerFee`
      * @param transferNonce Used to avoid transferId collisions
@@ -81,7 +78,6 @@ abstract contract Bridge is Accounting {
      */
     function getTransferId(
         uint256 chainId,
-        address sender,
         address recipient,
         uint256 amount,
         bytes32 transferNonce,
@@ -95,7 +91,6 @@ abstract contract Bridge is Accounting {
     {
         return keccak256(abi.encode(
             chainId,
-            sender,
             recipient,
             amount,
             transferNonce,
@@ -148,7 +143,6 @@ abstract contract Bridge is Accounting {
     /**
      * @notice Can be called by anyone (recipient or relayer)
      * @dev Withdraw a Transfer from its destination bridge
-     * @param sender The address sending the Transfer
      * @param recipient The address receiving the Transfer
      * @param amount The amount being transferred including the `_relayerFee`
      * @param transferNonce Used to avoid transferId collisions
@@ -157,7 +151,6 @@ abstract contract Bridge is Accounting {
      * @param proof The Merkle proof that proves the Transfer's inclusion in the TransferRoot
      */
     function withdraw(
-        address sender,
         address recipient,
         uint256 amount,
         bytes32 transferNonce,
@@ -169,7 +162,6 @@ abstract contract Bridge is Accounting {
     {
         bytes32 transferId = getTransferId(
             getChainId(),
-            sender,
             recipient,
             amount,
             transferNonce,
@@ -182,19 +174,17 @@ abstract contract Bridge is Accounting {
         _addToAmountWithdrawn(transferRootId, amount);
         _fulfillWithdraw(transferId, recipient, amount, relayerFee);
 
-        emit Withdrew(transferId, sender, recipient, amount, transferNonce, relayerFee);
+        emit Withdrew(transferId, recipient, amount, transferNonce, relayerFee);
     }
 
     /**
      * @dev Allows the bonder to bond individual withdrawals before their TransferRoot has been committed.
-     * @param sender The address sending the Transfer
      * @param recipient The address receiving the Transfer
      * @param amount The amount being transferred including the `_relayerFee`
      * @param transferNonce Used to avoid transferId collisions
      * @param relayerFee The amount paid to the address that withdraws the Transfer
      */
     function bondWithdrawal(
-        address sender,
         address recipient,
         uint256 amount,
         bytes32 transferNonce,
@@ -206,7 +196,6 @@ abstract contract Bridge is Accounting {
     {
         bytes32 transferId = getTransferId(
             getChainId(),
-            sender,
             recipient,
             amount,
             transferNonce,
@@ -218,7 +207,7 @@ abstract contract Bridge is Accounting {
         _bondWithdrawal(transferId, amount);
         _fulfillWithdraw(transferId, recipient, amount, relayerFee);
 
-        emit WithdrawalBonded(transferId, sender, recipient, amount, transferNonce, relayerFee);
+        emit WithdrawalBonded(transferId, recipient, amount, transferNonce, relayerFee);
     }
 
     /**
