@@ -38,7 +38,8 @@ abstract contract L2_Bridge is Bridge {
 
     event TransfersCommitted (
         bytes32 indexed rootHash,
-        uint256 totalAmount
+        uint256 totalAmount,
+        uint256 rootCommittedAt
     );
 
     event TransferSent (
@@ -266,8 +267,9 @@ abstract contract L2_Bridge is Bridge {
 
         bytes32 rootHash = MerkleUtils.getMerkleRoot(pendingTransfers);
         uint256 totalAmount = pendingAmountForChainId[destinationChainId];
+        uint256 rootCommittedAt = block.timestamp;
 
-        emit TransfersCommitted(rootHash, totalAmount);
+        emit TransfersCommitted(rootHash, totalAmount, rootCommittedAt);
 
         bytes memory confirmTransferRootMessage = abi.encodeWithSignature(
             "confirmTransferRoot(uint256,bytes32,uint256,uint256,uint256)",
@@ -275,7 +277,7 @@ abstract contract L2_Bridge is Bridge {
             rootHash,
             destinationChainId,
             totalAmount,
-            block.timestamp
+            rootCommittedAt
         );
 
         delete pendingTransferIdsForChainId[destinationChainId];
