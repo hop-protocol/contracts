@@ -253,11 +253,12 @@ abstract contract L2_Bridge is Bridge {
         emit TransfersCommitted(rootHash, totalAmount);
 
         bytes memory confirmTransferRootMessage = abi.encodeWithSignature(
-            "confirmTransferRoot(uint256,bytes32,uint256,uint256)",
+            "confirmTransferRoot(uint256,bytes32,uint256,uint256,uint256)",
             getChainId(),
             rootHash,
             destinationChainId,
-            totalAmount
+            totalAmount,
+            block.timestamp
         );
 
         delete pendingTransferIdsForChainId[destinationChainId];
