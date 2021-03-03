@@ -101,7 +101,7 @@ abstract contract L2_Bridge is Bridge {
         public
     {
         require(amount > 0, "L2_BRG: Must transfer a non-zero amount");
-        require(amount >= bonderFee, "L2_BRG: Relayer fee cannot exceed amount");
+        require(amount >= bonderFee, "L2_BRG: Bonder fee cannot exceed amount");
         require(supportedChainIds[chainId], "L2_BRG: _chainId is not supported");
         uint256 minBonderFeeRelative = amount.mul(minBonderBps).div(10000);
         // Get the max of minBonderFeeRelative and minBonderFeeAbsolute
