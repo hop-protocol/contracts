@@ -30,8 +30,7 @@ abstract contract Bridge is Accounting {
         bytes32 indexed transferId,
         address indexed recipient,
         uint256 amount,
-        bytes32 transferNonce,
-        uint256 relayerFee
+        bytes32 transferNonce
     );
 
     event WithdrawalBonded(
@@ -177,9 +176,9 @@ abstract contract Bridge is Accounting {
 
         require(proof.verify(transferRootId, transferId), "BRG: Invalid transfer proof");
         _addToAmountWithdrawn(transferRootId, amount);
-        _fulfillWithdraw(transferId, recipient, amount, relayerFee);
+        _fulfillWithdraw(transferId, recipient, amount, uint256(0));
 
-        emit Withdrew(transferId, recipient, amount, transferNonce, relayerFee);
+        emit Withdrew(transferId, recipient, amount, transferNonce);
     }
 
     /**
@@ -322,6 +321,8 @@ abstract contract Bridge is Accounting {
     ) private {
         _markTransferSpent(transferId);
         _transferFromBridge(recipient, amount.sub(relayerFee));
-        _transferFromBridge(msg.sender, relayerFee);
+        if (relayerFee > 0) {
+            _transferFromBridge(msg.sender, relayerFee);
+        }
     }
 }

@@ -208,7 +208,7 @@ abstract contract L2_Bridge is Bridge {
 
         require(proof.verify(rootHash, transferId), "L2_BRG: Invalid transfer proof");
         _addToAmountWithdrawn(rootHash, amount);
-        _withdrawAndAttemptSwap(transferId, recipient, amount, relayerFee, amountOutMin, deadline);
+        _withdrawAndAttemptSwap(transferId, recipient, amount, uint256(0), amountOutMin, deadline);
     }
 
     function bondWithdrawalAndAttemptSwap(
@@ -309,7 +309,9 @@ abstract contract L2_Bridge is Bridge {
     ) internal {
         _markTransferSpent(transferId);
         // distribute fee
-        _transferFromBridge(msg.sender, relayerFee);
+        if (relayerFee > 0) {
+            _transferFromBridge(msg.sender, relayerFee);
+        }
         // Attempt swap to recipient
         uint256 amountAfterFee = amount.sub(relayerFee);
         _mintAndAttemptSwap(recipient, amountAfterFee, amountOutMin, deadline);
