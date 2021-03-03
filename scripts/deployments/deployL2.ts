@@ -1,6 +1,6 @@
 require('dotenv').config()
 
-import { ContractFactory, Signer, Contract, BigNumber, utils as ethersUtils } from 'ethers'
+import { ContractFactory, Signer, Contract, BigNumber } from 'ethers'
 import { network, ethers, l2ethers as ovmEthers } from 'hardhat'
 
 import { getContractFactories, verifyDeployment, updateConfigFile, readConfigFile } from '../shared/utils'

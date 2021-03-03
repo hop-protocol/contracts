@@ -270,12 +270,16 @@ export const updateConfigFile = (newData: any) => {
 
 export const readConfigFile = () => {
   let data: any = {
-    l1_canonicalTokenAddress: '',
-    l1_messengerAddress: '',
-    l1_bridgeAddres: '',
-    l2_canonicalTokenAddress: '',
-    l2_messengerAddres: '',
-    l2_uniswapRouterAddress: ''
+    'l2_chainId':'',
+    'l1_canonicalTokenAddress':'',
+    'l1_messengerAddress':'',
+    'l1_bridgeAddress':'',
+    'l2_bridgeAddress':'',
+    'l2_canonicalTokenAddress':'',
+    'l2_hopBridgeTokenAddress':'',
+    'l2_messengerAddress':'',
+    'l2_uniswapFactoryAddress':'',
+    'l2_uniswapRouterAddress':''
   }
   if (fs.existsSync(configFilepath)) {
     data = JSON.parse(fs.readFileSync(configFilepath, 'utf8'))

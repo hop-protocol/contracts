@@ -12,7 +12,9 @@ import {
 
 interface Config {
   l2_canonicalTokenAddress: string
+  l2_hopBridgeTokenAddress: string
   l2_bridgeAddress: string
+  l2_uniswapFactoryAddress: string
   l2_uniswapRouterAddress: string
 }
 
@@ -120,12 +122,16 @@ export async function setupL2 (config: Config) {
 if (require.main === module) {
   const {
     l2_canonicalTokenAddress,
+    l2_hopBridgeTokenAddress,
     l2_bridgeAddress,
+    l2_uniswapFactoryAddress,
     l2_uniswapRouterAddress,
   } = readConfigFile()
   setupL2({
     l2_canonicalTokenAddress,
+    l2_hopBridgeTokenAddress,
     l2_bridgeAddress,
+    l2_uniswapFactoryAddress,
     l2_uniswapRouterAddress
   })
   .catch(error => {

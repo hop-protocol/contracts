@@ -6,20 +6,19 @@ import { BigNumber, ContractFactory, Signer, Contract } from 'ethers'
 import {
   getContractFactories,
   sendChainSpecificBridgeDeposit,
-  updateConfigFile,
   readConfigFile
 } from '../shared/utils'
 
 import { getMessengerWrapperDefaults } from '../../config/utils'
 import { IGetMessengerWrapperDefaults } from '../../config/interfaces'
 import {
-  CHAIN_IDS,
   LIQUIDITY_PROVIDER_INITIAL_BALANCE
 } from '../../config/constants'
 
 // NOTE: Transactions sometimes get stuck during this script. Ensure that each transaction has been made.
 
 interface Config {
+  l2_chainId: string | BigNumber
   l1_messengerAddress: string
   l1_canonicalTokenAddress: string
   l1_bridgeAddress: string
@@ -30,21 +29,19 @@ export async function setupL1 (config: Config) {
   // Network setup
   const chainId: BigNumber = BigNumber.from(network.config.chainId)
 
-  // Target L2
-  const l2ChainId: BigNumber = BigNumber.from('0')
-  if (l2ChainId.eq(0)) {
-    throw new Error('Target L2 chain ID must be defined')
-  }
-
   // Addresses
-  const {
+  let {
+    l2_chainId,
     l1_messengerAddress,
     l1_canonicalTokenAddress,
     l1_bridgeAddress,
     l2_bridgeAddress
   } = config
 
+  l2_chainId = BigNumber.from(l2_chainId)
+
   if (
+    !l2_chainId.eq(0) ||
     !l1_messengerAddress ||
     !l1_canonicalTokenAddress ||
     !l1_bridgeAddress ||
@@ -84,7 +81,7 @@ export async function setupL1 (config: Config) {
     L1_Messenger,
     L1_MessengerWrapper,
     L2_Bridge
-  } = await getContractFactories(l2ChainId, owner, ethers, ovmEthers))
+  } = await getContractFactories(l2_chainId, owner, ethers, ovmEthers))
 
   // Attach already deployed contracts
   l1_messenger = L1_Messenger.attach(l1_messengerAddress)
@@ -98,7 +95,7 @@ export async function setupL1 (config: Config) {
 
   // Deploy messenger wrapper
   const messengerWrapperDefaults: IGetMessengerWrapperDefaults[] = getMessengerWrapperDefaults(
-    l2ChainId,
+    l2_chainId,
     l1_bridge.address,
     l2_bridge.address,
     l1_messenger.address
@@ -110,7 +107,7 @@ export async function setupL1 (config: Config) {
 
   // Set up the L1 bridge
   await l1_bridge.setCrossDomainMessengerWrapper(
-    l2ChainId,
+    l2_chainId,
     l1_messengerWrapper.address
   )
 
@@ -147,7 +144,7 @@ export async function setupL1 (config: Config) {
   await l1_bridge
     .connect(liquidityProvider)
     .sendToL2(
-      l2ChainId,
+      l2_chainId,
       await liquidityProvider.getAddress(),
       LIQUIDITY_PROVIDER_INITIAL_BALANCE
     )
@@ -155,12 +152,14 @@ export async function setupL1 (config: Config) {
 
 if (require.main === module) {
   const {
+    l2_chainId,
     l1_messengerAddress,
     l1_canonicalTokenAddress,
     l1_bridgeAddress,
     l2_bridgeAddress
   } = readConfigFile()
   setupL1({
+    l2_chainId,
     l1_messengerAddress,
     l1_canonicalTokenAddress,
     l1_bridgeAddress,
