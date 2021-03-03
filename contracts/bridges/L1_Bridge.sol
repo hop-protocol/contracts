@@ -299,7 +299,7 @@ abstract contract L1_Bridge is Bridge {
 
                 // Return the challenger's stake
                 _transferFromBridge(transferBond.challenger, challengeStakeAmount);
-                // Credit the bonder back with the bond amount plus the challenger's stake
+                // Credit the bonder back with the bond amount
                 _addCredit(transferBond.bonder, getBondForTransferAmount(transferRoot.total));
             }
         } else {
