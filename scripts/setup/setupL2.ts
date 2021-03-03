@@ -115,7 +115,7 @@ export async function setupL2 (config: Config) {
 
   const uniswapPairAddress = await l2_uniswapFactory.getPair(l2_hopBridgeToken.address, l2_canonicalToken.address)
 
-  console.log('Setup Complete')
+  console.log('L2 Setup Complete')
   console.log('L2 Uniswap Pair Address:', uniswapPairAddress)
 }
 

@@ -143,7 +143,7 @@ export async function deployL2 (config: Config) {
   const l2_uniswapFactoryAddress: string = l2_uniswapFactory.address
   const l2_uniswapRouterAddress: string = l2_uniswapRouter.address
 
-  console.log('Deployments Complete')
+  console.log('L2 Deployments Complete')
   console.log('L2 Hop Bridge Token :', l2_hopBridgeTokenAddress)
   console.log('L2 Bridge           :', l2_bridgeAddress)
   console.log('L2 Uniswap Factory  :', l2_uniswapFactoryAddress)

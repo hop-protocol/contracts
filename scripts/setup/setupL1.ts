@@ -41,7 +41,7 @@ export async function setupL1 (config: Config) {
   l2_chainId = BigNumber.from(l2_chainId)
 
   if (
-    !l2_chainId.eq(0) ||
+    !l2_chainId ||
     !l1_messengerAddress ||
     !l1_canonicalTokenAddress ||
     !l1_bridgeAddress ||
@@ -148,6 +148,8 @@ export async function setupL1 (config: Config) {
       await liquidityProvider.getAddress(),
       LIQUIDITY_PROVIDER_INITIAL_BALANCE
     )
+
+  console.log('L1 Setup Complete')
 }
 
 if (require.main === module) {

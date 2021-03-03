@@ -43,6 +43,8 @@ export async function deployL1 (config: Config) {
   await l1_bridge.deployed()
 
   const l1_bridgeAddress = l1_bridge.address
+
+  console.log('L1 Deployments Complete')
   console.log('L1 Bridge: ', l1_bridgeAddress)
   updateConfigFile({l1_bridgeAddress})
   return {

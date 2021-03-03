@@ -39,6 +39,7 @@ async function execScript(cmd: string) {
   }
   if (stderr) {
     process.stderr.write(stderr)
+    process.exit(0)
   }
 }
 
