@@ -3,11 +3,13 @@ require('dotenv').config()
 import { network, ethers, l2ethers as ovmEthers } from 'hardhat'
 import { BigNumber, ContractFactory, Contract, Signer } from 'ethers'
 
-import { addAllSupportedChainIds, getContractFactories, readConfigFile } from '../shared/utils'
+import { getContractFactories, readConfigFile } from '../shared/utils'
 
 import {
   DEFAULT_DEADLINE,
-  LIQUIDITY_PROVIDER_UNISWAP_AMOUNT
+  LIQUIDITY_PROVIDER_UNISWAP_AMOUNT,
+  ALL_SUPPORTED_CHAIN_IDS,
+  DEFAULT_ETHERS_OVERRIDES as overrides
 } from '../../config/constants'
 
 interface Config {
@@ -90,16 +92,16 @@ export async function setupL2 (config: Config) {
    * Setup
    */
 
-  // Add supported chain IDs
-  await addAllSupportedChainIds(l2_bridge)
+  const allSupportedChainIds: string[] = ALL_SUPPORTED_CHAIN_IDS
+  await l2_bridge.addSupportedChainIds(allSupportedChainIds, overrides)
 
   // Set up Uniswap
   await l2_canonicalToken
     .connect(liquidityProvider)
-    .approve(l2_uniswapRouter.address, LIQUIDITY_PROVIDER_UNISWAP_AMOUNT)
+    .approve(l2_uniswapRouter.address, LIQUIDITY_PROVIDER_UNISWAP_AMOUNT, overrides)
   await l2_hopBridgeToken
     .connect(liquidityProvider)
-    .approve(l2_uniswapRouter.address, LIQUIDITY_PROVIDER_UNISWAP_AMOUNT)
+    .approve(l2_uniswapRouter.address, LIQUIDITY_PROVIDER_UNISWAP_AMOUNT, overrides)
   await l2_uniswapRouter
     .connect(liquidityProvider)
     .addLiquidity(
@@ -110,7 +112,8 @@ export async function setupL2 (config: Config) {
       '0',
       '0',
       await liquidityProvider.getAddress(),
-      DEFAULT_DEADLINE
+      DEFAULT_DEADLINE,
+      overrides
     )
 
   const uniswapPairAddress = await l2_uniswapFactory.getPair(l2_hopBridgeToken.address, l2_canonicalToken.address)

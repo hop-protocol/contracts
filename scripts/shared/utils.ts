@@ -5,8 +5,7 @@ import { ContractFactory, Contract, BigNumber, Signer } from 'ethers'
 import { isChainIdOptimism, isChainIdArbitrum, isChainIdXDai } from '../../config/utils'
 
 import {
-  ARB_CHAIN_ADDRESS,
-  ALL_SUPPORTED_CHAIN_IDS
+  ARB_CHAIN_ADDRESS
 } from '../../config/constants'
 
 export const verifyDeployment = async (contract: Contract, ethers) => {
@@ -254,11 +253,6 @@ export const sendChainSpecificBridgeDeposit = async (
       .connect(sender)
       .relayTokens(l1_canonicalToken.address, amount)
   }
-}
-
-export const addAllSupportedChainIds = async (l2_bridge: Contract) => {
-  const allSupportedChainIds: string[] = ALL_SUPPORTED_CHAIN_IDS
-  await l2_bridge.addSupportedChainIds(allSupportedChainIds)
 }
 
 const configFilepath = path.resolve(__dirname, '../deploy_config.json')

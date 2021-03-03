@@ -71,3 +71,7 @@ export const SECONDS_IN_AN_HOUR = 3600
 export const SECONDS_IN_A_DAY = 86400
 export const DEFAULT_TIME_TO_WAIT = 0
 export const TIMESTAMP_VARIANCE = 1000000
+
+export const DEFAULT_ETHERS_OVERRIDES = {
+  gasLimit: 150000
+}

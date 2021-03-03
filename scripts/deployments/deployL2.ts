@@ -11,7 +11,8 @@ import {
   CHAIN_IDS,
   DEFAULT_H_TOKEN_NAME,
   DEFAULT_H_TOKEN_SYMBOL,
-  DEFAULT_H_TOKEN_DECIMALS
+  DEFAULT_H_TOKEN_DECIMALS,
+  DEFAULT_ETHERS_OVERRIDES as overrides
 } from '../../config/constants'
 
 interface Config {
@@ -136,7 +137,7 @@ export async function deployL2 (config: Config) {
   )
 
   // Transfer ownership of the Hop Bridge Token to the L2 Bridge
-  // await l2_hopBridgeToken.transferOwnership(l2_bridge.address)
+  await l2_hopBridgeToken.transferOwnership(l2_bridge.address, overrides)
 
   const l2_hopBridgeTokenAddress: string = l2_hopBridgeToken.address
   const l2_bridgeAddress: string = l2_bridge.address
