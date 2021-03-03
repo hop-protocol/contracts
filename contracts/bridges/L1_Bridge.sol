@@ -342,8 +342,8 @@ abstract contract L1_Bridge is Bridge {
         crossDomainMessengerWrappers[chainId] = _crossDomainMessengerWrapper;
     }
 
-    function setChainIdDepositsPaused(uint256 chainId, bool paused) external onlyGovernance {
-        isChainIdPaused[chainId] = paused;
+    function setChainIdDepositsPaused(uint256 chainId, bool isPaused) external onlyGovernance {
+        isChainIdPaused[chainId] = isPaused;
     }
 
     function setChallengeAmountDivisor(uint256 _challengeAmountDivisor) external onlyGovernance {
