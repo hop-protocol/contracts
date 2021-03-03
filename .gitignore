@@ -5,5 +5,7 @@ node_modules
 cache
 artifacts
 
+dist
+
 package-lock.json
 yarn.lock

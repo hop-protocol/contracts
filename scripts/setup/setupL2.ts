@@ -3,21 +3,29 @@ require('dotenv').config()
 import { network, ethers, l2ethers as ovmEthers } from 'hardhat'
 import { BigNumber, ContractFactory, Contract, Signer } from 'ethers'
 
-import { addAllSupportedChainIds, getContractFactories } from '../shared/utils'
+import { addAllSupportedChainIds, getContractFactories, readConfigFile } from '../shared/utils'
 
 import {
   DEFAULT_DEADLINE,
   LIQUIDITY_PROVIDER_UNISWAP_AMOUNT
 } from '../../config/constants'
 
-async function setupL2 () {
+interface Config {
+  l2_canonicalTokenAddress: string
+  l2_bridgeAddress: string
+  l2_uniswapRouterAddress: string
+}
+
+export async function setupL2 (config: Config) {
   // Network setup
   const chainId: BigNumber = BigNumber.from(network.config.chainId)
 
   // Addresses
-  const l2_canonicalTokenAddress: string = ''
-  const l2_bridgeAddress: string = ''
-  const l2_uniswapRouterAddress: string = ''
+  const {
+    l2_canonicalTokenAddress,
+    l2_bridgeAddress,
+    l2_uniswapRouterAddress
+  } = config
 
   if (
     !l2_canonicalTokenAddress ||
@@ -98,7 +106,19 @@ async function setupL2 () {
     )
 }
 
-/* tslint:disable-next-line */
-;(async () => {
-  await setupL2()
-})()
+if (require.main === module) {
+  const {
+    l2_canonicalTokenAddress,
+    l2_bridgeAddress,
+    l2_uniswapRouterAddress,
+  } = readConfigFile()
+  setupL2({
+    l2_canonicalTokenAddress,
+    l2_bridgeAddress,
+    l2_uniswapRouterAddress
+  })
+  .catch(error => {
+    console.error(error)
+  })
+  .finally(() => process.exit(0))
+}

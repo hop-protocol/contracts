@@ -1,3 +1,5 @@
+import path from 'path'
+import fs from 'fs'
 import { ContractFactory, Contract, BigNumber, Signer } from 'ethers'
 
 import { isChainIdOptimism, isChainIdArbitrum, isChainIdXDai } from '../../config/utils'
@@ -238,4 +240,26 @@ export const sendChainSpecificBridgeDeposit = async (
 export const addAllSupportedChainIds = async (l2_bridge: Contract) => {
   const allSupportedChainIds: string[] = ALL_SUPPORTED_CHAIN_IDS
   await l2_bridge.addSupportedChainIds(allSupportedChainIds)
+}
+
+const configFilepath = path.resolve(__dirname, '../deploy_config.json')
+
+export const updateConfigFile = (newData: any) => {
+  const data = readConfigFile()
+  fs.writeFileSync(configFilepath, JSON.stringify({ ...data, ...newData}, null, 2))
+}
+
+export const readConfigFile = () => {
+  let data: any = {
+    l1_canonicalTokenAddress: '',
+    l1_messengerAddress: '',
+    l1_bridgeAddres: '',
+    l2_canonicalTokenAddress: '',
+    l2_messengerAddres: '',
+    l2_uniswapRouterAddress: ''
+  }
+  if (fs.existsSync(configFilepath)) {
+    data = JSON.parse(fs.readFileSync(configFilepath, 'utf8'))
+  }
+  return data
 }

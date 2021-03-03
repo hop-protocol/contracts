@@ -1,8 +1,7 @@
 import { BigNumber } from 'ethers'
 import { parseEther } from 'ethers/lib/utils'
-import { getAllSupportedChainIds } from './utils'
 
-export const CHAIN_IDS = {
+export const CHAIN_IDS: any = {
   ETHEREUM: {
     MAINNET: BigNumber.from('1'),
     GOERLI: BigNumber.from('5'),
@@ -22,9 +21,7 @@ export const CHAIN_IDS = {
   }
 }
 
-export const ALL_SUPPORTED_CHAIN_IDS: string[] = getAllSupportedChainIds(
-  CHAIN_IDS
-)
+export const ALL_SUPPORTED_CHAIN_IDS: string[] = (Object.values(CHAIN_IDS) as any[]).reduce((a: any[], b: any) => [...a, ...Object.values(b)], [])
 
 export const ZERO_ADDRESS: string = '0x0000000000000000000000000000000000000000'
 export const ONE_ADDRESS: string = '0x0000000000000000000000000000000000000001'

@@ -5,7 +5,9 @@ import { BigNumber, ContractFactory, Signer, Contract } from 'ethers'
 
 import {
   getContractFactories,
-  sendChainSpecificBridgeDeposit
+  sendChainSpecificBridgeDeposit,
+  updateConfigFile,
+  readConfigFile
 } from '../shared/utils'
 
 import { getMessengerWrapperDefaults } from '../../config/utils'
@@ -17,7 +19,14 @@ import {
 
 // NOTE: Transactions sometimes get stuck during this script. Ensure that each transaction has been made.
 
-async function setupL1 () {
+interface Config {
+  l1_messengerAddress: string
+  l1_canonicalTokenAddress: string
+  l1_bridgeAddress: string
+  l2_bridgeAddress: string
+}
+
+export async function setupL1 (config: Config) {
   // Network setup
   const chainId: BigNumber = BigNumber.from(network.config.chainId)
 
@@ -28,10 +37,12 @@ async function setupL1 () {
   }
 
   // Addresses
-  const l1_messengerAddress: string = ''
-  const l1_canonicalTokenAddress: string = ''
-  const l1_bridgeAddress: string = ''
-  const l2_bridgeAddress: string = ''
+  const {
+    l1_messengerAddress,
+    l1_canonicalTokenAddress,
+    l1_bridgeAddress,
+    l2_bridgeAddress
+  } = config
 
   if (
     !l1_messengerAddress ||
@@ -141,7 +152,21 @@ async function setupL1 () {
     )
 }
 
-/* tslint:disable-next-line */
-;(async () => {
-  await setupL1()
-})()
+if (require.main === module) {
+  const {
+    l1_messengerAddress,
+    l1_canonicalTokenAddress,
+    l1_bridgeAddress,
+    l2_bridgeAddress
+  } = readConfigFile()
+  setupL1({
+    l1_messengerAddress,
+    l1_canonicalTokenAddress,
+    l1_bridgeAddress,
+    l2_bridgeAddress,
+  })
+  .catch(error => {
+    console.error(error)
+  })
+  .finally(() => process.exit(0))
+}

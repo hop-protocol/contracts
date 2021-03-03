@@ -3,7 +3,7 @@ require('dotenv').config()
 import { ContractFactory, Signer, Contract, BigNumber, utils as ethersUtils } from 'ethers'
 import { network, ethers, l2ethers as ovmEthers } from 'hardhat'
 
-import { getContractFactories, verifyDeployment } from '../shared/utils'
+import { getContractFactories, verifyDeployment, updateConfigFile, readConfigFile } from '../shared/utils'
 
 import { isChainIdOptimism, isChainIdArbitrum, isChainIdXDai } from '../../config/utils'
 import {
@@ -14,15 +14,23 @@ import {
   DEFAULT_H_TOKEN_DECIMALS
 } from '../../config/constants'
 
-async function deployL2 () {
+interface Config {
+  l1_bridgeAddress: string
+  l2_canonicalTokenAddress: string
+  l2_messengerAddress: string
+}
+
+export async function deployL2 (config: Config) {
   // Network setup
   const chainId: BigNumber = BigNumber.from(network.config.chainId)
   const l1ChainId: BigNumber = CHAIN_IDS.ETHEREUM.KOVAN
 
   // Addresses
-  const l1_bridgeAddress: string = ''
-  const l2_canonicalTokenAddress: string = ''
-  const l2_messengerAddress: string = ''
+  const {
+    l1_bridgeAddress,
+    l2_canonicalTokenAddress,
+    l2_messengerAddress,
+  } = config
 
   // Variables
   const l2_hTokenName: string = DEFAULT_H_TOKEN_NAME
@@ -118,10 +126,26 @@ async function deployL2 () {
     l2_uniswapPair
   )
 
+  const l2_bridgeAddress = l2_bridge.address
+  const l2_uniswapFactoryAddress = l2_uniswapFactory.address
+  const l2_uniswapRouterAddress = l2_uniswapRouter.address
+
   console.log('Deployments Complete')
-  console.log('L2 Bridge           :', l2_bridge.address)
-  console.log('L2 Uniswap Factory  :', l2_uniswapFactory.address)
-  console.log('L2 Uniswap Router   :', l2_uniswapRouter.address)
+  console.log('L2 Bridge           :', l2_bridgeAddress)
+  console.log('L2 Uniswap Factory  :', l2_uniswapFactoryAddress)
+  console.log('L2 Uniswap Router   :', l2_uniswapRouterAddress)
+
+  updateConfigFile({
+    l2_bridgeAddress,
+    l2_uniswapFactoryAddress,
+    l2_uniswapRouterAddress
+  })
+
+  return {
+    l2_bridgeAddress,
+    l2_uniswapFactoryAddress,
+    l2_uniswapRouterAddress
+  }
 }
 
 const deployUniswap = async (
@@ -225,6 +249,20 @@ const deployNetworkSpecificContracts = async (
     }
   }
 }
-;(async () => {
-  await deployL2()
-})()
+
+if (require.main === module) {
+  const {
+    l1_bridgeAddress,
+    l2_canonicalTokenAddress,
+    l2_messengerAddress,
+  } = readConfigFile()
+  deployL2({
+    l1_bridgeAddress,
+    l2_canonicalTokenAddress,
+    l2_messengerAddress,
+  })
+  .catch(error => {
+    console.error(error)
+  })
+  .finally(() => process.exit(0))
+}

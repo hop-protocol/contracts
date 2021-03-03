@@ -3,14 +3,18 @@ require('dotenv').config()
 import { network, ethers } from 'hardhat'
 import { ContractFactory, Contract, Signer, BigNumber } from 'ethers'
 
-import { getContractFactories } from '../shared/utils'
+import { getContractFactories, updateConfigFile, readConfigFile } from '../shared/utils'
 
-async function deployL1 () {
+interface Config {
+  l1_canonicalTokenAddress: string
+}
+
+export async function deployL1 (config: Config) {
   // Network setup
   const chainId: BigNumber = BigNumber.from(network.config.chainId)
 
   // Addresses
-  const l1_canonicalTokenAddress = ''
+  const { l1_canonicalTokenAddress } = config
 
   if (!l1_canonicalTokenAddress) {
     throw new Error('Addresses must be defined')
@@ -38,10 +42,21 @@ async function deployL1 () {
   )
   await l1_bridge.deployed()
 
-  console.log('L1 Bridge: ', l1_bridge.address)
+  const l1_bridgeAddress = l1_bridge.address
+  console.log('L1 Bridge: ', l1_bridgeAddress)
+  updateConfigFile({l1_bridgeAddress})
+  return {
+    l1_bridgeAddress
+  }
 }
 
-/* tslint:disable-next-line */
-;(async () => {
-  await deployL1()
-})()
+if (require.main === module) {
+  const { l1_canonicalTokenAddress } = readConfigFile()
+  deployL1({
+    l1_canonicalTokenAddress
+  })
+  .catch(error => {
+    console.error(error)
+  })
+  .finally(() => process.exit(0))
+}
