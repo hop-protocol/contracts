@@ -23,13 +23,17 @@ export async function setupL2 (config: Config) {
   // Addresses
   const {
     l2_canonicalTokenAddress,
+    l2_hopBridgeTokenAddress,
     l2_bridgeAddress,
+    l2_uniswapFactoryAddress,
     l2_uniswapRouterAddress
   } = config
 
   if (
     !l2_canonicalTokenAddress ||
+    !l2_hopBridgeTokenAddress ||
     !l2_bridgeAddress ||
+    !l2_uniswapFactoryAddress ||
     !l2_uniswapRouterAddress
   ) {
     throw new Error('Addresses must be defined')
@@ -41,12 +45,16 @@ export async function setupL2 (config: Config) {
 
   // Factories
   let L2_MockERC20: ContractFactory
+  let L2_HopBridgeToken: ContractFactory
   let L2_Bridge: ContractFactory
+  let L2_UniswapFactory: ContractFactory
   let L2_UniswapRouter: ContractFactory
 
   // L2
-  let l2_bridge: Contract
   let l2_canonicalToken: Contract
+  let l2_hopBridgeToken: Contract
+  let l2_bridge: Contract
+  let l2_uniswapFactory: Contract
   let l2_uniswapRouter: Contract
 
   // Instantiate the wallets
@@ -55,7 +63,13 @@ export async function setupL2 (config: Config) {
   liquidityProvider = accounts[2]
 
   // Get the contract Factories
-  ;({ L2_MockERC20, L2_Bridge, L2_UniswapRouter } = await getContractFactories(
+  ;({
+    L2_MockERC20,
+    L2_HopBridgeToken,
+    L2_Bridge,
+    L2_UniswapFactory,
+    L2_UniswapRouter
+  } = await getContractFactories(
     chainId,
     owner,
     ethers,
@@ -64,8 +78,10 @@ export async function setupL2 (config: Config) {
 
   // Attach already deployed contracts
   l2_canonicalToken = L2_MockERC20.attach(l2_canonicalTokenAddress)
+  l2_hopBridgeToken = L2_HopBridgeToken.attach(l2_hopBridgeTokenAddress)
 
   l2_bridge = L2_Bridge.attach(l2_bridgeAddress)
+  l2_uniswapFactory = L2_UniswapFactory.attach(l2_uniswapFactoryAddress)
   l2_uniswapRouter = L2_UniswapRouter.attach(l2_uniswapRouterAddress)
 
   /**
@@ -75,27 +91,17 @@ export async function setupL2 (config: Config) {
   // Add supported chain IDs
   await addAllSupportedChainIds(l2_bridge)
 
-  // Additional transactions
-  // NOTE: If a watcher is not set up to propagate transactions from L1 -> L2, then this mint is required to get the LP h tokens.
-  // NOTE: Not to be used in production.
-  await l2_bridge
-    .connect(liquidityProvider)
-    .mint(
-      await liquidityProvider.getAddress(),
-      LIQUIDITY_PROVIDER_UNISWAP_AMOUNT
-    )
-
   // Set up Uniswap
   await l2_canonicalToken
     .connect(liquidityProvider)
     .approve(l2_uniswapRouter.address, LIQUIDITY_PROVIDER_UNISWAP_AMOUNT)
-  await l2_bridge
+  await l2_hopBridgeToken
     .connect(liquidityProvider)
     .approve(l2_uniswapRouter.address, LIQUIDITY_PROVIDER_UNISWAP_AMOUNT)
   await l2_uniswapRouter
     .connect(liquidityProvider)
     .addLiquidity(
-      l2_bridge.address,
+      l2_hopBridgeToken.address,
       l2_canonicalToken.address,
       LIQUIDITY_PROVIDER_UNISWAP_AMOUNT,
       LIQUIDITY_PROVIDER_UNISWAP_AMOUNT,
@@ -104,6 +110,11 @@ export async function setupL2 (config: Config) {
       await liquidityProvider.getAddress(),
       DEFAULT_DEADLINE
     )
+
+  const uniswapPairAddress = await l2_uniswapFactory.getPair(l2_hopBridgeToken.address, l2_canonicalToken.address)
+
+  console.log('Setup Complete')
+  console.log('L2 Uniswap Pair Address:', uniswapPairAddress)
 }
 
 if (require.main === module) {

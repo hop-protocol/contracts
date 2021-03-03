@@ -28,13 +28,14 @@ export const getContractFactories = async (
     { signer }
   )
   const L1_Bridge: ContractFactory = await ethers.getContractFactory(
-    'contracts/bridges/L1_Bridge.sol:L1_Bridge',
+    'contracts/bridges/L1_ERC20_Bridge.sol:L1_ERC20_Bridge',
     { signer }
   )
 
   let L1_Messenger: ContractFactory
   let L1_MessengerWrapper: ContractFactory
   let L2_MockERC20: ContractFactory
+  let L2_HopBridgeToken: ContractFactory
   let L2_Bridge: ContractFactory
   let L2_UniswapFactory: ContractFactory
   let L2_UniswapRouter: ContractFactory
@@ -43,6 +44,7 @@ export const getContractFactories = async (
     L1_Messenger,
     L1_MessengerWrapper,
     L2_MockERC20,
+    L2_HopBridgeToken,
     L2_Bridge,
     L2_UniswapFactory,
     L2_UniswapRouter,
@@ -55,6 +57,7 @@ export const getContractFactories = async (
     L1_MessengerWrapper,
     L1_Messenger,
     L2_MockERC20,
+    L2_HopBridgeToken,
     L2_Bridge,
     L2_UniswapFactory,
     L2_UniswapRouter,
@@ -79,6 +82,7 @@ const getNetworkSpecificFactories = async (
       L1_Messenger: null,
       L1_MessengerWrapper: null,
       L2_MockERC20: null,
+      L2_HopBridgeToken: null,
       L2_Bridge: null,
       L2_UniswapFactory: null,
       L2_UniswapRouter: null,
@@ -104,6 +108,10 @@ const getOptimismContractFactories = async (
     'contracts/test/MockERC20.sol:MockERC20',
     { signer }
   )
+  const L2_HopBridgeToken: ContractFactory = await ovmEthers.getContractFactory(
+    'contracts/bridges/HopBridgeToken.sol:HopBridgeToken',
+    { signer }
+  )
   const L2_Bridge: ContractFactory = await ovmEthers.getContractFactory(
     'contracts/bridges/L2_OptimismBridge.sol:L2_OptimismBridge',
     { signer }
@@ -125,6 +133,7 @@ const getOptimismContractFactories = async (
     L1_Messenger,
     L1_MessengerWrapper,
     L2_MockERC20,
+    L2_HopBridgeToken,
     L2_Bridge,
     L2_UniswapFactory,
     L2_UniswapRouter,
@@ -145,6 +154,10 @@ const getArbitrumContractFactories = async (signer: Signer, ethers: any) => {
     'contracts/test/MockERC20.sol:MockERC20',
     { signer }
   )
+  const L2_HopBridgeToken: ContractFactory = await ethers.getContractFactory(
+    'contracts/bridges/HopBridgeToken.sol:HopBridgeToken',
+    { signer }
+  )
   const L2_Bridge: ContractFactory = await ethers.getContractFactory(
     'contracts/bridges/L2_ArbitrumBridge.sol:L2_ArbitrumBridge',
     { signer }
@@ -162,6 +175,7 @@ const getArbitrumContractFactories = async (signer: Signer, ethers: any) => {
     L1_Messenger,
     L1_MessengerWrapper,
     L2_MockERC20,
+    L2_HopBridgeToken,
     L2_Bridge,
     L2_UniswapFactory,
     L2_UniswapRouter,
@@ -182,6 +196,10 @@ const getXDaiContractFactories = async (signer: Signer, ethers: any) => {
     'contracts/test/MockERC20.sol:MockERC20',
     { signer }
   )
+  const L2_HopBridgeToken: ContractFactory = await ethers.getContractFactory(
+    'contracts/bridges/HopBridgeToken.sol:HopBridgeToken',
+    { signer }
+  )
   const L2_Bridge: ContractFactory = await ethers.getContractFactory(
     'contracts/bridges/L2_XDaiBridge.sol:L2_XDaiBridge',
     { signer }
@@ -199,6 +217,7 @@ const getXDaiContractFactories = async (signer: Signer, ethers: any) => {
     L1_Messenger,
     L1_MessengerWrapper,
     L2_MockERC20,
+    L2_HopBridgeToken,
     L2_Bridge,
     L2_UniswapFactory,
     L2_UniswapRouter,
