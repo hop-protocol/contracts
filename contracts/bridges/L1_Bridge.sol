@@ -34,7 +34,7 @@ abstract contract L1_Bridge is Bridge {
 
     address public governance;
     mapping(uint256 => IMessengerWrapper) public crossDomainMessengerWrappers;
-    mapping(uint256 => bool) public isSendToChainIdPaused;
+    mapping(uint256 => bool) public isChainIdPaused;
     uint256 public challengeAmountMultiplier = 1;
     uint256 public challengeAmountDivisor = 10;
     uint256 public timeSlotSize = 3 hours;
@@ -94,7 +94,7 @@ abstract contract L1_Bridge is Bridge {
     {
         IMessengerWrapper messengerWrapper = crossDomainMessengerWrappers[chainId];
         require(messengerWrapper != IMessengerWrapper(0), "L1_BRG: chainId not supported");
-        require(isSendToChainIdPaused[chainId] == false, "L1_BRG: Sends to this chainId are paused");
+        require(isChainIdPaused[chainId] == false, "L1_BRG: Sends to this chainId are paused");
 
         _transferToBridge(msg.sender, amount);
 
@@ -117,7 +117,7 @@ abstract contract L1_Bridge is Bridge {
     {
         IMessengerWrapper messengerWrapper = crossDomainMessengerWrappers[chainId];
         require(messengerWrapper != IMessengerWrapper(0), "L1_BRG: chainId not supported");
-        require(isSendToChainIdPaused[chainId] == false, "L1_BRG: Sends to this chainId are paused");
+        require(isChainIdPaused[chainId] == false, "L1_BRG: Sends to this chainId are paused");
 
         _transferToBridge(msg.sender, amount);
 
@@ -343,7 +343,7 @@ abstract contract L1_Bridge is Bridge {
     }
 
     function setChainIdDepositsPaused(uint256 chainId, bool paused) external onlyGovernance {
-        isSendToChainIdPaused[chainId] = paused;
+        isChainIdPaused[chainId] = paused;
     }
 
     function setChallengeAmountDivisor(uint256 _challengeAmountDivisor) external onlyGovernance {
