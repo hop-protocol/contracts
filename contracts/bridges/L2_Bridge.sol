@@ -26,7 +26,7 @@ abstract contract L2_Bridge is Bridge {
     uint256 public messengerGasLimit = 250000;
     uint256 public maxPendingTransfers = 100;
     uint256 public minBonderBps = 2;
-    uint256 public minBonderFeeAmount = 6 * 1e13;
+    uint256 public minBonderFeeAmount = 0;
 
     mapping(uint256 => bytes32[]) public pendingTransferIdsForChainId;
     mapping(uint256 => uint256) public pendingAmountForChainId;
