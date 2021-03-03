@@ -1,24 +1,22 @@
 require('dotenv').config()
 
-import { network, ethers } from 'hardhat'
+import { ethers } from 'hardhat'
 import { ContractFactory, Contract, Signer, BigNumber } from 'ethers'
 
 import { getContractFactories, updateConfigFile, readConfigFile } from '../shared/utils'
 
 interface Config {
+  l1_chainId: string | BigNumber
   l1_canonicalTokenAddress: string
 }
 
 export async function deployL1 (config: Config) {
-  // Network setup
-  const chainId: BigNumber = BigNumber.from(network.config.chainId)
+  let {
+    l1_chainId,
+    l1_canonicalTokenAddress,
+  } = config
 
-  // Addresses
-  const { l1_canonicalTokenAddress } = config
-
-  if (!l1_canonicalTokenAddress) {
-    throw new Error('Addresses must be defined')
-  }
+  l1_chainId = BigNumber.from(l1_chainId)
 
   // Signers
   const accounts: Signer[] = await ethers.getSigners()
@@ -30,7 +28,7 @@ export async function deployL1 (config: Config) {
 
   // Contracts
   let l1_bridge: Contract
-  ;({ L1_Bridge } = await getContractFactories(chainId, bonder, ethers))
+  ;({ L1_Bridge } = await getContractFactories(l1_chainId, bonder, ethers))
 
   /**
    * Deployments
@@ -53,8 +51,12 @@ export async function deployL1 (config: Config) {
 }
 
 if (require.main === module) {
-  const { l1_canonicalTokenAddress } = readConfigFile()
+  const {
+    l1_chainId,
+    l1_canonicalTokenAddress
+  } = readConfigFile()
   deployL1({
+    l1_chainId,
     l1_canonicalTokenAddress
   })
   .catch(error => {

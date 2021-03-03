@@ -1,6 +1,6 @@
 require('dotenv').config()
 
-import { network, ethers, l2ethers as ovmEthers } from 'hardhat'
+import { ethers, l2ethers as ovmEthers } from 'hardhat'
 import { BigNumber, ContractFactory, Contract, Signer } from 'ethers'
 
 import { getContractFactories, readConfigFile } from '../shared/utils'
@@ -13,6 +13,7 @@ import {
 } from '../../config/constants'
 
 interface Config {
+  l1_chainId: string | BigNumber 
   l2_canonicalTokenAddress: string
   l2_hopBridgeTokenAddress: string
   l2_bridgeAddress: string
@@ -21,11 +22,8 @@ interface Config {
 }
 
 export async function setupL2 (config: Config) {
-  // Network setup
-  const chainId: BigNumber = BigNumber.from(network.config.chainId)
-
-  // Addresses
   const {
+    l1_chainId,
     l2_canonicalTokenAddress,
     l2_hopBridgeTokenAddress,
     l2_bridgeAddress,
@@ -33,15 +31,8 @@ export async function setupL2 (config: Config) {
     l2_uniswapRouterAddress
   } = config
 
-  if (
-    !l2_canonicalTokenAddress ||
-    !l2_hopBridgeTokenAddress ||
-    !l2_bridgeAddress ||
-    !l2_uniswapFactoryAddress ||
-    !l2_uniswapRouterAddress
-  ) {
-    throw new Error('Addresses must be defined')
-  }
+  l1_chainId = BigNumber.from(l1_chainId)
+
   // Signers
   let accounts: Signer[]
   let owner: Signer
@@ -74,7 +65,7 @@ export async function setupL2 (config: Config) {
     L2_UniswapFactory,
     L2_UniswapRouter
   } = await getContractFactories(
-    chainId,
+    l1_chainId,
     owner,
     ethers,
     ovmEthers
@@ -124,6 +115,7 @@ export async function setupL2 (config: Config) {
 
 if (require.main === module) {
   const {
+    l1_chainId,
     l2_canonicalTokenAddress,
     l2_hopBridgeTokenAddress,
     l2_bridgeAddress,
@@ -131,6 +123,7 @@ if (require.main === module) {
     l2_uniswapRouterAddress,
   } = readConfigFile()
   setupL2({
+    l1_chainId,
     l2_canonicalTokenAddress,
     l2_hopBridgeTokenAddress,
     l2_bridgeAddress,

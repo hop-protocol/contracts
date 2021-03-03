@@ -9,4 +9,7 @@ dist
 
 package-lock.json
 yarn.lock
-data
+
+abi/*
+data/*
+scripts/deploy_config.json

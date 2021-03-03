@@ -12,9 +12,9 @@ import { IFixture } from '../shared/interfaces'
 
 import {
   CHAIN_IDS,
-  DEFAULT_H_TOKEN_NAME,
-  DEFAULT_H_TOKEN_SYMBOL,
-  DEFAULT_H_TOKEN_DECIMALS
+  DEFAULT_H_BRIDGE_TOKEN_NAME,
+  DEFAULT_H_BRIDGE_TOKEN_SYMBOL,
+  DEFAULT_H_BRIDGE_TOKEN_DECIMALS
 } from '../../config/constants'
 
 describe('L1_Bridge', () => {
@@ -66,9 +66,9 @@ describe('L1_Bridge', () => {
 
   it('Should correctly deploy an ERC20 and set the defined values', async () => {
     const expectedL1GovernanceAddress: string = await governance.getAddress()
-    const expectedName: string = DEFAULT_H_TOKEN_NAME
-    const expectedSymbol: string = DEFAULT_H_TOKEN_SYMBOL
-    const expectedDecimals: number = DEFAULT_H_TOKEN_DECIMALS
+    const expectedName: string = DEFAULT_H_BRIDGE_TOKEN_NAME
+    const expectedSymbol: string = DEFAULT_H_BRIDGE_TOKEN_SYMBOL
+    const expectedDecimals: number = DEFAULT_H_BRIDGE_TOKEN_DECIMALS
 
     const l1GovernanceAddress: string = await l2_hopBridgeToken.l1Governance()
     const name: string = await l2_hopBridgeToken.name()

@@ -1,7 +1,7 @@
 require('dotenv').config()
 
 import { ContractFactory, Signer, Contract, BigNumber } from 'ethers'
-import { network, ethers, l2ethers as ovmEthers } from 'hardhat'
+import { ethers, l2ethers as ovmEthers } from 'hardhat'
 
 import { getContractFactories, verifyDeployment, updateConfigFile, readConfigFile } from '../shared/utils'
 
@@ -9,45 +9,34 @@ import { isChainIdOptimism, isChainIdArbitrum, isChainIdXDai, getL2BridgeDefault
 import {
   ZERO_ADDRESS,
   CHAIN_IDS,
-  DEFAULT_H_TOKEN_NAME,
-  DEFAULT_H_TOKEN_SYMBOL,
-  DEFAULT_H_TOKEN_DECIMALS,
   DEFAULT_ETHERS_OVERRIDES as overrides
 } from '../../config/constants'
 
 interface Config {
+  l1_chainId: string | BigNumber
+  l2_chainId: string | BigNumber
   l1_bridgeAddress: string
   l2_canonicalTokenAddress: string
   l2_messengerAddress: string
+  l2_hBridgeTokenName: string
+  l2_hBridgeTokenSymbol: string
+  l2_hBridgeTokenDecimals: number
 }
 
 export async function deployL2 (config: Config) {
-  // Network setup
-  const chainId: BigNumber = BigNumber.from(network.config.chainId)
-  const l1ChainId: BigNumber = CHAIN_IDS.ETHEREUM.KOVAN
-
-  // Addresses
-  const {
+  let {
+    l1_chainId,
+    l2_chainId,
     l1_bridgeAddress,
     l2_canonicalTokenAddress,
     l2_messengerAddress,
+    l2_hBridgeTokenName,
+    l2_hBridgeTokenSymbol,
+    l2_hBridgeTokenDecimals
   } = config
 
-  // Variables
-  const l2_hTokenName: string = DEFAULT_H_TOKEN_NAME
-  const l2_hTokenSymbol: string = DEFAULT_H_TOKEN_SYMBOL
-  const l2_hTokenDecimals: number = DEFAULT_H_TOKEN_DECIMALS
-
-  if (
-    !l1_bridgeAddress ||
-    !l2_canonicalTokenAddress ||
-    !l2_messengerAddress ||
-    !l2_hTokenName ||
-    !l2_hTokenSymbol ||
-    !l2_hTokenDecimals
-  ) {
-    throw new Error('Addresses must be defined')
-  }
+  l1_chainId = BigNumber.from(l1_chainId)
+  l2_chainId = BigNumber.from(l2_chainId)
 
   // Signers
   let accounts: Signer[]
@@ -86,7 +75,7 @@ export async function deployL2 (config: Config) {
     L2_UniswapFactory,
     L2_UniswapRouter,
     L2_UniswapPair
-  } = await getContractFactories(chainId, owner, ethers, ovmEthers))
+  } = await getContractFactories(l2_chainId, owner, ethers, ovmEthers))
 
   // Attach already deployed contracts
   l1_bridge = L1_Bridge.attach(l1_bridgeAddress)
@@ -98,9 +87,9 @@ export async function deployL2 (config: Config) {
 
   l2_hopBridgeToken = await L2_HopBridgeToken.deploy(
     await owner.getAddress(),
-    l2_hTokenName,
-    l2_hTokenSymbol,
-    l2_hTokenDecimals
+    l2_hBridgeTokenName,
+    l2_hBridgeTokenSymbol,
+    l2_hBridgeTokenDecimals
   )
 
   ;({ l2_uniswapFactory, l2_uniswapRouter } = await deployUniswap(
@@ -113,8 +102,8 @@ export async function deployL2 (config: Config) {
   ))
 
   ;({ l2_bridge } = await deployBridge(
-    chainId,
-    l1ChainId,
+    l2_chainId,
+    l1_chainId,
     ethers,
     owner,
     bonder,
@@ -128,7 +117,7 @@ export async function deployL2 (config: Config) {
   ))
 
   await deployNetworkSpecificContracts(
-    chainId,
+    l2_chainId,
     owner,
     ethers,
     L2_UniswapPair,
@@ -268,14 +257,24 @@ const deployNetworkSpecificContracts = async (
 
 if (require.main === module) {
   const {
+    l1_chainId,
+    l2_chainId,
     l1_bridgeAddress,
     l2_canonicalTokenAddress,
     l2_messengerAddress,
+    l2_hBridgeTokenName,
+    l2_hBridgeTokenSymbol,
+    l2_hBridgeTokenDecimals
   } = readConfigFile()
   deployL2({
+    l1_chainId,
+    l2_chainId,
     l1_bridgeAddress,
     l2_canonicalTokenAddress,
     l2_messengerAddress,
+    l2_hBridgeTokenName,
+    l2_hBridgeTokenSymbol,
+    l2_hBridgeTokenDecimals
   })
   .catch(error => {
     console.error(error)

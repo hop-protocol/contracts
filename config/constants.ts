@@ -63,9 +63,9 @@ export const RELAYER_FEE: BigNumber = BigNumber.from(parseEther('1'))
 
 export const UNISWAP_LP_MINIMUM_LIQUIDITY: BigNumber = BigNumber.from('1000')
 
-export const DEFAULT_H_TOKEN_NAME = 'DAI Hop Token'
-export const DEFAULT_H_TOKEN_SYMBOL = 'hDAI'
-export const DEFAULT_H_TOKEN_DECIMALS = 18
+export const DEFAULT_H_BRIDGE_TOKEN_NAME = 'DAI Hop Token'
+export const DEFAULT_H_BRIDGE_TOKEN_SYMBOL = 'hDAI'
+export const DEFAULT_H_BRIDGE_TOKEN_DECIMALS = 18
 
 export const SECONDS_IN_AN_HOUR = 3600
 export const SECONDS_IN_A_DAY = 86400

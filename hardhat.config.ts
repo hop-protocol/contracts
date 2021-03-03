@@ -78,9 +78,9 @@ export default {
   mocha: {
     timeout: 40000
   },
-  abiExporter: {
-    path: './data/abi',
-    clear: true,
-    flat: true
-  }
+  // abiExporter: {
+  //   path: './data/abi',
+  //   clear: true,
+  //   flat: true
+  // }
 }

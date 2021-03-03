@@ -42,9 +42,9 @@ import {
   TIMESTAMP_VARIANCE,
   DEAD_ADDRESS,
   ARBITRARY_ROOT_HASH,
-  DEFAULT_H_TOKEN_NAME,
-  DEFAULT_H_TOKEN_SYMBOL,
-  DEFAULT_H_TOKEN_DECIMALS,
+  DEFAULT_H_BRIDGE_TOKEN_NAME,
+  DEFAULT_H_BRIDGE_TOKEN_SYMBOL,
+  DEFAULT_H_BRIDGE_TOKEN_DECIMALS,
   DEFAULT_TIME_TO_WAIT
 } from '../../config/constants'
 
@@ -162,9 +162,9 @@ describe('L2_Bridge', () => {
     const expectedIsChainIdSupported: boolean = true
     const expectedIsBonder: boolean = true
     const expectedExchangeAddress: string = l2_uniswapRouter.address
-    const expectedName: string = DEFAULT_H_TOKEN_NAME
-    const expectedSymbol: string = DEFAULT_H_TOKEN_SYMBOL
-    const expectedDecimals: number = DEFAULT_H_TOKEN_DECIMALS
+    const expectedName: string = DEFAULT_H_BRIDGE_TOKEN_NAME
+    const expectedSymbol: string = DEFAULT_H_BRIDGE_TOKEN_SYMBOL
+    const expectedDecimals: number = DEFAULT_H_BRIDGE_TOKEN_DECIMALS
 
     const l1GovernanceAddress = await l2_bridge.l1Governance()
     const l2CanonicalTokenAddress = await l2_bridge.l2CanonicalToken()

@@ -1,6 +1,6 @@
 require('dotenv').config()
 
-import { network, ethers, ethers as ovmEthers } from 'hardhat'
+import { ethers, ethers as ovmEthers } from 'hardhat'
 import { BigNumber, ContractFactory, Signer, Contract } from 'ethers'
 
 import {
@@ -18,6 +18,7 @@ import {
 // NOTE: Transactions sometimes get stuck during this script. Ensure that each transaction has been made.
 
 interface Config {
+  l1_chainId: string | BigNumber
   l2_chainId: string | BigNumber
   l1_messengerAddress: string
   l1_canonicalTokenAddress: string
@@ -26,11 +27,8 @@ interface Config {
 }
 
 export async function setupL1 (config: Config) {
-  // Network setup
-  const chainId: BigNumber = BigNumber.from(network.config.chainId)
-
-  // Addresses
   let {
+    l1_chainId,
     l2_chainId,
     l1_messengerAddress,
     l1_canonicalTokenAddress,
@@ -38,17 +36,8 @@ export async function setupL1 (config: Config) {
     l2_bridgeAddress
   } = config
 
+  l1_chainId = BigNumber.from(l1_chainId)
   l2_chainId = BigNumber.from(l2_chainId)
-
-  if (
-    !l2_chainId ||
-    !l1_messengerAddress ||
-    !l1_canonicalTokenAddress ||
-    !l1_bridgeAddress ||
-    !l2_bridgeAddress
-  ) {
-    throw new Error('Addresses must be defined')
-  }
 
   // Signers
   let accounts: Signer[]
@@ -123,7 +112,7 @@ export async function setupL1 (config: Config) {
     .connect(liquidityProvider)
     .approve(l1_messenger.address, LIQUIDITY_PROVIDER_INITIAL_BALANCE)
   await sendChainSpecificBridgeDeposit(
-    chainId,
+    l1_chainId,
     liquidityProvider,
     LIQUIDITY_PROVIDER_INITIAL_BALANCE,
     l1_messenger,
@@ -154,6 +143,7 @@ export async function setupL1 (config: Config) {
 
 if (require.main === module) {
   const {
+    l1_chainId,
     l2_chainId,
     l1_messengerAddress,
     l1_canonicalTokenAddress,
@@ -161,6 +151,7 @@ if (require.main === module) {
     l2_bridgeAddress
   } = readConfigFile()
   setupL1({
+    l1_chainId,
     l2_chainId,
     l1_messengerAddress,
     l1_canonicalTokenAddress,
