@@ -26,7 +26,7 @@ abstract contract L2_Bridge is Bridge {
     uint256 public messengerGasLimit = 250000;
     uint256 public maxPendingTransfers = 100;
     uint256 public minBonderBps = 2;
-    uint256 public minBonderFeeAmount = 0;
+    uint256 public minBonderFeeAbsolute = 0;
 
     mapping(uint256 => bytes32[]) public pendingTransferIdsForChainId;
     mapping(uint256 => uint256) public pendingAmountForChainId;
@@ -103,9 +103,9 @@ abstract contract L2_Bridge is Bridge {
         require(amount > 0, "L2_BRG: Must transfer a non-zero amount");
         require(amount >= bonderFee, "L2_BRG: Relayer fee cannot exceed amount");
         require(supportedChainIds[chainId], "L2_BRG: _chainId is not supported");
-        uint256 minBonderFee = amount.mul(minBonderBps).div(10000);
-        // Get the max of minBonderFee and minBonderFeeAmount
-        minBonderFee = minBonderFee > minBonderFeeAmount ? minBonderFee : minBonderFeeAmount;
+        uint256 minBonderFeeRelative = amount.mul(minBonderBps).div(10000);
+        // Get the max of minBonderFeeRelative and minBonderFeeAbsolute
+        uint256 minBonderFee = minBonderFeeRelative > minBonderFeeAbsolute ? minBonderFeeRelative : minBonderFeeAbsolute;
         require(bonderFee >= minBonderFee, "L2_BRG: bonderFee must meet minimum requirements");
 
         bytes32[] storage pendingTransfers = pendingTransferIdsForChainId[chainId];
@@ -400,9 +400,9 @@ abstract contract L2_Bridge is Bridge {
         hToken.transferOwnership(newOwner);
     }
 
-    function setMinimumBonderFeeRequirements(uint256 _minBonderBps, uint256 _minBonderFeeAmount) external onlyGovernance {
+    function setMinimumBonderFeeRequirements(uint256 _minBonderBps, uint256 _minBonderFeeAbsolute) external onlyGovernance {
         minBonderBps = _minBonderBps;
-        minBonderFeeAmount = _minBonderFeeAmount;
+        minBonderFeeAbsolute = _minBonderFeeAbsolute;
     }
 
     /* ========== Public Getters ========== */
