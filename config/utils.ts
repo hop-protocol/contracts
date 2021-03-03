@@ -135,10 +135,11 @@ export const isChainIdXDai = (chainId: BigNumber): boolean => {
 }
 
 // Create an array of strings for each supported chain ID
-export const getAllSupportedChainIds = (obj): string[] =>
-  obj && typeof obj === 'object'
+export const getAllSupportedChainIds = (obj: any): string[] =>
+  obj && obj instanceof Object
     ? Object.values(obj)
         .map(getAllSupportedChainIds)
-        .reduce((a, b) => a.concat(b), [])
-        .filter(a => typeof a === 'string')
+        .reduce((a: string[], b: any) => a.concat(b), [] as any[])
+        .filter((a: any) => typeof a === 'string')
     : [obj]
+

@@ -4,7 +4,7 @@ import hre from 'hardhat'
 const ethers = hre.ethers
 const l2ethers = hre.l2ethers
 
-async function main () {
+export async function deployL2 () {
   console.log('network:', await ethers.provider.getNetwork())
 
   const signer = (await ethers.getSigners())[0]
@@ -26,8 +26,10 @@ async function main () {
   console.log('complete')
 }
 
-main()
+if (require.main === module) {
+  deployL2()
   .catch(error => {
     console.error(error)
   })
   .finally(() => process.exit(0))
+}

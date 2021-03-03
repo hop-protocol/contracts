@@ -3,23 +3,33 @@ require('dotenv').config()
 import { network, ethers, l2ethers as ovmEthers } from 'hardhat'
 import { BigNumber, ContractFactory, Contract, Signer } from 'ethers'
 
-import { addAllSupportedChainIds, getContractFactories } from '../shared/utils'
+import { addAllSupportedChainIds, getContractFactories, readConfigFile } from '../shared/utils'
 
 import {
   DEFAULT_DEADLINE,
   LIQUIDITY_PROVIDER_UNISWAP_AMOUNT
 } from '../../config/constants'
 
-async function setupL2 () {
+interface Config {
+  l2_canonicalTokenAddress: string
+  l2_hopBridgeTokenAddress: string
+  l2_bridgeAddress: string
+  l2_uniswapFactoryAddress: string
+  l2_uniswapRouterAddress: string
+}
+
+export async function setupL2 (config: Config) {
   // Network setup
   const chainId: BigNumber = BigNumber.from(network.config.chainId)
 
   // Addresses
-  const l2_canonicalTokenAddress: string = ''
-  const l2_hopBridgeTokenAddress: string = ''
-  const l2_bridgeAddress: string = ''
-  const l2_uniswapFactoryAddress: string = ''
-  const l2_uniswapRouterAddress: string = ''
+  const {
+    l2_canonicalTokenAddress,
+    l2_hopBridgeTokenAddress,
+    l2_bridgeAddress,
+    l2_uniswapFactoryAddress,
+    l2_uniswapRouterAddress
+  } = config
 
   if (
     !l2_canonicalTokenAddress ||
@@ -105,11 +115,27 @@ async function setupL2 () {
 
   const uniswapPairAddress = await l2_uniswapFactory.getPair(l2_hopBridgeToken.address, l2_canonicalToken.address)
 
-  console.log('Setup Complete')
+  console.log('L2 Setup Complete')
   console.log('L2 Uniswap Pair Address:', uniswapPairAddress)
 }
 
-/* tslint:disable-next-line */
-;(async () => {
-  await setupL2()
-})()
+if (require.main === module) {
+  const {
+    l2_canonicalTokenAddress,
+    l2_hopBridgeTokenAddress,
+    l2_bridgeAddress,
+    l2_uniswapFactoryAddress,
+    l2_uniswapRouterAddress,
+  } = readConfigFile()
+  setupL2({
+    l2_canonicalTokenAddress,
+    l2_hopBridgeTokenAddress,
+    l2_bridgeAddress,
+    l2_uniswapFactoryAddress,
+    l2_uniswapRouterAddress
+  })
+  .catch(error => {
+    console.error(error)
+  })
+  .finally(() => process.exit(0))
+}

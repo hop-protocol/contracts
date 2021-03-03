@@ -12,10 +12,12 @@
   "scripts": {
     "test": "hardhat test",
     "build": "hardhat compile",
+    "build:ts": "tsc",
     "lint": "prettier-standard --fix",
     "publish-module": "npm publish --tag beta --access public",
     "release": "npm run clean && npm run publish-module",
     "clean": "rimraf cache artifacts",
+    "deploy": "npm run build:ts && node ./dist/scripts/deploy.js",
     "deploy:l1-kovan": "hardhat run scripts/deployments/deployL1.ts --network kovan",
     "deploy:l2-arbitrum": "hardhat run scripts/deployments/deployL2.ts --network arbitrum",
     "deploy:l2-optimism": "hardhat run scripts/deployments/deployL2.ts --network optimism",
