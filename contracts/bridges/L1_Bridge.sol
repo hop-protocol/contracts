@@ -86,7 +86,8 @@ abstract contract L1_Bridge is Bridge {
     function sendToL2(
         uint256 chainId,
         address recipient,
-        uint256 amount
+        uint256 amount,
+        uint256 relayerFee
     )
         external
         payable
@@ -97,7 +98,7 @@ abstract contract L1_Bridge is Bridge {
 
         _transferToBridge(msg.sender, amount);
 
-        bytes memory mintCalldata = abi.encodeWithSignature("mint(address,uint256)", recipient, amount);
+        bytes memory mintCalldata = abi.encodeWithSignature("mint(address,uint256,uint256)", recipient, amount, relayerFee);
 
         chainBalance[chainId] = chainBalance[chainId].add(amount);
         messengerWrapper.sendCrossDomainMessage(mintCalldata);
@@ -108,7 +109,8 @@ abstract contract L1_Bridge is Bridge {
         address recipient,
         uint256 amount,
         uint256 amountOutMin,
-        uint256 deadline
+        uint256 deadline,
+        uint256 relayerFee
     )
         external
         payable
@@ -120,11 +122,12 @@ abstract contract L1_Bridge is Bridge {
         _transferToBridge(msg.sender, amount);
 
         bytes memory mintAndAttemptSwapCalldata = abi.encodeWithSignature(
-            "mintAndAttemptSwap(address,uint256,uint256,uint256)",
+            "mintAndAttemptSwap(address,uint256,uint256,uint256,uint256)",
             recipient,
             amount,
             amountOutMin,
-            deadline
+            deadline,
+            relayerFee
         );
 
         chainBalance[chainId] = chainBalance[chainId].add(amount);

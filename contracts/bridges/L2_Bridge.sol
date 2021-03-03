@@ -182,12 +182,23 @@ abstract contract L2_Bridge is Bridge {
         _commitTransfers(destinationChainId);
     }
 
-    function mint(address recipient, uint256 amount) public onlyL1Bridge {
+    function mint(address recipient, uint256 amount, uint256 relayerFee) public onlyL1Bridge {
         hToken.mint(recipient, amount);
+        hToken.mint(msg.sender, relayerFee);
     }
 
-    function mintAndAttemptSwap(address recipient, uint256 amount, uint256 amountOutMin, uint256 deadline) external onlyL1Bridge {
+    function mintAndAttemptSwap(
+        address recipient,
+        uint256 amount,
+        uint256 amountOutMin,
+        uint256 deadline,
+        uint256 relayerFee
+    )
+        external
+        onlyL1Bridge
+    {
         _mintAndAttemptSwap(recipient, amount, amountOutMin, deadline);
+        hToken.mint(msg.sender, relayerFee);
     }
 
     function withdrawAndAttemptSwap(
