@@ -89,7 +89,7 @@ abstract contract L2_Bridge is Bridge {
 
     /* ========== Public/External functions ========== */
 
-    /// @notice _amount is the amount the user wants to send plus the relayer fee
+    /// @notice _amount is the amount the user wants to send plus the Bonder fee
     function send(
         uint256 chainId,
         address recipient,
@@ -135,7 +135,7 @@ abstract contract L2_Bridge is Bridge {
         emit TransferSent(transferId, recipient, amount, transferNonce, bonderFee);
     }
 
-    /// @notice amount is the amount the user wants to send plus the relayer fee
+    /// @notice amount is the amount the user wants to send plus the Bonder fee
     function swapAndSend(
         uint256 chainId,
         address recipient,
@@ -149,7 +149,7 @@ abstract contract L2_Bridge is Bridge {
         external
         payable
     {
-        require(amount >= bonderFee, "L2_BRG: relayer fee cannot exceed amount");
+        require(amount >= bonderFee, "L2_BRG: Bonder fee cannot exceed amount");
 
         if (l2CanonicalTokenIsEth) {
             require(msg.value == amount, "L2_BRG: Value does not match amount");

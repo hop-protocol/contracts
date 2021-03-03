@@ -312,7 +312,7 @@ abstract contract Bridge is Accounting {
 
     /* ========== Private Functions ========== */
 
-    /// @dev Completes the Transfer, distributes the relayer fee and marks the Transfer as spent.
+    /// @dev Completes the Transfer, distributes the Bonder fee and marks the Transfer as spent.
     function _fulfillWithdraw(
         bytes32 transferId,
         address recipient,
