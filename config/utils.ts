@@ -54,6 +54,7 @@ export const getMessengerWrapperDefaults = (
 }
 
 export const getL2BridgeDefaults = (
+  isProdDeployment: boolean,
   chainId: BigNumber,
   l2MessengerAddress: string,
   governanceAddress: string,
@@ -61,7 +62,7 @@ export const getL2BridgeDefaults = (
   l2CanonicalTokenAddress: string,
   l2CanonicalTokenIsEth: boolean,
   l1BridgeAddress: string,
-  getAllSupportedChainIds: string[],
+  supportedChainIds: string[],
   l2UniswapRouterAddress: string,
   bonderAddresses: string[],
   l1ChainId: BigNumber
@@ -69,6 +70,10 @@ export const getL2BridgeDefaults = (
   let defaults: IGetL2BridgeDefaults[] = []
 
   let additionalData = []
+
+  if (!isProdDeployment) {
+    defaults.push(chainId)
+  }
 
   if (isChainIdArbitrum(chainId)) {
   } else if (isChainIdOptimism(chainId)) {
@@ -78,14 +83,13 @@ export const getL2BridgeDefaults = (
   }
 
   defaults.push(
-    chainId,
     l2MessengerAddress,
     governanceAddress,
     l2HopBridgeTokenAddress,
     l2CanonicalTokenAddress,
     l2CanonicalTokenIsEth,
     l1BridgeAddress,
-    getAllSupportedChainIds,
+    supportedChainIds,
     l2UniswapRouterAddress,
     bonderAddresses
   )

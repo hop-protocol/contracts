@@ -5,7 +5,7 @@ import { network, ethers, l2ethers as ovmEthers } from 'hardhat'
 
 import { getContractFactories, verifyDeployment } from '../shared/utils'
 
-import { isChainIdOptimism, isChainIdArbitrum, isChainIdXDai } from '../../config/utils'
+import { isChainIdOptimism, isChainIdArbitrum, isChainIdXDai, getL2BridgeDefaults } from '../../config/utils'
 import {
   ZERO_ADDRESS,
   CHAIN_IDS,
@@ -27,7 +27,7 @@ async function deployL2 () {
   // Variables
   const l2_hTokenName: string = DEFAULT_H_TOKEN_NAME
   const l2_hTokenSymbol: string = DEFAULT_H_TOKEN_SYMBOL
-  const l2_hTokenDecimals: number = 18
+  const l2_hTokenDecimals: number = DEFAULT_H_TOKEN_DECIMALS
 
   if (
     !l1_bridgeAddress ||
@@ -48,6 +48,7 @@ async function deployL2 () {
   // Factories
   let L1_Bridge: ContractFactory
   let L2_MockERC20: ContractFactory
+  let L2_HopBridgeToken: ContractFactory
   let L2_Bridge: ContractFactory
   let L2_UniswapFactory: ContractFactory
   let L2_UniswapRouter: ContractFactory
@@ -57,6 +58,7 @@ async function deployL2 () {
   let l1_bridge: Contract
   let l2_bridge: Contract
   let l2_canonicalToken: Contract
+  let l2_hopBridgeToken: Contract
   let l2_uniswapFactory: Contract
   let l2_uniswapRouter: Contract
   let l2_uniswapPair: Contract
@@ -70,6 +72,7 @@ async function deployL2 () {
   ;({
     L1_Bridge,
     L2_MockERC20,
+    L2_HopBridgeToken,
     L2_Bridge,
     L2_UniswapFactory,
     L2_UniswapRouter,
@@ -83,6 +86,14 @@ async function deployL2 () {
   /**
    * Deployments
    */
+
+  l2_hopBridgeToken = await L2_HopBridgeToken.deploy(
+    await owner.getAddress(),
+    l2_hTokenName,
+    l2_hTokenSymbol,
+    l2_hTokenDecimals
+  )
+
   ;({ l2_uniswapFactory, l2_uniswapRouter } = await deployUniswap(
     ethers,
     owner,
@@ -101,12 +112,10 @@ async function deployL2 () {
     L2_Bridge,
     l1_bridge,
     l2_bridge,
+    l2_hopBridgeToken,
     l2_canonicalToken,
     l2_uniswapRouter,
-    l2_messengerAddress,
-    l2_hTokenName,
-    l2_hTokenSymbol,
-    l2_hTokenDecimals
+    l2_messengerAddress
   ))
 
   await deployNetworkSpecificContracts(
@@ -118,7 +127,11 @@ async function deployL2 () {
     l2_uniswapPair
   )
 
+  // Transfer ownership of the Hop Bridge Token to the L2 Bridge
+  // await l2_hopBridgeToken.transferOwnership(l2_bridge.address)
+
   console.log('Deployments Complete')
+  console.log('L2 Hop Bridge Token :', l2_hopBridgeToken.address)
   console.log('L2 Bridge           :', l2_bridge.address)
   console.log('L2 Uniswap Factory  :', l2_uniswapFactory.address)
   console.log('L2 Uniswap Router   :', l2_uniswapRouter.address)
@@ -160,31 +173,30 @@ const deployBridge = async (
   L2_Bridge: ContractFactory,
   l1_bridge: Contract,
   l2_bridge: Contract,
+  l2_hopBridgeToken: Contract,
   l2_canonicalToken: Contract,
   l2_uniswapRouter: Contract,
-  l2_messengerAddress: string,
-  l2_hTokenName: string,
-  l2_hTokenSymbol: string,
-  l2_hTokenDecimals: number
+  l2_messengerAddress: string
 ) => {
   // NOTE: Adding more CHAIN_IDs here will push the OVM deployment over the contract size limit
   //       If additional CHAIN_IDs must be added, do so after the deployment.
-  const l2BridgeDeploymentParams = [
+  // TODO: l2CanonicalTokenIsEth should be 'smart'
+  const isProdDeployment: boolean = true
+  const l2CanonicalTokenIsEth: boolean = false
+  const l2BridgeDeploymentParams = getL2BridgeDefaults (
+    isProdDeployment,
+    chainId,
     l2_messengerAddress,
     await owner.getAddress(),
+    l2_hopBridgeToken.address,
     l2_canonicalToken.address,
+    l2CanonicalTokenIsEth,
     l1_bridge.address,
-    [CHAIN_IDS.ETHEREUM.MAINNET],
-    [await bonder.getAddress()],
+    [CHAIN_IDS.ETHEREUM.MAINNET.toString()],
     l2_uniswapRouter.address,
-    l2_hTokenName,
-    l2_hTokenSymbol,
-    l2_hTokenDecimals
-  ]
-
-  if (isChainIdXDai(chainId)) {
-    l2BridgeDeploymentParams.push(ethersUtils.formatBytes32String(l1ChainId.toString()))
-  }
+    [await bonder.getAddress()],
+    l1ChainId
+  )
 
   l2_bridge = await L2_Bridge.connect(owner).deploy(...l2BridgeDeploymentParams)
   await l2_bridge.deployed()

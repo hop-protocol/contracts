@@ -104,6 +104,7 @@ async function setupL1 () {
   )
 
   // Get canonical token to L2
+  // NOTE: If this is not the self-mintable testnet DAI, comment this line out
   await l1_canonicalToken
     .connect(owner)
     .mint(
@@ -122,7 +123,7 @@ async function setupL1 () {
   )
 
   // Get hop token on L2
-  // NOTE: If there is no watcher set up, this transaction will never make it to L2
+  // NOTE: If this is not the self-mintable testnet DAI, comment this line out
   await l1_canonicalToken
     .connect(owner)
     .mint(

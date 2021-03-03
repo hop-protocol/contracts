@@ -127,8 +127,10 @@ export async function fixture (l1ChainId: BigNumber, l2ChainId: BigNumber, l1Alr
   )
 
   // Deploy Hop L2 contracts
+  const isProdDeployment: boolean = false
   const l2CanonicalTokenIsEth: boolean = false
   let l2BridgeDefaults: IGetL2BridgeDefaults[] = getL2BridgeDefaults(
+    isProdDeployment,
     l2ChainId,
     l2_messenger.address,
     await governance.getAddress(),
