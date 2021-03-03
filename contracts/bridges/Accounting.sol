@@ -10,10 +10,10 @@ import "@openzeppelin/contracts/math/SafeMath.sol";
  * The accounting system works by using two balances that can only increase `_credit` and `_debit`.
  * A bonder's available balance is the total credit minus the total debit. The contract exposes
  * two external functions that allows a bonder to stake and unstake and exposes two internal
- * functions to its parent contracts that allow the parent contract to add to the credit 
- * and debit balance. In addition, parent contracts can override `_additionalDebit` to account
+ * functions to its child contracts that allow the child contract to add to the credit 
+ * and debit balance. In addition, child contracts can override `_additionalDebit` to account
  * for any additional debit balance in an alternative way. Lastly, it exposes a modifier,
- * `requirePositiveBalance`, that can be used by parent contracts to ensure the bonder does not
+ * `requirePositiveBalance`, that can be used by child contracts to ensure the bonder does not
  * use more than its available stake.
  */
 
