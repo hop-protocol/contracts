@@ -4,6 +4,8 @@ import '@nomiclabs/hardhat-waffle'
 import '@eth-optimism/plugins/hardhat/compiler'
 import '@eth-optimism/plugins/hardhat/ethers'
 
+import 'hardhat-abi-exporter'
+
 import { CHAIN_IDS } from './config/constants'
 
 const desiredAccounts: string[] = [
@@ -75,5 +77,10 @@ export default {
   },
   mocha: {
     timeout: 40000
+  },
+  abiExporter: {
+    path: './data/abi',
+    clear: true,
+    flat: true
   }
 }
