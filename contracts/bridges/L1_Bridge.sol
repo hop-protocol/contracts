@@ -17,6 +17,7 @@ abstract contract L1_Bridge is Bridge {
         address bonder;
         uint256 createdAt;
         uint256 totalAmount;
+        uint256 rootCommittedAt;
         uint256 challengeStartTime;
         address challenger;
         bool challengeResolved;
@@ -33,11 +34,14 @@ abstract contract L1_Bridge is Bridge {
 
     address public governance;
     mapping(uint256 => IMessengerWrapper) public crossDomainMessengerWrappers;
+    mapping(uint256 => bool) public isChainIdPaused;
     uint256 public challengeAmountMultiplier = 1;
     uint256 public challengeAmountDivisor = 10;
     uint256 public timeSlotSize = 3 hours;
     uint256 public challengePeriod = 1 days;
     uint256 public challengeResolutionPeriod = 10 days;
+
+    uint256 constant MIN_TRANSFER_ROOT_BOND_DELAY = 15 minutes;
 
     /* ========== Events ========== */
 
@@ -82,17 +86,19 @@ abstract contract L1_Bridge is Bridge {
     function sendToL2(
         uint256 chainId,
         address recipient,
-        uint256 amount
+        uint256 amount,
+        uint256 relayerFee
     )
         external
         payable
     {
         IMessengerWrapper messengerWrapper = crossDomainMessengerWrappers[chainId];
         require(messengerWrapper != IMessengerWrapper(0), "L1_BRG: chainId not supported");
+        require(isChainIdPaused[chainId] == false, "L1_BRG: Sends to this chainId are paused");
 
         _transferToBridge(msg.sender, amount);
 
-        bytes memory mintCalldata = abi.encodeWithSignature("mint(address,uint256)", recipient, amount);
+        bytes memory mintCalldata = abi.encodeWithSignature("mint(address,uint256,uint256)", recipient, amount, relayerFee);
 
         chainBalance[chainId] = chainBalance[chainId].add(amount);
         messengerWrapper.sendCrossDomainMessage(mintCalldata);
@@ -103,22 +109,25 @@ abstract contract L1_Bridge is Bridge {
         address recipient,
         uint256 amount,
         uint256 amountOutMin,
-        uint256 deadline
+        uint256 deadline,
+        uint256 relayerFee
     )
         external
         payable
     {
         IMessengerWrapper messengerWrapper = crossDomainMessengerWrappers[chainId];
         require(messengerWrapper != IMessengerWrapper(0), "L1_BRG: chainId not supported");
+        require(isChainIdPaused[chainId] == false, "L1_BRG: Sends to this chainId are paused");
 
         _transferToBridge(msg.sender, amount);
 
         bytes memory mintAndAttemptSwapCalldata = abi.encodeWithSignature(
-            "mintAndAttemptSwap(address,uint256,uint256,uint256)",
+            "mintAndAttemptSwap(address,uint256,uint256,uint256,uint256)",
             recipient,
             amount,
             amountOutMin,
-            deadline
+            deadline,
+            relayerFee
         );
 
         chainBalance[chainId] = chainBalance[chainId].add(amount);
@@ -158,7 +167,15 @@ abstract contract L1_Bridge is Bridge {
         uint256 bondAmount = getBondForTransferAmount(totalAmount);
         timeSlotToAmountBonded[currentTimeSlot] = timeSlotToAmountBonded[currentTimeSlot].add(bondAmount);
 
-        transferBonds[transferRootId] = TransferBond(msg.sender, block.timestamp, totalAmount, uint256(0), address(0), false);
+        transferBonds[transferRootId] = TransferBond(
+            msg.sender,
+            block.timestamp,
+            totalAmount,
+            uint256(0),
+            uint256(0),
+            address(0),
+            false
+        );
 
         _distributeTransferRoot(rootHash, destinationChainId, totalAmount);
 
@@ -177,7 +194,8 @@ abstract contract L1_Bridge is Bridge {
         uint256 originChainId,
         bytes32 rootHash,
         uint256 destinationChainId,
-        uint256 totalAmount
+        uint256 totalAmount,
+        uint256 rootCommittedAt
     )
         external
         onlyL2Bridge(originChainId)
@@ -188,10 +206,12 @@ abstract contract L1_Bridge is Bridge {
         chainBalance[originChainId] = chainBalance[originChainId].sub(totalAmount, "L1_BRG: Amount exceeds chainBalance. This indicates a layer-2 failure.");
 
         // If the TransferRoot was never bonded, distribute the TransferRoot. If it has been bonded, 
-        // require that the chainIds and chainAmounts match the values coming from the L2_Bridge.
+        // set the rootCommittedAt which is needed in case of a challenge.
         TransferBond storage transferBond = transferBonds[transferRootId];
         if (transferBond.createdAt == 0) {
             _distributeTransferRoot(rootHash, destinationChainId, totalAmount);
+        } else {
+            transferBond.rootCommittedAt = rootCommittedAt;
         }
 
         emit TransferRootConfirmed(originChainId, destinationChainId, rootHash, totalAmount);
@@ -267,8 +287,21 @@ abstract contract L1_Bridge is Bridge {
 
         if (transferRootConfirmed[transferRootId]) {
             // Invalid challenge
-            // Credit the bonder back with the bond amount plus the challenger's stake
-            _addCredit(transferBond.bonder, getBondForTransferAmount(transferRoot.total).add(challengeStakeAmount));
+
+            if (transferBond.createdAt > transferBond.rootCommittedAt.add(MIN_TRANSFER_ROOT_BOND_DELAY)) {
+                // Credit the bonder back with the bond amount plus the challenger's stake
+                _addCredit(transferBond.bonder, getBondForTransferAmount(transferRoot.total).add(challengeStakeAmount));
+            } else {
+                // If the TransferRoot was bonded before it was committed, the challenger and Bonder
+                // get their stake back. This discourages Bonders from tricking challengers into
+                // challenging a valid TransferRoots that haven't yet been committed. It also ensures
+                // that Bonders are not punished if a TransferRoot is bonded too soon in error.
+
+                // Return the challenger's stake
+                _transferFromBridge(transferBond.challenger, challengeStakeAmount);
+                // Credit the bonder back with the bond amount
+                _addCredit(transferBond.bonder, getBondForTransferAmount(transferRoot.total));
+            }
         } else {
             // Valid challenge
             // Burn 25% of the challengers stake
@@ -307,6 +340,10 @@ abstract contract L1_Bridge is Bridge {
 
     function setCrossDomainMessengerWrapper(uint256 chainId, IMessengerWrapper _crossDomainMessengerWrapper) external onlyGovernance {
         crossDomainMessengerWrappers[chainId] = _crossDomainMessengerWrapper;
+    }
+
+    function setChainIdDepositsPaused(uint256 chainId, bool isPaused) external onlyGovernance {
+        isChainIdPaused[chainId] = isPaused;
     }
 
     function setChallengeAmountDivisor(uint256 _challengeAmountDivisor) external onlyGovernance {

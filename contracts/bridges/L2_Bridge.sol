@@ -25,6 +25,8 @@ abstract contract L2_Bridge is Bridge {
     uint256 public minimumForceCommitDelay = 4 hours;
     uint256 public messengerGasLimit = 250000;
     uint256 public maxPendingTransfers = 100;
+    uint256 public minBonderBps = 2;
+    uint256 public minBonderFeeAbsolute = 0;
 
     mapping(uint256 => bytes32[]) public pendingTransferIdsForChainId;
     mapping(uint256 => uint256) public pendingAmountForChainId;
@@ -36,7 +38,8 @@ abstract contract L2_Bridge is Bridge {
 
     event TransfersCommitted (
         bytes32 indexed rootHash,
-        uint256 totalAmount
+        uint256 totalAmount,
+        uint256 rootCommittedAt
     );
 
     event TransferSent (
@@ -44,7 +47,7 @@ abstract contract L2_Bridge is Bridge {
         address indexed recipient,
         uint256 amount,
         bytes32 indexed transferNonce,
-        uint256 relayerFee
+        uint256 bonderFee
     );
 
     modifier onlyL1Bridge {
@@ -87,20 +90,24 @@ abstract contract L2_Bridge is Bridge {
 
     /* ========== Public/External functions ========== */
 
-    /// @notice _amount is the amount the user wants to send plus the relayer fee
+    /// @notice _amount is the amount the user wants to send plus the Bonder fee
     function send(
         uint256 chainId,
         address recipient,
         uint256 amount,
-        uint256 relayerFee,
+        uint256 bonderFee,
         uint256 amountOutMin,
         uint256 deadline
     )
         public
     {
         require(amount > 0, "L2_BRG: Must transfer a non-zero amount");
-        require(amount >= relayerFee, "L2_BRG: Relayer fee cannot exceed amount");
+        require(amount >= bonderFee, "L2_BRG: Bonder fee cannot exceed amount");
         require(supportedChainIds[chainId], "L2_BRG: _chainId is not supported");
+        uint256 minBonderFeeRelative = amount.mul(minBonderBps).div(10000);
+        // Get the max of minBonderFeeRelative and minBonderFeeAbsolute
+        uint256 minBonderFee = minBonderFeeRelative > minBonderFeeAbsolute ? minBonderFeeRelative : minBonderFeeAbsolute;
+        require(bonderFee >= minBonderFee, "L2_BRG: bonderFee must meet minimum requirements");
 
         bytes32[] storage pendingTransfers = pendingTransferIdsForChainId[chainId];
 
@@ -118,7 +125,7 @@ abstract contract L2_Bridge is Bridge {
             recipient,
             amount,
             transferNonce,
-            relayerFee,
+            bonderFee,
             amountOutMin,
             deadline
         );
@@ -126,15 +133,15 @@ abstract contract L2_Bridge is Bridge {
 
         pendingAmountForChainId[chainId] = pendingAmountForChainId[chainId].add(amount);
 
-        emit TransferSent(transferId, recipient, amount, transferNonce, relayerFee);
+        emit TransferSent(transferId, recipient, amount, transferNonce, bonderFee);
     }
 
-    /// @notice amount is the amount the user wants to send plus the relayer fee
+    /// @notice amount is the amount the user wants to send plus the Bonder fee
     function swapAndSend(
         uint256 chainId,
         address recipient,
         uint256 amount,
-        uint256 relayerFee,
+        uint256 bonderFee,
         uint256 amountOutMin,
         uint256 deadline,
         uint256 destinationAmountOutMin,
@@ -143,7 +150,7 @@ abstract contract L2_Bridge is Bridge {
         external
         payable
     {
-        require(amount >= relayerFee, "L2_BRG: relayer fee cannot exceed amount");
+        require(amount >= bonderFee, "L2_BRG: Bonder fee cannot exceed amount");
 
         if (l2CanonicalTokenIsEth) {
             require(msg.value == amount, "L2_BRG: Value does not match amount");
@@ -165,7 +172,7 @@ abstract contract L2_Bridge is Bridge {
             deadline
         );
 
-        send(chainId, recipient, swapAmount, relayerFee, destinationAmountOutMin, destinationDeadline);
+        send(chainId, recipient, swapAmount, bonderFee, destinationAmountOutMin, destinationDeadline);
     }
 
     function commitTransfers(uint256 destinationChainId) external {
@@ -176,19 +183,30 @@ abstract contract L2_Bridge is Bridge {
         _commitTransfers(destinationChainId);
     }
 
-    function mint(address recipient, uint256 amount) public onlyL1Bridge {
+    function mint(address recipient, uint256 amount, uint256 relayerFee) public onlyL1Bridge {
         hToken.mint(recipient, amount);
+        hToken.mint(msg.sender, relayerFee);
     }
 
-    function mintAndAttemptSwap(address recipient, uint256 amount, uint256 amountOutMin, uint256 deadline) external onlyL1Bridge {
+    function mintAndAttemptSwap(
+        address recipient,
+        uint256 amount,
+        uint256 amountOutMin,
+        uint256 deadline,
+        uint256 relayerFee
+    )
+        external
+        onlyL1Bridge
+    {
         _mintAndAttemptSwap(recipient, amount, amountOutMin, deadline);
+        hToken.mint(msg.sender, relayerFee);
     }
 
     function withdrawAndAttemptSwap(
         address recipient,
         uint256 amount,
         bytes32 transferNonce,
-        uint256 relayerFee,
+        uint256 bonderFee,
         bytes32 rootHash,
         bytes32[] memory proof,
         uint256 amountOutMin,
@@ -201,21 +219,21 @@ abstract contract L2_Bridge is Bridge {
             recipient,
             amount,
             transferNonce,
-            relayerFee,
+            bonderFee,
             amountOutMin,
             deadline
         );
 
         require(proof.verify(rootHash, transferId), "L2_BRG: Invalid transfer proof");
         _addToAmountWithdrawn(rootHash, amount);
-        _withdrawAndAttemptSwap(transferId, recipient, amount, relayerFee, amountOutMin, deadline);
+        _withdrawAndAttemptSwap(transferId, recipient, amount, uint256(0), amountOutMin, deadline);
     }
 
     function bondWithdrawalAndAttemptSwap(
         address recipient,
         uint256 amount,
         bytes32 transferNonce,
-        uint256 relayerFee,
+        uint256 bonderFee,
         uint256 amountOutMin,
         uint256 deadline
     )
@@ -228,13 +246,13 @@ abstract contract L2_Bridge is Bridge {
             recipient,
             amount,
             transferNonce,
-            relayerFee,
+            bonderFee,
             amountOutMin,
             deadline
         );
 
         _bondWithdrawal(transferId, amount);
-        _withdrawAndAttemptSwap(transferId, recipient, amount, relayerFee, amountOutMin, deadline);
+        _withdrawAndAttemptSwap(transferId, recipient, amount, bonderFee, amountOutMin, deadline);
     }
 
     function setTransferRoot(bytes32 rootHash, uint256 totalAmount) external onlyL1Bridge {
@@ -249,15 +267,17 @@ abstract contract L2_Bridge is Bridge {
 
         bytes32 rootHash = MerkleUtils.getMerkleRoot(pendingTransfers);
         uint256 totalAmount = pendingAmountForChainId[destinationChainId];
+        uint256 rootCommittedAt = block.timestamp;
 
-        emit TransfersCommitted(rootHash, totalAmount);
+        emit TransfersCommitted(rootHash, totalAmount, rootCommittedAt);
 
         bytes memory confirmTransferRootMessage = abi.encodeWithSignature(
-            "confirmTransferRoot(uint256,bytes32,uint256,uint256)",
+            "confirmTransferRoot(uint256,bytes32,uint256,uint256,uint256)",
             getChainId(),
             rootHash,
             destinationChainId,
-            totalAmount
+            totalAmount,
+            rootCommittedAt
         );
 
         delete pendingTransferIdsForChainId[destinationChainId];
@@ -302,15 +322,17 @@ abstract contract L2_Bridge is Bridge {
         bytes32 transferId,
         address recipient,
         uint256 amount,
-        uint256 relayerFee,
+        uint256 bonderFee,
         uint256 amountOutMin,
         uint256 deadline
     ) internal {
         _markTransferSpent(transferId);
         // distribute fee
-        _transferFromBridge(msg.sender, relayerFee);
+        if (bonderFee > 0) {
+            _transferFromBridge(msg.sender, bonderFee);
+        }
         // Attempt swap to recipient
-        uint256 amountAfterFee = amount.sub(relayerFee);
+        uint256 amountAfterFee = amount.sub(bonderFee);
         _mintAndAttemptSwap(recipient, amountAfterFee, amountOutMin, deadline);
     }
 
@@ -378,6 +400,11 @@ abstract contract L2_Bridge is Bridge {
 
     function setHopBridgeTokenOwner(address newOwner) external onlyGovernance {
         hToken.transferOwnership(newOwner);
+    }
+
+    function setMinimumBonderFeeRequirements(uint256 _minBonderBps, uint256 _minBonderFeeAbsolute) external onlyGovernance {
+        minBonderBps = _minBonderBps;
+        minBonderFeeAbsolute = _minBonderFeeAbsolute;
     }
 
     /* ========== Public Getters ========== */
