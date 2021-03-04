@@ -266,9 +266,10 @@ export const executeL1BridgeChallengeTransferBond = async (
   )
 
   const transferBond = await l1_bridge.transferBonds(transferRootId)
-  // TODO: Test rootCommittedAt x 2
+  const expectedCommitTimeForChainId: number = Date.now() 
+  expect(transferBond[3]).to.be.eq(BigNumber.from('0'))
   expect(transferBond[4].mul(1000).toNumber()).to.be.closeTo(
-    Date.now(),
+    expectedCommitTimeForChainId,
     TIMESTAMP_VARIANCE
   )
   expect(transferBond[5]).to.eq(await challenger.getAddress())
@@ -314,10 +315,10 @@ export const executeL1BridgeResolveChallenge = async (
   const creditAfter: BigNumber = await l1_bridge.getCredit(await bonder.getAddress())
 
   if (!shouldResolveSuccessfully) {
-    expect(transferBond[5]).to.eq(true)
-    expect(creditAfter).to.eq(creditBefore.add(bondAmount).add(challengeAmount))
+    expect(transferBond[6]).to.eq(true)
+    expect(creditAfter).to.eq(creditBefore.add(bondAmount))//.add(challengeAmount))
   } else {
-    expect(transferBond[5]).to.eq(true)
+    expect(transferBond[6]).to.eq(true)
 
     // Credit should not have changed
     expect(creditAfter).to.eq(creditBefore)

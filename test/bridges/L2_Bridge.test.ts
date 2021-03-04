@@ -439,7 +439,7 @@ describe('L2_Bridge', () => {
       let expectedBalance: BigNumber = await l2_hopBridgeToken.balanceOf(await user.getAddress())
       await expectBalanceOf(l2_hopBridgeToken, user, expectedBalance)
 
-      await l2_bridge.mint(await user.getAddress(), transfer.amount)
+      await l2_bridge.mint(await user.getAddress(), transfer.amount, BigNumber.from('0'))
 
       expectedBalance = expectedBalance.add(transfer.amount)
       await expectBalanceOf(l2_hopBridgeToken, user, expectedBalance)
@@ -463,7 +463,8 @@ describe('L2_Bridge', () => {
         await user.getAddress(),
         transfer.amount,
         0,
-        DEFAULT_DEADLINE
+        DEFAULT_DEADLINE,
+        BigNumber.from('0')
       )
 
       expectedBalanceHopBridgeToken = expectedBalanceHopBridgeToken

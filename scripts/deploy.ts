@@ -12,14 +12,14 @@ import {
 const exec = util.promisify(require('child_process').exec)
 
 async function main() {
-  const l2_networkName: string = 'optimism'
+  const l2_networkName: string = 'xdai'
   const l1_chainId: string = CHAIN_IDS.ETHEREUM.KOVAN.toString()
   const l2_chainId: string = CHAIN_IDS.OPTIMISM.HOP_TESTNET.toString()
   const l1_bridgeAddress: string = '0xB4585D433075bdF1B503C1e5ca8431999F7042C6'
   const l1_canonicalTokenAddress: string = '0x7d669A64deb8a4A51eEa755bb0E19FD39CE25Ae9'
-  const l1_messengerAddress: string = '0x77eeDe6CC8B46C76e50979Ce3b4163253979c519'
-  const l2_canonicalTokenAddress: string = '0x57eaeE3D9C99b93D8FD1b50EF274579bFEC8e14B'
-  const l2_messengerAddress: string = '0x6d2f304CFF4e0B67dA4ab38C6A5C8184a2424D05'
+  const l1_messengerAddress: string = '0xFe446bEF1DbF7AFE24E81e05BC8B271C1BA9a560'
+  const l2_canonicalTokenAddress: string = '0x714983a8Dc3329bf3BeB8F36b49878CF944E5A3B'
+  const l2_messengerAddress: string = '0x40CdfF886715A4012fAD0219D15C98bB149AeF0e'
   const l2_hBridgeTokenName: string = DEFAULT_H_BRIDGE_TOKEN_NAME
   const l2_hBridgeTokenSymbol: string = DEFAULT_H_BRIDGE_TOKEN_SYMBOL
   const l2_hBridgeTokenDecimals: number = DEFAULT_H_BRIDGE_TOKEN_DECIMALS
@@ -42,8 +42,8 @@ async function main() {
   updateConfigFile(inputs)
 
   await execScript(`npm run deploy:l2-${l2_networkName}`)
-  // await execScript(`npm run setup:l1-kovan`)
-  // await execScript(`npm run setup:l2-${l2_networkName}`)
+  await execScript(`npm run setup:l1-kovan`)
+  await execScript(`npm run setup:l2-${l2_networkName}`)
 }
 
 async function execScript(cmd: string) {

@@ -238,7 +238,10 @@ describe('L1_Bridge', () => {
       TIMESTAMP_VARIANCE
     )
     expect(transferBondByTransferRootId[2]).to.eq(transfer.amount)
-    // TODO: Test rootCommittedAt
+    expect(transferBondByTransferRootId[3].mul(1000).toNumber()).to.be.closeTo(
+      expectedCommitTimeForChainId,
+      TIMESTAMP_VARIANCE
+    )
     expect(transferBondByTransferRootId[4]).to.eq(0)
     expect(transferBondByTransferRootId[5]).to.eq(ZERO_ADDRESS)
     expect(transferBondByTransferRootId[6]).to.eq(false)
@@ -563,8 +566,7 @@ describe('L1_Bridge', () => {
       )
     })
   })
-  // TODO: Handle contract changes
-  describe.skip('resolveChallenge', async () => {
+  describe('resolveChallenge', async () => {
     it('Should send a transaction from L2 to L1, bond withdrawal on L1, challenge the transfer bond, and resolve unsuccessfully', async () => {
       await executeL1BridgeSendToL2(
         l1_canonicalToken,
@@ -1794,8 +1796,7 @@ describe('L1_Bridge', () => {
       ).to.be.revertedWith(expectedErrorMsg)
     })
 
-    // TODO: Handle contract changes x 2
-    it.skip('Should not allow a transfer root challenge to be resolved if it has already been resolved', async () => {
+    it('Should not allow a transfer root challenge to be resolved if it has already been resolved', async () => {
       const expectedErrorMsg: string = 'L1_BRG: TransferRoot already resolved'
 
       await executeL1BridgeSendToL2(
