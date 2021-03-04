@@ -9,7 +9,8 @@ import {
   TIMESTAMP_VARIANCE,
   DEFAULT_AMOUNT_OUT_MIN,
   DEFAULT_DEADLINE,
-  DEAD_ADDRESS
+  DEAD_ADDRESS,
+  DEFAULT_BONDER_FEE
 } from '../../config/constants'
 
 /**
@@ -45,6 +46,7 @@ export const executeL1BridgeSendToL2 = async (
   l2_messenger: Contract,
   sender: Signer,
   amount: BigNumber,
+  relayerFee: BigNumber,
   l2ChainId: BigNumber
 ) => {
   // Get state before transaction
@@ -54,7 +56,7 @@ export const executeL1BridgeSendToL2 = async (
   await l1_canonicalToken.connect(sender).approve(l1_bridge.address, amount)
   await l1_bridge
     .connect(sender)
-    .sendToL2(l2ChainId, await sender.getAddress(), amount)
+    .sendToL2(l2ChainId, await sender.getAddress(), amount, relayerFee)
   await l2_messenger.relayNextMessage()
 
   // Validate state after transaction
@@ -74,6 +76,7 @@ export const executeL1BridgeSendToL2AndAttemptToSwap = async (
   l2_canonicalToken: Contract,
   l2_uniswapRouter: Contract,
   transfer: Transfer,
+  relayerFee: BigNumber,
   l2ChainId: BigNumber
 ) => {
   const sender: Signer = transfer.sender
@@ -102,7 +105,8 @@ export const executeL1BridgeSendToL2AndAttemptToSwap = async (
       await recipient.getAddress(),
       amount,
       amountOutMin,
-      deadline
+      deadline,
+      relayerFee
     )
   await l2_messenger.relayNextMessage()
 
@@ -138,18 +142,18 @@ export const executeL1BridgeBondWithdrawal = async (
       await transfer.recipient.getAddress(),
       transfer.amount,
       transferNonce,
-      transfer.relayerFee
+      transfer.bonderFee
     )
 
   // Validate state after transaction
   let senderL1CanonicalTokenBalance: BigNumber
   let recipientL1CanonicalTokenBalance: BigNumber
   if(transfer.sender === transfer.recipient) {
-    senderL1CanonicalTokenBalance = senderBalanceBefore.add(transfer.amount).sub(transfer.relayerFee)
+    senderL1CanonicalTokenBalance = senderBalanceBefore.add(transfer.amount).sub(transfer.bonderFee)
     recipientL1CanonicalTokenBalance = senderL1CanonicalTokenBalance
   } else {
     senderL1CanonicalTokenBalance = senderBalanceBefore
-    recipientL1CanonicalTokenBalance = transfer.amount.sub(transfer.relayerFee)
+    recipientL1CanonicalTokenBalance = transfer.amount.sub(transfer.bonderFee)
   }
   await expectBalanceOf(
     l1_canonicalToken,
@@ -167,7 +171,7 @@ export const executeL1BridgeBondWithdrawal = async (
   await expectBalanceOf(
     l1_canonicalToken,
     bonder,
-    bonderBalanceBefore.add(transfer.relayerFee)
+    bonderBalanceBefore.add(transfer.bonderFee)
   )
 }
 
@@ -262,12 +266,13 @@ export const executeL1BridgeChallengeTransferBond = async (
   )
 
   const transferBond = await l1_bridge.transferBonds(transferRootId)
-  expect(transferBond[3].mul(1000).toNumber()).to.be.closeTo(
+  // TODO: Test rootCommittedAt x 2
+  expect(transferBond[4].mul(1000).toNumber()).to.be.closeTo(
     Date.now(),
     TIMESTAMP_VARIANCE
   )
-  expect(transferBond[4]).to.eq(await challenger.getAddress())
-  expect(transferBond[5]).to.eq(false)
+  expect(transferBond[5]).to.eq(await challenger.getAddress())
+  expect(transferBond[6]).to.eq(false)
 
   const timeSlot: string = await l1_bridge.getTimeSlot(Math.floor(Date.now() / 1000))
   const bondAmountForTimeSlot: number = await l1_bridge.timeSlotToAmountBonded(timeSlot)
@@ -352,7 +357,7 @@ export const executeL2BridgeSend = async (
       transfer.chainId,
       await transfer.recipient.getAddress(),
       transfer.amount,
-      transfer.relayerFee,
+      transfer.bonderFee,
       transfer.amountOutMin,
       transfer.deadline
     )
@@ -387,7 +392,7 @@ export const executeL2BridgeSend = async (
   expect(transferSentArgs[1]).to.eq(await transfer.recipient.getAddress())
   expect(transferSentArgs[2]).to.eq(transfer.amount)
   expect(transferSentArgs[3]).to.eq(transferNonce)
-  expect(transferSentArgs[4]).to.eq(transfer.relayerFee)
+  expect(transferSentArgs[4]).to.eq(transfer.bonderFee)
 }
 
 export const executeL2BridgeSwapAndSend = async (
@@ -415,7 +420,7 @@ export const executeL2BridgeSwapAndSend = async (
       transfer.chainId,
       await transfer.recipient.getAddress(),
       transfer.amount,
-      transfer.relayerFee,
+      transfer.bonderFee,
       transfer.amountOutMin,
       transfer.deadline,
       transfer.destinationAmountOutMin,
@@ -451,7 +456,7 @@ export const executeL2BridgeSwapAndSend = async (
   expect(transferSentArgs[1]).to.eq(await transfer.recipient.getAddress())
   expect(transferSentArgs[2]).to.eq(transferAfterSlippage.amount)
   expect(transferSentArgs[3]).to.eq(transferNonce)
-  expect(transferSentArgs[4]).to.eq(transfer.relayerFee)
+  expect(transferSentArgs[4]).to.eq(transfer.bonderFee)
 }
 
 export const executeL2BridgeCommitTransfers = async (
@@ -539,7 +544,7 @@ export const executeL2BridgeBondWithdrawalAndAttemptSwap = async (
   const bonderBalanceBefore: BigNumber = await l2_hopBridgeToken.balanceOf(await bonder.getAddress())
 
   const expectedAmountsRecipientBridge: BigNumber[] = await l2_uniswapRouter.getAmountsOut(
-    actualTransferAmount.sub(transfer.relayerFee),
+    actualTransferAmount.sub(transfer.bonderFee),
     [l2_canonicalToken.address, l2_hopBridgeToken.address]
   )
   const expectedRecipientAmountAfterSlippage: BigNumber = expectedAmountsRecipientBridge[1]
@@ -551,7 +556,7 @@ export const executeL2BridgeBondWithdrawalAndAttemptSwap = async (
       await transfer.recipient.getAddress(),
       transfer.amount,
       transferNonce,
-      transfer.relayerFee,
+      transfer.bonderFee,
       transfer.amountOutMin,
       transfer.deadline
     )
@@ -566,7 +571,7 @@ export const executeL2BridgeBondWithdrawalAndAttemptSwap = async (
   await expectBalanceOf(
     l2_hopBridgeToken,
     bonder,
-    bonderBalanceBefore.add(transfer.relayerFee)
+    bonderBalanceBefore.add(transfer.bonderFee)
   )
   await expectBalanceOf(
     l2_canonicalToken,
