@@ -202,33 +202,6 @@ abstract contract L2_Bridge is Bridge {
         hToken.mint(msg.sender, relayerFee);
     }
 
-    function withdrawAndAttemptSwap(
-        address recipient,
-        uint256 amount,
-        bytes32 transferNonce,
-        uint256 bonderFee,
-        bytes32 rootHash,
-        bytes32[] memory proof,
-        uint256 amountOutMin,
-        uint256 deadline
-    )
-        external
-    {
-        bytes32 transferId = getTransferId(
-            getChainId(),
-            recipient,
-            amount,
-            transferNonce,
-            bonderFee,
-            amountOutMin,
-            deadline
-        );
-
-        require(proof.verify(rootHash, transferId), "L2_BRG: Invalid transfer proof");
-        _addToAmountWithdrawn(rootHash, amount);
-        _withdrawAndAttemptSwap(transferId, recipient, amount, uint256(0), amountOutMin, deadline);
-    }
-
     function bondWithdrawalAndAttemptSwap(
         address recipient,
         uint256 amount,
