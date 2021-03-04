@@ -19,8 +19,8 @@ export const tokens = {
     optimism: {
       l1CanonicalBridge: '0xA6e9F1409fe85c84CEACD5936800A12d721009cE',
       l1CanonicalMessenger: '0x77eeDe6CC8B46C76e50979Ce3b4163253979c519',
-      l2CanonicalBridge: 'todo',
-      l2CanonicalMessenger: 'todo',
+      l2CanonicalBridge: '0x6d2f304CFF4e0B67dA4ab38C6A5C8184a2424D05',
+      l2CanonicalMessenger: '0x6d2f304CFF4e0B67dA4ab38C6A5C8184a2424D05',
       l2CanonicalToken: '0x57eaeE3D9C99b93D8FD1b50EF274579bFEC8e14B',
       L2_HopBridgeToken: 'todo',
       l2Bridge: '0x6d2f304CFF4e0B67dA4ab38C6A5C8184a2424D05',
