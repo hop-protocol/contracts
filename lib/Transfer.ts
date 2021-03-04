@@ -5,7 +5,7 @@ export type TransferProps = {
   sender: ethers.Signer 
   recipient: ethers.Signer 
   amount: ethers.BigNumber
-  relayerFee: ethers.BigNumber
+  bonderFee: ethers.BigNumber
   amountOutMin: ethers.BigNumber
   deadline: ethers.BigNumber
   destinationAmountOutMin?: ethers.BigNumber
@@ -17,7 +17,7 @@ export default class Transfer {
   sender: ethers.Signer 
   recipient: ethers.Signer 
   amount: ethers.BigNumber
-  relayerFee: ethers.BigNumber
+  bonderFee: ethers.BigNumber
   amountOutMin: ethers.BigNumber
   deadline: ethers.BigNumber
   destinationAmountOutMin?: ethers.BigNumber
@@ -28,7 +28,7 @@ export default class Transfer {
     this.sender = props.sender
     this.recipient = props.recipient
     this.amount = props.amount
-    this.relayerFee = props.relayerFee
+    this.bonderFee = props.bonderFee
     this.amountOutMin = props.amountOutMin
     this.deadline = props.deadline
     this.destinationAmountOutMin = props.destinationAmountOutMin
@@ -51,7 +51,7 @@ export default class Transfer {
         await this.recipient.getAddress(),
         this.amount,
         transferNonce,
-        this.relayerFee,
+        this.bonderFee,
         this.amountOutMin,
         this.deadline
       ]

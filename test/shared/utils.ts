@@ -10,6 +10,7 @@ import {
   INITIAL_BONDED_AMOUNT,
   DEFAULT_DEADLINE,
   CHALLENGER_INITIAL_BALANCE,
+  DEFAULT_RELAYER_FEE,
   UNISWAP_LP_MINIMUM_LIQUIDITY
 } from '../../config/constants'
 
@@ -43,12 +44,14 @@ export const setUpDefaults = async (
 
   const setUpBonderStakeOpts = {
     l2ChainId: l2ChainId,
-    bondAmount: INITIAL_BONDED_AMOUNT
+    bondAmount: INITIAL_BONDED_AMOUNT,
+    relayerFee: DEFAULT_RELAYER_FEE
   }
 
   const setUpL2UniswapMarketOpts = {
     l2ChainId: l2ChainId,
-    liquidityProviderBalance: LIQUIDITY_PROVIDER_UNISWAP_AMOUNT
+    liquidityProviderBalance: LIQUIDITY_PROVIDER_UNISWAP_AMOUNT,
+    relayerFee: DEFAULT_RELAYER_FEE
   }
 
   await setUpL2HopBridgeToken(fixture)
@@ -140,7 +143,7 @@ export const setUpBonderStake = async (fixture: IFixture, opts: any) => {
     l2_messenger,
   } = fixture
 
-  const { l2ChainId, bondAmount } = opts
+  const { l2ChainId, bondAmount, relayerFee } = opts
 
   // Stake on L1
   await l1_canonicalToken
@@ -156,6 +159,7 @@ export const setUpBonderStake = async (fixture: IFixture, opts: any) => {
     l2_messenger,
     bonder,
     bondAmount,
+    relayerFee,
     l2ChainId
   )
 
@@ -179,7 +183,7 @@ export const setUpL2UniswapMarket = async (fixture: IFixture, opts: any) => {
     l2_canonicalToken
   } = fixture
 
-  const { l2ChainId, liquidityProviderBalance } = opts
+  const { l2ChainId, liquidityProviderBalance, relayerFee } = opts
 
   // liquidityProvider moves funds across the canonical bridge
   await executeCanonicalBridgeSendMessage(
@@ -199,6 +203,7 @@ export const setUpL2UniswapMarket = async (fixture: IFixture, opts: any) => {
     l2_messenger,
     liquidityProvider,
     liquidityProviderBalance,
+    relayerFee,
     l2ChainId
   )
 

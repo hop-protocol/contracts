@@ -45,7 +45,8 @@ import {
   DEFAULT_H_BRIDGE_TOKEN_NAME,
   DEFAULT_H_BRIDGE_TOKEN_SYMBOL,
   DEFAULT_H_BRIDGE_TOKEN_DECIMALS,
-  DEFAULT_TIME_TO_WAIT
+  DEFAULT_TIME_TO_WAIT,
+  DEFAULT_RELAYER_FEE
 } from '../../config/constants'
 
 describe('L2_Bridge', () => {
@@ -78,6 +79,7 @@ describe('L2_Bridge', () => {
   let l2Transfer: Transfer
 
   let originalBondedAmount: BigNumber
+  let defaultRelayerFee: BigNumber
 
   let beforeAllSnapshotId: string
   let snapshotId: string
@@ -125,6 +127,7 @@ describe('L2_Bridge', () => {
     l2Transfer = transfers[1]
 
     originalBondedAmount = LIQUIDITY_PROVIDER_UNISWAP_AMOUNT.add(INITIAL_BONDED_AMOUNT)
+    defaultRelayerFee = DEFAULT_RELAYER_FEE
 
     // All tests in L2 Bridge will require sending tokens to the L2 bridge first
     await executeL1BridgeSendToL2(
@@ -134,6 +137,7 @@ describe('L2_Bridge', () => {
       l2_messenger,
       transfer.sender,
       transfer.amount,
+      defaultRelayerFee,
       l2ChainId
     )
   })
@@ -303,7 +307,7 @@ describe('L2_Bridge', () => {
     it('Should commit a transfer automatically after 100 sends', async () => {
       const customTransfer: Transfer = new Transfer(transfer)
       customTransfer.amount = BigNumber.from('100')
-      customTransfer.relayerFee = BigNumber.from('0')
+      customTransfer.bonderFee = BigNumber.from('0')
 
       for (let i = 0; i < 101; i++) {
         await executeL2BridgeSend(
@@ -498,7 +502,7 @@ describe('L2_Bridge', () => {
     //         transfer.recipient,
     //         transfer.amount,
     //         transfer.transferNonce,
-    //         transfer.relayerFee,
+    //         transfer.bonderFee,
     //         transfer.amountOutMin,
     //         transfer.deadline,
     //         transfer.destinationAmountOutMin,
@@ -551,7 +555,7 @@ describe('L2_Bridge', () => {
     //       await transfer.recipient.getAddress(),
     //       transfer.amount,
     //       transfer.transferNonce,
-    //       transfer.relayerFee,
+    //       transfer.bonderFee,
     //       transfer.amountOutMin,
     //       transfer.deadline,
     //       transfer.destinationAmountOutMin,

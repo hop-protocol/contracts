@@ -11,7 +11,7 @@ import { IGetMessengerWrapperDefaults, IGetL2BridgeDefaults } from '../../config
 import {
   CHAIN_IDS,
   DEFAULT_DEADLINE,
-  RELAYER_FEE,
+  DEFAULT_BONDER_FEE,
   TRANSFER_AMOUNT,
   ALL_SUPPORTED_CHAIN_IDS,
   DEFAULT_H_BRIDGE_TOKEN_NAME,
@@ -166,7 +166,7 @@ export async function fixture (l1ChainId: BigNumber, l2ChainId: BigNumber, l1Alr
   const genericTransfer = {
     amount: TRANSFER_AMOUNT,
     transferNonce: 0,
-    relayerFee: RELAYER_FEE,
+    bonderFee: DEFAULT_BONDER_FEE,
     amountOutMin: BigNumber.from('0'),
     destinationAmountOutMin: BigNumber.from('0'),
     destinationDeadline: DEFAULT_DEADLINE

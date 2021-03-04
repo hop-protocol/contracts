@@ -41,16 +41,26 @@ contract Mock_L1_Messenger is MockMessenger {
             decodedTarget := mload(add(decodedTargetBytes,20))
         }
 
-        uint256 mintLength;
-        uint256 mintStart = 129;
-        uint256 expectedMintMessageLength = 197;
-        if (_message.length == expectedMintMessageLength) {
-            mintLength = 68; // mint(address,uint256) = 136/2
-        } else {
-            mintLength = 132; // mintAndAttemptSwap(address,uint256,uint256,uint256) = 264/2
+
+        // Define `setTransferRoot`, `mint` and `mintAndAttemptSwap` data lengths
+        // "setTransferRoot(bytes32,uint256)" = (8+64*2) / 2= 136 / 2
+        uint256 setTransferRootLength = 68;
+        // mint(address,uint256,uint256) = (8+64*3) / 2 = 200 / 2
+        uint256 mintLength = 100;
+        // mintAndAttemptSwap(address,uint256,uint256,uint256,uint256) = (8+64*5) / 2 = 328 / 2
+        uint256 mintAndAttemptSwapLength = 164;
+
+        uint256 dataStart = 129;
+        uint256 dataLength;
+        if (_message.length == dataStart + setTransferRootLength) {
+            dataLength = setTransferRootLength;
+        } else if (_message.length == dataStart + mintLength) {
+            dataLength = mintLength;
+        } else if (_message.length == dataStart + mintAndAttemptSwapLength) {
+            dataLength = mintAndAttemptSwapLength;
         }
 
-        bytes memory decodedMessage = _message.slice(mintStart, mintLength);
+        bytes memory decodedMessage = _message.slice(dataStart, dataLength);
 
         return (decodedTarget, decodedMessage);
     }

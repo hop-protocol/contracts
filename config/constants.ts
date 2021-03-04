@@ -59,7 +59,8 @@ export const CHALLENGER_INITIAL_BALANCE: BigNumber = BigNumber.from(
 )
 
 export const TRANSFER_AMOUNT: BigNumber = BigNumber.from(parseEther('5'))
-export const RELAYER_FEE: BigNumber = BigNumber.from(parseEther('1'))
+export const DEFAULT_BONDER_FEE: BigNumber = BigNumber.from(parseEther('1'))
+export const DEFAULT_RELAYER_FEE: BigNumber = BigNumber.from(parseEther('0'))
 
 export const UNISWAP_LP_MINIMUM_LIQUIDITY: BigNumber = BigNumber.from('1000')
 

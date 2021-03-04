@@ -66,7 +66,7 @@ describe('Bridge', () => {
         await transfer.recipient.getAddress(),
         transfer.amount,
         transferNonce,
-        transfer.relayerFee,
+        transfer.bonderFee,
         transfer.amountOutMin,
         transfer.deadline
       )
@@ -95,7 +95,7 @@ describe('Bridge', () => {
         await transfer.recipient.getAddress(),
         transfer.amount,
         getTransferNonce(BigNumber.from('0'), transfer.chainId),
-        transfer.relayerFee,
+        transfer.bonderFee,
         ARBITRARY_ROOT_HASH,
         arbitraryProof
       )
@@ -125,7 +125,7 @@ describe('Bridge', () => {
         await transfer.recipient.getAddress(),
         transfer.amount,
         transferNonce,
-        transfer.relayerFee,
+        transfer.bonderFee,
         transferRootHash,
         proof
       )
