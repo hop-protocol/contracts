@@ -39,6 +39,7 @@ export const getContractFactories = async (
   let L2_UniswapFactory: ContractFactory
   let L2_UniswapRouter: ContractFactory
   let L2_UniswapPair: ContractFactory
+  let L2_UniswapWrapper: ContractFactory
   ;({
     L1_Messenger,
     L1_MessengerWrapper,
@@ -47,7 +48,8 @@ export const getContractFactories = async (
     L2_Bridge,
     L2_UniswapFactory,
     L2_UniswapRouter,
-    L2_UniswapPair
+    L2_UniswapPair,
+    L2_UniswapWrapper
   } = await getNetworkSpecificFactories(chainId, signer, ethers, ovmEthers))
 
   return {
@@ -60,7 +62,8 @@ export const getContractFactories = async (
     L2_Bridge,
     L2_UniswapFactory,
     L2_UniswapRouter,
-    L2_UniswapPair
+    L2_UniswapPair,
+    L2_UniswapWrapper
   }
 }
 
@@ -85,7 +88,8 @@ const getNetworkSpecificFactories = async (
       L2_Bridge: null,
       L2_UniswapFactory: null,
       L2_UniswapRouter: null,
-      L2_UniswapPair: null
+      L2_UniswapPair: null,
+      L2_UniswapWrapper: null
     }
   }
 }
@@ -127,6 +131,10 @@ const getOptimismContractFactories = async (
     'contracts/uniswap/optimism/OptimismUniswapPair.sol:OptimismUniswapPair',
     { signer }
   )
+  const L2_UniswapWrapper: ContractFactory = await ovmEthers.getContractFactory(
+    'contracts/bridges/L2_UniswapWrapper.sol:L2_UniswapWrapper',
+    { signer }
+  )
 
   return {
     L1_Messenger,
@@ -136,7 +144,8 @@ const getOptimismContractFactories = async (
     L2_Bridge,
     L2_UniswapFactory,
     L2_UniswapRouter,
-    L2_UniswapPair
+    L2_UniswapPair,
+    L2_UniswapWrapper
   }
 }
 
@@ -169,6 +178,10 @@ const getArbitrumContractFactories = async (signer: Signer, ethers: any) => {
     'contracts/uniswap/arbitrum/ArbitrumUniswapRouter.sol:ArbitrumUniswapRouter',
     { signer }
   )
+  const L2_UniswapWrapper: ContractFactory = await ethers.getContractFactory(
+    'contracts/bridges/L2_UniswapWrapper.sol:L2_UniswapWrapper',
+    { signer }
+  )
 
   return {
     L1_Messenger,
@@ -178,7 +191,8 @@ const getArbitrumContractFactories = async (signer: Signer, ethers: any) => {
     L2_Bridge,
     L2_UniswapFactory,
     L2_UniswapRouter,
-    L2_UniswapPair: null
+    L2_UniswapPair: null,
+    L2_UniswapWrapper
   }
 }
 
@@ -211,6 +225,10 @@ const getXDaiContractFactories = async (signer: Signer, ethers: any) => {
     'contracts/uniswap/xdai/XDaiUniswapRouter.sol:XDaiUniswapRouter',
     { signer }
   )
+  const L2_UniswapWrapper: ContractFactory = await ethers.getContractFactory(
+    'contracts/bridges/L2_UniswapWrapper.sol:L2_UniswapWrapper',
+    { signer }
+  )
 
   return {
     L1_Messenger,
@@ -220,7 +238,8 @@ const getXDaiContractFactories = async (signer: Signer, ethers: any) => {
     L2_Bridge,
     L2_UniswapFactory,
     L2_UniswapRouter,
-    L2_UniswapPair: null
+    L2_UniswapPair: null,
+    L2_UniswapWrapper
   }
 }
 

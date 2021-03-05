@@ -408,6 +408,7 @@ export const executeL2BridgeSwapAndSend = async (
   l2_canonicalToken: Contract,
   l2_hopBridgeToken: Contract,
   l2_uniswapRouter: Contract,
+  l2_uniswapWrapper: Contract,
   transfer: Transfer
 ) => {
   // Get state before transaction
@@ -421,8 +422,8 @@ export const executeL2BridgeSwapAndSend = async (
   // Perform transaction
   await l2_canonicalToken
     .connect(transfer.sender)
-    .approve(l2_bridge.address, transfer.amount)
-  await l2_bridge
+    .approve(l2_uniswapWrapper.address, transfer.amount)
+  await l2_uniswapWrapper
     .connect(transfer.sender)
     .swapAndSend(
       transfer.chainId,

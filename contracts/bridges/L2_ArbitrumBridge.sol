@@ -14,10 +14,8 @@ contract L2_ArbitrumBridge is L2_Bridge {
         address l1Governance,
         HopBridgeToken hToken,
         IERC20 l2CanonicalToken,
-        bool l2CanonicalTokenIsEth,
         address l1BridgeAddress,
         uint256[] memory supportedChainIds,
-        address exchangeAddress,
         address[] memory bonders
     )
         public
@@ -25,10 +23,8 @@ contract L2_ArbitrumBridge is L2_Bridge {
             l1Governance,
             hToken,
             l2CanonicalToken,
-            l2CanonicalTokenIsEth,
             l1BridgeAddress,
             supportedChainIds,
-            exchangeAddress,
             bonders
         )
     {
