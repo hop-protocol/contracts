@@ -46,7 +46,7 @@ contract L2_UniswapWrapper {
         uint256 destinationAmountOutMin,
         uint256 destinationDeadline
     )
-        external
+        public
         payable
     {
         require(amount >= bonderFee, "L2_BRG: Bonder fee cannot exceed amount");
@@ -72,6 +72,21 @@ contract L2_UniswapWrapper {
         );
 
         bridge.send(chainId, recipient, swapAmount, bonderFee, destinationAmountOutMin, destinationDeadline);
+    }
+
+    /// @notice amount is the amount the user wants to send plus the Bonder fee
+    function swapAndSendToL1(
+        uint256 chainId,
+        address recipient,
+        uint256 amount,
+        uint256 bonderFee,
+        uint256 amountOutMin,
+        uint256 deadline
+    )
+        external
+        payable
+    {
+        swapAndSend(chainId, recipient, amount, bonderFee, amountOutMin, deadline, 0, 0);
     }
 
     function attemptSwap(address recipient, uint256 amount, uint256 amountOutMin, uint256 deadline) external {
