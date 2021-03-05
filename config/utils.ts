@@ -60,10 +60,8 @@ export const getL2BridgeDefaults = (
   governanceAddress: string,
   l2HopBridgeTokenAddress: string,
   l2CanonicalTokenAddress: string,
-  l2CanonicalTokenIsEth: boolean,
   l1BridgeAddress: string,
   supportedChainIds: string[],
-  l2UniswapRouterAddress: string,
   bonderAddresses: string[],
   l1ChainId: BigNumber
 ): IGetL2BridgeDefaults[] => {
@@ -87,10 +85,8 @@ export const getL2BridgeDefaults = (
     governanceAddress,
     l2HopBridgeTokenAddress,
     l2CanonicalTokenAddress,
-    l2CanonicalTokenIsEth,
     l1BridgeAddress,
     supportedChainIds,
-    l2UniswapRouterAddress,
     bonderAddresses
   )
 

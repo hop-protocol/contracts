@@ -51,6 +51,7 @@ export async function deployL2 (config: Config) {
   let L2_UniswapFactory: ContractFactory
   let L2_UniswapRouter: ContractFactory
   let L2_UniswapPair: ContractFactory
+  let L2_UniswapWrapper: ContractFactory
 
   // Contracts
   let l1_bridge: Contract
@@ -60,6 +61,7 @@ export async function deployL2 (config: Config) {
   let l2_uniswapFactory: Contract
   let l2_uniswapRouter: Contract
   let l2_uniswapPair: Contract
+  let l2_uniswapWrapper: Contract
 
   // Instantiate the wallets
   accounts = await ethers.getSigners()
@@ -74,7 +76,8 @@ export async function deployL2 (config: Config) {
     L2_Bridge,
     L2_UniswapFactory,
     L2_UniswapRouter,
-    L2_UniswapPair
+    L2_UniswapPair,
+    L2_UniswapWrapper
   } = await getContractFactories(l2_chainId, owner, ethers, ovmEthers))
 
   // Attach already deployed contracts
@@ -108,11 +111,13 @@ export async function deployL2 (config: Config) {
     owner,
     bonder,
     L2_Bridge,
+    L2_UniswapWrapper,
     l1_bridge,
     l2_bridge,
     l2_hopBridgeToken,
     l2_canonicalToken,
     l2_uniswapRouter,
+    l2_uniswapWrapper,
     l2_messengerAddress
   ))
 
@@ -188,18 +193,19 @@ const deployBridge = async (
   owner: Signer,
   bonder: Signer,
   L2_Bridge: ContractFactory,
+  L2_UniswapWrapper: ContractFactory,
   l1_bridge: Contract,
   l2_bridge: Contract,
   l2_hopBridgeToken: Contract,
   l2_canonicalToken: Contract,
   l2_uniswapRouter: Contract,
+  l2_uniswapWrapper: Contract,
   l2_messengerAddress: string
 ) => {
   // NOTE: Adding more CHAIN_IDs here will push the OVM deployment over the contract size limit
   //       If additional CHAIN_IDs must be added, do so after the deployment.
   // TODO: l2CanonicalTokenIsEth should be 'smart'
   const isProdDeployment: boolean = true
-  const l2CanonicalTokenIsEth: boolean = false
   const l2BridgeDeploymentParams = getL2BridgeDefaults (
     isProdDeployment,
     chainId,
@@ -207,10 +213,8 @@ const deployBridge = async (
     await owner.getAddress(),
     l2_hopBridgeToken.address,
     l2_canonicalToken.address,
-    l2CanonicalTokenIsEth,
     l1_bridge.address,
     [CHAIN_IDS.ETHEREUM.MAINNET.toString()],
-    l2_uniswapRouter.address,
     [await bonder.getAddress()],
     l1ChainId
   )
@@ -219,8 +223,20 @@ const deployBridge = async (
   await l2_bridge.deployed()
   await verifyDeployment(l2_bridge, ethers)
 
+  const l2CanonicalTokenIsEth: boolean = false
+  l2_uniswapWrapper = await L2_UniswapWrapper.connect(owner).deploy(
+    l2_bridge.address,
+    l2_canonicalToken.address,
+    l2CanonicalTokenIsEth,
+    l2_canonicalToken.address,
+    l2_uniswapRouter.address
+  )
+
+  await l2_bridge.setUniswapWrapper(l2_uniswapWrapper.address)
+
   return {
-    l2_bridge
+    l2_bridge,
+    l2_uniswapWrapper
   }
 }
 
