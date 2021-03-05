@@ -180,7 +180,14 @@ abstract contract L2_Bridge is Bridge {
         );
 
         _bondWithdrawal(transferId, amount);
-        _withdrawAndAttemptSwap(transferId, recipient, amount, bonderFee, amountOutMin, deadline);
+        _markTransferSpent(transferId);
+        // distribute fee
+        if (bonderFee > 0) {
+            _transferFromBridge(msg.sender, bonderFee);
+        }
+        // Attempt swap to recipient
+        uint256 amountAfterFee = amount.sub(bonderFee);
+        _mintAndAttemptSwap(recipient, amountAfterFee, amountOutMin, deadline);
     }
 
     function setTransferRoot(bytes32 rootHash, uint256 totalAmount) external onlyL1Bridge {
@@ -217,24 +224,6 @@ abstract contract L2_Bridge is Bridge {
         hToken.mint(address(this), amount);
         hToken.approve(address(uniswapWrapper), amount);
         uniswapWrapper.attemptSwap(recipient, amount, amountOutMin, deadline);
-    }
-
-    function _withdrawAndAttemptSwap(
-        bytes32 transferId,
-        address recipient,
-        uint256 amount,
-        uint256 bonderFee,
-        uint256 amountOutMin,
-        uint256 deadline
-    ) internal {
-        _markTransferSpent(transferId);
-        // distribute fee
-        if (bonderFee > 0) {
-            _transferFromBridge(msg.sender, bonderFee);
-        }
-        // Attempt swap to recipient
-        uint256 amountAfterFee = amount.sub(bonderFee);
-        _mintAndAttemptSwap(recipient, amountAfterFee, amountOutMin, deadline);
     }
 
     /* ========== Override Functions ========== */
