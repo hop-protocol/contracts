@@ -340,14 +340,13 @@ export const revertSnapshot = async (id: string) => {
   await ethers.provider.send('evm_revert', [id])
 }
 
-export const mineBlock = async () => {
-  const timestamp: number = Date.now()
-  await ethers.provider.send('evm_mine', [timestamp])
+export const mineBlock = async (seconds: number) => {
+  const blockTimestamp: number = (await ethers.provider.getBlock('latest')).timestamp
+  await ethers.provider.send('evm_mine', [blockTimestamp + seconds])
 }
 
 export const increaseTime = async (seconds: number) => {
-  await ethers.provider.send('evm_increaseTime', [seconds])
-  await mineBlock()
+  await mineBlock(seconds)
 }
 
 export const minerStop = async () => {

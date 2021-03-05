@@ -68,10 +68,11 @@ export const DEFAULT_H_BRIDGE_TOKEN_NAME = 'DAI Hop Token'
 export const DEFAULT_H_BRIDGE_TOKEN_SYMBOL = 'hDAI'
 export const DEFAULT_H_BRIDGE_TOKEN_DECIMALS = 18
 
-export const SECONDS_IN_AN_HOUR = 3600
-export const SECONDS_IN_A_DAY = 86400
-export const DEFAULT_TIME_TO_WAIT = 0
-export const TIMESTAMP_VARIANCE = 1000000
+export const SECONDS_IN_A_MINUTE: number = 60
+export const SECONDS_IN_AN_HOUR: number = 60 * SECONDS_IN_A_MINUTE
+export const SECONDS_IN_A_DAY: number = 24 * SECONDS_IN_AN_HOUR
+export const DEFAULT_TIME_TO_WAIT: number = 0
+export const TIMESTAMP_VARIANCE: number = 1000000
 
 export const DEFAULT_ETHERS_OVERRIDES = {
   gasLimit: 150000

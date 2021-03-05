@@ -347,8 +347,7 @@ describe('L2_Bridge', () => {
       await executeL2BridgeCommitTransfers(
         l2_bridge,
         transfer,
-        user,
-       timeToWait 
+        user
       )
     })
 
@@ -370,8 +369,7 @@ describe('L2_Bridge', () => {
       await executeL2BridgeCommitTransfers(
         l2_bridge,
         transfer,
-        bonder,
-        DEFAULT_TIME_TO_WAIT
+        bonder
       )
     })
 
@@ -420,15 +418,13 @@ describe('L2_Bridge', () => {
       await executeL2BridgeCommitTransfers(
         l2_bridge,
         customTransfer,
-        bonder,
-        DEFAULT_TIME_TO_WAIT
+        bonder
       )
 
       await executeL2BridgeCommitTransfers(
         l2_bridge,
         customL2Transfer,
         bonder,
-        DEFAULT_TIME_TO_WAIT,
         expectedTransferIndex
       )
     })
