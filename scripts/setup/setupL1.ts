@@ -130,12 +130,14 @@ export async function setupL1 (config: Config) {
   await l1_canonicalToken
     .connect(liquidityProvider)
     .approve(l1_bridge.address, LIQUIDITY_PROVIDER_INITIAL_BALANCE)
+  const relayerFee: BigNumber = BigNumber.from('0')
   await l1_bridge
     .connect(liquidityProvider)
     .sendToL2(
       l2_chainId,
       await liquidityProvider.getAddress(),
-      LIQUIDITY_PROVIDER_INITIAL_BALANCE
+      LIQUIDITY_PROVIDER_INITIAL_BALANCE,
+      relayerFee
     )
 
   console.log('L1 Setup Complete')
