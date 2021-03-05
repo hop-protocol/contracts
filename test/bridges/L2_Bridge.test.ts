@@ -196,7 +196,7 @@ describe('L2_Bridge', () => {
     }
   })
 
-  describe('getters', async () => {
+  describe('setters', async () => {
     it('Should set the uniswap wrapper address arbitrarily', async () => {
       const expectedUniswapWrapperAddress: string = ONE_ADDRESS
 
@@ -268,6 +268,18 @@ describe('L2_Bridge', () => {
 
       hopBridgeTokenOwner = await l2_hopBridgeToken.owner()
       expect(hopBridgeTokenOwner).to.eq(await newOwner.getAddress())
+    })
+
+    it('Should set the minimum bonder fee requirements', async () => {
+      const expectedMinBonderBps: BigNumber = BigNumber.from('13371337')
+      const expectedMinBonderFeeAbsolute: BigNumber = BigNumber.from('73317331')
+
+      await l2_bridge.setMinimumBonderFeeRequirements(expectedMinBonderBps, expectedMinBonderFeeAbsolute)
+
+      const minBonderBps = await l2_bridge.minBonderBps()
+      const minBonderFeeAbsolute= await l2_bridge.minBonderFeeAbsolute()
+      expect(minBonderBps).to.eq(expectedMinBonderBps)
+      expect(minBonderFeeAbsolute).to.eq(expectedMinBonderFeeAbsolute)
     })
   })
 
@@ -347,8 +359,7 @@ describe('L2_Bridge', () => {
       await executeL2BridgeCommitTransfers(
         l2_bridge,
         transfer,
-        user,
-       timeToWait 
+        user
       )
     })
 
@@ -370,8 +381,7 @@ describe('L2_Bridge', () => {
       await executeL2BridgeCommitTransfers(
         l2_bridge,
         transfer,
-        bonder,
-        DEFAULT_TIME_TO_WAIT
+        bonder
       )
     })
 
@@ -420,15 +430,13 @@ describe('L2_Bridge', () => {
       await executeL2BridgeCommitTransfers(
         l2_bridge,
         customTransfer,
-        bonder,
-        DEFAULT_TIME_TO_WAIT
+        bonder
       )
 
       await executeL2BridgeCommitTransfers(
         l2_bridge,
         customL2Transfer,
         bonder,
-        DEFAULT_TIME_TO_WAIT,
         expectedTransferIndex
       )
     })
@@ -439,7 +447,7 @@ describe('L2_Bridge', () => {
       let expectedBalance: BigNumber = await l2_hopBridgeToken.balanceOf(await user.getAddress())
       await expectBalanceOf(l2_hopBridgeToken, user, expectedBalance)
 
-      await l2_bridge.mint(await user.getAddress(), transfer.amount)
+      await l2_bridge.mint(await user.getAddress(), transfer.amount, BigNumber.from('0'))
 
       expectedBalance = expectedBalance.add(transfer.amount)
       await expectBalanceOf(l2_hopBridgeToken, user, expectedBalance)
@@ -463,7 +471,8 @@ describe('L2_Bridge', () => {
         await user.getAddress(),
         transfer.amount,
         0,
-        DEFAULT_DEADLINE
+        DEFAULT_DEADLINE,
+        BigNumber.from('0')
       )
 
       expectedBalanceHopBridgeToken = expectedBalanceHopBridgeToken

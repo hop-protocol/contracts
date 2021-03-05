@@ -35,6 +35,7 @@ import {
   INITIAL_BONDED_AMOUNT,
   LIQUIDITY_PROVIDER_UNISWAP_AMOUNT,
   ZERO_ADDRESS,
+  SECONDS_IN_A_MINUTE,
   SECONDS_IN_A_DAY,
   TIMESTAMP_VARIANCE,
   DEAD_ADDRESS,
@@ -206,15 +207,15 @@ describe('L1_Bridge', () => {
     await executeL2BridgeCommitTransfers(
       l2_bridge,
       transfer,
-      bonder,
-      DEFAULT_TIME_TO_WAIT
+      bonder
     )
 
     await executeL1BridgeBondTransferRoot(
       l1_bridge,
       l2_bridge,
       transfer,
-      bonder
+      bonder,
+      DEFAULT_TIME_TO_WAIT
     )
 
     await executeL1BridgeSettleBondedWithdrawals(
@@ -232,15 +233,18 @@ describe('L1_Bridge', () => {
     const transferRootId: string = await l1_bridge.getTransferRootId(rootHash, transfer.amount)
     const transferRootConfirmed: boolean = await l1_bridge.transferRootConfirmed(transferRootId)
     const transferBondByTransferRootId = await l1_bridge.transferBonds(transferRootId)
-    const expectedCommitTimeForChainId: number = Date.now()
+    const currentTime: number = Math.floor(Date.now() / 1000)
     expect(transferRootConfirmed).to.eq(true)
     expect(transferBondByTransferRootId[0]).to.eq(await bonder.getAddress())
-    expect(transferBondByTransferRootId[1].mul(1000).toNumber()).to.be.closeTo(
-      expectedCommitTimeForChainId,
+    expect(transferBondByTransferRootId[1].toNumber()).to.be.closeTo(
+      currentTime,
       TIMESTAMP_VARIANCE
     )
     expect(transferBondByTransferRootId[2]).to.eq(transfer.amount)
-    // TODO: Test rootCommittedAt
+    expect(transferBondByTransferRootId[3].toNumber()).to.be.closeTo(
+      currentTime,
+      TIMESTAMP_VARIANCE
+    )
     expect(transferBondByTransferRootId[4]).to.eq(0)
     expect(transferBondByTransferRootId[5]).to.eq(ZERO_ADDRESS)
     expect(transferBondByTransferRootId[6]).to.eq(false)
@@ -263,6 +267,11 @@ describe('L1_Bridge', () => {
       expect(collateralTokenAddress).to.eq(l1_canonicalToken.address)
       expect(isBonder).to.eq(true)
     })
+  })
+
+  describe('setters', async () => {
+    // TODO: Test L1 Bridge setters
+    // TODO: Test mod for setChallengePeriodAndTimeSlotSize()
   })
 
   describe('sendToL2', async () => {
@@ -332,15 +341,15 @@ describe('L1_Bridge', () => {
       await executeL2BridgeCommitTransfers(
         l2_bridge,
         transfer,
-        bonder,
-        DEFAULT_TIME_TO_WAIT
+        bonder
       )
 
       await executeL1BridgeBondTransferRoot(
         l1_bridge,
         l2_bridge,
         transfer,
-        bonder
+        bonder,
+        DEFAULT_TIME_TO_WAIT
       )
     })
 
@@ -378,15 +387,15 @@ describe('L1_Bridge', () => {
       await executeL2BridgeCommitTransfers(
         l2_bridge,
         l2Transfer,
-        bonder,
-        DEFAULT_TIME_TO_WAIT
+        bonder
       )
 
       await executeL1BridgeBondTransferRoot(
         l1_bridge,
         l2_bridge,
         l2Transfer,
-        bonder
+        bonder,
+        DEFAULT_TIME_TO_WAIT
       )
 
       const transferNonce = await getTransferNonceFromEvent(l2_bridge)
@@ -431,8 +440,7 @@ describe('L1_Bridge', () => {
       await executeL2BridgeCommitTransfers(
         l2_bridge,
         transfer,
-        bonder,
-        DEFAULT_TIME_TO_WAIT
+        bonder
       )
 
       // Send the committed transfer the L1
@@ -486,8 +494,7 @@ describe('L1_Bridge', () => {
       await executeL2BridgeCommitTransfers(
         l2_bridge,
         l2Transfer,
-        bonder,
-        DEFAULT_TIME_TO_WAIT
+        bonder
       )
 
       // Send the committed transfer the L1
@@ -543,15 +550,15 @@ describe('L1_Bridge', () => {
       await executeL2BridgeCommitTransfers(
         l2_bridge,
         transfer,
-        bonder,
-        DEFAULT_TIME_TO_WAIT
+        bonder
       )
 
       await executeL1BridgeBondTransferRoot(
         l1_bridge,
         l2_bridge,
         transfer,
-        bonder
+        bonder,
+        DEFAULT_TIME_TO_WAIT
       )
 
       await executeL1BridgeChallengeTransferBond(
@@ -565,8 +572,7 @@ describe('L1_Bridge', () => {
       )
     })
   })
-  // TODO: Handle contract changes
-  describe.skip('resolveChallenge', async () => {
+  describe('resolveChallenge', async () => {
     it('Should send a transaction from L2 to L1, bond withdrawal on L1, challenge the transfer bond, and resolve unsuccessfully', async () => {
       await executeL1BridgeSendToL2(
         l1_canonicalToken,
@@ -596,15 +602,15 @@ describe('L1_Bridge', () => {
       await executeL2BridgeCommitTransfers(
         l2_bridge,
         transfer,
-        bonder,
-        DEFAULT_TIME_TO_WAIT
+        bonder
       )
   
       await executeL1BridgeBondTransferRoot(
         l1_bridge,
         l2_bridge,
         transfer,
-        bonder
+        bonder,
+        DEFAULT_TIME_TO_WAIT
       )
 
       await executeL1BridgeChallengeTransferBond(
@@ -617,7 +623,80 @@ describe('L1_Bridge', () => {
         transfer
       )
 
-      const timeToWait: number = 9 * SECONDS_IN_A_DAY
+      const timeToWait: number = 10 * SECONDS_IN_A_DAY
+      await increaseTime(timeToWait)
+      await l1_messenger.relayNextMessage()
+
+      const shouldResolveSuccessfully: boolean = false
+      const didBonderWaitMinTransferRootTime: boolean = false
+      await executeL1BridgeResolveChallenge(
+        l1_canonicalToken,
+        l1_bridge,
+        l2_bridge,
+        transfer.amount,
+        bonder,
+        challenger,
+        transfer,
+        shouldResolveSuccessfully,
+        didBonderWaitMinTransferRootTime
+      )
+    })
+
+    it('Should send a transaction from L2 to L1, commit the bond, wait the min time then bond, challenge the transfer bond, and resolve unsuccessfully', async () => {
+      await executeL1BridgeSendToL2(
+        l1_canonicalToken,
+        l1_bridge,
+        l2_hopBridgeToken,
+        l2_messenger,
+        transfer.sender,
+        transfer.amount,
+        defaultRelayerFee,
+        l2ChainId
+      )
+
+      await executeL2BridgeSend(
+        l2_hopBridgeToken,
+        l2_bridge,
+        transfer
+      )
+
+      await executeL1BridgeBondWithdrawal(
+        l1_canonicalToken,
+        l1_bridge,
+        l2_bridge,
+        transfer,
+        bonder
+      )
+
+      await executeL2BridgeCommitTransfers(
+        l2_bridge,
+        transfer,
+        bonder
+      )
+  
+      // TODO: Get this from the contract
+      let timeToWait: number = 16 * SECONDS_IN_A_MINUTE
+      await increaseTime(timeToWait)
+
+      await executeL1BridgeBondTransferRoot(
+        l1_bridge,
+        l2_bridge,
+        transfer,
+        bonder,
+        timeToWait
+      )
+
+      await executeL1BridgeChallengeTransferBond(
+        l1_canonicalToken,
+        l1_bridge,
+        l2_bridge,
+        transfer.amount,
+        bonder,
+        challenger,
+        transfer
+      )
+
+      timeToWait = 11 * SECONDS_IN_A_DAY
       await increaseTime(timeToWait)
       await l1_messenger.relayNextMessage()
 
@@ -663,15 +742,15 @@ describe('L1_Bridge', () => {
       await executeL2BridgeCommitTransfers(
         l2_bridge,
         transfer,
-        bonder,
-        DEFAULT_TIME_TO_WAIT
+        bonder
       )
   
       await executeL1BridgeBondTransferRoot(
         l1_bridge,
         l2_bridge,
         transfer,
-        bonder
+        bonder,
+        DEFAULT_TIME_TO_WAIT
       )
 
       await executeL1BridgeChallengeTransferBond(
@@ -684,7 +763,7 @@ describe('L1_Bridge', () => {
         transfer
       )
 
-      const timeToWait: number = 9 * SECONDS_IN_A_DAY
+      const timeToWait: number = 11 * SECONDS_IN_A_DAY
       await increaseTime(timeToWait)
 
       // Message is not relayed successfully
@@ -866,7 +945,8 @@ describe('L1_Bridge', () => {
           l1_bridge,
           l2_bridge,
           customTransfer,
-          bonder
+          bonder,
+          DEFAULT_TIME_TO_WAIT
         )
       ).to.be.revertedWith(expectedErrorMsg)
     })
@@ -902,8 +982,7 @@ describe('L1_Bridge', () => {
       await executeL2BridgeCommitTransfers(
         l2_bridge,
         transfer,
-        bonder,
-        DEFAULT_TIME_TO_WAIT
+        bonder
       )
 
       await l1_messenger.relayNextMessage()
@@ -913,7 +992,8 @@ describe('L1_Bridge', () => {
           l1_bridge,
           l2_bridge,
           transfer,
-          bonder
+          bonder,
+          DEFAULT_TIME_TO_WAIT
         )
       ).to.be.revertedWith(expectedErrorMsg)
     })
@@ -951,7 +1031,8 @@ describe('L1_Bridge', () => {
         l1_bridge,
         l2_bridge,
         transfer,
-        bonder
+        bonder,
+        DEFAULT_TIME_TO_WAIT
       )
 
       await expect(
@@ -959,7 +1040,8 @@ describe('L1_Bridge', () => {
           l1_bridge,
           l2_bridge,
           transfer,
-          bonder
+          bonder,
+          DEFAULT_TIME_TO_WAIT
         )
       ).to.be.revertedWith(expectedErrorMsg)
     })
@@ -1005,7 +1087,8 @@ describe('L1_Bridge', () => {
           l1_bridge,
           l2_bridge,
           customTransfer,
-          bonder
+          bonder,
+          DEFAULT_TIME_TO_WAIT
         )
       ).to.be.revertedWith(expectedErrorMsg)
     })
@@ -1048,7 +1131,8 @@ describe('L1_Bridge', () => {
           l1_bridge,
           l2_bridge,
           l2Transfer,
-          bonder
+          bonder,
+          DEFAULT_TIME_TO_WAIT
         )
       ).to.be.revertedWith(expectedErrorMsg)
     })
@@ -1086,8 +1170,7 @@ describe('L1_Bridge', () => {
       await executeL2BridgeCommitTransfers(
         l2_bridge,
         transfer,
-        bonder,
-        DEFAULT_TIME_TO_WAIT
+        bonder
       )
 
       // Mimic the same data that would be sent with relayNextMessage()
@@ -1142,8 +1225,7 @@ describe('L1_Bridge', () => {
       await executeL2BridgeCommitTransfers(
         l2_bridge,
         transfer,
-        bonder,
-        DEFAULT_TIME_TO_WAIT
+        bonder
       )
 
       await l1_messenger.relayNextMessage()
@@ -1192,8 +1274,7 @@ describe('L1_Bridge', () => {
       await executeL2BridgeCommitTransfers(
         l2_bridge,
         l2Transfer,
-        bonder,
-        DEFAULT_TIME_TO_WAIT
+        bonder
       )
 
       // Unset the supported chainId for this test
@@ -1237,15 +1318,15 @@ describe('L1_Bridge', () => {
       await executeL2BridgeCommitTransfers(
         l2_bridge,
         transfer,
-        bonder,
-        DEFAULT_TIME_TO_WAIT
+        bonder
       )
 
       await executeL1BridgeBondTransferRoot(
         l1_bridge,
         l2_bridge,
         transfer,
-        bonder
+        bonder,
+        DEFAULT_TIME_TO_WAIT
       )
 
       // Confirm the transfer root
@@ -1295,15 +1376,15 @@ describe('L1_Bridge', () => {
       await executeL2BridgeCommitTransfers(
         l2_bridge,
         transfer,
-        bonder,
-        DEFAULT_TIME_TO_WAIT
+        bonder
       )
 
       await executeL1BridgeBondTransferRoot(
         l1_bridge,
         l2_bridge,
         transfer,
-        bonder
+        bonder,
+        DEFAULT_TIME_TO_WAIT
       )
 
       // Wait until after the challenge period
@@ -1354,15 +1435,15 @@ describe('L1_Bridge', () => {
       await executeL2BridgeCommitTransfers(
         l2_bridge,
         transfer,
-        bonder,
-        DEFAULT_TIME_TO_WAIT
+        bonder
       )
 
       await executeL1BridgeBondTransferRoot(
         l1_bridge,
         l2_bridge,
         transfer,
-        bonder
+        bonder,
+        DEFAULT_TIME_TO_WAIT
       )
 
       await executeL1BridgeChallengeTransferBond(
@@ -1419,15 +1500,15 @@ describe('L1_Bridge', () => {
       await executeL2BridgeCommitTransfers(
         l2_bridge,
         transfer,
-        bonder,
-        DEFAULT_TIME_TO_WAIT
+        bonder
       )
 
       await executeL1BridgeBondTransferRoot(
         l1_bridge,
         l2_bridge,
         transfer,
-        bonder
+        bonder,
+        DEFAULT_TIME_TO_WAIT
       )
 
       const transferNonce = await getTransferNonceFromEvent(l2_bridge)
@@ -1470,15 +1551,15 @@ describe('L1_Bridge', () => {
       await executeL2BridgeCommitTransfers(
         l2_bridge,
         transfer,
-        bonder,
-        DEFAULT_TIME_TO_WAIT
+        bonder
       )
   
       await executeL1BridgeBondTransferRoot(
         l1_bridge,
         l2_bridge,
         transfer,
-        bonder
+        bonder,
+        DEFAULT_TIME_TO_WAIT
       )
 
       const challengerBalance: BigNumber = await l1_canonicalToken.balanceOf(await challenger.getAddress())
@@ -1528,15 +1609,15 @@ describe('L1_Bridge', () => {
       await executeL2BridgeCommitTransfers(
         l2_bridge,
         transfer,
-        bonder,
-        DEFAULT_TIME_TO_WAIT
+        bonder
       )
 
       await executeL1BridgeBondTransferRoot(
         l1_bridge,
         l2_bridge,
         transfer,
-        bonder
+        bonder,
+        DEFAULT_TIME_TO_WAIT
       )
 
       const challengerBalance: BigNumber = await l1_canonicalToken.balanceOf(await challenger.getAddress())
@@ -1579,15 +1660,15 @@ describe('L1_Bridge', () => {
       await executeL2BridgeCommitTransfers(
         l2_bridge,
         transfer,
-        bonder,
-        DEFAULT_TIME_TO_WAIT
+        bonder
       )
 
       await executeL1BridgeBondTransferRoot(
         l1_bridge,
         l2_bridge,
         transfer,
-        bonder
+        bonder,
+        DEFAULT_TIME_TO_WAIT
       )
 
       await expect(
@@ -1636,15 +1717,15 @@ describe('L1_Bridge', () => {
       await executeL2BridgeCommitTransfers(
         l2_bridge,
         transfer,
-        bonder,
-        DEFAULT_TIME_TO_WAIT
+        bonder
       )
 
       await executeL1BridgeBondTransferRoot(
         l1_bridge,
         l2_bridge,
         transfer,
-        bonder
+        bonder,
+        DEFAULT_TIME_TO_WAIT
       )
 
       const shouldResolveSuccessfully: boolean = false
@@ -1694,15 +1775,15 @@ describe('L1_Bridge', () => {
       await executeL2BridgeCommitTransfers(
         l2_bridge,
         transfer,
-        bonder,
-        DEFAULT_TIME_TO_WAIT
+        bonder
       )
 
       await executeL1BridgeBondTransferRoot(
         l1_bridge,
         l2_bridge,
         transfer,
-        bonder
+        bonder,
+        DEFAULT_TIME_TO_WAIT
       )
 
       await executeL1BridgeChallengeTransferBond(
@@ -1765,15 +1846,15 @@ describe('L1_Bridge', () => {
       await executeL2BridgeCommitTransfers(
         l2_bridge,
         transfer,
-        bonder,
-        DEFAULT_TIME_TO_WAIT
+        bonder
       )
 
       await executeL1BridgeBondTransferRoot(
         l1_bridge,
         l2_bridge,
         transfer,
-        bonder
+        bonder,
+        DEFAULT_TIME_TO_WAIT
       )
 
       await executeL1BridgeChallengeTransferBond(
@@ -1787,7 +1868,7 @@ describe('L1_Bridge', () => {
       )
 
       // Resolve the challenge
-      const timeToWait: number = 9 * SECONDS_IN_A_DAY
+      const timeToWait: number = 11 * SECONDS_IN_A_DAY
       await increaseTime(timeToWait)
       await l1_messenger.relayNextMessage()
 
@@ -1796,8 +1877,7 @@ describe('L1_Bridge', () => {
       ).to.be.revertedWith(expectedErrorMsg)
     })
 
-    // TODO: Handle contract changes x 2
-    it.skip('Should not allow a transfer root challenge to be resolved if it has already been resolved', async () => {
+    it('Should not allow a transfer root challenge to be resolved if it has already been resolved', async () => {
       const expectedErrorMsg: string = 'L1_BRG: TransferRoot already resolved'
 
       await executeL1BridgeSendToL2(
@@ -1828,15 +1908,15 @@ describe('L1_Bridge', () => {
       await executeL2BridgeCommitTransfers(
         l2_bridge,
         transfer,
-        bonder,
-        DEFAULT_TIME_TO_WAIT
+        bonder
       )
 
       await executeL1BridgeBondTransferRoot(
         l1_bridge,
         l2_bridge,
         transfer,
-        bonder
+        bonder,
+        DEFAULT_TIME_TO_WAIT
       )
 
       await executeL1BridgeChallengeTransferBond(
@@ -1850,11 +1930,12 @@ describe('L1_Bridge', () => {
       )
 
       // Resolve the challenge
-      const timeToWait: number = 9 * SECONDS_IN_A_DAY
+      const timeToWait: number = 11 * SECONDS_IN_A_DAY
       await increaseTime(timeToWait)
       await l1_messenger.relayNextMessage()
 
       const shouldResolveSuccessfully: boolean = false
+      const didBonderWaitMinTransferRootTime: boolean = false
       await executeL1BridgeResolveChallenge(
         l1_canonicalToken,
         l1_bridge,
@@ -1863,7 +1944,8 @@ describe('L1_Bridge', () => {
         bonder,
         challenger,
         transfer,
-        shouldResolveSuccessfully
+        shouldResolveSuccessfully,
+        didBonderWaitMinTransferRootTime
       )
 
       await expect(
@@ -1912,15 +1994,15 @@ describe('L1_Bridge', () => {
       await executeL2BridgeCommitTransfers(
         l2_bridge,
         transfer,
-        bonder,
-        DEFAULT_TIME_TO_WAIT
+        bonder
       )
 
       await executeL1BridgeBondTransferRoot(
         l1_bridge,
         l2_bridge,
         transfer,
-        bonder
+        bonder,
+        DEFAULT_TIME_TO_WAIT
       )
 
       await executeL1BridgeChallengeTransferBond(
@@ -1934,7 +2016,7 @@ describe('L1_Bridge', () => {
       )
 
       // Resolve the challenge
-      const timeToWait: number = 9 * SECONDS_IN_A_DAY
+      const timeToWait: number = 11 * SECONDS_IN_A_DAY
       await increaseTime(timeToWait)
       await l1_messenger.relayNextMessage()
 
@@ -2037,15 +2119,15 @@ describe('L1_Bridge', () => {
       await executeL2BridgeCommitTransfers(
         l2_bridge,
         customTransfer,
-        bonder,
-        DEFAULT_TIME_TO_WAIT
+        bonder
       )
 
       await executeL1BridgeBondTransferRoot(
         l1_bridge,
         l2_bridge,
         customTransfer,
-        bonder
+        bonder,
+        DEFAULT_TIME_TO_WAIT
       )
     })
 
@@ -2085,15 +2167,15 @@ describe('L1_Bridge', () => {
       await executeL2BridgeCommitTransfers(
         l2_bridge,
         customTransfer,
-        bonder,
-        DEFAULT_TIME_TO_WAIT
+        bonder
       )
 
       await executeL1BridgeBondTransferRoot(
         l1_bridge,
         l2_bridge,
         customTransfer,
-        bonder
+        bonder,
+        DEFAULT_TIME_TO_WAIT
       )
 
       const transferNonce = await getTransferNonceFromEvent(l2_bridge)

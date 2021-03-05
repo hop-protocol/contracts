@@ -179,7 +179,8 @@ export const executeL1BridgeBondTransferRoot = async (
   l1_bridge: Contract,
   l2_bridge: Contract,
   transfer: Transfer,
-  bonder: Signer
+  bonder: Signer,
+  timeIncrease: number 
 ) => {
   const transferNonce = await getTransferNonceFromEvent(l2_bridge)
   const transferId: Buffer = await transfer.getTransferId(transferNonce)
@@ -191,7 +192,8 @@ export const executeL1BridgeBondTransferRoot = async (
     .bondTransferRoot(rootHash, transfer.chainId, transfer.amount)
 
   // Validate state after transaction
-  const timeSlot: string = await l1_bridge.getTimeSlot(Math.floor(Date.now() / 1000))
+  const currentTime: number = Math.floor(Date.now() / 1000)
+  const timeSlot: number = await l1_bridge.getTimeSlot(currentTime + timeIncrease)
   const bondAmount: string = await l1_bridge.getBondForTransferAmount(transfer.amount)
   const timeSlotToAmountBonded: number = await l1_bridge.timeSlotToAmountBonded(timeSlot)
   const transferBond: number = await l1_bridge.timeSlotToAmountBonded(timeSlot)
@@ -266,15 +268,16 @@ export const executeL1BridgeChallengeTransferBond = async (
   )
 
   const transferBond = await l1_bridge.transferBonds(transferRootId)
-  // TODO: Test rootCommittedAt x 2
-  expect(transferBond[4].mul(1000).toNumber()).to.be.closeTo(
-    Date.now(),
+  expect(transferBond[3]).to.be.eq(BigNumber.from('0'))
+  const currentTime: number = Math.floor(Date.now() / 1000)
+  expect(transferBond[4].toNumber()).to.be.closeTo(
+    currentTime,
     TIMESTAMP_VARIANCE
   )
   expect(transferBond[5]).to.eq(await challenger.getAddress())
   expect(transferBond[6]).to.eq(false)
 
-  const timeSlot: string = await l1_bridge.getTimeSlot(Math.floor(Date.now() / 1000))
+  const timeSlot: string = await l1_bridge.getTimeSlot(currentTime)
   const bondAmountForTimeSlot: number = await l1_bridge.timeSlotToAmountBonded(timeSlot)
   expect(bondAmountForTimeSlot).to.eq(BigNumber.from('0'))
 
@@ -293,7 +296,8 @@ export const executeL1BridgeResolveChallenge = async (
   bonder: Signer,
   challenger: Signer,
   transfer: Transfer,
-  shouldResolveSuccessfully: boolean
+  shouldResolveSuccessfully: boolean,
+  didBonderWaitMinTransferRootTime: boolean = true
 ) => {
   const transferNonce = await getTransferNonceFromEvent(l2_bridge)
   const transferId: Buffer = await transfer.getTransferId(transferNonce)
@@ -314,10 +318,14 @@ export const executeL1BridgeResolveChallenge = async (
   const creditAfter: BigNumber = await l1_bridge.getCredit(await bonder.getAddress())
 
   if (!shouldResolveSuccessfully) {
-    expect(transferBond[5]).to.eq(true)
-    expect(creditAfter).to.eq(creditBefore.add(bondAmount).add(challengeAmount))
+    expect(transferBond[6]).to.eq(true)
+    let expectedCredit: BigNumber = creditBefore.add(bondAmount)
+    if (didBonderWaitMinTransferRootTime) {
+      expectedCredit = expectedCredit.add(challengeAmount)
+    }
+    expect(creditAfter).to.eq(expectedCredit)
   } else {
-    expect(transferBond[5]).to.eq(true)
+    expect(transferBond[6]).to.eq(true)
 
     // Credit should not have changed
     expect(creditAfter).to.eq(creditBefore)
@@ -463,7 +471,6 @@ export const executeL2BridgeCommitTransfers = async (
   l2_bridge: Contract,
   transfer: Transfer,
   bonder: Signer,
-  timeIncrease: number,
   expectedTransferIndex: BigNumber = BigNumber.from('0')
 ) => {
   // Get state before transaction
@@ -483,11 +490,9 @@ export const executeL2BridgeCommitTransfers = async (
 
   // Validate state after transaction
   const lastCommitTimeForChainId: BigNumber = await l2_bridge.lastCommitTimeForChainId(transfer.chainId)
-  const expectedCommitTimeForChainId: number = Date.now() 
-  // NOTE: The `increaseTime()` function converts the EVM time to ms instead of s. When time has been increased, adjust accordingly.
-  const lastCommitTimeMultiplier = timeIncrease ? 1 : 1000
-  expect(lastCommitTimeForChainId.mul(lastCommitTimeMultiplier).toNumber()).to.be.closeTo(
-    expectedCommitTimeForChainId,
+  const currentTime: number = Math.floor(Date.now() / 1000)
+  expect(lastCommitTimeForChainId.toNumber()).to.be.closeTo(
+    currentTime,
     TIMESTAMP_VARIANCE
   )
   const expectedErrorMsg: string = 'VM Exception while processing transaction: invalid opcode'
