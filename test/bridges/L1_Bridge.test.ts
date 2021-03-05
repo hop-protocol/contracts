@@ -231,16 +231,16 @@ describe('L1_Bridge', () => {
     const transferRootId: string = await l1_bridge.getTransferRootId(rootHash, transfer.amount)
     const transferRootConfirmed: boolean = await l1_bridge.transferRootConfirmed(transferRootId)
     const transferBondByTransferRootId = await l1_bridge.transferBonds(transferRootId)
-    const expectedCommitTimeForChainId: number = Date.now()
+    const currentTime: number = Math.floor(Date.now() / 1000)
     expect(transferRootConfirmed).to.eq(true)
     expect(transferBondByTransferRootId[0]).to.eq(await bonder.getAddress())
-    expect(transferBondByTransferRootId[1].mul(1000).toNumber()).to.be.closeTo(
-      expectedCommitTimeForChainId,
+    expect(transferBondByTransferRootId[1].toNumber()).to.be.closeTo(
+      currentTime,
       TIMESTAMP_VARIANCE
     )
     expect(transferBondByTransferRootId[2]).to.eq(transfer.amount)
-    expect(transferBondByTransferRootId[3].mul(1000).toNumber()).to.be.closeTo(
-      expectedCommitTimeForChainId,
+    expect(transferBondByTransferRootId[3].toNumber()).to.be.closeTo(
+      currentTime,
       TIMESTAMP_VARIANCE
     )
     expect(transferBondByTransferRootId[4]).to.eq(0)
@@ -265,6 +265,11 @@ describe('L1_Bridge', () => {
       expect(collateralTokenAddress).to.eq(l1_canonicalToken.address)
       expect(isBonder).to.eq(true)
     })
+  })
+
+  describe('setters', async () => {
+    // TODO: Test L1 Bridge setters
+    // TODO: Test mod for setChallengePeriodAndTimeSlotSize()
   })
 
   describe('sendToL2', async () => {

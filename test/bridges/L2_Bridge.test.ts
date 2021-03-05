@@ -196,7 +196,7 @@ describe('L2_Bridge', () => {
     }
   })
 
-  describe('getters', async () => {
+  describe('setters', async () => {
     it('Should set the exchange address arbitrarily', async () => {
       const expectedExchangeAddress: string = ONE_ADDRESS
 
@@ -268,6 +268,18 @@ describe('L2_Bridge', () => {
 
       hopBridgeTokenOwner = await l2_hopBridgeToken.owner()
       expect(hopBridgeTokenOwner).to.eq(await newOwner.getAddress())
+    })
+
+    it('Should set the minimum bonder fee requirements', async () => {
+      const expectedMinBonderBps: BigNumber = BigNumber.from('13371337')
+      const expectedMinBonderFeeAbsolute: BigNumber = BigNumber.from('73317331')
+
+      await l2_bridge.setMinimumBonderFeeRequirements(expectedMinBonderBps, expectedMinBonderFeeAbsolute)
+
+      const minBonderBps = await l2_bridge.minBonderBps()
+      const minBonderFeeAbsolute= await l2_bridge.minBonderFeeAbsolute()
+      expect(minBonderBps).to.eq(expectedMinBonderBps)
+      expect(minBonderFeeAbsolute).to.eq(expectedMinBonderFeeAbsolute)
     })
   })
 
