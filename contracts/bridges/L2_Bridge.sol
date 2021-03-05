@@ -3,14 +3,13 @@
 pragma solidity 0.6.12;
 pragma experimental ABIEncoderV2;
 
-import "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 
 import "./Bridge.sol";
 import "./HopBridgeToken.sol";
 import "../libraries/MerkleUtils.sol";
-import "../interfaces/IWETH.sol";
+import "./L2_UniswapWrapper.sol";
 
 abstract contract L2_Bridge is Bridge {
     using SafeERC20 for IERC20;
@@ -18,9 +17,8 @@ abstract contract L2_Bridge is Bridge {
     address public l1Governance;
     HopBridgeToken public hToken;
     address public l1BridgeAddress;
-    address public exchangeAddress;
+    L2_UniswapWrapper public uniswapWrapper;
     IERC20 public l2CanonicalToken;
-    bool public l2CanonicalTokenIsEth;
     mapping(uint256 => bool) public supportedChainIds;
     uint256 public minimumForceCommitDelay = 4 hours;
     uint256 public messengerGasLimit = 250000;
@@ -60,10 +58,8 @@ abstract contract L2_Bridge is Bridge {
         address _l1Governance,
         HopBridgeToken _hToken, 
         IERC20 _l2CanonicalToken,
-        bool _l2CanonicalTokenIsEth,
         address _l1BridgeAddress,
         uint256[] memory _supportedChainIds,
-        address _exchangeAddress,
         address[] memory bonders
     )
         public
@@ -74,9 +70,7 @@ abstract contract L2_Bridge is Bridge {
         l1Governance = _l1Governance;
         hToken = _hToken;
         l2CanonicalToken = _l2CanonicalToken;
-        l2CanonicalTokenIsEth = _l2CanonicalTokenIsEth;
         l1BridgeAddress = _l1BridgeAddress;
-        exchangeAddress = _exchangeAddress;
 
         for (uint256 i = 0; i < _supportedChainIds.length; i++) {
             supportedChainIds[_supportedChainIds[i]] = true;
@@ -134,45 +128,6 @@ abstract contract L2_Bridge is Bridge {
         pendingAmountForChainId[chainId] = pendingAmountForChainId[chainId].add(amount);
 
         emit TransferSent(transferId, recipient, amount, transferNonce, bonderFee);
-    }
-
-    /// @notice amount is the amount the user wants to send plus the Bonder fee
-    function swapAndSend(
-        uint256 chainId,
-        address recipient,
-        uint256 amount,
-        uint256 bonderFee,
-        uint256 amountOutMin,
-        uint256 deadline,
-        uint256 destinationAmountOutMin,
-        uint256 destinationDeadline
-    )
-        external
-        payable
-    {
-        require(amount >= bonderFee, "L2_BRG: Bonder fee cannot exceed amount");
-
-        if (l2CanonicalTokenIsEth) {
-            require(msg.value == amount, "L2_BRG: Value does not match amount");
-            IWETH(address(l2CanonicalToken)).deposit{value: amount}();
-        } else {
-            l2CanonicalToken.safeTransferFrom(msg.sender, address(this), amount);
-        }
-
-        address[] memory exchangePath = _getCHPath();
-        uint256[] memory swapAmounts = IUniswapV2Router02(exchangeAddress).getAmountsOut(amount, exchangePath);
-        uint256 swapAmount = swapAmounts[1];
-
-        l2CanonicalToken.approve(exchangeAddress, amount);
-        IUniswapV2Router02(exchangeAddress).swapExactTokensForTokens(
-            amount,
-            amountOutMin,
-            exchangePath,
-            msg.sender,
-            deadline
-        );
-
-        send(chainId, recipient, swapAmount, bonderFee, destinationAmountOutMin, destinationDeadline);
     }
 
     function commitTransfers(uint256 destinationChainId) external {
@@ -260,35 +215,8 @@ abstract contract L2_Bridge is Bridge {
 
     function _mintAndAttemptSwap(address recipient, uint256 amount, uint256 amountOutMin, uint256 deadline) internal {
         hToken.mint(address(this), amount);
-        hToken.approve(exchangeAddress, amount);
-
-        bool success = true;
-        if (l2CanonicalTokenIsEth) {
-            try IUniswapV2Router02(exchangeAddress).swapExactTokensForETH(
-                amount,
-                amountOutMin,
-                _getHCPath(),
-                recipient,
-                deadline
-            ) returns (uint[] memory) {} catch {
-                success = false;
-            }
-        } else {
-            try IUniswapV2Router02(exchangeAddress).swapExactTokensForTokens(
-                amount,
-                amountOutMin,
-                _getHCPath(),
-                recipient,
-                deadline
-            ) returns (uint[] memory) {} catch {
-                success = false;
-            }
-        }
-
-        if (!success) {
-            // Transfer hToken to recipient if swap fails
-            IERC20(hToken).safeTransfer(recipient, amount);
-        }
+        hToken.approve(address(uniswapWrapper), amount);
+        uniswapWrapper.attemptSwap(recipient, amount, amountOutMin, deadline);
     }
 
     function _withdrawAndAttemptSwap(
@@ -309,20 +237,6 @@ abstract contract L2_Bridge is Bridge {
         _mintAndAttemptSwap(recipient, amountAfterFee, amountOutMin, deadline);
     }
 
-    function _getHCPath() internal view returns (address[] memory) {
-        address[] memory exchangePath = new address[](2);
-        exchangePath[0] = address(hToken);
-        exchangePath[1] = address(l2CanonicalToken);
-        return exchangePath;
-    }
-
-    function _getCHPath() internal view returns (address[] memory) {
-        address[] memory exchangePath = new address[](2);
-        exchangePath[0] = address(l2CanonicalToken);
-        exchangePath[1] = address(hToken);
-        return exchangePath;
-    }
-
     /* ========== Override Functions ========== */
 
     function _transferFromBridge(address recipient, uint256 amount) internal override {
@@ -339,8 +253,8 @@ abstract contract L2_Bridge is Bridge {
 
     /* ========== External Config Management Functions ========== */
 
-    function setExchangeAddress(address _exchangeAddress) external onlyGovernance {
-        exchangeAddress = _exchangeAddress;
+    function setUniswapWrapper(L2_UniswapWrapper _uniswapWrapper) external onlyGovernance {
+        uniswapWrapper = _uniswapWrapper;
     }
 
     function setL1BridgeAddress(address _l1BridgeAddress) external onlyGovernance {

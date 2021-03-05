@@ -14,10 +14,8 @@ contract Mock_L2_XDaiBridge is L2_XDaiBridge {
         address l1Governance,
         HopBridgeToken hToken,
         IERC20 l2CanonicalToken,
-        bool l2CanonicalTokenIsEth,
         address l1BridgeAddress,
         uint256[] memory supportedChainIds,
-        address exchangeAddress,
         address[] memory bonders,
         bytes32 l1ChainId
     )
@@ -27,10 +25,8 @@ contract Mock_L2_XDaiBridge is L2_XDaiBridge {
             l1Governance,
             hToken,
             l2CanonicalToken,
-            l2CanonicalTokenIsEth,
             l1BridgeAddress,
             supportedChainIds,
-            exchangeAddress,
             bonders,
             l1ChainId
         )

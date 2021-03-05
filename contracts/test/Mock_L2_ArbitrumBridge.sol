@@ -14,10 +14,8 @@ contract Mock_L2_ArbitrumBridge is L2_ArbitrumBridge {
         address l1Governance,
         HopBridgeToken hToken,
         IERC20 l2CanonicalToken,
-        bool l2CanonicalTokenIsEth,
         address l1BridgeAddress,
         uint256[] memory supportedChainIds,
-        address exchangeAddress,
         address[] memory bonders
     )
         public
@@ -26,10 +24,8 @@ contract Mock_L2_ArbitrumBridge is L2_ArbitrumBridge {
             l1Governance,
             hToken,
             l2CanonicalToken,
-            l2CanonicalTokenIsEth,
             l1BridgeAddress,
             supportedChainIds,
-            exchangeAddress,
             bonders
         )
     {
