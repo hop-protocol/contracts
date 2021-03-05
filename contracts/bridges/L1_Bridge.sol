@@ -25,7 +25,7 @@ abstract contract L1_Bridge is Bridge {
 
     /* ========== State ========== */
 
-    mapping(bytes32 => bool) public transferRootConfirmed;
+    mapping(bytes32 => uint256) public transferRootCommittedAt;
     mapping(bytes32 => TransferBond) public transferBonds;
     mapping(uint256 => uint256) public timeSlotToAmountBonded;
     mapping(uint256 => uint256) public chainBalance;
@@ -161,7 +161,7 @@ abstract contract L1_Bridge is Bridge {
         requirePositiveBalance
     {
         bytes32 transferRootId = getTransferRootId(rootHash, totalAmount);
-        require(transferRootConfirmed[transferRootId] == false, "L1_BRG: TransferRoot has already been confirmed");
+        require(transferRootCommittedAt[transferRootId] == 0, "L1_BRG: TransferRoot has already been confirmed");
         require(transferBonds[transferRootId].createdAt == 0, "L1_BRG: TransferRoot has already been bonded");
 
         uint256 currentTimeSlot = getTimeSlot(block.timestamp);
@@ -202,17 +202,15 @@ abstract contract L1_Bridge is Bridge {
         onlyL2Bridge(originChainId)
     {
         bytes32 transferRootId = getTransferRootId(rootHash, totalAmount);
-        require(transferRootConfirmed[transferRootId] == false, "L1_BRG: TransferRoot already confirmed");
-        transferRootConfirmed[transferRootId] = true;
+        require(transferRootCommittedAt[transferRootId] == 0, "L1_BRG: TransferRoot already confirmed");
+        require(rootCommittedAt > 0, "L1_BRG: rootCommittedAt must be greater than 0");
+        transferRootCommittedAt[transferRootId] = rootCommittedAt;
         chainBalance[originChainId] = chainBalance[originChainId].sub(totalAmount, "L1_BRG: Amount exceeds chainBalance. This indicates a layer-2 failure.");
 
-        // If the TransferRoot was never bonded, distribute the TransferRoot. If it has been bonded, 
-        // set the rootCommittedAt which is needed in case of a challenge.
+        // If the TransferRoot was never bonded, distribute the TransferRoot.
         TransferBond storage transferBond = transferBonds[transferRootId];
         if (transferBond.createdAt == 0) {
             _distributeTransferRoot(rootHash, destinationChainId, totalAmount);
-        } else {
-            transferBond.rootCommittedAt = rootCommittedAt;
         }
 
         emit TransferRootConfirmed(originChainId, destinationChainId, rootHash, totalAmount);
@@ -251,7 +249,7 @@ abstract contract L1_Bridge is Bridge {
         TransferBond storage transferBond = transferBonds[transferRootId];
 
         require(transferRoot.total > 0, "L1_BRG: TransferRoot not found");
-        require(transferRootConfirmed[transferRootId] == false, "L1_BRG: TransferRoot has already been confirmed");
+        require(transferRootCommittedAt[transferRootId] == 0, "L1_BRG: TransferRoot has already been confirmed");
         require(transferBond.createdAt != 0, "L1_BRG: TransferRoot has not been bonded");
         uint256 challengePeriodEnd = transferBond.createdAt.add(challengePeriod);
         require(challengePeriodEnd >= block.timestamp, "L1_BRG: TransferRoot cannot be challenged after challenge period");
@@ -287,10 +285,10 @@ abstract contract L1_Bridge is Bridge {
 
         uint256 challengeStakeAmount = getChallengeAmountForTransferAmount(transferRoot.total);
 
-        if (transferRootConfirmed[transferRootId]) {
+        if (transferRootCommittedAt[transferRootId] > 0) {
             // Invalid challenge
 
-            if (transferBond.createdAt > transferBond.rootCommittedAt.add(MIN_TRANSFER_ROOT_BOND_DELAY)) {
+            if (transferBond.createdAt > transferRootCommittedAt[transferRootId].add(MIN_TRANSFER_ROOT_BOND_DELAY)) {
                 // Credit the bonder back with the bond amount plus the challenger's stake
                 _addCredit(transferBond.bonder, getBondForTransferAmount(transferRoot.total).add(challengeStakeAmount));
             } else {
@@ -325,7 +323,7 @@ abstract contract L1_Bridge is Bridge {
 
         require(transferRoot.total > 0, "L1_BRG: TransferRoot not found");
         assert(transferRoot.total == originalAmount);
-        require(transferRootConfirmed[transferRootId] == false, "L1_BRG: TransferRoot has already been confirmed");
+        require(transferRootCommittedAt[transferRootId] == 0, "L1_BRG: TransferRoot has already been confirmed");
         require(transferBond.createdAt != 0, "L1_BRG: TransferRoot has not been bonded");
         require(transferBond.challengeResolved == true, "L1_BRG: TransferBond challenge has not been resolved");
         uint256 rescueDelayEnd = transferBond.createdAt.add(RESCUE_DELAY);
