@@ -22,6 +22,7 @@ export interface IFixture {
   L2_HopBridgeToken: ContractFactory
   L2_UniswapRouter: ContractFactory
   L2_UniswapFactory: ContractFactory
+  L2_UniswapWrapper: ContractFactory
 
   // Mock Factories
   MockERC20: ContractFactory
@@ -42,6 +43,7 @@ export interface IFixture {
   l2_bridge: Contract
   l2_uniswapFactory: Contract
   l2_uniswapRouter: Contract
+  l2_uniswapWrapper: Contract
 
   // Mocks
   mockAccounting: Contract

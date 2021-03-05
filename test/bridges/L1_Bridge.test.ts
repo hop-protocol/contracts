@@ -61,6 +61,7 @@ describe('L1_Bridge', () => {
   let l2_bridge: Contract
   let l2_messenger: Contract
   let l2_uniswapRouter: Contract
+  let l2_uniswapWrapper: Contract
   let l22_hopBridgeToken: Contract
   let l22_canonicalToken: Contract
   let l22_bridge: Contract
@@ -98,6 +99,7 @@ describe('L1_Bridge', () => {
       l2_bridge,
       l2_messenger,
       l2_uniswapRouter,
+      l2_uniswapWrapper,
       transfers
     } = _fixture)
 

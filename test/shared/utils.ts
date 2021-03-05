@@ -76,7 +76,7 @@ export const setUpL1AndL2Bridges = async (fixture: IFixture, opts: any) => {
     l1_bridge,
     l1_messengerWrapper,
     l2_bridge,
-    l2_uniswapRouter
+    l2_uniswapWrapper
   } = fixture
 
   const { messengerWrapperChainId } = opts
@@ -89,7 +89,7 @@ export const setUpL1AndL2Bridges = async (fixture: IFixture, opts: any) => {
 
   // Set up L2
   await l2_bridge.setL1BridgeAddress(l1_bridge.address)
-  await l2_bridge.setExchangeAddress(l2_uniswapRouter.address)
+  await l2_bridge.setUniswapWrapper(l2_uniswapWrapper.address)
 }
 
 export const setUpL1AndL2Messengers = async (fixture: IFixture) => {

@@ -63,6 +63,9 @@ export async function fixture (l1ChainId: BigNumber, l2ChainId: BigNumber, l1Alr
   const L2_UniswapFactory = await ethers.getContractFactory(
     '@uniswap/v2-core/contracts/UniswapV2Factory.sol:UniswapV2Factory'
   )
+  const L2_UniswapWrapper = await ethers.getContractFactory(
+    'contracts/bridges/L2_UniswapWrapper.sol:L2_UniswapWrapper',
+  )
 
   // Mock Factories
   const MockERC20 = await ethers.getContractFactory(
@@ -110,7 +113,7 @@ export async function fixture (l1ChainId: BigNumber, l2ChainId: BigNumber, l1Alr
   // Deploy Hop L1 contracts
   let l1_bridge
   if (l1AlreadySetOpts?.l1BridgeAddress) {
-    l1_bridge = await L1_Bridge.attach(l1AlreadySetOpts.l1BridgeAddress)
+    l1_bridge = L1_Bridge.attach(l1AlreadySetOpts.l1BridgeAddress)
   } else {
     l1_bridge = await L1_Bridge.deploy(
       l1_canonicalToken.address,
@@ -128,7 +131,6 @@ export async function fixture (l1ChainId: BigNumber, l2ChainId: BigNumber, l1Alr
 
   // Deploy Hop L2 contracts
   const isProdDeployment: boolean = false
-  const l2CanonicalTokenIsEth: boolean = false
   let l2BridgeDefaults: IGetL2BridgeDefaults[] = getL2BridgeDefaults(
     isProdDeployment,
     l2ChainId,
@@ -136,10 +138,8 @@ export async function fixture (l1ChainId: BigNumber, l2ChainId: BigNumber, l1Alr
     await governance.getAddress(),
     l2_hopBridgeToken.address,
     l2_canonicalToken.address,
-    l2CanonicalTokenIsEth,
     l1_bridge.address,
     ALL_SUPPORTED_CHAIN_IDS,
-    l2_uniswapRouter.address,
     [await bonder.getAddress()],
     l1ChainId
   )
@@ -156,6 +156,16 @@ export async function fixture (l1ChainId: BigNumber, l2ChainId: BigNumber, l1Alr
   )
   const l1_messengerWrapper = await L1_MessengerWrapper.deploy(
     ...messengerWrapperDefaults
+  )
+
+  // Deploy Uniswap Wrapper
+  const l2CanonicalTokenIsEth: boolean = false
+  const l2_uniswapWrapper = await L2_UniswapWrapper.deploy(
+    l2_bridge.address,
+    l2_canonicalToken.address,
+    l2CanonicalTokenIsEth,
+    l2_hopBridgeToken.address,
+    l2_uniswapRouter.address
   )
 
   // Mocks
@@ -222,6 +232,7 @@ export async function fixture (l1ChainId: BigNumber, l2ChainId: BigNumber, l1Alr
     L2_Messenger,
     L2_UniswapRouter,
     L2_UniswapFactory,
+    L2_UniswapWrapper,
     MockAccounting,
     MockBridge,
     l1_canonicalToken,
@@ -235,6 +246,7 @@ export async function fixture (l1ChainId: BigNumber, l2ChainId: BigNumber, l1Alr
     l2_canonicalToken,
     l2_uniswapFactory,
     l2_uniswapRouter,
+    l2_uniswapWrapper,
     mockAccounting,
     mockBridge,
     transfers

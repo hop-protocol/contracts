@@ -145,7 +145,7 @@ export async function deployL2 (config: Config) {
   console.log('L2 Uniswap Router   :', l2_uniswapRouterAddress)
 
   updateConfigFile({
-    l2_hopBridgeToken,
+    l2_hopBridgeTokenAddress,
     l2_bridgeAddress,
     l2_uniswapFactoryAddress,
     l2_uniswapRouterAddress
@@ -228,7 +228,7 @@ const deployBridge = async (
     l2_bridge.address,
     l2_canonicalToken.address,
     l2CanonicalTokenIsEth,
-    l2_canonicalToken.address,
+    l2_hopBridgeToken.address,
     l2_uniswapRouter.address
   )
 

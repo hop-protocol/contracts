@@ -197,14 +197,14 @@ describe('L2_Bridge', () => {
   })
 
   describe('getters', async () => {
-    it('Should set the exchange address arbitrarily', async () => {
-      const expectedExchangeAddress: string = ONE_ADDRESS
+    it('Should set the uniswap wrapper address arbitrarily', async () => {
+      const expectedUniswapWrapperAddress: string = ONE_ADDRESS
 
       await l2_bridge
         .connect(governance)
-        .setExchangeAddress(expectedExchangeAddress)
+        .setUniswapWrapper(expectedUniswapWrapperAddress)
       const exchangeAddress: string = await l2_bridge.exchangeAddress()
-      expect(exchangeAddress).to.eq(expectedExchangeAddress)
+      expect(exchangeAddress).to.eq(expectedUniswapWrapperAddress)
     })
 
     it('Should set the L1 bridge address arbitrarily', async () => {
