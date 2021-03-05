@@ -68,6 +68,7 @@ describe('L2_Bridge', () => {
   let l2_bridge: Contract
   let l2_messenger: Contract
   let l2_uniswapRouter: Contract
+  let l2_uniswapWrapper: Contract
   let l22_canonicalToken: Contract
   let l22_hopBridgeToken: Contract
   let l22_bridge: Contract
@@ -106,6 +107,7 @@ describe('L2_Bridge', () => {
       l2_bridge,
       l2_messenger,
       l2_uniswapRouter,
+      l2_uniswapWrapper,
       transfers
     } = _fixture)
 
@@ -165,7 +167,6 @@ describe('L2_Bridge', () => {
     const expectedL1BridgeAddress: string = l1_bridge.address
     const expectedIsChainIdSupported: boolean = true
     const expectedIsBonder: boolean = true
-    const expectedExchangeAddress: string = l2_uniswapRouter.address
     const expectedName: string = DEFAULT_H_BRIDGE_TOKEN_NAME
     const expectedSymbol: string = DEFAULT_H_BRIDGE_TOKEN_SYMBOL
     const expectedDecimals: number = DEFAULT_H_BRIDGE_TOKEN_DECIMALS
@@ -174,7 +175,6 @@ describe('L2_Bridge', () => {
     const l2CanonicalTokenAddress = await l2_bridge.l2CanonicalToken()
     const l1BridgeAddress = await l2_bridge.l1BridgeAddress()
     const isBonder = await l2_bridge.getIsBonder(await bonder.getAddress())
-    const exchangeAddress: string = await l2_bridge.exchangeAddress()
     const name: string = await l2_hopBridgeToken.name()
     const symbol: string = await l2_hopBridgeToken.symbol()
     const decimals: number = await l2_hopBridgeToken.decimals()
@@ -183,7 +183,6 @@ describe('L2_Bridge', () => {
     expect(expectedL2CanonicalTokenAddress).to.eq(l2CanonicalTokenAddress)
     expect(expectedL1BridgeAddress).to.eq(l1BridgeAddress)
     expect(expectedIsBonder).to.eq(isBonder)
-    expect(expectedExchangeAddress).to.eq(exchangeAddress)
     expect(expectedName).to.eq(name)
     expect(expectedSymbol).to.eq(symbol)
     expect(expectedDecimals).to.eq(decimals)
@@ -203,7 +202,7 @@ describe('L2_Bridge', () => {
       await l2_bridge
         .connect(governance)
         .setUniswapWrapper(expectedUniswapWrapperAddress)
-      const exchangeAddress: string = await l2_bridge.exchangeAddress()
+      const exchangeAddress: string = await l2_bridge.uniswapWrapper()
       expect(exchangeAddress).to.eq(expectedUniswapWrapperAddress)
     })
 
@@ -310,6 +309,7 @@ describe('L2_Bridge', () => {
         l2_canonicalToken,
         l2_hopBridgeToken,
         l2_uniswapRouter,
+        l2_uniswapWrapper,
         l2Transfer
       )
     })
@@ -479,6 +479,8 @@ describe('L2_Bridge', () => {
       expectedBalanceCanonicalToken = expectedBalanceCanonicalToken.add(expectedRecipientAmountAfterSlippage)
       await expectBalanceOf(l2_hopBridgeToken, user, expectedBalanceHopBridgeToken)
       await expectBalanceOf(l2_canonicalToken, user, expectedBalanceCanonicalToken)
+
+      // TODO: Test that the relayer gets a fee
     })
   })
 

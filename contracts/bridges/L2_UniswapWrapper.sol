@@ -67,7 +67,7 @@ contract L2_UniswapWrapper {
             amount,
             amountOutMin,
             exchangePath,
-            msg.sender,
+            address(this),
             deadline
         );
 
@@ -76,6 +76,7 @@ contract L2_UniswapWrapper {
 
     function attemptSwap(address recipient, uint256 amount, uint256 amountOutMin, uint256 deadline) external {
         hToken.safeTransferFrom(msg.sender, address(this), amount);
+        hToken.approve(address(exchangeAddress), amount);
 
         bool success = true;
         if (l2CanonicalTokenIsEth) {
