@@ -292,10 +292,27 @@ export const readConfigFile = () => {
     'l2_hopBridgeTokenAddress':'',
     'l2_messengerAddress':'',
     'l2_uniswapFactoryAddress':'',
-    'l2_uniswapRouterAddress':''
+    'l2_uniswapRouterAddress':'',
+    'l2_uniswapWrapperAddress':''
   }
   if (fs.existsSync(configFilepath)) {
     data = JSON.parse(fs.readFileSync(configFilepath, 'utf8'))
   }
   return data
+}
+
+export const waitAfterTransaction = async (contract: Contract = null) => {
+  // Ethers does not wait long enough after `deployed()` on some networks
+  // so we wait additional time to verify deployment
+  if (contract) {
+    await contract.deployed()
+  }
+
+  // NOTE: 4 seconds seems to work fine. 3 seconds does not always work
+  const secondsToWait = 4e3
+  await wait(secondsToWait)
+}
+
+const wait = async (t: number) => {
+  return new Promise(resolve => setTimeout(() => resolve(null), t))
 }

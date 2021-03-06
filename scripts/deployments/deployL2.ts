@@ -3,7 +3,7 @@ require('dotenv').config()
 import { ContractFactory, Signer, Contract, BigNumber } from 'ethers'
 import { ethers, l2ethers as ovmEthers } from 'hardhat'
 
-import { getContractFactories, verifyDeployment, updateConfigFile, readConfigFile } from '../shared/utils'
+import { getContractFactories, verifyDeployment, updateConfigFile, readConfigFile, waitAfterTransaction } from '../shared/utils'
 
 import { isChainIdOptimism, isChainIdArbitrum, isChainIdXDai, getL2BridgeDefaults } from '../../config/utils'
 import {
@@ -94,6 +94,7 @@ export async function deployL2 (config: Config) {
     l2_hBridgeTokenSymbol,
     l2_hBridgeTokenDecimals
   )
+  await waitAfterTransaction(l2_hopBridgeToken)
 
   ;({ l2_uniswapFactory, l2_uniswapRouter } = await deployUniswap(
     ethers,
@@ -107,6 +108,7 @@ export async function deployL2 (config: Config) {
   ;({ l2_bridge } = await deployBridge(
     l2_chainId,
     l1_chainId,
+    l2_chainId,
     ethers,
     owner,
     bonder,
@@ -131,7 +133,10 @@ export async function deployL2 (config: Config) {
   )
 
   // Transfer ownership of the Hop Bridge Token to the L2 Bridge
-  await l2_hopBridgeToken.transferOwnership(l2_bridge.address, overrides)
+  let transferOwnershipParams: any[] = [l2_bridge.address]
+  if (isChainIdXDai(l2_chainId)) { transferOwnershipParams.push(overrides) }
+  await l2_hopBridgeToken.transferOwnership(...transferOwnershipParams)
+  await waitAfterTransaction()
 
   const l2_hopBridgeTokenAddress: string = l2_hopBridgeToken.address
   const l2_bridgeAddress: string = l2_bridge.address
@@ -170,14 +175,14 @@ const deployUniswap = async (
   l2_uniswapFactory = await L2_UniswapFactory.connect(owner).deploy(
     await owner.getAddress()
   )
-  await l2_uniswapFactory.deployed()
+  await waitAfterTransaction(l2_uniswapFactory)
   await verifyDeployment(l2_uniswapFactory, ethers)
 
   l2_uniswapRouter = await L2_UniswapRouter.connect(owner).deploy(
     l2_uniswapFactory.address,
     ZERO_ADDRESS
   )
-  await l2_uniswapRouter.deployed()
+  await waitAfterTransaction(l2_uniswapRouter)
   await verifyDeployment(l2_uniswapRouter, ethers)
 
   return {
@@ -189,6 +194,7 @@ const deployUniswap = async (
 const deployBridge = async (
   chainId: BigNumber,
   l1ChainId: BigNumber,
+  l2ChainId: BigNumber,
   ethers: any,
   owner: Signer,
   bonder: Signer,
@@ -204,7 +210,6 @@ const deployBridge = async (
 ) => {
   // NOTE: Adding more CHAIN_IDs here will push the OVM deployment over the contract size limit
   //       If additional CHAIN_IDs must be added, do so after the deployment.
-  // TODO: l2CanonicalTokenIsEth should be 'smart'
   const isProdDeployment: boolean = true
   const l2BridgeDeploymentParams = getL2BridgeDefaults (
     isProdDeployment,
@@ -220,9 +225,10 @@ const deployBridge = async (
   )
 
   l2_bridge = await L2_Bridge.connect(owner).deploy(...l2BridgeDeploymentParams)
-  await l2_bridge.deployed()
+  await waitAfterTransaction(l2_bridge)
   await verifyDeployment(l2_bridge, ethers)
 
+  // TODO: l2CanonicalTokenIsEth should be 'smart'
   const l2CanonicalTokenIsEth: boolean = false
   l2_uniswapWrapper = await L2_UniswapWrapper.connect(owner).deploy(
     l2_bridge.address,
@@ -231,8 +237,12 @@ const deployBridge = async (
     l2_hopBridgeToken.address,
     l2_uniswapRouter.address
   )
+  await waitAfterTransaction(l2_uniswapWrapper)
 
-  await l2_bridge.setUniswapWrapper(l2_uniswapWrapper.address)
+  let setUniswapWrapperParams: any[] = [l2_uniswapWrapper.address]
+  if (isChainIdXDai(l2ChainId)) { setUniswapWrapperParams.push(overrides) }
+  await l2_bridge.setUniswapWrapper(...setUniswapWrapperParams)
+  await waitAfterTransaction()
 
   return {
     l2_bridge,
@@ -241,29 +251,32 @@ const deployBridge = async (
 }
 
 const deployNetworkSpecificContracts = async (
-  chainId: BigNumber,
+  l2ChainId: BigNumber,
   owner: Signer,
   ethers: any,
   L2_UniswapPair: ContractFactory,
   l2_uniswapFactory: Contract,
   l2_uniswapPair: Contract
 ) => {
-  if (isChainIdXDai(chainId)) {
+  if (isChainIdXDai(l2ChainId)) {
     // No network specific deployments
   }
 
-  if (isChainIdArbitrum(chainId)) {
+  if (isChainIdArbitrum(l2ChainId)) {
     // No network specific deployments
   }
 
-  if (isChainIdOptimism(chainId)) {
+  if (isChainIdOptimism(l2ChainId)) {
     l2_uniswapPair = await L2_UniswapPair.connect(owner).deploy(
       l2_uniswapFactory.address
     )
-    l2_uniswapPair.deployed()
+    await waitAfterTransaction(l2_uniswapPair)
     verifyDeployment(l2_uniswapPair, ethers)
 
+    let setPairParams: any[] = [l2_uniswapPair]
+    if (isChainIdXDai(l2ChainId)) { setPairParams.push(overrides) }
     await l2_uniswapFactory.connect(owner).setPair(l2_uniswapPair.address)
+    await waitAfterTransaction()
     const realPair = await l2_uniswapFactory.realPair()
     if (l2_uniswapPair.address !== realPair) {
       throw new Error('Pair did not get set on the factory.')

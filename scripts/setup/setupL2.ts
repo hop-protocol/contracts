@@ -3,7 +3,8 @@ require('dotenv').config()
 import { ethers, l2ethers as ovmEthers } from 'hardhat'
 import { BigNumber, ContractFactory, Contract, Signer } from 'ethers'
 
-import { getContractFactories, readConfigFile } from '../shared/utils'
+import { getContractFactories, readConfigFile, updateConfigFile, waitAfterTransaction } from '../shared/utils'
+import { isChainIdXDai } from '../../config/utils'
 
 import {
   DEFAULT_DEADLINE,
@@ -13,7 +14,7 @@ import {
 } from '../../config/constants'
 
 interface Config {
-  l1_chainId: string | BigNumber 
+  l2_chainId: string | BigNumber 
   l2_canonicalTokenAddress: string
   l2_hopBridgeTokenAddress: string
   l2_bridgeAddress: string
@@ -22,8 +23,8 @@ interface Config {
 }
 
 export async function setupL2 (config: Config) {
-  const {
-    l1_chainId,
+  let {
+    l2_chainId,
     l2_canonicalTokenAddress,
     l2_hopBridgeTokenAddress,
     l2_bridgeAddress,
@@ -31,7 +32,7 @@ export async function setupL2 (config: Config) {
     l2_uniswapRouterAddress
   } = config
 
-  l1_chainId = BigNumber.from(l1_chainId)
+  l2_chainId = BigNumber.from(l2_chainId)
 
   // Signers
   let accounts: Signer[]
@@ -65,7 +66,7 @@ export async function setupL2 (config: Config) {
     L2_UniswapFactory,
     L2_UniswapRouter
   } = await getContractFactories(
-    l1_chainId,
+    l2_chainId,
     owner,
     ethers,
     ovmEthers
@@ -83,39 +84,55 @@ export async function setupL2 (config: Config) {
    * Setup
    */
 
-  const allSupportedChainIds: string[] = ALL_SUPPORTED_CHAIN_IDS
-  await l2_bridge.addSupportedChainIds(allSupportedChainIds, overrides)
+  let addSupportedChainIdsParams: any[] = [ALL_SUPPORTED_CHAIN_IDS]
+  if (isChainIdXDai(l2_chainId)) { addSupportedChainIdsParams.push(overrides) }
+  await l2_bridge.addSupportedChainIds(...addSupportedChainIdsParams)
+  await waitAfterTransaction()
 
   // Set up Uniswap
+  let approvalParams: any[] = [l2_uniswapRouter.address, LIQUIDITY_PROVIDER_UNISWAP_AMOUNT]
+  if (isChainIdXDai(l2_chainId)) { approvalParams.push(overrides) }
   await l2_canonicalToken
     .connect(liquidityProvider)
-    .approve(l2_uniswapRouter.address, LIQUIDITY_PROVIDER_UNISWAP_AMOUNT, overrides)
+    .approve(...approvalParams)
+  await waitAfterTransaction()
   await l2_hopBridgeToken
     .connect(liquidityProvider)
-    .approve(l2_uniswapRouter.address, LIQUIDITY_PROVIDER_UNISWAP_AMOUNT, overrides)
+    .approve(...approvalParams)
+  await waitAfterTransaction()
+  
+  let addLiquidityParams: any[] = [
+    l2_hopBridgeToken.address,
+    l2_canonicalToken.address,
+    LIQUIDITY_PROVIDER_UNISWAP_AMOUNT,
+    LIQUIDITY_PROVIDER_UNISWAP_AMOUNT,
+    '0',
+    '0',
+    await liquidityProvider.getAddress(),
+    DEFAULT_DEADLINE,
+  ]
+  if (isChainIdXDai(l2_chainId)) { addLiquidityParams.push(overrides) }
   await l2_uniswapRouter
     .connect(liquidityProvider)
-    .addLiquidity(
-      l2_hopBridgeToken.address,
-      l2_canonicalToken.address,
-      LIQUIDITY_PROVIDER_UNISWAP_AMOUNT,
-      LIQUIDITY_PROVIDER_UNISWAP_AMOUNT,
-      '0',
-      '0',
-      await liquidityProvider.getAddress(),
-      DEFAULT_DEADLINE,
-      overrides
-    )
+    .addLiquidity(...addLiquidityParams)
+  await waitAfterTransaction()
 
-  const uniswapPairAddress = await l2_uniswapFactory.getPair(l2_hopBridgeToken.address, l2_canonicalToken.address)
+  let getPairParams: any[] = [l2_hopBridgeToken.address, l2_canonicalToken.address]
+  if (isChainIdXDai(l2_chainId)) { approvalParams.push(overrides) }
+  const uniswapPairAddress = await l2_uniswapFactory.getPair(...getPairParams)
+  await waitAfterTransaction()
 
   console.log('L2 Setup Complete')
   console.log('L2 Uniswap Pair Address:', uniswapPairAddress)
+
+  updateConfigFile({
+    uniswapPairAddress
+  })
 }
 
 if (require.main === module) {
   const {
-    l1_chainId,
+    l2_chainId,
     l2_canonicalTokenAddress,
     l2_hopBridgeTokenAddress,
     l2_bridgeAddress,
@@ -123,7 +140,7 @@ if (require.main === module) {
     l2_uniswapRouterAddress,
   } = readConfigFile()
   setupL2({
-    l1_chainId,
+    l2_chainId,
     l2_canonicalTokenAddress,
     l2_hopBridgeTokenAddress,
     l2_bridgeAddress,

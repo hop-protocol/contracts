@@ -195,3 +195,11 @@ The following steps are to add a new layer-2 (Xyz, for example) to the Hop Syste
 - Why are my Optimism contracts not working?
 
   - Optimism adds additional bytecode to your contracts when they are compiled. This may push your contract over the contract size limit. When this happens, your contract deployment mail fail silently (the transaction will succeed but there will be no code at the address). Try removing unused functions from your contracts.
+
+- Why can I not interact with contracts on xDai?
+
+  - Interacting with xDai contracts sends a negative default `gasLimit`. To resolve this issue, add `overrides` with a defined `gasLimit` with each contract invocation.
+
+- Why do my Optimism contract interactions appear to work but do not update state?
+
+  - If `overrides` are added to Optimism contract invocations, the code will say the tx has succeeded, but no state will be updated.

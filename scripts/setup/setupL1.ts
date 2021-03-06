@@ -6,7 +6,8 @@ import { BigNumber, ContractFactory, Signer, Contract } from 'ethers'
 import {
   getContractFactories,
   sendChainSpecificBridgeDeposit,
-  readConfigFile
+  readConfigFile,
+  waitAfterTransaction
 } from '../shared/utils'
 
 import { getMessengerWrapperDefaults } from '../../config/utils'
@@ -92,13 +93,14 @@ export async function setupL1 (config: Config) {
   l1_messengerWrapper = await L1_MessengerWrapper.connect(owner).deploy(
     ...messengerWrapperDefaults
   )
-  await l1_messengerWrapper.deployed()
+  await waitAfterTransaction(l1_messengerWrapper)
 
   // Set up the L1 bridge
   await l1_bridge.setCrossDomainMessengerWrapper(
     l2_chainId,
     l1_messengerWrapper.address
   )
+  await waitAfterTransaction()
 
   // Get canonical token to L2
   // NOTE: If this is not the self-mintable testnet DAI, comment this line out
@@ -108,9 +110,11 @@ export async function setupL1 (config: Config) {
       await liquidityProvider.getAddress(),
       LIQUIDITY_PROVIDER_INITIAL_BALANCE
     )
+  await waitAfterTransaction()
   await l1_canonicalToken
     .connect(liquidityProvider)
     .approve(l1_messenger.address, LIQUIDITY_PROVIDER_INITIAL_BALANCE)
+  await waitAfterTransaction()
   await sendChainSpecificBridgeDeposit(
     l1_chainId,
     liquidityProvider,
@@ -118,6 +122,7 @@ export async function setupL1 (config: Config) {
     l1_messenger,
     l1_canonicalToken
   )
+  await waitAfterTransaction()
 
   // Get hop token on L2
   // NOTE: If this is not the self-mintable testnet DAI, comment this line out
@@ -127,9 +132,12 @@ export async function setupL1 (config: Config) {
       await liquidityProvider.getAddress(),
       LIQUIDITY_PROVIDER_INITIAL_BALANCE
     )
+  await waitAfterTransaction()
   await l1_canonicalToken
     .connect(liquidityProvider)
     .approve(l1_bridge.address, LIQUIDITY_PROVIDER_INITIAL_BALANCE)
+  await waitAfterTransaction()
+
   const relayerFee: BigNumber = BigNumber.from('0')
   await l1_bridge
     .connect(liquidityProvider)
@@ -139,6 +147,7 @@ export async function setupL1 (config: Config) {
       LIQUIDITY_PROVIDER_INITIAL_BALANCE,
       relayerFee
     )
+  await waitAfterTransaction()
 
   console.log('L1 Setup Complete')
 }
