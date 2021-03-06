@@ -17,7 +17,6 @@ abstract contract L1_Bridge is Bridge {
         address bonder;
         uint256 createdAt;
         uint256 totalAmount;
-        uint256 rootCommittedAt;
         uint256 challengeStartTime;
         address challenger;
         bool challengeResolved;
@@ -172,7 +171,6 @@ abstract contract L1_Bridge is Bridge {
             msg.sender,
             block.timestamp,
             totalAmount,
-            uint256(0),
             uint256(0),
             address(0),
             false
