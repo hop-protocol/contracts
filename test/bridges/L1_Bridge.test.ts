@@ -231,20 +231,24 @@ describe('L1_Bridge', () => {
     const transferId: Buffer = await transfer.getTransferId(transferNonce)
     const { rootHash } = getRootHashFromTransferId(transferId)
     const transferRootId: string = await l1_bridge.getTransferRootId(rootHash, transfer.amount)
-    const transferRootConfirmed: boolean = await l1_bridge.transferRootConfirmed(transferRootId)
+    const transferRootCommittedAt: BigNumber = await l1_bridge.transferRootCommittedAt(transferRootId)
     const transferBondByTransferRootId = await l1_bridge.transferBonds(transferRootId)
     const currentTime: number = Math.floor(Date.now() / 1000)
-    expect(transferRootConfirmed).to.eq(true)
+    expect(transferRootCommittedAt.toNumber()).to.closeTo(
+      currentTime,
+      TIMESTAMP_VARIANCE
+    )
     expect(transferBondByTransferRootId[0]).to.eq(await bonder.getAddress())
     expect(transferBondByTransferRootId[1].toNumber()).to.be.closeTo(
       currentTime,
       TIMESTAMP_VARIANCE
     )
     expect(transferBondByTransferRootId[2]).to.eq(transfer.amount)
-    expect(transferBondByTransferRootId[3].toNumber()).to.be.closeTo(
-      currentTime,
-      TIMESTAMP_VARIANCE
-    )
+    // TODO: Get rid of this if Chris agrees
+    // expect(transferBondByTransferRootId[3].toNumber()).to.be.closeTo(
+    //   currentTime,
+    //   TIMESTAMP_VARIANCE
+    // )
     expect(transferBondByTransferRootId[4]).to.eq(0)
     expect(transferBondByTransferRootId[5]).to.eq(ZERO_ADDRESS)
     expect(transferBondByTransferRootId[6]).to.eq(false)
@@ -450,11 +454,14 @@ describe('L1_Bridge', () => {
       const transferId: Buffer = await transfer.getTransferId(transferNonce)
       const { rootHash } = getRootHashFromTransferId(transferId)
 
+      const currentTime: number = Math.floor(Date.now() / 1000)
       const transferRootId: string = await l1_bridge.getTransferRootId(rootHash, transfer.amount);
-      const transferRootConfirmed: boolean = await l1_bridge.transferRootConfirmed(transferRootId)
+      const transferRootCommittedAt: BigNumber = await l1_bridge.transferRootCommittedAt(transferRootId)
       const transferRoot = await l1_bridge.getTransferRoot(rootHash, transfer.amount)
-
-      expect(transferRootConfirmed).to.eq(true)
+      expect(transferRootCommittedAt.toNumber()).to.closeTo(
+        currentTime,
+        TIMESTAMP_VARIANCE
+      )
       expect(await l1_bridge.chainBalance(l2ChainId)).to.eq(originalBondedAmount)
       expect(transferRoot[0]).to.eq(transfer.amount)
       expect(transferRoot[1]).to.eq(BigNumber.from('0'))
@@ -504,10 +511,14 @@ describe('L1_Bridge', () => {
       const transferId: Buffer = await l2Transfer.getTransferId(transferNonce)
       const { rootHash } = getRootHashFromTransferId(transferId)
 
+      const currentTime: number = Math.floor(Date.now() / 1000)
       const transferRootId: string = await l1_bridge.getTransferRootId(rootHash, l2Transfer.amount);
-      const transferRootConfirmed: boolean = await l1_bridge.transferRootConfirmed(transferRootId)
+      const transferRootCommittedAt: BigNumber = await l1_bridge.transferRootCommittedAt(transferRootId)
 
-      expect(transferRootConfirmed).to.eq(true)
+      expect(transferRootCommittedAt.toNumber()).to.closeTo(
+        currentTime,
+        TIMESTAMP_VARIANCE
+      )
       expect(await l1_bridge.chainBalance(l22ChainId)).to.eq(LIQUIDITY_PROVIDER_UNISWAP_AMOUNT.add(INITIAL_BONDED_AMOUNT))
 
       const nextMessage = await l22_messenger.nextMessage()
@@ -1236,6 +1247,10 @@ describe('L1_Bridge', () => {
       await expect(
         l1_messenger.relayNextMessage()
       ).to.be.revertedWith(expectedErrorMsg)
+    })
+
+    it('Should not allow a transfer root to be confirmed the rootCommittedAt value is 0', async () => {
+      // This is not possible in the current contracts (as long as an L2's block.timestamp is 0)
     })
 
     it('Should not allow a transfer root to be confirmed if a mainnet transfer root amount is 0', async () => {

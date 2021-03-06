@@ -16,7 +16,8 @@ contract Mock_L2_OptimismBridge is L2_OptimismBridge {
         IERC20 l2CanonicalToken,
         address l1BridgeAddress,
         uint256[] memory supportedChainIds,
-        address[] memory bonders
+        address[] memory bonders,
+        uint32 defaultGasLimit
     )
         public
         L2_OptimismBridge(
@@ -26,7 +27,8 @@ contract Mock_L2_OptimismBridge is L2_OptimismBridge {
             l2CanonicalToken,
             l1BridgeAddress,
             supportedChainIds,
-            bonders
+            bonders,
+            defaultGasLimit
         )
     {
         chainId = _chainId;

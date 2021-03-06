@@ -1,6 +1,6 @@
 import '@nomiclabs/hardhat-waffle'
 import { ethers } from 'hardhat'
-import { BigNumber } from 'ethers'
+import { BigNumber, Contract } from 'ethers'
 import Transfer from '../../lib/Transfer'
 
 import { getL2SpecificArtifact } from './utils'
@@ -79,9 +79,9 @@ export async function fixture (l1ChainId: BigNumber, l2ChainId: BigNumber, l1Alr
   )
 
   // Deploy canonical tokens
-  let l1_canonicalToken
+  let l1_canonicalToken: Contract
   if (l1AlreadySetOpts?.l1CanonicalTokenAddress) {
-    l1_canonicalToken = await MockERC20.attach(l1AlreadySetOpts.l1CanonicalTokenAddress)
+    l1_canonicalToken = MockERC20.attach(l1AlreadySetOpts.l1CanonicalTokenAddress)
   } else {
     l1_canonicalToken = await MockERC20.deploy('Dai Stable Token', 'DAI')
   }
@@ -111,7 +111,7 @@ export async function fixture (l1ChainId: BigNumber, l2ChainId: BigNumber, l1Alr
   )
 
   // Deploy Hop L1 contracts
-  let l1_bridge
+  let l1_bridge: Contract
   if (l1AlreadySetOpts?.l1BridgeAddress) {
     l1_bridge = L1_Bridge.attach(l1AlreadySetOpts.l1BridgeAddress)
   } else {

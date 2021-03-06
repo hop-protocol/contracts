@@ -151,7 +151,8 @@ abstract contract Bridge is Accounting {
      * @param amount The amount being transferred including the `_bonderFee`
      * @param transferNonce Used to avoid transferId collisions
      * @param bonderFee The amount paid to the address that withdraws the Transfer
-     * @param transferRootId The Merkle root of the TransferRoot
+     * @param rootHash The Merkle root of the TransferRoot
+     * @param transferRootTotalAmount The total amount being transferred in a TransferRoot
      * @param proof The Merkle proof that proves the Transfer's inclusion in the TransferRoot
      */
     function withdraw(
@@ -159,7 +160,8 @@ abstract contract Bridge is Accounting {
         uint256 amount,
         bytes32 transferNonce,
         uint256 bonderFee,
-        bytes32 transferRootId,
+        bytes32 rootHash,
+        uint256 transferRootTotalAmount,
         bytes32[] memory proof
     )
         external
@@ -174,7 +176,8 @@ abstract contract Bridge is Accounting {
             0
         );
 
-        require(proof.verify(transferRootId, transferId), "BRG: Invalid transfer proof");
+        require(proof.verify(rootHash, transferId), "BRG: Invalid transfer proof");
+        bytes32 transferRootId = getTransferRootId(rootHash, transferRootTotalAmount);
         _addToAmountWithdrawn(transferRootId, amount);
         _fulfillWithdraw(transferId, recipient, amount, uint256(0));
 
@@ -220,6 +223,7 @@ abstract contract Bridge is Accounting {
      * @param bonder The Bonder of the withdrawal
      * @param transferId The Transfer's unique identifier
      * @param rootHash The merkle root of the TransferRoot
+     * @param transferRootTotalAmount The total amount being transferred in a TransferRoot
      * @param proof The Merkle proof that proves the Transfer's inclusion in the TransferRoot
      */
     function settleBondedWithdrawal(
