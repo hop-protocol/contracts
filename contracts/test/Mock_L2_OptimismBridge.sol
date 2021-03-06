@@ -11,6 +11,7 @@ contract Mock_L2_OptimismBridge is L2_OptimismBridge {
     constructor (
         uint256 _chainId,
         iOVM_L2CrossDomainMessenger messenger,
+        uint32 defaultGasLimit,
         address l1Governance,
         HopBridgeToken hToken,
         IERC20 l2CanonicalToken,
@@ -21,6 +22,7 @@ contract Mock_L2_OptimismBridge is L2_OptimismBridge {
         public
         L2_OptimismBridge(
             messenger,
+            defaultGasLimit,
             l1Governance,
             hToken,
             l2CanonicalToken,
