@@ -1249,6 +1249,10 @@ describe('L1_Bridge', () => {
       ).to.be.revertedWith(expectedErrorMsg)
     })
 
+    it('Should not allow a transfer root to be confirmed the rootCommittedAt value is 0', async () => {
+      // This is not possible in the current contracts (as long as an L2's block.timestamp is 0)
+    })
+
     it('Should not allow a transfer root to be confirmed if a mainnet transfer root amount is 0', async () => {
       // This is not possible to check, as `L2_Bridge.send()` and `L2_Bridge.swapAndSend()` perform this check
       // and disallow it on that level.
