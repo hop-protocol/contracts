@@ -34,7 +34,6 @@ contract L2_OptimismBridge is L2_Bridge {
         defaultGasLimit = _defaultGasLimit;
     }
 
-    // TODO: Use a valid gasLimit
     function _sendCrossDomainMessage(bytes memory message) internal override {
         messenger.sendMessage(
             l1BridgeAddress,
