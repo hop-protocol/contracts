@@ -118,7 +118,7 @@ export async function setupL2 (config: Config) {
   await waitAfterTransaction()
 
   let getPairParams: any[] = [l2_hopBridgeToken.address, l2_canonicalToken.address]
-  if (isChainIdXDai(l2_chainId)) { approvalParams.push(overrides) }
+  if (isChainIdXDai(l2_chainId)) { getPairParams.push(overrides) }
   const uniswapPairAddress = await l2_uniswapFactory.getPair(...getPairParams)
   await waitAfterTransaction()
 
