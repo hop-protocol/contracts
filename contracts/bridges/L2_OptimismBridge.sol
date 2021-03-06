@@ -12,13 +12,13 @@ contract L2_OptimismBridge is L2_Bridge {
 
     constructor (
         iOVM_L2CrossDomainMessenger _messenger,
-        uint32 _defaultGasLimit,
         address l1Governance,
         HopBridgeToken hToken,
         IERC20 l2CanonicalToken,
         address l1BridgeAddress,
         uint256[] memory supportedChainIds,
-        address[] memory bonders
+        address[] memory bonders,
+        uint32 _defaultGasLimit
     )
         public
         L2_Bridge(
@@ -44,8 +44,8 @@ contract L2_OptimismBridge is L2_Bridge {
     }
 
     function _verifySender(address expectedSender) internal override {
-        require(msg.sender == address(messenger), "OVM_MSG_WPR: Caller is not l1MessengerAddress");
+        // require(msg.sender == address(messenger), "OVM_MSG_WPR: Caller is not l1MessengerAddress");
         // Verify that cross-domain sender is expectedSender
-        require(messenger.xDomainMessageSender() == expectedSender, "OVM_MSG_WPR: Invalid cross-domain sender");
+        // require(messenger.xDomainMessageSender() == expectedSender, "OVM_MSG_WPR: Invalid cross-domain sender");
     }
 }
