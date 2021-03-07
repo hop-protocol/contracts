@@ -83,41 +83,17 @@ abstract contract L1_Bridge is Bridge {
 
     /* ========== Send Functions ========== */
 
+    /// @notice `amountOutMin` and `deadline` should be 0 when no swap is intended at the destination.
     function sendToL2(
         uint256 chainId,
         address recipient,
         uint256 amount,
-        uint256 relayerFee
-    )
-        external
-        payable
-    {
-        _sendToL2(chainId, recipient, amount, 0, 0, relayerFee);
-    }
-
-    function sendToL2AndAttemptSwap(
-        uint256 chainId,
-        address recipient,
-        uint256 amount,
         uint256 amountOutMin,
         uint256 deadline,
         uint256 relayerFee
     )
         external
         payable
-    {
-        _sendToL2(chainId, recipient, amount, amountOutMin, deadline, relayerFee);
-    }
-
-    function _sendToL2(
-        uint256 chainId,
-        address recipient,
-        uint256 amount,
-        uint256 amountOutMin,
-        uint256 deadline,
-        uint256 relayerFee
-    )
-        internal
     {
         IMessengerWrapper messengerWrapper = crossDomainMessengerWrappers[chainId];
         require(messengerWrapper != IMessengerWrapper(0), "L1_BRG: chainId not supported");
@@ -126,19 +102,14 @@ abstract contract L1_Bridge is Bridge {
 
         _transferToBridge(msg.sender, amount);
 
-        bytes memory message;
-        if (amountOutMin == 0 && deadline == 0) {
-            message = abi.encodeWithSignature("mint(address,uint256,uint256)", recipient, amount, relayerFee);
-        } else {
-            message = abi.encodeWithSignature(
-                "mintAndAttemptSwap(address,uint256,uint256,uint256,uint256)",
-                recipient,
-                amount,
-                amountOutMin,
-                deadline,
-                relayerFee
-            );
-        }
+        bytes memory message = abi.encodeWithSignature(
+            "distribute(address,uint256,uint256,uint256,uint256)",
+            recipient,
+            amount,
+            amountOutMin,
+            deadline,
+            relayerFee
+        );
 
         chainBalance[chainId] = chainBalance[chainId].add(amount);
         messengerWrapper.sendCrossDomainMessage(message);
