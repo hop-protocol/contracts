@@ -151,7 +151,7 @@ abstract contract L2_Bridge is Bridge {
         _distribute(recipient, amount, amountOutMin, deadline, relayerFee);
     }
 
-    function bondWithdrawalAndAttemptSwap(
+    function bondWithdrawalAndDistribute(
         address recipient,
         uint256 amount,
         bytes32 transferNonce,
