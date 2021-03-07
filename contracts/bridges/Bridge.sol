@@ -159,6 +159,10 @@ abstract contract Bridge is Accounting {
      * @param amount The amount being transferred including the `_bonderFee`
      * @param transferNonce Used to avoid transferId collisions
      * @param bonderFee The amount paid to the address that withdraws the Transfer
+     * @param amountOutMin The minimum amount received after attempting to swap in the destination
+     * Uniswap market. 0 if no swap is intended. (only used to calculate `transferId` in this function)
+     * @param deadline The deadline for swapping in the destination Uniswap market. 0 if no
+     * swap is intended. (only used to calculate `transferId` in this function)
      * @param rootHash The Merkle root of the TransferRoot
      * @param transferRootTotalAmount The total amount being transferred in a TransferRoot
      * @param proof The Merkle proof that proves the Transfer's inclusion in the TransferRoot
@@ -168,6 +172,8 @@ abstract contract Bridge is Accounting {
         uint256 amount,
         bytes32 transferNonce,
         uint256 bonderFee,
+        uint256 amountOutMin,
+        uint256 deadline,
         bytes32 rootHash,
         uint256 transferRootTotalAmount,
         bytes32[] memory proof
@@ -180,8 +186,8 @@ abstract contract Bridge is Accounting {
             amount,
             transferNonce,
             bonderFee,
-            0,
-            0
+            amountOutMin,
+            deadline
         );
 
         require(proof.verify(rootHash, transferId), "BRG: Invalid transfer proof");
