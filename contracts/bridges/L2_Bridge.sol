@@ -140,7 +140,9 @@ abstract contract L2_Bridge is Bridge {
 
     function mint(address recipient, uint256 amount, uint256 relayerFee) public onlyL1Bridge {
         hToken.mint(recipient, amount.sub(relayerFee));
-        hToken.mint(msg.sender, relayerFee);
+        if (relayerFee > 0) {
+            hToken.mint(msg.sender, relayerFee);
+        }
     }
 
     function mintAndAttemptSwap(
@@ -154,7 +156,9 @@ abstract contract L2_Bridge is Bridge {
         onlyL1Bridge
     {
         _mintAndAttemptSwap(recipient, amount.sub(relayerFee), amountOutMin, deadline);
-        hToken.mint(msg.sender, relayerFee);
+        if (relayerFee > 0) {
+            hToken.mint(msg.sender, relayerFee);
+        }
     }
 
     function bondWithdrawalAndAttemptSwap(
