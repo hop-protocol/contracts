@@ -190,7 +190,6 @@ describe('L1_Bridge', () => {
   })
 
   it.skip('Should allow a user to send from L2 to L2, wait until the transfer is confirmed, and then withdraw', async () => {
-    // TODO: Get this to work
     await executeL1BridgeSendToL2(
       l1_canonicalToken,
       l1_bridge,
@@ -219,7 +218,6 @@ describe('L1_Bridge', () => {
     await l1_messenger.relayNextMessage()
     await l22_messenger.relayNextMessage()
 
-    // return transfersSentEvent[transferIndex.toNumber()].topics[3]
     await executeBridgeWithdraw(
       l22_canonicalToken,
       l22_bridge,
