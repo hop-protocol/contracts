@@ -277,12 +277,7 @@ abstract contract Bridge is Accounting {
         _spentTransferIds[transferId] = true;
     }
 
-    function _addToAmountWithdrawn(
-        bytes32 transferRootId,
-        uint256 amount
-    )
-        internal
-    {
+    function _addToAmountWithdrawn(bytes32 transferRootId, uint256 amount) internal {
         TransferRoot storage transferRoot = _transferRoots[transferRootId];
         require(transferRoot.total > 0, "BRG: Transfer root not found");
 
