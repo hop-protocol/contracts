@@ -143,7 +143,7 @@ describe('Bridge', () => {
    * Non-Happy Path
    */
 
-  it('Should not allow a withdrawal because of an invalid proof', async () => {
+  it('Should not allow a user to withdrawal because of an invalid proof', async () => {
     const transfer: Transfer = transfers[0]
     const arbitraryProof: string[] = [ARBITRARY_ROOT_HASH, ARBITRARY_ROOT_HASH]
 
@@ -162,7 +162,7 @@ describe('Bridge', () => {
     ).to.be.revertedWith(expectedErrorMsg)
   })
 
-  it('Should not allow a withdrawal because the transfer root is not found', async () => {
+  it('Should not allow a user to withdrawal because the transfer root is not found', async () => {
     const transfer: Transfer = transfers[0]
 
     // Set up transfer
@@ -190,5 +190,9 @@ describe('Bridge', () => {
         proof
       )
     ).to.be.revertedWith(expectedErrorMsg)
+  })
+
+  it('Should not allow a user to withdraw because the amount withdrawn exceeds the transfer root total', async () => {
+    // This is not possible in the current contracts.
   })
 })

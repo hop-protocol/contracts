@@ -1,6 +1,7 @@
 import '@nomiclabs/hardhat-waffle'
 import { expect } from 'chai'
-import { Signer, Contract, BigNumber, utils } from 'ethers'
+import { Signer, Contract, BigNumber } from 'ethers'
+import { parseEther } from 'ethers/lib/utils'
 import Transfer from '../../lib/Transfer'
 
 import {
@@ -58,6 +59,7 @@ describe('L2_Bridge', () => {
   let user: Signer
   let bonder: Signer
   let governance: Signer
+  let relayer: Signer
 
   let l1_canonicalToken: Contract
   let l1_bridge: Contract
@@ -98,6 +100,7 @@ describe('L2_Bridge', () => {
       user,
       bonder,
       governance,
+      relayer,
       l1_canonicalToken,
       l1_bridge,
       l1_messenger,
@@ -444,98 +447,50 @@ describe('L2_Bridge', () => {
 
   describe('mint', async () => {
     it('Should mint hop bridge tokens', async () => {
-      let expectedBalance: BigNumber = await l2_hopBridgeToken.balanceOf(await user.getAddress())
-      await expectBalanceOf(l2_hopBridgeToken, user, expectedBalance)
+      const relayerFee: BigNumber = BigNumber.from(parseEther('1'))
 
-      await l2_bridge.mint(await user.getAddress(), transfer.amount, BigNumber.from('0'))
+      const userBalanceBefore: BigNumber = await l2_hopBridgeToken.balanceOf(await user.getAddress())
+      const relayerBalanceBefore: BigNumber = await l2_hopBridgeToken.balanceOf(await relayer.getAddress())
 
-      expectedBalance = expectedBalance.add(transfer.amount)
-      await expectBalanceOf(l2_hopBridgeToken, user, expectedBalance)
+      await l2_bridge.connect(relayer).mint(await user.getAddress(), transfer.amount, relayerFee)
+
+      const expectedUserBalance: BigNumber = userBalanceBefore.add(transfer.amount).sub(relayerFee)
+      const expectedRelayerBalance: BigNumber = relayerBalanceBefore.add(relayerFee)
+      await expectBalanceOf(l2_hopBridgeToken, user, expectedUserBalance)
+      await expectBalanceOf(l2_hopBridgeToken, relayer, expectedRelayerBalance)
+
     })
   })
 
   describe('mintAndAttemptSwap', async () => {
     it('Should mint hop bridge tokens and swap them for canonical tokens', async () => {
-      let expectedBalanceHopBridgeToken: BigNumber = await l2_hopBridgeToken.balanceOf(await user.getAddress())
-      let expectedBalanceCanonicalToken: BigNumber = await l2_canonicalToken.balanceOf(await user.getAddress())
-      await expectBalanceOf(l2_hopBridgeToken, user, expectedBalanceHopBridgeToken)
-      await expectBalanceOf(l2_canonicalToken, user, expectedBalanceCanonicalToken)
+      const relayerFee: BigNumber = BigNumber.from(parseEther('1'))
+
+      const userBalanceBeforeHopBridgeToken: BigNumber = await l2_hopBridgeToken.balanceOf(await user.getAddress())
+      const userBalanceBeforeCanonicalToken: BigNumber = await l2_canonicalToken.balanceOf(await user.getAddress())
+      const relayerBalanceBeforeHopBridgeToken: BigNumber = await l2_hopBridgeToken.balanceOf(await relayer.getAddress())
 
       const expectedAmountsRecipientBridge: BigNumber[] = await l2_uniswapRouter.getAmountsOut(
-        transfer.amount,
+        transfer.amount.sub(relayerFee),
         [l2_canonicalToken.address, l2_hopBridgeToken.address]
       )
       const expectedRecipientAmountAfterSlippage: BigNumber = expectedAmountsRecipientBridge[1]
 
-      await l2_bridge.mintAndAttemptSwap(
+      await l2_bridge.connect(relayer).mintAndAttemptSwap(
         await user.getAddress(),
         transfer.amount,
         0,
         DEFAULT_DEADLINE,
-        BigNumber.from('0')
+        relayerFee
       )
 
-      expectedBalanceHopBridgeToken = expectedBalanceHopBridgeToken
-      expectedBalanceCanonicalToken = expectedBalanceCanonicalToken.add(expectedRecipientAmountAfterSlippage)
-      await expectBalanceOf(l2_hopBridgeToken, user, expectedBalanceHopBridgeToken)
-      await expectBalanceOf(l2_canonicalToken, user, expectedBalanceCanonicalToken)
+      const expectedUserBalanceHopBridgeToken: BigNumber = userBalanceBeforeHopBridgeToken
+      const expectedUserBalanceCanonicalToken: BigNumber = userBalanceBeforeCanonicalToken.add(expectedRecipientAmountAfterSlippage)
+      const expectedRelayerBalanceHopBridgeToken: BigNumber = relayerBalanceBeforeHopBridgeToken.add(relayerFee)
 
-      // TODO: Test that the relayer gets a fee
-    })
-  })
-
-  describe('withdrawAndAttemptSwap', async () => {
-    it('Should send tokens from one L2 to another while the bonder is offline via withdrawAndAttemptSwap', async () => {
-    //   const numberOfSendsToOverflow: number = MAX_NUM_SENDS_BEFORE_COMMIT + 1
-    //   for (let i = 0; i < numberOfSendsToOverflow; i++) {
-    //     // Mint canonical tokens on L1
-    //     await l1_canonicalToken.mint(await user.getAddress(), transfer.amount)
-
-    //     // Add the canonical token to the users' address on L2
-    //     await executeCanonicalBridgeSendMessage(
-    //       l1_canonicalToken,
-    //       l1_canonicalBridge,
-    //       l2_canonicalToken,
-    //       l2_messenger,
-    //       user,
-    //       userSendTokenAmount
-    //     )
-
-    //     // Execute transaction
-    //     await l2_bridge.connect(governance).addSupportedChainIds([transfer.chainId])
-    //     await l2_canonicalToken
-    //       .connect(user)
-    //       .approve(l2_bridge.address, userSendTokenAmount)
-    //     await l2_bridge
-    //       .connect(user)
-    //       .swapAndSend(
-    //         transfer.chainId,
-    //         transfer.recipient,
-    //         transfer.amount,
-    //         transfer.transferNonce,
-    //         transfer.bonderFee,
-    //         transfer.amountOutMin,
-    //         transfer.deadline,
-    //         transfer.destinationAmountOutMin,
-    //         transfer.destinationDeadline
-    //       )
-
-    //     transfer.transferNonce += 1
-    //   }
-
-    //   try {
-    //     // The array should have been deleted and only a single item (index 0) should exist
-    //     await l2_bridge.pendingTransfers(1)
-    //     throw new Error('There should not be a pending transfer in this slot.')
-    //   } catch (err) {
-    //     const expectedErrorMsg: string =
-    //       'VM Exception while processing transaction: invalid opcode'
-    //     expect(err.message).to.eq(expectedErrorMsg)
-    //   }
-
-    //   // TODO: When _sendCrossDomainImplementation is implemented, the last l2_bridge.swapAndSend() should atomically
-    //   // call the l2_canonicalMessenger, which should automatically call l1_bridge.confirmTransferRoot() which should
-    //   // atomically call recipientL2Bridge.setTransferRoot(). Then I can test the recipientL2Bridge.withdrawAndAttemptSwap()
+      await expectBalanceOf(l2_hopBridgeToken, user, expectedUserBalanceHopBridgeToken)
+      await expectBalanceOf(l2_canonicalToken, user, expectedUserBalanceCanonicalToken)
+      await expectBalanceOf(l2_hopBridgeToken, relayer, expectedRelayerBalanceHopBridgeToken)
     })
   })
 
