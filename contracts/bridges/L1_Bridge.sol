@@ -81,7 +81,7 @@ abstract contract L1_Bridge is Bridge {
         governance = msg.sender;
     }
 
-    /* ========== Public Transfers Functions ========== */
+    /* ========== Send Functions ========== */
 
     function sendToL2(
         uint256 chainId,
@@ -92,17 +92,7 @@ abstract contract L1_Bridge is Bridge {
         external
         payable
     {
-        IMessengerWrapper messengerWrapper = crossDomainMessengerWrappers[chainId];
-        require(messengerWrapper != IMessengerWrapper(0), "L1_BRG: chainId not supported");
-        require(isChainIdPaused[chainId] == false, "L1_BRG: Sends to this chainId are paused");
-        require(amount >= relayerFee, "L1_BRG: Relayer fee cannot exceed amount");
-
-        _transferToBridge(msg.sender, amount);
-
-        bytes memory mintCalldata = abi.encodeWithSignature("mint(address,uint256,uint256)", recipient, amount, relayerFee);
-
-        chainBalance[chainId] = chainBalance[chainId].add(amount);
-        messengerWrapper.sendCrossDomainMessage(mintCalldata);
+        _sendToL2(chainId, recipient, amount, 0, 0, relayerFee);
     }
 
     function sendToL2AndAttemptSwap(
@@ -116,6 +106,19 @@ abstract contract L1_Bridge is Bridge {
         external
         payable
     {
+        _sendToL2(chainId, recipient, amount, amountOutMin, deadline, relayerFee);
+    }
+
+    function _sendToL2(
+        uint256 chainId,
+        address recipient,
+        uint256 amount,
+        uint256 amountOutMin,
+        uint256 deadline,
+        uint256 relayerFee
+    )
+        internal
+    {
         IMessengerWrapper messengerWrapper = crossDomainMessengerWrappers[chainId];
         require(messengerWrapper != IMessengerWrapper(0), "L1_BRG: chainId not supported");
         require(isChainIdPaused[chainId] == false, "L1_BRG: Sends to this chainId are paused");
@@ -123,20 +126,25 @@ abstract contract L1_Bridge is Bridge {
 
         _transferToBridge(msg.sender, amount);
 
-        bytes memory mintAndAttemptSwapCalldata = abi.encodeWithSignature(
-            "mintAndAttemptSwap(address,uint256,uint256,uint256,uint256)",
-            recipient,
-            amount,
-            amountOutMin,
-            deadline,
-            relayerFee
-        );
+        bytes memory message;
+        if (amountOutMin == 0 && deadline == 0) {
+            message = abi.encodeWithSignature("mint(address,uint256,uint256)", recipient, amount, relayerFee);
+        } else {
+            message = abi.encodeWithSignature(
+                "mintAndAttemptSwap(address,uint256,uint256,uint256,uint256)",
+                recipient,
+                amount,
+                amountOutMin,
+                deadline,
+                relayerFee
+            );
+        }
 
         chainBalance[chainId] = chainBalance[chainId].add(amount);
-        messengerWrapper.sendCrossDomainMessage(mintAndAttemptSwapCalldata);
+        messengerWrapper.sendCrossDomainMessage(message);
     }
 
-    /* ========== External TransferRoot Functions ========== */
+    /* ========== TransferRoot Functions ========== */
 
     /**
      * @dev Setting a TransferRoot is a two step process.
