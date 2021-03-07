@@ -7,10 +7,7 @@ import { expectBalanceOf, getRootHashFromTransferId, getTransferNonceFromEvent }
 import {
   CHAIN_IDS,
   TIMESTAMP_VARIANCE,
-  DEFAULT_AMOUNT_OUT_MIN,
-  DEFAULT_DEADLINE,
   DEAD_ADDRESS,
-  DEFAULT_BONDER_FEE
 } from '../../config/constants'
 
 /**
@@ -129,7 +126,6 @@ export const executeBridgeWithdraw = async (
   originBridge: Contract,
   transfer: Transfer,
   bonder: Signer
-
 ) => {
   const transferNonce: string = await getTransferNonceFromEvent(originBridge)
   const transferId: Buffer = await transfer.getTransferId(transferNonce)
@@ -237,9 +233,15 @@ export const executeL1BridgeBondTransferRoot = async (
   l2_bridge: Contract,
   transfer: Transfer,
   bonder: Signer,
-  timeIncrease: number 
+  timeIncrease: number,
+  customTransferNonce: string | null = null
 ) => {
-  const transferNonce = await getTransferNonceFromEvent(l2_bridge)
+  let transferNonce: string
+  if (customTransferNonce) {
+    transferNonce = customTransferNonce
+  } else {
+    transferNonce = await getTransferNonceFromEvent(l2_bridge)
+  }
   const transferId: Buffer = await transfer.getTransferId(transferNonce)
   const { rootHash } = getRootHashFromTransferId(transferId)
 
@@ -298,9 +300,15 @@ export const executeL1BridgeChallengeTransferBond = async (
   amount: BigNumber,
   bonder: Signer,
   challenger: Signer,
-  transfer: Transfer
+  transfer: Transfer,
+  customTransferNonce: string | null = null
 ) => {
-  const transferNonce = await getTransferNonceFromEvent(l2_bridge)
+  let transferNonce: string
+  if (customTransferNonce) {
+    transferNonce = customTransferNonce
+  } else {
+    transferNonce = await getTransferNonceFromEvent(l2_bridge)
+  }
   const transferId: Buffer = await transfer.getTransferId(transferNonce)
   const { rootHash } = getRootHashFromTransferId(transferId)
   const challengeAmount: BigNumber = await l1_bridge.getChallengeAmountForTransferAmount(amount)
@@ -353,12 +361,18 @@ export const executeL1BridgeResolveChallenge = async (
   challenger: Signer,
   transfer: Transfer,
   shouldResolveSuccessfully: boolean,
-  didBonderWaitMinTransferRootTime: boolean = true
+  didBonderWaitMinTransferRootTime: boolean = true,
+  customTransferNonce: string | null = null
 ) => {
-  const transferNonce = await getTransferNonceFromEvent(l2_bridge)
+  let transferNonce: string
+  if (customTransferNonce) {
+    transferNonce = customTransferNonce
+  } else {
+    transferNonce = await getTransferNonceFromEvent(l2_bridge)
+  }
   const transferId: Buffer = await transfer.getTransferId(transferNonce)
   const { rootHash } = getRootHashFromTransferId(transferId)
- const challengeAmount: BigNumber = await l1_bridge.getChallengeAmountForTransferAmount(amount)
+  const challengeAmount: BigNumber = await l1_bridge.getChallengeAmountForTransferAmount(amount)
   const bondAmount: BigNumber = await l1_bridge.getBondForTransferAmount(amount)
   const transferRootId: string = await l1_bridge.getTransferRootId(rootHash, amount)
 
@@ -395,6 +409,38 @@ export const executeL1BridgeResolveChallenge = async (
     const expectedChallengerTokenAmount: BigNumber = challengerBalanceBefore.add(challengeAmount.mul(7).div(4))
     await expectBalanceOf(l1_canonicalToken, challenger, expectedChallengerTokenAmount)
   }
+}
+
+export const executeL1BridgeRescueTransferRoot = async (
+  l1_bridge: Contract,
+  l2_bridge: Contract,
+  amount: BigNumber,
+  bonder: Signer,
+  transfer: Transfer,
+  customTransferNonce: string | null = null
+) => {
+  let transferNonce: string
+  if (customTransferNonce) {
+    transferNonce = customTransferNonce
+  } else {
+    transferNonce = await getTransferNonceFromEvent(l2_bridge)
+  }
+  const transferId: Buffer = await transfer.getTransferId(transferNonce)
+  const { rootHash } = getRootHashFromTransferId(transferId)
+
+  // Get state before transaction
+  const creditBefore: BigNumber = await l1_bridge.getCredit(await bonder.getAddress())
+  const transferRootAmountWithdrawnBefore: BigNumber = (await l1_bridge.getTransferRoot(rootHash, transfer.amount))[1]
+
+  // Perform transaction
+  await l1_bridge.rescueTransferRoot(rootHash, amount)
+
+  // Validate state after transaction
+  const transferRootAmountWithdrawnAfter: BigNumber = (await l1_bridge.getTransferRoot(rootHash, transfer.amount))[1]
+  expect(transferRootAmountWithdrawnAfter).to.eq(transferRootAmountWithdrawnBefore.add(transfer.amount))
+
+  const creditAfter: BigNumber = await l1_bridge.getCredit(await bonder.getAddress())
+  expect(creditAfter).to.eq(creditBefore.add(amount))
 }
 
 /**
