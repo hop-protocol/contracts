@@ -244,12 +244,12 @@ abstract contract Bridge is Accounting {
         external
     {
         require(proof.verify(rootHash, transferId), "L2_BRG: Invalid transfer proof");
-
         bytes32 transferRootId = getTransferRootId(rootHash, transferRootTotalAmount);
-        uint256 amount = _bondedWithdrawalAmounts[bonder][transferId];
-        _addToAmountWithdrawn(transferRootId, amount);
 
+        uint256 amount = _bondedWithdrawalAmounts[bonder][transferId];
         _bondedWithdrawalAmounts[bonder][transferId] = 0;
+
+        _addToAmountWithdrawn(transferRootId, amount);
         _addCredit(bonder, amount);
 
         emit WithdrawalBondSettled(bonder, transferId, rootHash);
@@ -263,10 +263,7 @@ abstract contract Bridge is Accounting {
         external
     {
         bytes32 rootHash = MerkleUtils.getMerkleRoot(transferIds);
-
         bytes32 transferRootId = getTransferRootId(rootHash, totalAmount);
-        TransferRoot storage transferRoot = _transferRoots[transferRootId];
-        require(transferRoot.total > 0, "BRG: Transfer root not found");
 
         uint256 totalBondsSettled = 0;
         for(uint256 i = 0; i < transferIds.length; i++) {
@@ -275,10 +272,7 @@ abstract contract Bridge is Accounting {
             _bondedWithdrawalAmounts[bonder][transferIds[i]] = 0;
         }
 
-        uint256 newAmountWithdrawn = transferRoot.amountWithdrawn.add(totalBondsSettled);
-        require(newAmountWithdrawn <= transferRoot.total, "BRG: Withdrawal exceeds TransferRoot total");
-        transferRoot.amountWithdrawn = newAmountWithdrawn;
-
+        _addToAmountWithdrawn(transferRootId, totalBondsSettled);
         _addCredit(bonder, totalBondsSettled);
 
         emit MultipleWithdrawalsSettled(bonder, rootHash, totalBondsSettled);
@@ -291,12 +285,7 @@ abstract contract Bridge is Accounting {
         _spentTransferIds[transferId] = true;
     }
 
-    function _addToAmountWithdrawn(
-        bytes32 transferRootId,
-        uint256 amount
-    )
-        internal
-    {
+    function _addToAmountWithdrawn(bytes32 transferRootId, uint256 amount) internal {
         TransferRoot storage transferRoot = _transferRoots[transferRootId];
         require(transferRoot.total > 0, "BRG: Transfer root not found");
 
