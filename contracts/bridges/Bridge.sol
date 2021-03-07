@@ -142,6 +142,14 @@ abstract contract Bridge is Accounting {
         return _bondedWithdrawalAmounts[bonder][transferId];
     }
 
+    /**
+     * @dev Get the spent status of a transfer ID
+     * @param transferId The transfer's unique identifier
+     */
+    function isTransferIdSpent(bytes32 transferId) external view returns (bool) {
+        return _spentTransferIds[transferId];
+    }
+
     /* ========== User/Relayer External Functions ========== */
 
     /**
