@@ -236,12 +236,12 @@ abstract contract Bridge is Accounting {
         external
     {
         require(proof.verify(rootHash, transferId), "L2_BRG: Invalid transfer proof");
-
         bytes32 transferRootId = getTransferRootId(rootHash, transferRootTotalAmount);
-        uint256 amount = _bondedWithdrawalAmounts[bonder][transferId];
-        _addToAmountWithdrawn(transferRootId, amount);
 
+        uint256 amount = _bondedWithdrawalAmounts[bonder][transferId];
         _bondedWithdrawalAmounts[bonder][transferId] = 0;
+
+        _addToAmountWithdrawn(transferRootId, amount);
         _addCredit(bonder, amount);
 
         emit WithdrawalBondSettled(bonder, transferId, rootHash);
