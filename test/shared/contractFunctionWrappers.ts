@@ -123,6 +123,63 @@ export const executeL1BridgeSendToL2AndAttemptToSwap = async (
   }
 }
 
+export const executeBridgeWithdraw = async (
+  destinationCanonicalToken: Contract,
+  destinationBridge: Contract,
+  originBridge: Contract,
+  transfer: Transfer,
+  bonder: Signer
+
+) => {
+  const transferNonce: string = await getTransferNonceFromEvent(originBridge)
+  const transferId: Buffer = await transfer.getTransferId(transferNonce)
+  const tree: MerkleTree = new MerkleTree([transferId])
+  const transferRootHash: Buffer = tree.getRoot()
+  const proof: Buffer[] = tree.getProof(transferId)
+
+  const { rootHash } = getRootHashFromTransferId(transferId)
+
+  // Get state before transaction
+  const recipientBalanceBefore: BigNumber = await destinationCanonicalToken.balanceOf(await transfer.recipient.getAddress())
+  const bonderBalanceBefore: BigNumber = await destinationCanonicalToken.balanceOf(await bonder.getAddress())
+  const transferRootAmountWithdrawnBefore: BigNumber = (await destinationBridge.getTransferRoot(rootHash, transfer.amount))[1]
+  let isTransferIdSpent: boolean = await destinationBridge.isTransferIdSpent(transferId)
+  expect(isTransferIdSpent).to.eq(false)
+
+  // Perform transaction
+  await destinationBridge
+    .connect(bonder)
+    .withdraw(
+      await transfer.recipient.getAddress(),
+      transfer.amount,
+      transferNonce,
+      transfer.bonderFee,
+      transferRootHash,
+      transfer.amount,
+      proof
+    )
+
+  // Validate state after transaction
+  const transferRootAmountWithdrawnAfter: BigNumber = (await destinationBridge.getTransferRoot(rootHash, transfer.amount))[1]
+
+  // NOTE: Unbonded withdrawals do not pay the bonder
+  await expectBalanceOf(
+    destinationCanonicalToken,
+    transfer.recipient,
+    recipientBalanceBefore.add(transfer.amount)
+  )
+
+  await expectBalanceOf(
+    destinationCanonicalToken,
+    bonder,
+    bonderBalanceBefore
+  )
+
+  expect(transferRootAmountWithdrawnAfter).to.eq(transferRootAmountWithdrawnBefore.add(transfer.amount))
+  isTransferIdSpent = await destinationBridge.isTransferIdSpent(transferId)
+  expect(isTransferIdSpent).to.eq(true)
+
+}
 export const executeL1BridgeBondWithdrawal = async (
   l1_canonicalToken: Contract,
   l1_bridge: Contract,
@@ -268,14 +325,13 @@ export const executeL1BridgeChallengeTransferBond = async (
   )
 
   const transferBond = await l1_bridge.transferBonds(transferRootId)
-  expect(transferBond[3]).to.be.eq(BigNumber.from('0'))
   const currentTime: number = Math.floor(Date.now() / 1000)
-  expect(transferBond[4].toNumber()).to.be.closeTo(
+  expect(transferBond[3].toNumber()).to.be.closeTo(
     currentTime,
     TIMESTAMP_VARIANCE
   )
-  expect(transferBond[5]).to.eq(await challenger.getAddress())
-  expect(transferBond[6]).to.eq(false)
+  expect(transferBond[4]).to.eq(await challenger.getAddress())
+  expect(transferBond[5]).to.eq(false)
 
   const timeSlot: string = await l1_bridge.getTimeSlot(currentTime)
   const bondAmountForTimeSlot: number = await l1_bridge.timeSlotToAmountBonded(timeSlot)
@@ -302,7 +358,7 @@ export const executeL1BridgeResolveChallenge = async (
   const transferNonce = await getTransferNonceFromEvent(l2_bridge)
   const transferId: Buffer = await transfer.getTransferId(transferNonce)
   const { rootHash } = getRootHashFromTransferId(transferId)
-  const challengeAmount: BigNumber = await l1_bridge.getChallengeAmountForTransferAmount(amount)
+ const challengeAmount: BigNumber = await l1_bridge.getChallengeAmountForTransferAmount(amount)
   const bondAmount: BigNumber = await l1_bridge.getBondForTransferAmount(amount)
   const transferRootId: string = await l1_bridge.getTransferRootId(rootHash, amount)
 
@@ -318,14 +374,14 @@ export const executeL1BridgeResolveChallenge = async (
   const creditAfter: BigNumber = await l1_bridge.getCredit(await bonder.getAddress())
 
   if (!shouldResolveSuccessfully) {
-    expect(transferBond[6]).to.eq(true)
+    expect(transferBond[5]).to.eq(true)
     let expectedCredit: BigNumber = creditBefore.add(bondAmount)
     if (didBonderWaitMinTransferRootTime) {
       expectedCredit = expectedCredit.add(challengeAmount)
     }
     expect(creditAfter).to.eq(expectedCredit)
   } else {
-    expect(transferBond[6]).to.eq(true)
+    expect(transferBond[5]).to.eq(true)
 
     // Credit should not have changed
     expect(creditAfter).to.eq(creditBefore)

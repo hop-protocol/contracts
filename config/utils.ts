@@ -75,6 +75,8 @@ export const getL2BridgeDefaults = (
 
   if (isChainIdArbitrum(chainId)) {
   } else if (isChainIdOptimism(chainId)) {
+    const defaultGasLimit = DEFAULT_MESSENGER_WRAPPER_GAS_LIMIT
+    additionalData.push(defaultGasLimit)
   } else if (isChainIdXDai(chainId)) {
     const l1ChainIdBytes32 = ethersUtils.formatBytes32String(l1ChainId.toString())
     additionalData.push(l1ChainIdBytes32)

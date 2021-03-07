@@ -97,6 +97,7 @@ describe('Bridge', () => {
         getTransferNonce(BigNumber.from('0'), transfer.chainId),
         transfer.bonderFee,
         ARBITRARY_ROOT_HASH,
+        transfer.amount,
         arbitraryProof
       )
     ).to.be.revertedWith(expectedErrorMsg)
@@ -119,6 +120,7 @@ describe('Bridge', () => {
 
     const expectedErrorMsg: string = 'BRG: Transfer root not found'
 
+    // TODO: This should use the contractFunctionWrappers
     // TODO: The second to last param should be the ID. How is this working with the hash?
     await expect(
       mockBridge.withdraw(
@@ -127,6 +129,7 @@ describe('Bridge', () => {
         transferNonce,
         transfer.bonderFee,
         transferRootHash,
+        transfer.amount,
         proof
       )
     ).to.be.revertedWith(expectedErrorMsg)

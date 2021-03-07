@@ -13,6 +13,7 @@ import {
   takeSnapshot
 } from '../shared/utils'
 import {
+  executeBridgeWithdraw,
   executeL1BridgeSendToL2,
   executeL1BridgeSendToL2AndAttemptToSwap,
   executeL1BridgeBondWithdrawal,
@@ -151,6 +152,83 @@ describe('L1_Bridge', () => {
     await l1_bridge.connect(bonder).unstake(bondAmount)
   })
 
+  it('Should allow a user to send from L2 to L1, wait until the transfer is confirmed, and then withdraw', async () => {
+    await executeL1BridgeSendToL2(
+      l1_canonicalToken,
+      l1_bridge,
+      l2_hopBridgeToken,
+      l2_messenger,
+      transfer.sender,
+      transfer.amount,
+      defaultRelayerFee,
+      l2ChainId
+    )
+
+    await executeL2BridgeSend(
+      l2_hopBridgeToken,
+      l2_bridge,
+      transfer
+    )
+
+    await executeL2BridgeCommitTransfers(
+      l2_bridge,
+      transfer,
+      bonder
+    )
+
+    const timeToWait: number = 11 * SECONDS_IN_A_DAY
+    await increaseTime(timeToWait)
+    await l1_messenger.relayNextMessage()
+
+    await executeBridgeWithdraw(
+      l1_canonicalToken,
+      l1_bridge,
+      l2_bridge,
+      transfer,
+      bonder
+    )
+  })
+
+  it.skip('Should allow a user to send from L2 to L2, wait until the transfer is confirmed, and then withdraw', async () => {
+    // TODO: Get this to work
+    await executeL1BridgeSendToL2(
+      l1_canonicalToken,
+      l1_bridge,
+      l2_hopBridgeToken,
+      l2_messenger,
+      transfer.sender,
+      transfer.amount,
+      defaultRelayerFee,
+      l2ChainId
+    )
+
+    await executeL2BridgeSend(
+      l2_hopBridgeToken,
+      l2_bridge,
+      l2Transfer
+    )
+
+    await executeL2BridgeCommitTransfers(
+      l2_bridge,
+      l2Transfer,
+      bonder
+    )
+
+    const timeToWait: number = 11 * SECONDS_IN_A_DAY
+    await increaseTime(timeToWait)
+    await l1_messenger.relayNextMessage()
+    await l22_messenger.relayNextMessage()
+
+    // return transfersSentEvent[transferIndex.toNumber()].topics[3]
+    await executeBridgeWithdraw(
+      l22_canonicalToken,
+      l22_bridge,
+      l2_bridge,
+      l2Transfer,
+      bonder
+    )
+  })
+
   it('Should allow a user to send from L2 to L1 and perform a bonded withdrawal', async () => {
     await executeL1BridgeSendToL2(
       l1_canonicalToken,
@@ -244,14 +322,9 @@ describe('L1_Bridge', () => {
       TIMESTAMP_VARIANCE
     )
     expect(transferBondByTransferRootId[2]).to.eq(transfer.amount)
-    // TODO: Get rid of this if Chris agrees
-    // expect(transferBondByTransferRootId[3].toNumber()).to.be.closeTo(
-    //   currentTime,
-    //   TIMESTAMP_VARIANCE
-    // )
-    expect(transferBondByTransferRootId[4]).to.eq(0)
-    expect(transferBondByTransferRootId[5]).to.eq(ZERO_ADDRESS)
-    expect(transferBondByTransferRootId[6]).to.eq(false)
+    expect(transferBondByTransferRootId[3]).to.eq(0)
+    expect(transferBondByTransferRootId[4]).to.eq(ZERO_ADDRESS)
+    expect(transferBondByTransferRootId[5]).to.eq(false)
   })
 
   /**
@@ -1358,6 +1431,10 @@ describe('L1_Bridge', () => {
           transfer
         )
       ).to.be.revertedWith(expectedErrorMsg)
+    })
+
+    it('Should not allow a transfer root to be challenged if the TransferRoot has not been bonded', async () => {
+      // This is not possible in the current contracts.
     })
 
     it('Should not allow a transfer root to be challenged if the transfer root is challenged after the challenge period', async () => {
