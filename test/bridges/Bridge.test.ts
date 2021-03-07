@@ -24,6 +24,7 @@ describe('Bridge', () => {
   let l2ChainId: BigNumber
 
   let mockBridge: Contract
+
   let transfers: Transfer[]
 
   let beforeAllSnapshotId: string
@@ -36,7 +37,11 @@ describe('Bridge', () => {
     l2ChainId = CHAIN_IDS.OPTIMISM.TESTNET_1
     _fixture = await fixture(l1ChainId, l2ChainId)
     await setUpDefaults(_fixture, l2ChainId)
-    ;({ bonder, mockBridge, transfers } = _fixture)
+    ;({
+      bonder,
+      mockBridge,
+      transfers
+    } = _fixture)
   })
 
   after(async() => {
@@ -174,8 +179,6 @@ describe('Bridge', () => {
 
     const expectedErrorMsg: string = 'BRG: Transfer root not found'
 
-    // TODO: This should use the contractFunctionWrappers
-    // TODO: The second to last param should be the ID. How is this working with the hash?
     await expect(
       mockBridge.withdraw(
         await transfer.recipient.getAddress(),

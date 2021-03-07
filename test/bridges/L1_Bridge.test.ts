@@ -42,7 +42,8 @@ import {
   DEAD_ADDRESS,
   ARBITRARY_ROOT_HASH,
   DEFAULT_TIME_TO_WAIT,
-  DEFAULT_RELAYER_FEE
+  DEFAULT_RELAYER_FEE,
+  ONE_ADDRESS
 } from '../../config/constants'
 
 describe('L1_Bridge', () => {
@@ -345,8 +346,71 @@ describe('L1_Bridge', () => {
   })
 
   describe('setters', async () => {
-    // TODO: Test L1 Bridge setters
-    // TODO: Test mod for setChallengePeriodAndTimeSlotSize()
+    it('Should set a new governance address', async () => {
+      const expectedGovernance: string = ONE_ADDRESS
+      
+      await l1_bridge.setGovernance(ONE_ADDRESS)
+
+      const governance: string = await l1_bridge.governance()
+      expect(governance).to.eq(expectedGovernance)
+    })
+
+    it('Should set a new crossDomainMessengerWrapper address', async () => {
+      const expectedCrossDomainMessengerWrapper: string = ONE_ADDRESS
+      
+      await l1_bridge.setCrossDomainMessengerWrapper(transfer.chainId, ONE_ADDRESS)
+
+      const crossDomainMessengerWrappers: string = await l1_bridge.crossDomainMessengerWrappers(transfer.chainId)
+      expect(crossDomainMessengerWrappers).to.eq(expectedCrossDomainMessengerWrapper)
+    })
+
+    it('Should pause and unpause a chain ID', async () => {
+      await l1_bridge.setChainIdDepositsPaused(transfer.chainId, false)
+
+      let isPaused: boolean = await l1_bridge.isChainIdPaused(transfer.chainId)
+      expect(isPaused).to.eq(false)
+
+      await l1_bridge.setChainIdDepositsPaused(transfer.chainId, true)
+
+      isPaused = await l1_bridge.isChainIdPaused(transfer.chainId)
+      expect(isPaused).to.eq(true)
+    })
+
+    it('Should set a new challengeAmountMultiplier', async () => {
+      const expectedChallengeAmountMultiplier: BigNumber = BigNumber.from('13371337')
+      await l1_bridge.setChallengeAmountMultiplier(expectedChallengeAmountMultiplier)
+
+      const challengeAmountMultiplier: BigNumber = await l1_bridge.challengeAmountMultiplier()
+      expect(challengeAmountMultiplier).to.eq(expectedChallengeAmountMultiplier)
+    })
+
+    it('Should set a new challengeAmountDivisor', async () => {
+      const expectedChallengeAmountDivisor: BigNumber = BigNumber.from('13371337')
+      await l1_bridge.setChallengeAmountDivisor(expectedChallengeAmountDivisor)
+
+      const challengeAmountDivisor: BigNumber = await l1_bridge.challengeAmountDivisor()
+      expect(challengeAmountDivisor).to.eq(expectedChallengeAmountDivisor)
+    })
+
+    it('Should set a new challengePeriod and timeSlot', async () => {
+      const expectedChallengePeriod: BigNumber = BigNumber.from('100')
+      const expectedTimeSlotSize: BigNumber = BigNumber.from('5')
+
+      await l1_bridge.setChallengePeriodAndTimeSlotSize(expectedChallengePeriod, expectedTimeSlotSize)
+
+      const challengePeriod: BigNumber = await l1_bridge.challengePeriod()
+      const timeSlotSize: BigNumber = await l1_bridge.timeSlotSize()
+      expect(challengePeriod).to.eq(expectedChallengePeriod)
+      expect(timeSlotSize).to.eq(expectedTimeSlotSize)
+    })
+
+    it('Should set a new challengeResolutionPeriod', async () => {
+      const expectedChallengeResolutionPeriod: BigNumber = BigNumber.from('13371337')
+      await l1_bridge.setChallengeResolutionPeriod(expectedChallengeResolutionPeriod)
+
+      const challengeResolutionPeriod: BigNumber = await l1_bridge.challengeResolutionPeriod()
+      expect(challengeResolutionPeriod).to.eq(expectedChallengeResolutionPeriod)
+    })
   })
 
   describe('sendToL2', async () => {
@@ -867,6 +931,26 @@ describe('L1_Bridge', () => {
   /**
    * Non-Happy Path
    */
+
+  describe('setters', async () => {
+    it('Should not set a new governance address because the passed in address is 0', async () => {
+      // Hardhat is now correctly reading the error message, so none is defined here
+      await expect(
+        l1_bridge.setGovernance(ZERO_ADDRESS)
+      ).to.be.reverted
+    })
+
+    it('Should not set a new challengePeriod and timeSlot because they are not valid values', async () => {
+      const expectedErrorMsg: string = 'L1_BRG: challengePeriod must be divisible by timeSlotSize'
+
+      const expectedChallengePeriod: BigNumber = BigNumber.from('100')
+      const expectedTimeSlotSize: BigNumber = BigNumber.from('99')
+
+      await expect(
+        l1_bridge.setChallengePeriodAndTimeSlotSize(expectedChallengePeriod, expectedTimeSlotSize)
+      ).to.be.revertedWith(expectedErrorMsg)
+    })
+  })
 
   describe('sendToL2', async () => {
     it('Should not allow a transfer to L2 via sendToL2 if the messenger wrapper for the L2 is not defined', async () => {

@@ -367,18 +367,18 @@ abstract contract L1_Bridge is Bridge {
         isChainIdPaused[chainId] = isPaused;
     }
 
+    function setChallengeAmountMultiplier(uint256 _challengeAmountMultiplier) external onlyGovernance {
+        challengeAmountMultiplier = _challengeAmountMultiplier;
+    }
+
     function setChallengeAmountDivisor(uint256 _challengeAmountDivisor) external onlyGovernance {
         challengeAmountDivisor = _challengeAmountDivisor;
     }
 
     function setChallengePeriodAndTimeSlotSize(uint256 _challengePeriod, uint256 _timeSlotSize) external onlyGovernance {
-        require(challengePeriod % timeSlotSize == 0, "L1_BRG: challengePeriod must be divisible by timeSlotSize");
+        require(_challengePeriod % _timeSlotSize == 0, "L1_BRG: challengePeriod must be divisible by timeSlotSize");
         challengePeriod = _challengePeriod;
         timeSlotSize = _timeSlotSize;
-    }
-
-    function setChallengeAmountMultiplier(uint256 _challengeAmountMultiplier) external onlyGovernance {
-        challengeAmountMultiplier = _challengeAmountMultiplier;
     }
 
     function setChallengeResolutionPeriod(uint256 _challengeResolutionPeriod) external onlyGovernance {
