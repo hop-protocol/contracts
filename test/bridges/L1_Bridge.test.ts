@@ -887,6 +887,44 @@ describe('L1_Bridge', () => {
       ).to.be.revertedWith(expectedErrorMsg)
     })
 
+    it('Should not allow a transfer to L2 via sendToL2 if the chainId is paused', async () => {
+      const expectedErrorMsg: string = 'L1_BRG: Sends to this chainId are paused'
+
+      const isPaused: boolean = true
+      await l1_bridge.setChainIdDepositsPaused(l2ChainId, isPaused)
+
+      await expect(
+        executeL1BridgeSendToL2(
+          l1_canonicalToken,
+          l1_bridge,
+          l2_hopBridgeToken,
+          l2_messenger,
+          transfer.sender,
+          transfer.amount,
+          defaultRelayerFee,
+          l2ChainId
+        )
+      ).to.be.revertedWith(expectedErrorMsg)
+    })
+
+    it('Should not allow a transfer to L2 via sendToL2 if the relayerFee is higher than the amount', async () => {
+      const expectedErrorMsg: string = 'L1_BRG: Relayer fee cannot exceed amount'
+      const largeRelayerFee: BigNumber = transfer.amount.add(1)
+
+      await expect(
+        executeL1BridgeSendToL2(
+          l1_canonicalToken,
+          l1_bridge,
+          l2_hopBridgeToken,
+          l2_messenger,
+          transfer.sender,
+          transfer.amount,
+          largeRelayerFee,
+          l2ChainId
+        )
+      ).to.be.revertedWith(expectedErrorMsg)
+    })
+
     it('Should not allow a transfer to L2 via sendToL2 if the user did not approve the token transfer to the L1 Bridge', async () => {
       const expectedErrorMsg: string = ' ERC20: transfer amount exceeds allowance'
       const tokenAmount = await l1_canonicalToken.balanceOf(await user.getAddress())
@@ -937,6 +975,46 @@ describe('L1_Bridge', () => {
           transfer,
           defaultRelayerFee,
           invalidChainId
+        )
+      ).to.be.revertedWith(expectedErrorMsg)
+    })
+
+    it('Should not allow a transfer to L2 via sendToL2AndAttemptSwap if the chainId is paused', async () => {
+      const expectedErrorMsg: string = 'L1_BRG: Sends to this chainId are paused'
+
+      const isPaused: boolean = true
+      await l1_bridge.setChainIdDepositsPaused(l2ChainId, isPaused)
+
+      await expect(
+        executeL1BridgeSendToL2AndAttemptToSwap(
+          l1_canonicalToken,
+          l1_bridge,
+          l2_hopBridgeToken,
+          l2_messenger,
+          l2_canonicalToken,
+          l2_uniswapRouter,
+          transfer,
+          defaultRelayerFee,
+          l2ChainId
+        )
+      ).to.be.revertedWith(expectedErrorMsg)
+    })
+
+    it('Should not allow a transfer to L2 via sendToL2AndAttemptSwap if the relayerFee is higher than the amount', async () => {
+      const expectedErrorMsg: string = 'L1_BRG: Relayer fee cannot exceed amount'
+      const largeRelayerFee: BigNumber = transfer.amount.add(1)
+
+      await expect(
+        executeL1BridgeSendToL2AndAttemptToSwap(
+          l1_canonicalToken,
+          l1_bridge,
+          l2_hopBridgeToken,
+          l2_messenger,
+          l2_canonicalToken,
+          l2_uniswapRouter,
+          transfer,
+          largeRelayerFee,
+          l2ChainId
         )
       ).to.be.revertedWith(expectedErrorMsg)
     })

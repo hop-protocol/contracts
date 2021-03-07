@@ -123,7 +123,7 @@ describe('Bridge', () => {
     expect(bondedWithdrawalAmount).to.eq(expectedBondedWithdrawalAmount)
   })
 
-  it.only('Should get the correct isTransferIdSpent', async () => {
+  it('Should get the correct isTransferIdSpent', async () => {
     // TODO: Set up test to use real data
     const transfer: Transfer = transfers[0]
     const transferNonceIncrementer: BigNumber = BigNumber.from('0')
