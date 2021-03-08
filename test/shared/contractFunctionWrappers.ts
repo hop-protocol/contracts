@@ -630,19 +630,6 @@ export const executeL2BridgeCommitTransfers = async (
   expect(pendingChainAmounts).to.eq(transfer.amount)
 }
 
-export const executeL2BridgeWithdrawAndAttemptSwap = async (
-  l2_bridgeOrigin: Contract,
-  l2_hopBridgeToken: Contract,
-  l2_bridge: Contract,
-  l2_canonicalToken: Contract,
-  l2_uniswapRouter: Contract,
-  transfer: Transfer,
-  bonder: Signer,
-  actualTransferAmount: BigNumber
-) => {
-  // TODO
-}
-
 export const executeL2BridgeBondWithdrawalAndDistribute = async (
   l2_bridgeOrigin: Contract,
   l2_hopBridgeToken: Contract,
