@@ -82,7 +82,20 @@ abstract contract L1_Bridge is Bridge {
 
     /* ========== Send Functions ========== */
 
-    /// @notice `amountOutMin` and `deadline` should be 0 when no swap is intended at the destination.
+    /**
+     * @notice `amountOutMin` and `deadline` should be 0 when no swap is intended at the destination.
+     * @notice `amount` is the total amount the user wants to send including the relayer fee
+     * @dev Send tokens to a supported layer-2 to mint hToken and optionally swap the hToken in the
+     * AMM at the destination.
+     * @param chainId The chainId of the destination chain
+     * @param recipient The address receiving funds at the destination
+     * @param amount The amount being sent
+     * @param amountOutMin The minimum amount received after attempting to swap in the destination
+     * Uniswap market. 0 if no swap is intended.
+     * @param deadline The deadline for swapping in the destination Uniswap market. 0 if no
+     * swap is intended.
+     * @param relayerFee The amount distributed to the relayer at the destination. This is subtracted from the `amount`.
+     */
     function sendToL2(
         uint256 chainId,
         address recipient,
@@ -168,6 +181,7 @@ abstract contract L1_Bridge is Bridge {
      * @param rootHash The Merkle root of the TransferRoot Merkle tree
      * @param destinationChainId The id of the destination chain
      * @param totalAmount The amount destined for each destination chain
+     * @param rootCommittedAt The block timestamp when the TransferRoot was committed on its origin chain
      */
     function confirmTransferRoot(
         uint256 originChainId,
@@ -221,6 +235,11 @@ abstract contract L1_Bridge is Bridge {
 
     /* ========== External TransferRoot Challenges ========== */
 
+    /**
+     * @dev Challenge a TransferRoot believed to be fraudulent
+     * @param rootHash The Merkle root of the TransferRoot Merkle tree
+     * @param totalAmountBonded The total amount bonded for this TransferRoot
+     */
     function challengeTransferBond(bytes32 rootHash, uint256 totalAmountBonded) external payable {
         bytes32 transferRootId = getTransferRootId(rootHash, totalAmountBonded);
         TransferRoot memory transferRoot = getTransferRoot(rootHash, totalAmountBonded);
@@ -250,6 +269,11 @@ abstract contract L1_Bridge is Bridge {
         emit TransferBondChallenged(transferRootId, rootHash, totalAmountBonded);
     }
 
+    /**
+     * @dev Resolve a challenge after the `challengeResolutionPeriod` has passed
+     * @param rootHash The Merkle root of the TransferRoot Merkle tree
+     * @param originalAmount The total amount originally bonded for this TransferRoot
+     */
     function resolveChallenge(bytes32 rootHash, uint256 originalAmount) external {
         bytes32 transferRootId = getTransferRootId(rootHash, originalAmount);
         TransferRoot memory transferRoot = getTransferRoot(rootHash, originalAmount);
