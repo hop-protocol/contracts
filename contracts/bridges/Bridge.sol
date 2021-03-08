@@ -22,6 +22,7 @@ abstract contract Bridge is Accounting {
     struct TransferRoot {
         uint256 total;
         uint256 amountWithdrawn;
+        uint256 createdAt;
     }
 
     /* ========== Events ========== */
@@ -63,6 +64,8 @@ abstract contract Bridge is Accounting {
     mapping(bytes32 => TransferRoot) private _transferRoots;
     mapping(bytes32 => bool) private _spentTransferIds;
     mapping(address => mapping(bytes32 => uint256)) private _bondedWithdrawalAmounts;
+
+    uint256 constant RESCUE_DELAY = 8 weeks;
 
     constructor(address[] memory bonders) public Accounting(bonders) {}
 
@@ -284,6 +287,23 @@ abstract contract Bridge is Accounting {
         emit MultipleWithdrawalsSettled(bonder, rootHash, totalBondsSettled);
     }
 
+    /* ========== External TransferRoot Rescue ========== */
+
+    /// @dev Allows governance to withdraw the remaining amount from a TransferRoot after the rescue delay has passed.
+    function rescueTransferRoot(bytes32 rootHash, uint256 originalAmount, address recipient) external onlyGovernance {
+        bytes32 transferRootId = getTransferRootId(rootHash, originalAmount);
+        TransferRoot memory transferRoot = getTransferRoot(rootHash, originalAmount);
+
+        require(transferRoot.createdAt != 0, "L1_BRG: TransferRoot not found");
+        assert(transferRoot.total == originalAmount);
+        uint256 rescueDelayEnd = transferRoot.createdAt.add(RESCUE_DELAY);
+        require(block.timestamp >= rescueDelayEnd, "L1_BRG: TransferRoot cannot be rescued before the Rescue Delay");
+
+        uint256 remainingAmount = transferRoot.total.sub(transferRoot.amountWithdrawn);
+        _addToAmountWithdrawn(transferRootId, remainingAmount);
+        _transferFromBridge(recipient, remainingAmount);
+    }
+
     /* ========== Internal Functions ========== */
 
     function _markTransferSpent(bytes32 transferId) internal {
@@ -306,7 +326,7 @@ abstract contract Bridge is Accounting {
         require(_transferRoots[transferRootId].total == 0, "BRG: Transfer root already set");
         require(totalAmount > 0, "BRG: Cannot set TransferRoot totalAmount of 0");
 
-        _transferRoots[transferRootId] = TransferRoot(totalAmount, 0);
+        _transferRoots[transferRootId] = TransferRoot(totalAmount, 0, block.timestamp);
 
         emit TransferRootSet(rootHash, totalAmount);
     }
