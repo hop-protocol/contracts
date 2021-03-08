@@ -138,14 +138,7 @@ abstract contract L2_Bridge is Bridge {
         _commitTransfers(destinationChainId);
     }
 
-    function mint(address recipient, uint256 amount, uint256 relayerFee) public onlyL1Bridge {
-        hToken.mint(recipient, amount.sub(relayerFee));
-        if (relayerFee > 0) {
-            hToken.mint(msg.sender, relayerFee);
-        }
-    }
-
-    function mintAndAttemptSwap(
+    function distribute(
         address recipient,
         uint256 amount,
         uint256 amountOutMin,
@@ -155,13 +148,10 @@ abstract contract L2_Bridge is Bridge {
         external
         onlyL1Bridge
     {
-        _mintAndAttemptSwap(recipient, amount.sub(relayerFee), amountOutMin, deadline);
-        if (relayerFee > 0) {
-            hToken.mint(msg.sender, relayerFee);
-        }
+        _distribute(recipient, amount, amountOutMin, deadline, relayerFee);
     }
 
-    function bondWithdrawalAndAttemptSwap(
+    function bondWithdrawalAndDistribute(
         address recipient,
         uint256 amount,
         bytes32 transferNonce,
@@ -185,13 +175,7 @@ abstract contract L2_Bridge is Bridge {
 
         _bondWithdrawal(transferId, amount);
         _markTransferSpent(transferId);
-        // distribute fee
-        if (bonderFee > 0) {
-            _transferFromBridge(msg.sender, bonderFee);
-        }
-        // Attempt swap to recipient
-        uint256 amountAfterFee = amount.sub(bonderFee);
-        _mintAndAttemptSwap(recipient, amountAfterFee, amountOutMin, deadline);
+        _distribute(recipient, amount, amountOutMin, deadline, bonderFee);
     }
 
     function setTransferRoot(bytes32 rootHash, uint256 totalAmount) external onlyL1Bridge {
@@ -224,10 +208,19 @@ abstract contract L2_Bridge is Bridge {
         _sendCrossDomainMessage(confirmTransferRootMessage);
     }
 
-    function _mintAndAttemptSwap(address recipient, uint256 amount, uint256 amountOutMin, uint256 deadline) internal {
-        hToken.mint(address(this), amount);
-        hToken.approve(address(uniswapWrapper), amount);
-        uniswapWrapper.attemptSwap(recipient, amount, amountOutMin, deadline);
+    function _distribute(address recipient, uint256 amount, uint256 amountOutMin, uint256 deadline, uint256 fee) internal {
+        if (fee > 0) {
+            hToken.mint(msg.sender, fee);
+        }
+        uint256 amountAfterFee = amount.sub(fee);
+
+        if (deadline == 0 && fee == 0) {
+            hToken.mint(recipient, amountAfterFee);
+        } else {
+            hToken.mint(address(this), amountAfterFee);
+            hToken.approve(address(uniswapWrapper), amountAfterFee);
+            uniswapWrapper.attemptSwap(recipient, amountAfterFee, amountOutMin, deadline);
+        }
     }
 
     /* ========== Override Functions ========== */

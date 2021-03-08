@@ -81,31 +81,10 @@ abstract contract L1_Bridge is Bridge {
         governance = msg.sender;
     }
 
-    /* ========== Public Transfers Functions ========== */
+    /* ========== Send Functions ========== */
 
+    /// @notice `amountOutMin` and `deadline` should be 0 when no swap is intended at the destination.
     function sendToL2(
-        uint256 chainId,
-        address recipient,
-        uint256 amount,
-        uint256 relayerFee
-    )
-        external
-        payable
-    {
-        IMessengerWrapper messengerWrapper = crossDomainMessengerWrappers[chainId];
-        require(messengerWrapper != IMessengerWrapper(0), "L1_BRG: chainId not supported");
-        require(isChainIdPaused[chainId] == false, "L1_BRG: Sends to this chainId are paused");
-        require(amount >= relayerFee, "L1_BRG: Relayer fee cannot exceed amount");
-
-        _transferToBridge(msg.sender, amount);
-
-        bytes memory mintCalldata = abi.encodeWithSignature("mint(address,uint256,uint256)", recipient, amount, relayerFee);
-
-        chainBalance[chainId] = chainBalance[chainId].add(amount);
-        messengerWrapper.sendCrossDomainMessage(mintCalldata);
-    }
-
-    function sendToL2AndAttemptSwap(
         uint256 chainId,
         address recipient,
         uint256 amount,
@@ -123,8 +102,8 @@ abstract contract L1_Bridge is Bridge {
 
         _transferToBridge(msg.sender, amount);
 
-        bytes memory mintAndAttemptSwapCalldata = abi.encodeWithSignature(
-            "mintAndAttemptSwap(address,uint256,uint256,uint256,uint256)",
+        bytes memory message = abi.encodeWithSignature(
+            "distribute(address,uint256,uint256,uint256,uint256)",
             recipient,
             amount,
             amountOutMin,
@@ -133,10 +112,10 @@ abstract contract L1_Bridge is Bridge {
         );
 
         chainBalance[chainId] = chainBalance[chainId].add(amount);
-        messengerWrapper.sendCrossDomainMessage(mintAndAttemptSwapCalldata);
+        messengerWrapper.sendCrossDomainMessage(message);
     }
 
-    /* ========== External TransferRoot Functions ========== */
+    /* ========== TransferRoot Functions ========== */
 
     /**
      * @dev Setting a TransferRoot is a two step process.
