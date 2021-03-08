@@ -58,6 +58,7 @@ describe('L1_Bridge', () => {
   let bonder: Signer
   let challenger: Signer
   let relayer: Signer
+  let governance: Signer
 
   let l1_canonicalToken: Contract
   let l1_bridge: Contract
@@ -98,6 +99,7 @@ describe('L1_Bridge', () => {
       bonder,
       challenger,
       relayer,
+      governance,
       l1_canonicalToken,
       l1_bridge,
       l1_messenger,
@@ -1058,10 +1060,11 @@ describe('L1_Bridge', () => {
       await increaseTime(timeToWait)
 
       await executeL1BridgeRescueTransferRoot(
+        l1_canonicalToken,
         l1_bridge,
         l2_bridge,
         transfer.amount,
-        bonder,
+        governance,
         transfer,
         ARBITRARY_TRANSFER_NONCE
       )
@@ -2548,10 +2551,11 @@ describe('L1_Bridge', () => {
       const invalidTransferNonce: string = '0x0065737400000000000000000000000000000000000000000000000000000000'
       await expect(
         executeL1BridgeRescueTransferRoot(
+          l1_canonicalToken,
           l1_bridge,
           l2_bridge,
           transfer.amount,
-          bonder,
+          governance,
           transfer,
           invalidTransferNonce
         )
@@ -2560,64 +2564,6 @@ describe('L1_Bridge', () => {
 
     it('Should not rescue a transfer root that has already been confirmed', async () => {
       // This is not possible in the current contracts.
-    })
-
-    it('Should not rescue a transfer root that has not been bonded', async () => {
-      // This is not possible in the current contracts.
-    })
-
-    it('Should not rescue a transfer root that has a challenge that has not been resolved', async () => {
-      const expectedErrorMsg: string = 'L1_BRG: TransferBond challenge has not been resolved'
-      await executeL1BridgeSendToL2(
-        l1_canonicalToken,
-        l1_bridge,
-        l2_hopBridgeToken,
-        l2_canonicalToken,
-        l2_messenger,
-        l2_uniswapRouter,
-        transfer.sender,
-        transfer.recipient,
-        relayer,
-        transfer.amount,
-        transfer.amountOutMin,
-        transfer.deadline,
-        defaultRelayerFee,
-        l2ChainId
-      )
-
-      await executeL1BridgeBondTransferRoot(
-        l1_bridge,
-        l2_bridge,
-        transfer,
-        bonder,
-        DEFAULT_TIME_TO_WAIT,
-        ARBITRARY_TRANSFER_NONCE
-      )
-
-      await executeL1BridgeChallengeTransferBond(
-        l1_canonicalToken,
-        l1_bridge,
-        l2_bridge,
-        transfer.amount,
-        bonder,
-        challenger,
-        transfer,
-        ARBITRARY_TRANSFER_NONCE
-      )
-
-      let timeToWait: number = 11 * SECONDS_IN_A_DAY
-      await increaseTime(timeToWait)
-
-      await expect(
-        executeL1BridgeRescueTransferRoot(
-          l1_bridge,
-          l2_bridge,
-          transfer.amount,
-          bonder,
-          transfer,
-          ARBITRARY_TRANSFER_NONCE
-        )
-      ).to.be.revertedWith(expectedErrorMsg)
     })
 
     it('Should not rescue a transfer root that has not exceeded the rescue delay', async () => {
@@ -2679,10 +2625,11 @@ describe('L1_Bridge', () => {
 
       await expect(
         executeL1BridgeRescueTransferRoot(
+          l1_canonicalToken,
           l1_bridge,
           l2_bridge,
           transfer.amount,
-          bonder,
+          governance,
           transfer,
           ARBITRARY_TRANSFER_NONCE
         )

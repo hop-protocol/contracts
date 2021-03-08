@@ -419,10 +419,11 @@ export const executeL1BridgeResolveChallenge = async (
 }
 
 export const executeL1BridgeRescueTransferRoot = async (
+  l1_canonicalToken: Contract,
   l1_bridge: Contract,
   l2_bridge: Contract,
   amount: BigNumber,
-  bonder: Signer,
+  governance: Signer,
   transfer: Transfer,
   customTransferNonce: string | null = null
 ) => {
@@ -436,18 +437,17 @@ export const executeL1BridgeRescueTransferRoot = async (
   const { rootHash } = getRootHashFromTransferId(transferId)
 
   // Get state before transaction
-  const creditBefore: BigNumber = await l1_bridge.getCredit(await bonder.getAddress())
+  const governanceAmountBefore: BigNumber = await l1_canonicalToken.balanceOf(await governance.getAddress())
   const transferRootAmountWithdrawnBefore: BigNumber = (await l1_bridge.getTransferRoot(rootHash, transfer.amount))[1]
 
   // Perform transaction
-  await l1_bridge.rescueTransferRoot(rootHash, amount)
+  await l1_bridge.rescueTransferRoot(rootHash, amount, await governance.getAddress())
 
   // Validate state after transaction
   const transferRootAmountWithdrawnAfter: BigNumber = (await l1_bridge.getTransferRoot(rootHash, transfer.amount))[1]
   expect(transferRootAmountWithdrawnAfter).to.eq(transferRootAmountWithdrawnBefore.add(transfer.amount))
 
-  const creditAfter: BigNumber = await l1_bridge.getCredit(await bonder.getAddress())
-  expect(creditAfter).to.eq(creditBefore.add(amount))
+  await expectBalanceOf(l1_canonicalToken, governance, governanceAmountBefore.add(transfer.amount))
 }
 
 /**
