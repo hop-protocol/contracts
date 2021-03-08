@@ -11,6 +11,12 @@ import "./HopBridgeToken.sol";
 import "../libraries/MerkleUtils.sol";
 import "./L2_UniswapWrapper.sol";
 
+/**
+ * @dev The L2_Bridge is responsible for aggregating pending Transfers into TransferRoots. Each newly
+ * createdTransferRoot is then sent to the L1_Bridge. The L1_Bridge may be the TransferRoot's final
+ * destination or the L1_Bridge may forward the TransferRoot to it's destination L2_Bridge.
+ */
+
 abstract contract L2_Bridge is Bridge {
     using SafeERC20 for IERC20;
 
@@ -84,7 +90,18 @@ abstract contract L2_Bridge is Bridge {
 
     /* ========== Public/External functions ========== */
 
-    /// @notice _amount is the amount the user wants to send plus the Bonder fee
+    /**
+     * @notice _amount is the total amount the user wants to send including the Bonder fee
+     * @dev Send  hTokens to another supported layer-2 or to layer-1 to be redeemed for the underlying asset.
+     * @param chainId The chainId of the destination chain
+     * @param recipient The address receiving funds at the destination
+     * @param amount The amount being sent
+     * @param bonderFee The amount distributed to the Bonder at the destination. This is subtracted from the `amount`.
+     * @param amountOutMin The minimum amount received after attempting to swap in the destination
+     * Uniswap market. 0 if no swap is intended.
+     * @param deadline The deadline for swapping in the destination Uniswap market. 0 if no
+     * swap is intended.
+     */
     function send(
         uint256 chainId,
         address recipient,
@@ -130,6 +147,11 @@ abstract contract L2_Bridge is Bridge {
         emit TransferSent(transferId, recipient, amount, transferNonce, bonderFee);
     }
 
+    /**
+     * @dev Aggregates all pending Transfers to the `destinationChainId` and sends them to the
+     * L1_Bridge as a TransferRoot.
+     * @param destinationChainId The chainId of the TransferRoot's destination chain
+     */
     function commitTransfers(uint256 destinationChainId) external {
         uint256 minForceCommitTime = lastCommitTimeForChainId[destinationChainId].add(minimumForceCommitDelay);
         require(minForceCommitTime < block.timestamp || getIsBonder(msg.sender), "L2_BRG: Only Bonder can commit before min delay");
@@ -138,6 +160,16 @@ abstract contract L2_Bridge is Bridge {
         _commitTransfers(destinationChainId);
     }
 
+    /**
+     * @dev Mints new hTokens for the recipient and optionally swaps them in the Uniswap market.
+     * @param recipient The address receiving funds
+     * @param amount The amount being distributed
+     * @param amountOutMin The minimum amount received after attempting to swap in the destination
+     * Uniswap market. 0 if no swap is intended.
+     * @param deadline The deadline for swapping in the Uniswap market. 0 if no
+     * swap is intended.
+     * @param relayerFee The amount distributed to the relayer. This is subtracted from the `amount`.
+     */
     function distribute(
         address recipient,
         uint256 amount,

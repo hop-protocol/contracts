@@ -6,7 +6,7 @@ pragma experimental ABIEncoderV2;
 import "@openzeppelin/contracts/math/SafeMath.sol";
 
 /**
- * @dev Accounting is an abstract contract that encapsulates the most critical logic in the Hop system.
+ * @dev Accounting is an abstract contract that encapsulates the most critical logic in the Hop contracts.
  * The accounting system works by using two balances that can only increase `_credit` and `_debit`.
  * A bonder's available balance is the total credit minus the total debit. The contract exposes
  * two external functions that allows a bonder to stake and unstake and exposes two internal
@@ -77,18 +77,38 @@ abstract contract Accounting {
 
     /* ========== Public/external getters ========== */
 
+    /**
+     * @dev Check if address is a Bonder
+     * @param maybeBonder The address being checked
+     * @return true if address is a Bonder
+     */
     function getIsBonder(address maybeBonder) public view returns (bool) {
         return _isBonder[maybeBonder];
     }
 
+    /**
+     * @dev Get the Bonder's credit balance
+     * @param bonder The owner of the credit balance being checked
+     * @return The credit balance for the Bonder
+     */
     function getCredit(address bonder) public view returns (uint256) {
         return _credit[bonder];
     }
 
+    /**
+     * @dev Gets the debit balance tracked by `_debit` and does not include `_additionalDebit()`
+     * @param bonder The owner of the _debit balance being checked
+     * @return The _debit amount for the Bonder
+     */
     function getRawDebit(address bonder) external view returns (uint256) {
         return _debit[bonder];
     }
 
+    /**
+     * @dev Get the Bonder's total debit
+     * @param bonder The owner of the debit balance being checked
+     * @return The Bonder's total debit balance
+     */
     function getDebitAndAdditionalDebit(address bonder) public view returns (uint256) {
         return _debit[bonder].add(_additionalDebit());
     }
@@ -97,6 +117,7 @@ abstract contract Accounting {
 
     /** 
      * @dev Allows the bonder to deposit tokens and increase its credit balance
+     * @param bonder The address being staked on
      * @param amount The amount being staked
      */
     function stake(address bonder, uint256 amount) external payable {
@@ -114,11 +135,19 @@ abstract contract Accounting {
         _transferFromBridge(msg.sender, amount);
     }
 
+    /**
+     * @dev Add Bonder to allowlist
+     * @param bonder The address being added as a Bonder
+     */
     function addBonder(address bonder) external onlyGovernance {
         require(_isBonder[bonder] == false, "ACT: Address is already bonder");
         _isBonder[bonder] = true;
     }
 
+    /**
+     * @dev Remove Bonder from allowlist
+     * @param bonder The address being removed as a Bonder
+     */
     function removeBonder(address bonder) external onlyGovernance {
         require(_isBonder[bonder] == true, "ACT: Address is not bonder");
         _isBonder[bonder] = false;

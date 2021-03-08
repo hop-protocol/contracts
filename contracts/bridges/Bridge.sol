@@ -110,6 +110,7 @@ abstract contract Bridge is Accounting {
     /**
      * @notice getChainId can be overridden by subclasses if needed for compatibility or testing purposes.
      * @dev Get the current chainId
+     * @return chainId The current chainId
      */
     function getChainId() public virtual view returns (uint256 chainId) {
         this; // Silence state mutability warning without generating any additional byte code
@@ -121,7 +122,8 @@ abstract contract Bridge is Accounting {
     /**
      * @dev Get the TransferRoot id for a given rootHash and totalAmount
      * @param rootHash The merkle root of the TransferRoot
-     * @param totalAmount The merkle root of the TransferRoot
+     * @param totalAmount The total of all Transfers in the TransferRoot
+     * @return The calculated transferRootId
      */
     function getTransferRootId(bytes32 rootHash, uint256 totalAmount) public pure returns (bytes32) {
         return keccak256(abi.encodePacked(rootHash, totalAmount));
@@ -131,6 +133,7 @@ abstract contract Bridge is Accounting {
      * @dev Get the TransferRoot for a given rootHash and totalAmount
      * @param rootHash The merkle root of the TransferRoot
      * @param totalAmount The total of all Transfers in the TransferRoot
+     * @return The TransferRoot with the calculated transferRootId
      */
     function getTransferRoot(bytes32 rootHash, uint256 totalAmount) public view returns (TransferRoot memory) {
         return _transferRoots[getTransferRootId(rootHash, totalAmount)];
@@ -140,6 +143,7 @@ abstract contract Bridge is Accounting {
      * @dev Get the amount bonded for the withdrawal of a transfer
      * @param bonder The Bonder of the withdrawal
      * @param transferId The Transfer's unique identifier
+     * @return The amount bonded for a Transfer withdrawal
      */
     function getBondedWithdrawalAmount(address bonder, bytes32 transferId) external view returns (uint256) {
         return _bondedWithdrawalAmounts[bonder][transferId];
@@ -148,6 +152,7 @@ abstract contract Bridge is Accounting {
     /**
      * @dev Get the spent status of a transfer ID
      * @param transferId The transfer's unique identifier
+     * @return True if the transferId has been spent
      */
     function isTransferIdSpent(bytes32 transferId) external view returns (bool) {
         return _spentTransferIds[transferId];
@@ -264,6 +269,12 @@ abstract contract Bridge is Accounting {
         emit WithdrawalBondSettled(bonder, transferId, rootHash);
     }
 
+    /**
+     * @dev Refunds the Bonder for all withdrawals that they bonded in a TransferRoot.
+     * @param bonder The address of the Bonder being refunded
+     * @param transferIds All transferIds in the TransferRoot in order
+     * @param totalAmount The totalAmount of the TransferRoot
+     */
     function settleBondedWithdrawals(
         address bonder,
         bytes32[] memory transferIds,
@@ -289,7 +300,12 @@ abstract contract Bridge is Accounting {
 
     /* ========== External TransferRoot Rescue ========== */
 
-    /// @dev Allows governance to withdraw the remaining amount from a TransferRoot after the rescue delay has passed.
+    /**
+     * @dev Allows governance to withdraw the remaining amount from a TransferRoot after the rescue delay has passed.
+     * @param rootHash the Merkle root of the TransferRoot
+     * @param originalAmount The TransferRoot's recorded total
+     * @param recipient The address receiving the remaining balance
+     */
     function rescueTransferRoot(bytes32 rootHash, uint256 originalAmount, address recipient) external onlyGovernance {
         bytes32 transferRootId = getTransferRootId(rootHash, originalAmount);
         TransferRoot memory transferRoot = getTransferRoot(rootHash, originalAmount);
