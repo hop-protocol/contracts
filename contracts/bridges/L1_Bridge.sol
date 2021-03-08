@@ -41,7 +41,6 @@ abstract contract L1_Bridge is Bridge {
     uint256 public challengeResolutionPeriod = 10 days;
 
     uint256 constant MIN_TRANSFER_ROOT_BOND_DELAY = 15 minutes;
-    uint256 constant RESCUE_DELAY = 8 weeks;
 
     /* ========== Events ========== */
 
@@ -290,27 +289,6 @@ abstract contract L1_Bridge is Bridge {
         }
 
         emit ChallengeResolved(transferRootId, rootHash, originalAmount);
-    }
-
-    /* ========== External TransferRoot Rescue ========== */
-
-    /// @dev Allows governance to rescue a transferRoot that was bonded in error.
-    function rescueTransferRoot(bytes32 rootHash, uint256 originalAmount) external onlyGovernance {
-        bytes32 transferRootId = getTransferRootId(rootHash, originalAmount);
-        TransferRoot memory transferRoot = getTransferRoot(rootHash, originalAmount);
-        TransferBond memory transferBond = transferBonds[transferRootId];
-
-        require(transferRoot.total > 0, "L1_BRG: TransferRoot not found");
-        assert(transferRoot.total == originalAmount);
-        require(transferRootCommittedAt[transferRootId] == 0, "L1_BRG: TransferRoot has already been confirmed");
-        require(transferBond.createdAt != 0, "L1_BRG: TransferRoot has not been bonded");
-        require(transferBond.challengeResolved == true, "L1_BRG: TransferBond challenge has not been resolved");
-        uint256 rescueDelayEnd = transferBond.createdAt.add(RESCUE_DELAY);
-        require(block.timestamp >= rescueDelayEnd, "L1_BRG: TransferRoot cannot be rescued before the Rescue Delay");
-
-        uint256 remainingAmount = transferRoot.total.sub(transferRoot.amountWithdrawn);
-        _addToAmountWithdrawn(transferRootId, remainingAmount);
-        _addCredit(transferBond.bonder, remainingAmount);
     }
 
     /* ========== Override Functions ========== */
