@@ -15,7 +15,6 @@ import {
 import {
   executeBridgeWithdraw,
   executeL1BridgeSendToL2,
-  executeL1BridgeSendToL2AndAttemptToSwap,
   executeL1BridgeBondWithdrawal,
   executeL1BridgeBondTransferRoot,
   executeL1BridgeSettleBondedWithdrawals,
@@ -24,7 +23,7 @@ import {
   executeL1BridgeResolveChallenge,
   executeL2BridgeSend,
   executeL2BridgeCommitTransfers,
-  executeL2BridgeBondWithdrawalAndAttemptSwap
+  executeL2BridgeBondWithdrawalAndDistribute
 } from '../shared/contractFunctionWrappers'
 import { fixture } from '../shared/fixtures'
 import { IFixture } from '../shared/interfaces'
@@ -58,6 +57,7 @@ describe('L1_Bridge', () => {
   let user: Signer
   let bonder: Signer
   let challenger: Signer
+  let relayer: Signer
 
   let l1_canonicalToken: Contract
   let l1_bridge: Contract
@@ -97,6 +97,7 @@ describe('L1_Bridge', () => {
       user,
       bonder,
       challenger,
+      relayer,
       l1_canonicalToken,
       l1_bridge,
       l1_messenger,
@@ -161,9 +162,15 @@ describe('L1_Bridge', () => {
       l1_canonicalToken,
       l1_bridge,
       l2_hopBridgeToken,
+      l2_canonicalToken,
       l2_messenger,
+      l2_uniswapRouter,
       transfer.sender,
+      transfer.recipient,
+      relayer,
       transfer.amount,
+      transfer.amountOutMin,
+      transfer.deadline,
       defaultRelayerFee,
       l2ChainId
     )
@@ -198,9 +205,15 @@ describe('L1_Bridge', () => {
       l1_canonicalToken,
       l1_bridge,
       l2_hopBridgeToken,
+      l2_canonicalToken,
       l2_messenger,
+      l2_uniswapRouter,
       transfer.sender,
+      transfer.recipient,
+      relayer,
       transfer.amount,
+      transfer.amountOutMin,
+      transfer.deadline,
       defaultRelayerFee,
       l2ChainId
     )
@@ -236,9 +249,15 @@ describe('L1_Bridge', () => {
       l1_canonicalToken,
       l1_bridge,
       l2_hopBridgeToken,
+      l2_canonicalToken,
       l2_messenger,
+      l2_uniswapRouter,
       transfer.sender,
+      transfer.recipient,
+      relayer,
       transfer.amount,
+      transfer.amountOutMin,
+      transfer.deadline,
       defaultRelayerFee,
       l2ChainId
     )
@@ -263,9 +282,15 @@ describe('L1_Bridge', () => {
       l1_canonicalToken,
       l1_bridge,
       l2_hopBridgeToken,
+      l2_canonicalToken,
       l2_messenger,
+      l2_uniswapRouter,
       transfer.sender,
+      transfer.recipient,
+      relayer,
       transfer.amount,
+      transfer.amountOutMin,
+      transfer.deadline,
       defaultRelayerFee,
       l2ChainId
     )
@@ -422,9 +447,15 @@ describe('L1_Bridge', () => {
         l1_canonicalToken,
         l1_bridge,
         l2_hopBridgeToken,
+        l2_canonicalToken,
         l2_messenger,
+        l2_uniswapRouter,
         transfer.sender,
+        transfer.recipient,
+        relayer,
         transfer.amount,
+        transfer.amountOutMin,
+        transfer.deadline,
         defaultRelayerFee,
         l2ChainId
       )
@@ -433,23 +464,9 @@ describe('L1_Bridge', () => {
 
       expect(await l1_bridge.chainBalance(l2ChainId)).to.eq(originalBondedAmount.add(transfer.amount))
     })
-  })
 
-  describe('sendToL2AndAttemptToSwap', async () => {
-    it('Should send tokens across the bridge and swap via sendToL2AndAttemptSwap', async () => {
-      await executeL1BridgeSendToL2AndAttemptToSwap(
-        l1_canonicalToken,
-        l1_bridge,
-        l2_hopBridgeToken,
-        l2_messenger,
-        l2_canonicalToken,
-        l2_uniswapRouter,
-        transfer,
-        defaultRelayerFee,
-        l2ChainId
-      )
-
-      expect(await l1_bridge.chainBalance(l2ChainId)).to.eq(originalBondedAmount.add(transfer.amount))
+    it('Should send tokens across the bridge via sendToL2 and swap for the canonical token', async () => {
+      // TODO: Add this test
     })
   })
 
@@ -459,9 +476,15 @@ describe('L1_Bridge', () => {
         l1_canonicalToken,
         l1_bridge,
         l2_hopBridgeToken,
+        l2_canonicalToken,
         l2_messenger,
+        l2_uniswapRouter,
         transfer.sender,
+        transfer.recipient,
+        relayer,
         transfer.amount,
+        transfer.amountOutMin,
+        transfer.deadline,
         defaultRelayerFee,
         l2ChainId
       )
@@ -500,9 +523,15 @@ describe('L1_Bridge', () => {
         l1_canonicalToken,
         l1_bridge,
         l2_hopBridgeToken,
+        l2_canonicalToken,
         l2_messenger,
+        l2_uniswapRouter,
         transfer.sender,
+        transfer.recipient,
+        relayer,
         transfer.amount,
+        transfer.amountOutMin,
+        transfer.deadline,
         defaultRelayerFee,
         l2ChainId
       )
@@ -515,7 +544,7 @@ describe('L1_Bridge', () => {
 
       // Bond withdrawal on other L2
       const actualTransferAmount: BigNumber = l2Transfer.amount
-      await executeL2BridgeBondWithdrawalAndAttemptSwap(
+      await executeL2BridgeBondWithdrawalAndDistribute(
         l2_bridge,
         l22_hopBridgeToken,
         l22_bridge,
@@ -558,9 +587,15 @@ describe('L1_Bridge', () => {
         l1_canonicalToken,
         l1_bridge,
         l2_hopBridgeToken,
+        l2_canonicalToken,
         l2_messenger,
+        l2_uniswapRouter,
         transfer.sender,
+        transfer.recipient,
+        relayer,
         transfer.amount,
+        transfer.amountOutMin,
+        transfer.deadline,
         defaultRelayerFee,
         l2ChainId
       )
@@ -610,9 +645,15 @@ describe('L1_Bridge', () => {
         l1_canonicalToken,
         l1_bridge,
         l2_hopBridgeToken,
+        l2_canonicalToken,
         l2_messenger,
+        l2_uniswapRouter,
         transfer.sender,
+        transfer.recipient,
+        relayer,
         transfer.amount,
+        transfer.amountOutMin,
+        transfer.deadline,
         defaultRelayerFee,
         l2ChainId
       )
@@ -625,7 +666,7 @@ describe('L1_Bridge', () => {
 
       // Bond withdrawal on other L2
       const actualTransferAmount: BigNumber = transfer.amount
-      await executeL2BridgeBondWithdrawalAndAttemptSwap(
+      await executeL2BridgeBondWithdrawalAndDistribute(
         l2_bridge,
         l22_hopBridgeToken,
         l22_bridge,
@@ -675,9 +716,15 @@ describe('L1_Bridge', () => {
         l1_canonicalToken,
         l1_bridge,
         l2_hopBridgeToken,
+        l2_canonicalToken,
         l2_messenger,
+        l2_uniswapRouter,
         transfer.sender,
+        transfer.recipient,
+        relayer,
         transfer.amount,
+        transfer.amountOutMin,
+        transfer.deadline,
         defaultRelayerFee,
         l2ChainId
       )
@@ -728,9 +775,15 @@ describe('L1_Bridge', () => {
         l1_canonicalToken,
         l1_bridge,
         l2_hopBridgeToken,
+        l2_canonicalToken,
         l2_messenger,
+        l2_uniswapRouter,
         transfer.sender,
+        transfer.recipient,
+        relayer,
         transfer.amount,
+        transfer.amountOutMin,
+        transfer.deadline,
         defaultRelayerFee,
         l2ChainId
       )
@@ -797,9 +850,15 @@ describe('L1_Bridge', () => {
         l1_canonicalToken,
         l1_bridge,
         l2_hopBridgeToken,
+        l2_canonicalToken,
         l2_messenger,
+        l2_uniswapRouter,
         transfer.sender,
+        transfer.recipient,
+        relayer,
         transfer.amount,
+        transfer.amountOutMin,
+        transfer.deadline,
         defaultRelayerFee,
         l2ChainId
       )
@@ -868,9 +927,15 @@ describe('L1_Bridge', () => {
         l1_canonicalToken,
         l1_bridge,
         l2_hopBridgeToken,
+        l2_canonicalToken,
         l2_messenger,
+        l2_uniswapRouter,
         transfer.sender,
+        transfer.recipient,
+        relayer,
         transfer.amount,
+        transfer.amountOutMin,
+        transfer.deadline,
         defaultRelayerFee,
         l2ChainId
       )
@@ -938,9 +1003,15 @@ describe('L1_Bridge', () => {
         l1_canonicalToken,
         l1_bridge,
         l2_hopBridgeToken,
+        l2_canonicalToken,
         l2_messenger,
+        l2_uniswapRouter,
         transfer.sender,
+        transfer.recipient,
+        relayer,
         transfer.amount,
+        transfer.amountOutMin,
+        transfer.deadline,
         defaultRelayerFee,
         l2ChainId
       )
@@ -1031,9 +1102,15 @@ describe('L1_Bridge', () => {
           l1_canonicalToken,
           l1_bridge,
           l2_hopBridgeToken,
+          l2_canonicalToken,
           l2_messenger,
+          l2_uniswapRouter,
           transfer.sender,
+          transfer.recipient,
+          relayer,
           transfer.amount,
+          transfer.amountOutMin,
+          transfer.deadline,
           defaultRelayerFee,
           invalidChainId
         )
@@ -1051,9 +1128,15 @@ describe('L1_Bridge', () => {
           l1_canonicalToken,
           l1_bridge,
           l2_hopBridgeToken,
+          l2_canonicalToken,
           l2_messenger,
+          l2_uniswapRouter,
           transfer.sender,
+          transfer.recipient,
+          relayer,
           transfer.amount,
+          transfer.amountOutMin,
+          transfer.deadline,
           defaultRelayerFee,
           l2ChainId
         )
@@ -1069,9 +1152,15 @@ describe('L1_Bridge', () => {
           l1_canonicalToken,
           l1_bridge,
           l2_hopBridgeToken,
+          l2_canonicalToken,
           l2_messenger,
+          l2_uniswapRouter,
           transfer.sender,
+          transfer.recipient,
+          relayer,
           transfer.amount,
+          transfer.amountOutMin,
+          transfer.deadline,
           largeRelayerFee,
           l2ChainId
         )
@@ -1085,7 +1174,14 @@ describe('L1_Bridge', () => {
       await expect(
         l1_bridge
           .connect(user)
-          .sendToL2(l2ChainId, await user.getAddress(), tokenAmount, defaultRelayerFee)
+          .sendToL2(
+            l2ChainId,
+            await user.getAddress(),
+            tokenAmount,
+            transfer.amountOutMin,
+            transfer.deadline,
+            defaultRelayerFee
+          )
       ).to.be.revertedWith(expectedErrorMsg)
     })
 
@@ -1102,104 +1198,15 @@ describe('L1_Bridge', () => {
           l1_canonicalToken,
           l1_bridge,
           l2_hopBridgeToken,
+          l2_canonicalToken,
           l2_messenger,
+          l2_uniswapRouter,
           transfer.sender,
+          transfer.recipient,
+          relayer,
           transfer.amount,
-          defaultRelayerFee,
-          l2ChainId
-        )
-      ).to.be.revertedWith(expectedErrorMsg)
-    })
-  })
-
-  describe('sendToL2AndAttemptSwap', async () => {
-    it('Should not allow a transfer to L2 via sendToL2AndAttemptSwap if the messenger wrapper for the L2 is not defined', async () => {
-      const expectedErrorMsg: string = 'L1_BRG: chainId not supported'
-      const invalidChainId: BigNumber = BigNumber.from('123')
-
-      await expect(
-        executeL1BridgeSendToL2AndAttemptToSwap(
-          l1_canonicalToken,
-          l1_bridge,
-          l2_hopBridgeToken,
-          l2_messenger,
-          l2_canonicalToken,
-          l2_uniswapRouter,
-          transfer,
-          defaultRelayerFee,
-          invalidChainId
-        )
-      ).to.be.revertedWith(expectedErrorMsg)
-    })
-
-    it('Should not allow a transfer to L2 via sendToL2AndAttemptSwap if the chainId is paused', async () => {
-      const expectedErrorMsg: string = 'L1_BRG: Sends to this chainId are paused'
-
-      const isPaused: boolean = true
-      await l1_bridge.setChainIdDepositsPaused(l2ChainId, isPaused)
-
-      await expect(
-        executeL1BridgeSendToL2AndAttemptToSwap(
-          l1_canonicalToken,
-          l1_bridge,
-          l2_hopBridgeToken,
-          l2_messenger,
-          l2_canonicalToken,
-          l2_uniswapRouter,
-          transfer,
-          defaultRelayerFee,
-          l2ChainId
-        )
-      ).to.be.revertedWith(expectedErrorMsg)
-    })
-
-    it('Should not allow a transfer to L2 via sendToL2AndAttemptSwap if the relayerFee is higher than the amount', async () => {
-      const expectedErrorMsg: string = 'L1_BRG: Relayer fee cannot exceed amount'
-      const largeRelayerFee: BigNumber = transfer.amount.add(1)
-
-      await expect(
-        executeL1BridgeSendToL2AndAttemptToSwap(
-          l1_canonicalToken,
-          l1_bridge,
-          l2_hopBridgeToken,
-          l2_messenger,
-          l2_canonicalToken,
-          l2_uniswapRouter,
-          transfer,
-          largeRelayerFee,
-          l2ChainId
-        )
-      ).to.be.revertedWith(expectedErrorMsg)
-    })
-
-    it('Should not allow a transfer to L2 via sendToL2AndAttemptSwap if the user did not approve the token transfer to the L1 Bridge', async () => {
-      const expectedErrorMsg: string = ' ERC20: transfer amount exceeds allowance'
-      const tokenAmount = await l1_canonicalToken.balanceOf(await user.getAddress())
-
-      await expect(
-        l1_bridge
-          .connect(user)
-          .sendToL2AndAttemptSwap(l2ChainId, await user.getAddress(), tokenAmount, DEFAULT_AMOUNT_OUT_MIN, DEFAULT_DEADLINE, defaultRelayerFee)
-      ).to.be.revertedWith(expectedErrorMsg)
-    })
-
-    it('Should not allow a transfer to L2 via sendToL2AndAttemptSwap if the user does not have the tokens to transfer to the L1 Bridge', async () => {
-      const expectedErrorMsg: string = 'ERC20: transfer amount exceeds balance'
-
-      // Send all tokens away from user's address
-      const userBalance: BigNumber = await l1_canonicalToken.balanceOf(await user.getAddress())
-      await l1_canonicalToken.connect(user).transfer(DEAD_ADDRESS, userBalance)
-      expectBalanceOf(l1_canonicalToken, user, BigNumber.from('0'))
-
-      await expect(
-        executeL1BridgeSendToL2AndAttemptToSwap(
-          l1_canonicalToken,
-          l1_bridge,
-          l2_hopBridgeToken,
-          l2_messenger,
-          l2_canonicalToken,
-          l2_uniswapRouter,
-          transfer,
+          transfer.amountOutMin,
+          transfer.deadline,
           defaultRelayerFee,
           l2ChainId
         )
@@ -1232,9 +1239,15 @@ describe('L1_Bridge', () => {
         l1_canonicalToken,
         l1_bridge,
         l2_hopBridgeToken,
+        l2_canonicalToken,
         l2_messenger,
+        l2_uniswapRouter,
         transfer.sender,
+        transfer.recipient,
+        relayer,
         transfer.amount,
+        transfer.amountOutMin,
+        transfer.deadline,
         defaultRelayerFee,
         l2ChainId
       )
@@ -1271,9 +1284,15 @@ describe('L1_Bridge', () => {
         l1_canonicalToken,
         l1_bridge,
         l2_hopBridgeToken,
+        l2_canonicalToken,
         l2_messenger,
+        l2_uniswapRouter,
         transfer.sender,
+        transfer.recipient,
+        relayer,
         transfer.amount,
+        transfer.amountOutMin,
+        transfer.deadline,
         defaultRelayerFee,
         l2ChainId
       )
@@ -1319,9 +1338,15 @@ describe('L1_Bridge', () => {
         l1_canonicalToken,
         l1_bridge,
         l2_hopBridgeToken,
+        l2_canonicalToken,
         l2_messenger,
+        l2_uniswapRouter,
         transfer.sender,
+        transfer.recipient,
+        relayer,
         transfer.amount,
+        transfer.amountOutMin,
+        transfer.deadline,
         defaultRelayerFee,
         l2ChainId
       )
@@ -1374,9 +1399,15 @@ describe('L1_Bridge', () => {
         l1_canonicalToken,
         l1_bridge,
         l2_hopBridgeToken,
+        l2_canonicalToken,
         l2_messenger,
+        l2_uniswapRouter,
         transfer.sender,
+        transfer.recipient,
+        relayer,
         transfer.amount,
+        transfer.amountOutMin,
+        transfer.deadline,
         defaultRelayerFee,
         l2ChainId
       )
@@ -1413,9 +1444,15 @@ describe('L1_Bridge', () => {
         l1_canonicalToken,
         l1_bridge,
         l2_hopBridgeToken,
+        l2_canonicalToken,
         l2_messenger,
+        l2_uniswapRouter,
         l2Transfer.sender,
+        l2Transfer.recipient,
+        relayer,
         l2Transfer.amount,
+        transfer.amountOutMin,
+        transfer.deadline,
         defaultRelayerFee,
         l2ChainId
       )
@@ -1459,9 +1496,15 @@ describe('L1_Bridge', () => {
         l1_canonicalToken,
         l1_bridge,
         l2_hopBridgeToken,
+        l2_canonicalToken,
         l2_messenger,
+        l2_uniswapRouter,
         transfer.sender,
+        transfer.recipient,
+        relayer,
         transfer.amount,
+        transfer.amountOutMin,
+        transfer.deadline,
         defaultRelayerFee,
         l2ChainId
       )
@@ -1514,9 +1557,15 @@ describe('L1_Bridge', () => {
         l1_canonicalToken,
         l1_bridge,
         l2_hopBridgeToken,
+        l2_canonicalToken,
         l2_messenger,
+        l2_uniswapRouter,
         transfer.sender,
+        transfer.recipient,
+        relayer,
         transfer.amount,
+        transfer.amountOutMin,
+        transfer.deadline,
         defaultRelayerFee,
         l2ChainId
       )
@@ -1567,9 +1616,15 @@ describe('L1_Bridge', () => {
         l1_canonicalToken,
         l1_bridge,
         l2_hopBridgeToken,
+        l2_canonicalToken,
         l2_messenger,
+        l2_uniswapRouter,
         transfer.sender,
+        transfer.recipient,
+        relayer,
         transfer.amount,
+        transfer.amountOutMin,
+        transfer.deadline,
         defaultRelayerFee,
         l2ChainId
       )
@@ -1611,9 +1666,15 @@ describe('L1_Bridge', () => {
         l1_canonicalToken,
         l1_bridge,
         l2_hopBridgeToken,
+        l2_canonicalToken,
         l2_messenger,
+        l2_uniswapRouter,
         transfer.sender,
+        transfer.recipient,
+        relayer,
         transfer.amount,
+        transfer.amountOutMin,
+        transfer.deadline,
         defaultRelayerFee,
         l2ChainId
       )
@@ -1673,9 +1734,15 @@ describe('L1_Bridge', () => {
         l1_canonicalToken,
         l1_bridge,
         l2_hopBridgeToken,
+        l2_canonicalToken,
         l2_messenger,
+        l2_uniswapRouter,
         transfer.sender,
+        transfer.recipient,
+        relayer,
         transfer.amount,
+        transfer.amountOutMin,
+        transfer.deadline,
         defaultRelayerFee,
         l2ChainId
       )
@@ -1732,9 +1799,15 @@ describe('L1_Bridge', () => {
         l1_canonicalToken,
         l1_bridge,
         l2_hopBridgeToken,
+        l2_canonicalToken,
         l2_messenger,
+        l2_uniswapRouter,
         transfer.sender,
+        transfer.recipient,
+        relayer,
         transfer.amount,
+        transfer.amountOutMin,
+        transfer.deadline,
         defaultRelayerFee,
         l2ChainId
       )
@@ -1797,9 +1870,15 @@ describe('L1_Bridge', () => {
         l1_canonicalToken,
         l1_bridge,
         l2_hopBridgeToken,
+        l2_canonicalToken,
         l2_messenger,
+        l2_uniswapRouter,
         transfer.sender,
+        transfer.recipient,
+        relayer,
         transfer.amount,
+        transfer.amountOutMin,
+        transfer.deadline,
         defaultRelayerFee,
         l2ChainId
       )
@@ -1848,9 +1927,15 @@ describe('L1_Bridge', () => {
         l1_canonicalToken,
         l1_bridge,
         l2_hopBridgeToken,
+        l2_canonicalToken,
         l2_messenger,
+        l2_uniswapRouter,
         transfer.sender,
+        transfer.recipient,
+        relayer,
         transfer.amount,
+        transfer.amountOutMin,
+        transfer.deadline,
         defaultRelayerFee,
         l2ChainId
       )
@@ -1906,9 +1991,15 @@ describe('L1_Bridge', () => {
         l1_canonicalToken,
         l1_bridge,
         l2_hopBridgeToken,
+        l2_canonicalToken,
         l2_messenger,
+        l2_uniswapRouter,
         transfer.sender,
+        transfer.recipient,
+        relayer,
         transfer.amount,
+        transfer.amountOutMin,
+        transfer.deadline,
         defaultRelayerFee,
         l2ChainId
       )
@@ -1957,9 +2048,15 @@ describe('L1_Bridge', () => {
         l1_canonicalToken,
         l1_bridge,
         l2_hopBridgeToken,
+        l2_canonicalToken,
         l2_messenger,
+        l2_uniswapRouter,
         transfer.sender,
+        transfer.recipient,
+        relayer,
         transfer.amount,
+        transfer.amountOutMin,
+        transfer.deadline,
         defaultRelayerFee,
         l2ChainId
       )
@@ -2014,9 +2111,15 @@ describe('L1_Bridge', () => {
         l1_canonicalToken,
         l1_bridge,
         l2_hopBridgeToken,
+        l2_canonicalToken,
         l2_messenger,
+        l2_uniswapRouter,
         transfer.sender,
+        transfer.recipient,
+        relayer,
         transfer.amount,
+        transfer.amountOutMin,
+        transfer.deadline,
         defaultRelayerFee,
         l2ChainId
       )
@@ -2072,9 +2175,15 @@ describe('L1_Bridge', () => {
         l1_canonicalToken,
         l1_bridge,
         l2_hopBridgeToken,
+        l2_canonicalToken,
         l2_messenger,
+        l2_uniswapRouter,
         transfer.sender,
+        transfer.recipient,
+        relayer,
         transfer.amount,
+        transfer.amountOutMin,
+        transfer.deadline,
         defaultRelayerFee,
         l2ChainId
       )
@@ -2143,9 +2252,15 @@ describe('L1_Bridge', () => {
         l1_canonicalToken,
         l1_bridge,
         l2_hopBridgeToken,
+        l2_canonicalToken,
         l2_messenger,
+        l2_uniswapRouter,
         transfer.sender,
+        transfer.recipient,
+        relayer,
         transfer.amount,
+        transfer.amountOutMin,
+        transfer.deadline,
         defaultRelayerFee,
         l2ChainId
       )
@@ -2205,9 +2320,15 @@ describe('L1_Bridge', () => {
         l1_canonicalToken,
         l1_bridge,
         l2_hopBridgeToken,
+        l2_canonicalToken,
         l2_messenger,
+        l2_uniswapRouter,
         transfer.sender,
+        transfer.recipient,
+        relayer,
         transfer.amount,
+        transfer.amountOutMin,
+        transfer.deadline,
         defaultRelayerFee,
         l2ChainId
       )
@@ -2291,9 +2412,15 @@ describe('L1_Bridge', () => {
         l1_canonicalToken,
         l1_bridge,
         l2_hopBridgeToken,
+        l2_canonicalToken,
         l2_messenger,
+        l2_uniswapRouter,
         transfer.sender,
+        transfer.recipient,
+        relayer,
         transfer.amount,
+        transfer.amountOutMin,
+        transfer.deadline,
         defaultRelayerFee,
         l2ChainId
       )
@@ -2364,9 +2491,15 @@ describe('L1_Bridge', () => {
         l1_canonicalToken,
         l1_bridge,
         l2_hopBridgeToken,
+        l2_canonicalToken,
         l2_messenger,
+        l2_uniswapRouter,
         transfer.sender,
+        transfer.recipient,
+        relayer,
         transfer.amount,
+        transfer.amountOutMin,
+        transfer.deadline,
         defaultRelayerFee,
         l2ChainId
       )
@@ -2439,9 +2572,15 @@ describe('L1_Bridge', () => {
         l1_canonicalToken,
         l1_bridge,
         l2_hopBridgeToken,
+        l2_canonicalToken,
         l2_messenger,
+        l2_uniswapRouter,
         transfer.sender,
+        transfer.recipient,
+        relayer,
         transfer.amount,
+        transfer.amountOutMin,
+        transfer.deadline,
         defaultRelayerFee,
         l2ChainId
       )
@@ -2487,9 +2626,15 @@ describe('L1_Bridge', () => {
         l1_canonicalToken,
         l1_bridge,
         l2_hopBridgeToken,
+        l2_canonicalToken,
         l2_messenger,
+        l2_uniswapRouter,
         transfer.sender,
+        transfer.recipient,
+        relayer,
         transfer.amount,
+        transfer.amountOutMin,
+        transfer.deadline,
         defaultRelayerFee,
         l2ChainId
       )
@@ -2554,27 +2699,38 @@ describe('L1_Bridge', () => {
         l1_canonicalToken,
         l1_bridge,
         l2_hopBridgeToken,
+        l2_canonicalToken,
         l2_messenger,
+        l2_uniswapRouter,
         customTransfer.sender,
+        customTransfer.recipient,
+        relayer,
         customTransfer.amount,
+        transfer.amountOutMin,
+        transfer.deadline,
         defaultRelayerFee,
         l2ChainId
       )
     })
 
-    it('Should allow a user to sendToL2AndAttemptSwap with an amountOutMin that is greater than expected', async () => {
+    it('Should allow a user to sendToL2 with an amountOutMin that is greater than expected', async () => {
       const largeValue: BigNumber = BigNumber.from('999999999999999999999999999')
       const customTransfer: Transfer = new Transfer(transfer)
       customTransfer.amountOutMin = BigNumber.from(largeValue.mul(largeValue))
 
-      await executeL1BridgeSendToL2AndAttemptToSwap(
+      await executeL1BridgeSendToL2(
         l1_canonicalToken,
         l1_bridge,
         l2_hopBridgeToken,
-        l2_messenger,
         l2_canonicalToken,
+        l2_messenger,
         l2_uniswapRouter,
-        customTransfer,
+        customTransfer.sender,
+        customTransfer.recipient,
+        relayer,
+        customTransfer.amount,
+        transfer.amountOutMin,
+        transfer.deadline,
         defaultRelayerFee,
         l2ChainId
       )
@@ -2584,14 +2740,19 @@ describe('L1_Bridge', () => {
       const customTransfer: Transfer = new Transfer(transfer)
       customTransfer.deadline = BigNumber.from('0')
 
-      await executeL1BridgeSendToL2AndAttemptToSwap(
+      await executeL1BridgeSendToL2(
         l1_canonicalToken,
         l1_bridge,
         l2_hopBridgeToken,
-        l2_messenger,
         l2_canonicalToken,
+        l2_messenger,
         l2_uniswapRouter,
-        customTransfer,
+        customTransfer.sender,
+        customTransfer.recipient,
+        relayer,
+        customTransfer.amount,
+        transfer.amountOutMin,
+        transfer.deadline,
         defaultRelayerFee,
         l2ChainId
       )
@@ -2604,9 +2765,15 @@ describe('L1_Bridge', () => {
         l1_canonicalToken,
         l1_bridge,
         l2_hopBridgeToken,
+        l2_canonicalToken,
         l2_messenger,
+        l2_uniswapRouter,
         transfer.sender,
+        transfer.recipient,
+        relayer,
         transfer.amount,
+        transfer.amountOutMin,
+        transfer.deadline,
         defaultRelayerFee,
         l2ChainId
       )
@@ -2647,9 +2814,15 @@ describe('L1_Bridge', () => {
         l1_canonicalToken,
         l1_bridge,
         l2_hopBridgeToken,
+        l2_canonicalToken,
         l2_messenger,
+        l2_uniswapRouter,
         transfer.sender,
+        transfer.recipient,
+        relayer,
         transfer.amount,
+        transfer.amountOutMin,
+        transfer.deadline,
         defaultRelayerFee,
         l2ChainId
       )
@@ -2662,7 +2835,7 @@ describe('L1_Bridge', () => {
 
       // Bond withdrawal on other L2
       const actualTransferAmount: BigNumber = customTransfer.amount
-      await executeL2BridgeBondWithdrawalAndAttemptSwap(
+      await executeL2BridgeBondWithdrawalAndDistribute(
         l2_bridge,
         l22_hopBridgeToken,
         l22_bridge,

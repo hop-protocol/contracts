@@ -85,7 +85,7 @@ describe('Bridge', () => {
   })
 
   it('Should get the correct transferRoot', async () => {
-    const expectedTransferRootId: string = '0xd7726ee0f8f88cd2ff41cab73330a03cff0483e6b591ae47c51153b025133145'
+    const expectedTransferRootId: string = '0x1d2412fbc997e6119c879bd18d25205aab0a2d98c6958cc176b5d9009fd1063b'
 
     const transfer: Transfer = transfers[0]
     const transferNonceIncrementer: BigNumber = BigNumber.from('0')
@@ -155,6 +155,8 @@ describe('Bridge', () => {
         transfer.amount,
         getTransferNonce(BigNumber.from('0'), transfer.chainId),
         transfer.bonderFee,
+        transfer.amountOutMin,
+        transfer.deadline,
         ARBITRARY_ROOT_HASH,
         transfer.amount,
         arbitraryProof
@@ -185,6 +187,8 @@ describe('Bridge', () => {
         transfer.amount,
         transferNonce,
         transfer.bonderFee,
+        transfer.amountOutMin,
+        transfer.deadline,
         transferRootHash,
         transfer.amount,
         proof

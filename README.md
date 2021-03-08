@@ -84,7 +84,7 @@ These are the expected, happy-path cases for users to send and receive funds on 
 
 - **L2 -> L2**
   - User calls `L2_Bridge.swapAndSend()` on the sending layer-2
-  - Bonder calls `L2_Bridge.bondWithdrawalAndAttemptSwap()` on the receiving layer-2
+  - Bonder calls `L2_Bridge.bondWithdrawalAndDistribute()` on the receiving layer-2
 
 If the bonder is offline, the system relies on the canonical layer-2 bridge to settle transactions on layer-1.
 

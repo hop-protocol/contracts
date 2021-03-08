@@ -179,21 +179,21 @@ export async function fixture (l1ChainId: BigNumber, l2ChainId: BigNumber, l1Alr
     bonderFee: DEFAULT_BONDER_FEE,
     amountOutMin: BigNumber.from('0'),
     destinationAmountOutMin: BigNumber.from('0'),
-    destinationDeadline: DEFAULT_DEADLINE
+    destinationDeadline: BigNumber.from('0')
   }
 
   const transfers: Transfer[] = [
     new Transfer({
       chainId: CHAIN_IDS.ETHEREUM.MAINNET,
       sender: user,
-      recipient: otherUser,
+      recipient: user,
       deadline: BigNumber.from('0'),
       ...genericTransfer
     }),
     new Transfer({
       chainId: CHAIN_IDS.ARBITRUM.TESTNET_3,
       sender: user,
-      recipient: otherUser,
+      recipient: user,
       deadline: DEFAULT_DEADLINE,
       ...genericTransfer
     }),

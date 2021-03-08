@@ -45,12 +45,16 @@ export const setUpDefaults = async (
   const setUpBonderStakeOpts = {
     l2ChainId: l2ChainId,
     bondAmount: INITIAL_BONDED_AMOUNT,
+    amountOutMin: BigNumber.from('0'),
+    deadline: BigNumber.from('0'),
     relayerFee: DEFAULT_RELAYER_FEE
   }
 
   const setUpL2UniswapMarketOpts = {
     l2ChainId: l2ChainId,
     liquidityProviderBalance: LIQUIDITY_PROVIDER_UNISWAP_AMOUNT,
+    amountOutMin: BigNumber.from('0'),
+    deadline: BigNumber.from('0'),
     relayerFee: DEFAULT_RELAYER_FEE
   }
 
@@ -139,11 +143,19 @@ export const setUpBonderStake = async (fixture: IFixture, opts: any) => {
     l1_bridge,
     l1_canonicalToken,
     l2_hopBridgeToken,
+    l2_canonicalToken,
     l2_bridge,
     l2_messenger,
+    l2_uniswapRouter
   } = fixture
 
-  const { l2ChainId, bondAmount, relayerFee } = opts
+  const {
+    l2ChainId,
+    bondAmount,
+    amountOutMin,
+    deadline,
+    relayerFee
+  } = opts
 
   // Stake on L1
   await l1_canonicalToken
@@ -156,9 +168,15 @@ export const setUpBonderStake = async (fixture: IFixture, opts: any) => {
     l1_canonicalToken,
     l1_bridge,
     l2_hopBridgeToken,
+    l2_canonicalToken,
     l2_messenger,
+    l2_uniswapRouter,
+    bonder,
+    bonder,
     bonder,
     bondAmount,
+    amountOutMin,
+    deadline,
     relayerFee,
     l2ChainId
   )
@@ -175,7 +193,6 @@ export const setUpL2UniswapMarket = async (fixture: IFixture, opts: any) => {
     l1_canonicalToken,
     l1_canonicalBridge,
     l2_hopBridgeToken,
-    l2_bridge,
     l2_messenger,
     liquidityProvider,
     l2_uniswapRouter,
@@ -183,7 +200,13 @@ export const setUpL2UniswapMarket = async (fixture: IFixture, opts: any) => {
     l2_canonicalToken
   } = fixture
 
-  const { l2ChainId, liquidityProviderBalance, relayerFee } = opts
+  const {
+    l2ChainId,
+    liquidityProviderBalance,
+    amountOutMin,
+    deadline,
+    relayerFee
+  } = opts
 
   // liquidityProvider moves funds across the canonical bridge
   await executeCanonicalBridgeSendMessage(
@@ -200,9 +223,15 @@ export const setUpL2UniswapMarket = async (fixture: IFixture, opts: any) => {
     l1_canonicalToken,
     l1_bridge,
     l2_hopBridgeToken,
+    l2_canonicalToken,
     l2_messenger,
+    l2_uniswapRouter,
+    liquidityProvider,
+    liquidityProvider,
     liquidityProvider,
     liquidityProviderBalance,
+    amountOutMin,
+    deadline,
     relayerFee,
     l2ChainId
   )

@@ -35,7 +35,9 @@ export default class Transfer {
     this.destinationDeadline = props.destinationDeadline
   }
 
-  async getTransferId (transferNonce: string): Promise<Buffer> {
+  async getTransferId (transferNonce: string, isSwapAndSend: boolean = false): Promise<Buffer> {
+    const actualAmountOutMin: ethers.BigNumber = isSwapAndSend ? this.destinationAmountOutMin: this.amountOutMin
+    const actualDeadline: ethers.BigNumber = isSwapAndSend ? this.destinationDeadline : this.deadline
     const data = ethers.utils.defaultAbiCoder.encode(
       [
         'uint256',
@@ -52,8 +54,8 @@ export default class Transfer {
         this.amount,
         transferNonce,
         this.bonderFee,
-        this.amountOutMin,
-        this.deadline
+        actualAmountOutMin,
+        actualDeadline
       ]
     )
     const hash = ethers.utils.keccak256(data)

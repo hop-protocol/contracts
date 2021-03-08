@@ -16,7 +16,6 @@ import {
 import {
   executeCanonicalBridgeSendMessage,
   executeL1BridgeSendToL2,
-  executeL1BridgeSendToL2AndAttemptToSwap,
   executeL1BridgeBondWithdrawal,
   executeL1BridgeBondTransferRoot,
   executeL1BridgeSettleBondedWithdrawals,
@@ -25,7 +24,7 @@ import {
   executeL2BridgeSend,
   executeL2BridgeSwapAndSend,
   executeL2BridgeCommitTransfers,
-  executeL2BridgeBondWithdrawalAndAttemptSwap
+  executeL2BridgeBondWithdrawalAndDistribute
 } from '../shared/contractFunctionWrappers'
 import { fixture } from '../shared/fixtures'
 import { IFixture } from '../shared/interfaces'
@@ -139,9 +138,15 @@ describe('L2_Bridge', () => {
       l1_canonicalToken,
       l1_bridge,
       l2_hopBridgeToken,
+      l2_canonicalToken,
       l2_messenger,
+      l2_uniswapRouter,
       transfer.sender,
+      transfer.recipient,
+      relayer,
       transfer.amount,
+      transfer.amountOutMin,
+      transfer.deadline,
       defaultRelayerFee,
       l2ChainId
     )
@@ -418,7 +423,7 @@ describe('L2_Bridge', () => {
 
       // Bond withdrawal on other L2
       const actualTransferAmount: BigNumber = customL2Transfer.amount
-      await executeL2BridgeBondWithdrawalAndAttemptSwap(
+      await executeL2BridgeBondWithdrawalAndDistribute(
         l2_bridge,
         l22_hopBridgeToken,
         l22_bridge,
@@ -445,57 +450,8 @@ describe('L2_Bridge', () => {
     })
   })
 
-  describe('mint', async () => {
-    it('Should mint hop bridge tokens', async () => {
-      const relayerFee: BigNumber = BigNumber.from(parseEther('1'))
-
-      const userBalanceBefore: BigNumber = await l2_hopBridgeToken.balanceOf(await user.getAddress())
-      const relayerBalanceBefore: BigNumber = await l2_hopBridgeToken.balanceOf(await relayer.getAddress())
-
-      await l2_bridge.connect(relayer).mint(await user.getAddress(), transfer.amount, relayerFee)
-
-      const expectedUserBalance: BigNumber = userBalanceBefore.add(transfer.amount).sub(relayerFee)
-      const expectedRelayerBalance: BigNumber = relayerBalanceBefore.add(relayerFee)
-      await expectBalanceOf(l2_hopBridgeToken, user, expectedUserBalance)
-      await expectBalanceOf(l2_hopBridgeToken, relayer, expectedRelayerBalance)
-
-    })
-  })
-
-  describe('mintAndAttemptSwap', async () => {
-    it('Should mint hop bridge tokens and swap them for canonical tokens', async () => {
-      const relayerFee: BigNumber = BigNumber.from(parseEther('1'))
-
-      const userBalanceBeforeHopBridgeToken: BigNumber = await l2_hopBridgeToken.balanceOf(await user.getAddress())
-      const userBalanceBeforeCanonicalToken: BigNumber = await l2_canonicalToken.balanceOf(await user.getAddress())
-      const relayerBalanceBeforeHopBridgeToken: BigNumber = await l2_hopBridgeToken.balanceOf(await relayer.getAddress())
-
-      const expectedAmountsRecipientBridge: BigNumber[] = await l2_uniswapRouter.getAmountsOut(
-        transfer.amount.sub(relayerFee),
-        [l2_canonicalToken.address, l2_hopBridgeToken.address]
-      )
-      const expectedRecipientAmountAfterSlippage: BigNumber = expectedAmountsRecipientBridge[1]
-
-      await l2_bridge.connect(relayer).mintAndAttemptSwap(
-        await user.getAddress(),
-        transfer.amount,
-        0,
-        DEFAULT_DEADLINE,
-        relayerFee
-      )
-
-      const expectedUserBalanceHopBridgeToken: BigNumber = userBalanceBeforeHopBridgeToken
-      const expectedUserBalanceCanonicalToken: BigNumber = userBalanceBeforeCanonicalToken.add(expectedRecipientAmountAfterSlippage)
-      const expectedRelayerBalanceHopBridgeToken: BigNumber = relayerBalanceBeforeHopBridgeToken.add(relayerFee)
-
-      await expectBalanceOf(l2_hopBridgeToken, user, expectedUserBalanceHopBridgeToken)
-      await expectBalanceOf(l2_canonicalToken, user, expectedUserBalanceCanonicalToken)
-      await expectBalanceOf(l2_hopBridgeToken, relayer, expectedRelayerBalanceHopBridgeToken)
-    })
-  })
-
-  describe('bondWithdrawalAndAttemptSwap', async () => {
-    it('Should send a transfer from one L2 to another L2 via bondWithdrawalAndAttemptSwap', async () => {
+  describe('bondWithdrawalAndDistribute', async () => {
+    it('Should send a transfer from one L2 to another L2 via bondWithdrawalAndDistribute', async () => {
     //   transfer.destinationAmountOutMin = BigNumber.from(0)
     //   transfer.destinationDeadline = BigNumber.from(DEFAULT_DEADLINE)
 
