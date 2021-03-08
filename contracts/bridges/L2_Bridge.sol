@@ -214,7 +214,7 @@ abstract contract L2_Bridge is Bridge {
         }
         uint256 amountAfterFee = amount.sub(fee);
 
-        if (deadline == 0 && fee == 0) {
+        if (amountOutMin == 0 && deadline == 0) {
             hToken.mint(recipient, amountAfterFee);
         } else {
             hToken.mint(address(this), amountAfterFee);
