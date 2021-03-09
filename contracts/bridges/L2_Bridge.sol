@@ -183,6 +183,18 @@ abstract contract L2_Bridge is Bridge {
         _distribute(recipient, amount, amountOutMin, deadline, relayerFee);
     }
 
+    /**
+     * @dev Allows the bonder to bond an individual withdrawal and swap it in the AMM for the
+     * canonical token on behalf of the user.
+     * @param recipient The address receiving the Transfer
+     * @param amount The amount being transferred including the `_bonderFee`
+     * @param transferNonce Used to avoid transferId collisions
+     * @param bonderFee The amount paid to the address that withdraws the Transfer
+     * @param amountOutMin The minimum amount received after attempting to swap in the
+     * Uniswap market. 0 if no swap is intended.
+     * @param deadline The deadline for swapping in the Uniswap market. 0 if no
+     * swap is intended.
+     */
     function bondWithdrawalAndDistribute(
         address recipient,
         uint256 amount,
@@ -210,6 +222,11 @@ abstract contract L2_Bridge is Bridge {
         _distribute(recipient, amount, amountOutMin, deadline, bonderFee);
     }
 
+    /**
+     * @dev Allows the L1 Bridge to set a TransferRoot
+     * @param rootHash The Merkle root of the TransferRoot
+     * @param totalAmount The total amount being transferred in the TransferRoot
+     */
     function setTransferRoot(bytes32 rootHash, uint256 totalAmount) external onlyL1Bridge {
         _setTransferRoot(rootHash, totalAmount);
     }
