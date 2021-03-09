@@ -51,7 +51,8 @@ abstract contract L2_Bridge is Bridge {
         address indexed recipient,
         uint256 amount,
         bytes32 indexed transferNonce,
-        uint256 bonderFee
+        uint256 bonderFee,
+        uint256 index
     );
 
     modifier onlyL1Bridge {
@@ -140,11 +141,12 @@ abstract contract L2_Bridge is Bridge {
             amountOutMin,
             deadline
         );
+        uint256 transferCount = pendingTransfers.length;
         pendingTransfers.push(transferId);
 
         pendingAmountForChainId[chainId] = pendingAmountForChainId[chainId].add(amount);
 
-        emit TransferSent(transferId, recipient, amount, transferNonce, bonderFee);
+        emit TransferSent(transferId, recipient, amount, transferNonce, bonderFee, transferCount);
     }
 
     /**
