@@ -65,18 +65,15 @@ describe('L1_Bridge', () => {
    */
 
   it('Should correctly deploy an ERC20 and set the defined values', async () => {
-    const expectedL1GovernanceAddress: string = await governance.getAddress()
     const expectedName: string = DEFAULT_H_BRIDGE_TOKEN_NAME
     const expectedSymbol: string = DEFAULT_H_BRIDGE_TOKEN_SYMBOL
     const expectedDecimals: number = DEFAULT_H_BRIDGE_TOKEN_DECIMALS
 
-    const l1GovernanceAddress: string = await l2_hopBridgeToken.l1Governance()
     const name: string = await l2_hopBridgeToken.name()
     const symbol: string = await l2_hopBridgeToken.symbol()
     const decimals: number = await l2_hopBridgeToken.decimals()
     const totalSupply: BigNumber = await l2_hopBridgeToken.totalSupply()
 
-    expect(l1GovernanceAddress).to.eq(expectedL1GovernanceAddress)
     expect(name).to.eq(expectedName)
     expect(symbol).to.eq(expectedSymbol)
     expect(decimals).to.eq(expectedDecimals)

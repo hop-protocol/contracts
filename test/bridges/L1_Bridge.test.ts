@@ -832,7 +832,7 @@ describe('L1_Bridge', () => {
       )
     })
 
-    it.only('Should send two transactions from L2 to L2, bond it, and settle the bonded withdrawals', async () => {
+    it.skip('Should send two transactions from L2 to L2, bond it, and settle the bonded withdrawals', async () => {
       await executeL1BridgeSendToL2(
         l1_canonicalToken,
         l1_bridge,
@@ -873,7 +873,7 @@ describe('L1_Bridge', () => {
         l2Transfer
       )
 
-      const actualTransferAmount: BigNumber = l2Transfer.amount
+      let actualTransferAmount: BigNumber = l2Transfer.amount
       await executeL2BridgeBondWithdrawalAndDistribute(
         l2_bridge,
         l22_hopBridgeToken,
@@ -891,6 +891,7 @@ describe('L1_Bridge', () => {
         l2Transfer
       )
 
+      console.log('c')
       const expectedTransferIndex: BigNumber = BigNumber.from('1')
       await executeL2BridgeBondWithdrawalAndDistribute(
         l2_bridge,
@@ -904,6 +905,7 @@ describe('L1_Bridge', () => {
         expectedTransferIndex
       )
 
+      console.log('d')
       await executeL2BridgeCommitTransfers(
         l2_bridge,
         l2Transfer,
@@ -913,6 +915,7 @@ describe('L1_Bridge', () => {
       await l1_messenger.relayNextMessage()
       await l22_messenger.relayNextMessage()
 
+      console.log('e')
       const numTransfers: number = 2
       await executeBridgeSettleBondedWithdrawals(
         l22_bridge,

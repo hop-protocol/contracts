@@ -323,8 +323,8 @@ export const executeBridgeSettleBondedWithdrawals = async (
   bonder: Signer,
   numTransfers: number = 1
 ) => {
-  let transferNonces: string[]
-  let transferIds: Buffer[]
+  let transferNonces: string[] = []
+  let transferIds: Buffer[] = []
   for (let i = 0; i < numTransfers; i++) {
     transferNonces.push(await getTransferNonceFromEvent(l2_bridge))
     transferIds.push(await transfer.getTransferId(transferNonces[i]))
