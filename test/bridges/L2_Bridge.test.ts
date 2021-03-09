@@ -16,9 +16,9 @@ import {
 import {
   executeCanonicalBridgeSendMessage,
   executeL1BridgeSendToL2,
-  executeL1BridgeBondWithdrawal,
+  executeBridgeBondWithdrawal,
   executeL1BridgeBondTransferRoot,
-  executeL1BridgeSettleBondedWithdrawals,
+  executeBridgeSettleBondedWithdrawals,
   executeL1BridgeChallengeTransferBond,
   executeL1BridgeResolveChallenge,
   executeL2BridgeSend,
@@ -353,7 +353,7 @@ describe('L2_Bridge', () => {
         transfer
       )
 
-      await executeL1BridgeBondWithdrawal(
+      await executeBridgeBondWithdrawal(
         l1_canonicalToken,
         l1_bridge,
         l2_bridge,
@@ -378,7 +378,7 @@ describe('L2_Bridge', () => {
         transfer
       )
 
-      await executeL1BridgeBondWithdrawal(
+      await executeBridgeBondWithdrawal(
         l1_canonicalToken,
         l1_bridge,
         l2_bridge,
@@ -413,7 +413,7 @@ describe('L2_Bridge', () => {
         expectedTransferIndex
       )
 
-      await executeL1BridgeBondWithdrawal(
+      await executeBridgeBondWithdrawal(
         l1_canonicalToken,
         l1_bridge,
         l2_bridge,
@@ -497,9 +497,14 @@ describe('L2_Bridge', () => {
 
       await l2_bridge.setTransferRoot(ARBITRARY_ROOT_HASH, arbitraryAmount)
 
+      const currentTime: number = Math.floor(Date.now() / 1000)
       const transferRoot = await l2_bridge.getTransferRoot(ARBITRARY_ROOT_HASH, arbitraryAmount)
       expect(transferRoot[0]).to.eq(arbitraryAmount)
       expect(transferRoot[1]).to.eq(0)
+      expect(transferRoot[2].toNumber()).to.be.closeTo(
+        currentTime,
+        TIMESTAMP_VARIANCE
+      )
     })
   })
 

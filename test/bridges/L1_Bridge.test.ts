@@ -15,9 +15,10 @@ import {
 import {
   executeBridgeWithdraw,
   executeL1BridgeSendToL2,
-  executeL1BridgeBondWithdrawal,
+  executeBridgeBondWithdrawal,
   executeL1BridgeBondTransferRoot,
-  executeL1BridgeSettleBondedWithdrawals,
+  executeBridgeSettleBondedWithdrawal,
+  executeBridgeSettleBondedWithdrawals,
   executeL1BridgeChallengeTransferBond,
   executeBridgeRescueTransferRoot,
   executeL1BridgeResolveChallenge,
@@ -270,7 +271,7 @@ describe('L1_Bridge', () => {
       transfer
     )
 
-    await executeL1BridgeBondWithdrawal(
+    await executeBridgeBondWithdrawal(
       l1_canonicalToken,
       l1_bridge,
       l2_bridge,
@@ -303,7 +304,7 @@ describe('L1_Bridge', () => {
       transfer
     )
 
-    await executeL1BridgeBondWithdrawal(
+    await executeBridgeBondWithdrawal(
       l1_canonicalToken,
       l1_bridge,
       l2_bridge,
@@ -325,7 +326,84 @@ describe('L1_Bridge', () => {
       DEFAULT_TIME_TO_WAIT
     )
 
-    await executeL1BridgeSettleBondedWithdrawals(
+    await executeBridgeSettleBondedWithdrawals(
+      l1_bridge,
+      l2_bridge,
+      transfer,
+      bonder
+    )
+
+    await l1_messenger.relayNextMessage()
+
+    const transferNonce = await getTransferNonceFromEvent(l2_bridge)
+    const transferId: Buffer = await transfer.getTransferId(transferNonce)
+    const { rootHash } = getRootHashFromTransferId(transferId)
+    const transferRootId: string = await l1_bridge.getTransferRootId(rootHash, transfer.amount)
+    const transferRootCommittedAt: BigNumber = await l1_bridge.transferRootCommittedAt(transferRootId)
+    const transferBondByTransferRootId = await l1_bridge.transferBonds(transferRootId)
+    const currentTime: number = Math.floor(Date.now() / 1000)
+    expect(transferRootCommittedAt.toNumber()).to.closeTo(
+      currentTime,
+      TIMESTAMP_VARIANCE
+    )
+    expect(transferBondByTransferRootId[0]).to.eq(await bonder.getAddress())
+    expect(transferBondByTransferRootId[1].toNumber()).to.be.closeTo(
+      currentTime,
+      TIMESTAMP_VARIANCE
+    )
+    expect(transferBondByTransferRootId[2]).to.eq(transfer.amount)
+    expect(transferBondByTransferRootId[3]).to.eq(0)
+    expect(transferBondByTransferRootId[4]).to.eq(ZERO_ADDRESS)
+    expect(transferBondByTransferRootId[5]).to.eq(false)
+  })
+
+  it('Should send a transaction from L2 to L2, perform a bonded withdrawal, and confirm an already bonded transfer root on L1', async () => {
+    await executeL1BridgeSendToL2(
+      l1_canonicalToken,
+      l1_bridge,
+      l2_hopBridgeToken,
+      l2_canonicalToken,
+      l2_messenger,
+      l2_uniswapRouter,
+      transfer.sender,
+      transfer.recipient,
+      relayer,
+      transfer.amount,
+      transfer.amountOutMin,
+      transfer.deadline,
+      defaultRelayerFee,
+      l2ChainId
+    )
+
+    await executeL2BridgeSend(
+      l2_hopBridgeToken,
+      l2_bridge,
+      transfer
+    )
+
+    await executeBridgeBondWithdrawal(
+      l1_canonicalToken,
+      l1_bridge,
+      l2_bridge,
+      transfer,
+      bonder
+    )
+
+    await executeL2BridgeCommitTransfers(
+      l2_bridge,
+      transfer,
+      bonder
+    )
+
+    await executeL1BridgeBondTransferRoot(
+      l1_bridge,
+      l2_bridge,
+      transfer,
+      bonder,
+      DEFAULT_TIME_TO_WAIT
+    )
+
+    await executeBridgeSettleBondedWithdrawals(
       l1_bridge,
       l2_bridge,
       transfer,
@@ -468,7 +546,26 @@ describe('L1_Bridge', () => {
     })
 
     it('Should send tokens across the bridge via sendToL2 and swap for the canonical token', async () => {
-      // TODO: Add this test
+      await executeL1BridgeSendToL2(
+        l1_canonicalToken,
+        l1_bridge,
+        l2_hopBridgeToken,
+        l2_canonicalToken,
+        l2_messenger,
+        l2_uniswapRouter,
+        transfer.sender,
+        transfer.recipient,
+        relayer,
+        transfer.amount,
+        transfer.amountOutMin,
+        transfer.deadline,
+        defaultRelayerFee,
+        l2ChainId
+      )
+
+      await l2_messenger.relayNextMessage()
+
+      expect(await l1_bridge.chainBalance(l2ChainId)).to.eq(originalBondedAmount.add(transfer.amount))
     })
   })
 
@@ -497,7 +594,7 @@ describe('L1_Bridge', () => {
         transfer
       )
 
-      await executeL1BridgeBondWithdrawal(
+      await executeBridgeBondWithdrawal(
         l1_canonicalToken,
         l1_bridge,
         l2_bridge,
@@ -583,6 +680,250 @@ describe('L1_Bridge', () => {
     })
   })
 
+  describe('settleBondedWithdrawal', async () => {
+    it('Should send a transaction from L1 to L2, bond it, and settle the bonded withdrawal', async () => {
+      await executeL1BridgeSendToL2(
+        l1_canonicalToken,
+        l1_bridge,
+        l2_hopBridgeToken,
+        l2_canonicalToken,
+        l2_messenger,
+        l2_uniswapRouter,
+        transfer.sender,
+        transfer.recipient,
+        relayer,
+        transfer.amount,
+        transfer.amountOutMin,
+        transfer.deadline,
+        defaultRelayerFee,
+        l2ChainId
+      )
+
+      await executeL2BridgeSend(
+        l2_hopBridgeToken,
+        l2_bridge,
+        transfer
+      )
+
+      await executeBridgeBondWithdrawal(
+        l1_canonicalToken,
+        l1_bridge,
+        l2_bridge,
+        transfer,
+        bonder
+      )
+
+      await executeL2BridgeCommitTransfers(
+        l2_bridge,
+        transfer,
+        bonder
+      )
+
+      await l1_messenger.relayNextMessage()
+
+      await executeBridgeSettleBondedWithdrawal(
+        l1_bridge,
+        l2_bridge,
+        transfer,
+        bonder
+      )
+    })
+
+    it('Should send a transaction from L2 to L2, bond it, and settle the bonded withdrawal', async () => {
+      await executeL1BridgeSendToL2(
+        l1_canonicalToken,
+        l1_bridge,
+        l2_hopBridgeToken,
+        l2_canonicalToken,
+        l2_messenger,
+        l2_uniswapRouter,
+        transfer.sender,
+        transfer.recipient,
+        relayer,
+        transfer.amount,
+        transfer.amountOutMin,
+        transfer.deadline,
+        defaultRelayerFee,
+        l2ChainId
+      )
+
+      await executeL2BridgeSend(
+        l2_hopBridgeToken,
+        l2_bridge,
+        l2Transfer
+      )
+
+      const actualTransferAmount: BigNumber = l2Transfer.amount
+      await executeL2BridgeBondWithdrawalAndDistribute(
+        l2_bridge,
+        l22_hopBridgeToken,
+        l22_bridge,
+        l22_canonicalToken,
+        l22_uniswapRouter,
+        l2Transfer,
+        bonder,
+        actualTransferAmount
+      )
+
+      await executeL2BridgeCommitTransfers(
+        l2_bridge,
+        l2Transfer,
+        bonder
+      )
+
+      await l1_messenger.relayNextMessage()
+      await l22_messenger.relayNextMessage()
+
+      await executeBridgeSettleBondedWithdrawal(
+        l22_bridge,
+        l2_bridge,
+        l2Transfer,
+        bonder
+      )
+    })
+  })
+
+  describe('settleBondedWithdrawals', async () => {
+    it('Should send two transactions from L1 to L2, bond it, and settle the bonded withdrawals', async () => {
+      await executeL1BridgeSendToL2(
+        l1_canonicalToken,
+        l1_bridge,
+        l2_hopBridgeToken,
+        l2_canonicalToken,
+        l2_messenger,
+        l2_uniswapRouter,
+        transfer.sender,
+        transfer.recipient,
+        relayer,
+        transfer.amount,
+        transfer.amountOutMin,
+        transfer.deadline,
+        defaultRelayerFee,
+        l2ChainId
+      )
+
+      await executeL2BridgeSend(
+        l2_hopBridgeToken,
+        l2_bridge,
+        transfer
+      )
+
+      await executeBridgeBondWithdrawal(
+        l1_canonicalToken,
+        l1_bridge,
+        l2_bridge,
+        transfer,
+        bonder
+      )
+
+      await executeL2BridgeCommitTransfers(
+        l2_bridge,
+        transfer,
+        bonder
+      )
+
+      await l1_messenger.relayNextMessage()
+
+      await executeBridgeSettleBondedWithdrawals(
+        l1_bridge,
+        l2_bridge,
+        transfer,
+        bonder
+      )
+    })
+
+    it.only('Should send two transactions from L2 to L2, bond it, and settle the bonded withdrawals', async () => {
+      await executeL1BridgeSendToL2(
+        l1_canonicalToken,
+        l1_bridge,
+        l2_hopBridgeToken,
+        l2_canonicalToken,
+        l2_messenger,
+        l2_uniswapRouter,
+        transfer.sender,
+        transfer.recipient,
+        relayer,
+        transfer.amount,
+        transfer.amountOutMin,
+        transfer.deadline,
+        defaultRelayerFee,
+        l2ChainId
+      )
+
+      await executeL1BridgeSendToL2(
+        l1_canonicalToken,
+        l1_bridge,
+        l2_hopBridgeToken,
+        l2_canonicalToken,
+        l2_messenger,
+        l2_uniswapRouter,
+        transfer.sender,
+        transfer.recipient,
+        relayer,
+        transfer.amount,
+        transfer.amountOutMin,
+        transfer.deadline,
+        defaultRelayerFee,
+        l2ChainId
+      )
+
+      await executeL2BridgeSend(
+        l2_hopBridgeToken,
+        l2_bridge,
+        l2Transfer
+      )
+
+      const actualTransferAmount: BigNumber = l2Transfer.amount
+      await executeL2BridgeBondWithdrawalAndDistribute(
+        l2_bridge,
+        l22_hopBridgeToken,
+        l22_bridge,
+        l22_canonicalToken,
+        l22_uniswapRouter,
+        l2Transfer,
+        bonder,
+        actualTransferAmount
+      )
+
+      await executeL2BridgeSend(
+        l2_hopBridgeToken,
+        l2_bridge,
+        l2Transfer
+      )
+
+      const expectedTransferIndex: BigNumber = BigNumber.from('1')
+      await executeL2BridgeBondWithdrawalAndDistribute(
+        l2_bridge,
+        l22_hopBridgeToken,
+        l22_bridge,
+        l22_canonicalToken,
+        l22_uniswapRouter,
+        l2Transfer,
+        bonder,
+        actualTransferAmount,
+        expectedTransferIndex
+      )
+
+      await executeL2BridgeCommitTransfers(
+        l2_bridge,
+        l2Transfer,
+        bonder
+      )
+
+      await l1_messenger.relayNextMessage()
+      await l22_messenger.relayNextMessage()
+
+      const numTransfers: number = 2
+      await executeBridgeSettleBondedWithdrawals(
+        l22_bridge,
+        l2_bridge,
+        l2Transfer,
+        bonder,
+        numTransfers
+      )
+    })
+  })
+
   describe('confirmTransferRoot', async () => {
     it('Should send a transaction from L2 to L1 and commit the transfers on L1', async () => {
       await executeL1BridgeSendToL2(
@@ -608,7 +949,7 @@ describe('L1_Bridge', () => {
         transfer
       )
 
-      await executeL1BridgeBondWithdrawal(
+      await executeBridgeBondWithdrawal(
         l1_canonicalToken,
         l1_bridge,
         l2_bridge,
@@ -640,6 +981,10 @@ describe('L1_Bridge', () => {
       expect(await l1_bridge.chainBalance(l2ChainId)).to.eq(originalBondedAmount)
       expect(transferRoot[0]).to.eq(transfer.amount)
       expect(transferRoot[1]).to.eq(BigNumber.from('0'))
+      expect(transferRoot[2].toNumber()).to.be.closeTo(
+        currentTime,
+        TIMESTAMP_VARIANCE
+      )
     })
 
     it('Should send a transaction from L2 to L2 and commit the transfers on L1', async () => {
@@ -737,7 +1082,7 @@ describe('L1_Bridge', () => {
         transfer
       )
 
-      await executeL1BridgeBondWithdrawal(
+      await executeBridgeBondWithdrawal(
         l1_canonicalToken,
         l1_bridge,
         l2_bridge,
@@ -796,7 +1141,7 @@ describe('L1_Bridge', () => {
         transfer
       )
 
-      await executeL1BridgeBondWithdrawal(
+      await executeBridgeBondWithdrawal(
         l1_canonicalToken,
         l1_bridge,
         l2_bridge,
@@ -871,7 +1216,7 @@ describe('L1_Bridge', () => {
         transfer
       )
 
-      await executeL1BridgeBondWithdrawal(
+      await executeBridgeBondWithdrawal(
         l1_canonicalToken,
         l1_bridge,
         l2_bridge,
@@ -948,7 +1293,7 @@ describe('L1_Bridge', () => {
         transfer
       )
 
-      await executeL1BridgeBondWithdrawal(
+      await executeBridgeBondWithdrawal(
         l1_canonicalToken,
         l1_bridge,
         l2_bridge,
@@ -1001,23 +1346,6 @@ describe('L1_Bridge', () => {
 
   describe('rescueTransferRoot', async () => {
     it('Should rescue a transfer root from L2 -> L1', async () => {
-      await executeL1BridgeSendToL2(
-        l1_canonicalToken,
-        l1_bridge,
-        l2_hopBridgeToken,
-        l2_canonicalToken,
-        l2_messenger,
-        l2_uniswapRouter,
-        transfer.sender,
-        transfer.recipient,
-        relayer,
-        transfer.amount,
-        transfer.amountOutMin,
-        transfer.deadline,
-        defaultRelayerFee,
-        l2ChainId
-      )
-
       await executeL1BridgeBondTransferRoot(
         l1_bridge,
         l2_bridge,
@@ -1042,23 +1370,6 @@ describe('L1_Bridge', () => {
     })
 
     it('Should rescue a transfer root from L2 -> L2', async () => {
-      await executeL1BridgeSendToL2(
-        l1_canonicalToken,
-        l1_bridge,
-        l2_hopBridgeToken,
-        l2_canonicalToken,
-        l2_messenger,
-        l2_uniswapRouter,
-        transfer.sender,
-        transfer.recipient,
-        relayer,
-        transfer.amount,
-        transfer.amountOutMin,
-        transfer.deadline,
-        defaultRelayerFee,
-        l2ChainId
-      )
-
       // Bond an invalid withdrawal on other L2
       await executeL1BridgeBondTransferRoot(
         l1_bridge,
@@ -1321,7 +1632,7 @@ describe('L1_Bridge', () => {
         transfer
       )
 
-      await executeL1BridgeBondWithdrawal(
+      await executeBridgeBondWithdrawal(
         l1_canonicalToken,
         l1_bridge,
         l2_bridge,
@@ -1366,7 +1677,7 @@ describe('L1_Bridge', () => {
         transfer
       )
 
-      await executeL1BridgeBondWithdrawal(
+      await executeBridgeBondWithdrawal(
         l1_canonicalToken,
         l1_bridge,
         l2_bridge,
@@ -1420,7 +1731,7 @@ describe('L1_Bridge', () => {
         transfer
       )
 
-      await executeL1BridgeBondWithdrawal(
+      await executeBridgeBondWithdrawal(
         l1_canonicalToken,
         l1_bridge,
         l2_bridge,
@@ -1481,7 +1792,7 @@ describe('L1_Bridge', () => {
         transfer
       )
 
-      await executeL1BridgeBondWithdrawal(
+      await executeBridgeBondWithdrawal(
         l1_canonicalToken,
         l1_bridge,
         l2_bridge,
@@ -1526,7 +1837,7 @@ describe('L1_Bridge', () => {
         l2Transfer 
       )
 
-      await executeL1BridgeBondWithdrawal(
+      await executeBridgeBondWithdrawal(
         l1_canonicalToken,
         l1_bridge,
         l2_bridge,
@@ -1578,7 +1889,7 @@ describe('L1_Bridge', () => {
         transfer
       )
 
-      await executeL1BridgeBondWithdrawal(
+      await executeBridgeBondWithdrawal(
         l1_canonicalToken,
         l1_bridge,
         l2_bridge,
@@ -1639,7 +1950,7 @@ describe('L1_Bridge', () => {
         transfer
       )
 
-      await executeL1BridgeBondWithdrawal(
+      await executeBridgeBondWithdrawal(
         l1_canonicalToken,
         l1_bridge,
         l2_bridge,
@@ -1698,7 +2009,7 @@ describe('L1_Bridge', () => {
         l2Transfer 
       )
 
-      await executeL1BridgeBondWithdrawal(
+      await executeBridgeBondWithdrawal(
         l1_canonicalToken,
         l1_bridge,
         l2_bridge,
@@ -1748,7 +2059,7 @@ describe('L1_Bridge', () => {
         transfer
       )
 
-      await executeL1BridgeBondWithdrawal(
+      await executeBridgeBondWithdrawal(
         l1_canonicalToken,
         l1_bridge,
         l2_bridge,
@@ -1816,7 +2127,7 @@ describe('L1_Bridge', () => {
         transfer
       )
 
-      await executeL1BridgeBondWithdrawal(
+      await executeBridgeBondWithdrawal(
         l1_canonicalToken,
         l1_bridge,
         l2_bridge,
@@ -1881,7 +2192,7 @@ describe('L1_Bridge', () => {
         transfer
       )
 
-      await executeL1BridgeBondWithdrawal(
+      await executeBridgeBondWithdrawal(
         l1_canonicalToken,
         l1_bridge,
         l2_bridge,
@@ -1952,7 +2263,7 @@ describe('L1_Bridge', () => {
         transfer
       )
 
-      await executeL1BridgeBondWithdrawal(
+      await executeBridgeBondWithdrawal(
         l1_canonicalToken,
         l1_bridge,
         l2_bridge,
@@ -2009,7 +2320,7 @@ describe('L1_Bridge', () => {
         transfer
       )
 
-      await executeL1BridgeBondWithdrawal(
+      await executeBridgeBondWithdrawal(
         l1_canonicalToken,
         l1_bridge,
         l2_bridge,
@@ -2073,7 +2384,7 @@ describe('L1_Bridge', () => {
         transfer
       )
 
-      await executeL1BridgeBondWithdrawal(
+      await executeBridgeBondWithdrawal(
         l1_canonicalToken,
         l1_bridge,
         l2_bridge,
@@ -2130,7 +2441,7 @@ describe('L1_Bridge', () => {
         transfer
       )
 
-      await executeL1BridgeBondWithdrawal(
+      await executeBridgeBondWithdrawal(
         l1_canonicalToken,
         l1_bridge,
         l2_bridge,
@@ -2193,7 +2504,7 @@ describe('L1_Bridge', () => {
         transfer
       )
 
-      await executeL1BridgeBondWithdrawal(
+      await executeBridgeBondWithdrawal(
         l1_canonicalToken,
         l1_bridge,
         l2_bridge,
@@ -2257,7 +2568,7 @@ describe('L1_Bridge', () => {
         transfer
       )
 
-      await executeL1BridgeBondWithdrawal(
+      await executeBridgeBondWithdrawal(
         l1_canonicalToken,
         l1_bridge,
         l2_bridge,
@@ -2334,7 +2645,7 @@ describe('L1_Bridge', () => {
         transfer
       )
 
-      await executeL1BridgeBondWithdrawal(
+      await executeBridgeBondWithdrawal(
         l1_canonicalToken,
         l1_bridge,
         l2_bridge,
@@ -2402,7 +2713,7 @@ describe('L1_Bridge', () => {
         transfer
       )
 
-      await executeL1BridgeBondWithdrawal(
+      await executeBridgeBondWithdrawal(
         l1_canonicalToken,
         l1_bridge,
         l2_bridge,
@@ -2494,7 +2805,7 @@ describe('L1_Bridge', () => {
         transfer
       )
 
-      await executeL1BridgeBondWithdrawal(
+      await executeBridgeBondWithdrawal(
         l1_canonicalToken,
         l1_bridge,
         l2_bridge,
@@ -2548,25 +2859,37 @@ describe('L1_Bridge', () => {
   })
 
   describe('rescueTransferRoot', async () => {
-    it('Should not rescue a transfer root that is not found', async () => {
-      const expectedErrorMsg: string = 'BRG: TransferRoot not found'
-      await executeL1BridgeSendToL2(
-        l1_canonicalToken,
+    it('Should not rescue a transfer root from L2 -> L1 that is being rescued by someone other than governance', async () => {
+      const expectedErrorMsg: string = 'L1_BRG: Caller is not the owner'
+      await executeL1BridgeBondTransferRoot(
         l1_bridge,
-        l2_hopBridgeToken,
-        l2_canonicalToken,
-        l2_messenger,
-        l2_uniswapRouter,
-        transfer.sender,
-        transfer.recipient,
-        relayer,
-        transfer.amount,
-        transfer.amountOutMin,
-        transfer.deadline,
-        defaultRelayerFee,
-        l2ChainId
+        l2_bridge,
+        transfer,
+        bonder,
+        DEFAULT_TIME_TO_WAIT,
+        ARBITRARY_TRANSFER_NONCE
       )
 
+      const timeToWait: number = 9 * SECONDS_IN_A_WEEK
+      await increaseTime(timeToWait)
+
+      await l1_bridge.setGovernance(ONE_ADDRESS)
+
+      await expect(
+        executeBridgeRescueTransferRoot(
+          l1_canonicalToken,
+          l2_bridge,
+          l1_bridge,
+          transfer.amount,
+          governance,
+          transfer,
+          ARBITRARY_TRANSFER_NONCE
+        )
+      ).to.be.revertedWith(expectedErrorMsg)
+    })
+
+    it('Should not rescue a transfer root that is not found', async () => {
+      const expectedErrorMsg: string = 'BRG: TransferRoot not found'
       await executeL1BridgeBondTransferRoot(
         l1_bridge,
         l2_bridge,
@@ -2628,23 +2951,6 @@ describe('L1_Bridge', () => {
 
     it('Should not rescue a transfer root that has not exceeded the rescue delay', async () => {
       const expectedErrorMsg: string = 'BRG: TransferRoot cannot be rescued before the Rescue Delay'
-      await executeL1BridgeSendToL2(
-        l1_canonicalToken,
-        l1_bridge,
-        l2_hopBridgeToken,
-        l2_canonicalToken,
-        l2_messenger,
-        l2_uniswapRouter,
-        transfer.sender,
-        transfer.recipient,
-        relayer,
-        transfer.amount,
-        transfer.amountOutMin,
-        transfer.deadline,
-        defaultRelayerFee,
-        l2ChainId
-      )
-
       await executeL1BridgeBondTransferRoot(
         l1_bridge,
         l2_bridge,
@@ -2791,7 +3097,7 @@ describe('L1_Bridge', () => {
         customTransfer
       )
 
-      await executeL1BridgeBondWithdrawal(
+      await executeBridgeBondWithdrawal(
         l1_canonicalToken,
         l1_bridge,
         l2_bridge,

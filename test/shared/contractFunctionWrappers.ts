@@ -101,7 +101,7 @@ export const executeL1BridgeSendToL2 = async (
       await expectBalanceOf(l2_hopBridgeToken, relayer, relayerL2HopBridgeTokenBalanceBefore.add(relayerFee))
     }
   } else {
-    // The recipient will either have the canonical token or the bridge token
+    // The recipient will either have the bridge token (if successful swap) or the canonical token
     try {
       await expectBalanceOf(l2_canonicalToken, recipient, recipientL2CanonicalTokenBalanceBefore.add(expectedAmountAfterSlippage))
       if (recipient === relayer) {
@@ -183,20 +183,20 @@ export const executeBridgeWithdraw = async (
   expect(isTransferIdSpent).to.eq(true)
 
 }
-export const executeL1BridgeBondWithdrawal = async (
-  l1_canonicalToken: Contract,
-  l1_bridge: Contract,
-  l2_bridge: Contract,
+export const executeBridgeBondWithdrawal = async (
+  destinationReceiptToken: Contract,
+  destinationBridge: Contract,
+  originBridge: Contract,
   transfer: Transfer,
   bonder: Signer
 ) => {
   // Get state before transaction
-  const transferNonce = await getTransferNonceFromEvent(l2_bridge)
-  const senderBalanceBefore: BigNumber = await l1_canonicalToken.balanceOf(await transfer.sender.getAddress())
-  const bonderBalanceBefore: BigNumber = await l1_canonicalToken.balanceOf(await bonder.getAddress())
+  const transferNonce = await getTransferNonceFromEvent(originBridge)
+  const senderBalanceBefore: BigNumber = await destinationReceiptToken.balanceOf(await transfer.sender.getAddress())
+  const bonderBalanceBefore: BigNumber = await destinationReceiptToken.balanceOf(await bonder.getAddress())
 
   // Perform transaction
-  await l1_bridge
+  await destinationBridge 
     .connect(bonder)
     .bondWithdrawal(
       await transfer.recipient.getAddress(),
@@ -206,30 +206,29 @@ export const executeL1BridgeBondWithdrawal = async (
     )
 
   // Validate state after transaction
-  let senderL1CanonicalTokenBalance: BigNumber
+  let senderDestinationReceiptTokenBalance: BigNumber
   let recipientL1CanonicalTokenBalance: BigNumber
   if(transfer.sender === transfer.recipient) {
-    senderL1CanonicalTokenBalance = senderBalanceBefore.add(transfer.amount).sub(transfer.bonderFee)
-    recipientL1CanonicalTokenBalance = senderL1CanonicalTokenBalance
+    senderDestinationReceiptTokenBalance = senderBalanceBefore.add(transfer.amount).sub(transfer.bonderFee)
+    recipientL1CanonicalTokenBalance = senderDestinationReceiptTokenBalance 
   } else {
-    senderL1CanonicalTokenBalance = senderBalanceBefore
+    senderDestinationReceiptTokenBalance = senderBalanceBefore
     recipientL1CanonicalTokenBalance = transfer.amount.sub(transfer.bonderFee)
   }
   await expectBalanceOf(
-    l1_canonicalToken,
+    destinationReceiptToken,
     transfer.sender,
-    senderL1CanonicalTokenBalance
+    senderDestinationReceiptTokenBalance 
   )
 
-  // Validate state after transaction
   await expectBalanceOf(
-    l1_canonicalToken,
+    destinationReceiptToken,
     transfer.recipient,
     recipientL1CanonicalTokenBalance
   )
 
   await expectBalanceOf(
-    l1_canonicalToken,
+    destinationReceiptToken,
     bonder,
     bonderBalanceBefore.add(transfer.bonderFee)
   )
@@ -270,18 +269,69 @@ export const executeL1BridgeBondTransferRoot = async (
   if (transfer.chainId === CHAIN_IDS.ETHEREUM.MAINNET) {
     expect(transferRoot[0]).to.eq(transfer.amount)
     expect(transferRoot[1]).to.eq(BigNumber.from('0'))
+    expect(transferRoot[2].toNumber()).to.be.closeTo(
+      currentTime,
+      TIMESTAMP_VARIANCE
+    )
   }
 }
 
-export const executeL1BridgeSettleBondedWithdrawals = async (
-  l1_bridge: Contract,
-  l2_bridge: Contract,
+export const executeBridgeSettleBondedWithdrawal = async (
+  destinationBridge: Contract,
+  originBridge: Contract,
   transfer: Transfer,
   bonder: Signer
 ) => {
-  const transferNonce = await getTransferNonceFromEvent(l2_bridge)
+  const transferNonce = await getTransferNonceFromEvent(originBridge)
   const transferId: Buffer = await transfer.getTransferId(transferNonce)
   const { rootHash } = getRootHashFromTransferId(transferId)
+  const tree: MerkleTree = new MerkleTree([transferId])
+  const proof: Buffer[] = tree.getProof(transferId)
+
+  // Get state before transaction
+  const bondedAmountBefore: BigNumber = await destinationBridge.getCredit(await bonder.getAddress())
+
+  // Perform transaction
+  await destinationBridge
+    .connect(bonder)
+    .settleBondedWithdrawal(
+      await bonder.getAddress(),
+      transferId,
+      rootHash,
+      transfer.amount,
+      proof
+    )
+
+  // Validate state after transaction
+  const currentTime: number = Math.floor(Date.now() / 1000)
+  const transferRoot: number = await destinationBridge.getTransferRoot(rootHash, transfer.amount)
+  const credit = await destinationBridge.getCredit(await bonder.getAddress())
+  const expectedCredit: BigNumber = bondedAmountBefore.add(transfer.amount)
+  expect(transferRoot[0]).to.eq(transfer.amount)
+  expect(transferRoot[1]).to.eq(transfer.amount)
+  expect(transferRoot[2].toNumber()).to.be.closeTo(
+    currentTime,
+    TIMESTAMP_VARIANCE
+  )
+  expect(credit).to.eq(expectedCredit)
+}
+
+export const executeBridgeSettleBondedWithdrawals = async (
+  l1_bridge: Contract,
+  l2_bridge: Contract,
+  transfer: Transfer,
+  bonder: Signer,
+  numTransfers: number = 1
+) => {
+  let transferNonces: string[]
+  let transferIds: Buffer[]
+  for (let i = 0; i < numTransfers; i++) {
+    transferNonces.push(await getTransferNonceFromEvent(l2_bridge))
+    transferIds.push(await transfer.getTransferId(transferNonces[i]))
+  }
+
+  // TODO: Needs to be more dynamic
+  const { rootHash } = getRootHashFromTransferId(transferIds[0])
 
   // Get state before transaction
   const bondedAmountBefore: BigNumber = await l1_bridge.getCredit(await bonder.getAddress())
@@ -289,14 +339,23 @@ export const executeL1BridgeSettleBondedWithdrawals = async (
   // Perform transaction
   await l1_bridge
     .connect(bonder)
-    .settleBondedWithdrawals(await bonder.getAddress(), [ transferId ], transfer.amount)
+    .settleBondedWithdrawals(
+      await bonder.getAddress(),
+      transferIds,
+      transfer.amount
+    )
 
   // Validate state after transaction
+  const currentTime: number = Math.floor(Date.now() / 1000)
   const transferRoot: number = await l1_bridge.getTransferRoot(rootHash, transfer.amount)
   const credit = await l1_bridge.getCredit(await bonder.getAddress())
   const expectedCredit: BigNumber = bondedAmountBefore.add(transfer.amount)
   expect(transferRoot[0]).to.eq(transfer.amount)
   expect(transferRoot[1]).to.eq(transfer.amount)
+  expect(transferRoot[2].toNumber()).to.be.closeTo(
+    currentTime,
+    TIMESTAMP_VARIANCE
+  )
   expect(credit).to.eq(expectedCredit)
 }
 
@@ -441,6 +500,7 @@ export const executeBridgeRescueTransferRoot = async (
   const transferRootAmountWithdrawnBefore: BigNumber = (await receivingBridge.getTransferRoot(rootHash, transfer.amount))[1]
 
   // Perform transaction
+  // TODO: Technically we should explicitly send from Governance. Need to rework some other setup to do so properly
   await receivingBridge.rescueTransferRoot(rootHash, amount, await governance.getAddress())
 
   // Validate state after transaction
