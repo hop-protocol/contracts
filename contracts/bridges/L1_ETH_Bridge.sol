@@ -3,6 +3,10 @@ pragma experimental ABIEncoderV2;
 
 import "./L1_Bridge.sol";
 
+/**
+ * @dev A L1_Bridge that uses an ETH as the canonical token
+ */
+
 contract L1_ETH_Bridge is L1_Bridge {
     constructor (address[] memory bonders) public L1_Bridge(bonders) {}
 

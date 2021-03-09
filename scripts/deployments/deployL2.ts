@@ -89,7 +89,6 @@ export async function deployL2 (config: Config) {
    */
 
   l2_hopBridgeToken = await L2_HopBridgeToken.deploy(
-    await owner.getAddress(),
     l2_hBridgeTokenName,
     l2_hBridgeTokenSymbol,
     l2_hBridgeTokenDecimals

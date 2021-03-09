@@ -6,6 +6,10 @@ pragma experimental ABIEncoderV2;
 import "../interfaces/xDai/messengers/iArbitraryMessageBridge.sol";
 import "./L2_Bridge.sol";
 
+/**
+ * @dev An L2_Bridge for xDai - https://www.xdaichain.com/ (also see https://docs.tokenbridge.net/)
+ */
+
 contract L2_XDaiBridge is L2_Bridge {
     iArbitraryMessageBridge public messenger;
     /// @notice The xDai AMB uses bytes32 for chainId instead of uint256

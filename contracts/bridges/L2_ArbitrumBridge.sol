@@ -6,6 +6,10 @@ pragma experimental ABIEncoderV2;
 import "../interfaces/arbitrum/messengers/IArbSys.sol";
 import "./L2_Bridge.sol";
 
+/**
+ * @dev An L2_Bridge for Arbitrum - https://developer.offchainlabs.com/
+ */
+
 contract L2_ArbitrumBridge is L2_Bridge {
     IArbSys public messenger;
 

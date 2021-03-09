@@ -5,6 +5,10 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import "./L1_Bridge.sol";
 
+/**
+ * @dev A L1_Bridge that uses an ERC20 as the canonical token
+ */
+
 contract L1_ERC20_Bridge is L1_Bridge {
     using SafeERC20 for IERC20;
 

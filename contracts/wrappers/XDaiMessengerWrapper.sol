@@ -6,6 +6,11 @@ pragma experimental ABIEncoderV2;
 import "../interfaces/xDai/messengers/iArbitraryMessageBridge.sol";
 import "./MessengerWrapper.sol";
 
+/**
+ * @dev A MessengerWrapper for xDai - https://www.xdaichain.com/ (also see https://docs.tokenbridge.net/)
+ * @notice Deployed on layer-1
+ */
+
 contract XDaiMessengerWrapper is MessengerWrapper {
 
     iArbitraryMessageBridge public l1MessengerAddress;
@@ -28,6 +33,10 @@ contract XDaiMessengerWrapper is MessengerWrapper {
         l2ChainId = bytes32(_l2ChainId);
     }
 
+    /**
+     * @dev Sends a message to the l2BridgeAddress from layer-1
+     * @param _calldata The data that l2BridgeAddress will be called with
+     */
     function sendCrossDomainMessage(bytes memory _calldata) public override onlyL1Bridge {
         l1MessengerAddress.requireToPassMessage(
             l2BridgeAddress,

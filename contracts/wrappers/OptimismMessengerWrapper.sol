@@ -6,6 +6,11 @@ pragma experimental ABIEncoderV2;
 import "../interfaces/optimism/messengers/iOVM_L1CrossDomainMessenger.sol";
 import "./MessengerWrapper.sol";
 
+/**
+ * @dev A MessengerWrapper for Optimism - https://community.optimism.io/docs/
+ * @notice Deployed on layer-1
+ */
+
 contract OptimismMessengerWrapper is MessengerWrapper {
 
     iOVM_L1CrossDomainMessenger public l1MessengerAddress;
@@ -24,6 +29,10 @@ contract OptimismMessengerWrapper is MessengerWrapper {
         l1MessengerAddress = _l1MessengerAddress;
     }
 
+    /** 
+     * @dev Sends a message to the l2BridgeAddress from layer-1
+     * @param _calldata The data that l2BridgeAddress will be called with
+     */
     function sendCrossDomainMessage(bytes memory _calldata) public override onlyL1Bridge {
         l1MessengerAddress.sendMessage(
             l2BridgeAddress,
