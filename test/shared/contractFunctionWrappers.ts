@@ -418,10 +418,10 @@ export const executeL1BridgeResolveChallenge = async (
   }
 }
 
-export const executeL1BridgeRescueTransferRoot = async (
-  l1_canonicalToken: Contract,
-  l1_bridge: Contract,
-  l2_bridge: Contract,
+export const executeBridgeRescueTransferRoot = async (
+  destinationPayoutToken: Contract,
+  originBridge: Contract,
+  receivingBridge: Contract,
   amount: BigNumber,
   governance: Signer,
   transfer: Transfer,
@@ -431,23 +431,23 @@ export const executeL1BridgeRescueTransferRoot = async (
   if (customTransferNonce) {
     transferNonce = customTransferNonce
   } else {
-    transferNonce = await getTransferNonceFromEvent(l2_bridge)
+    transferNonce = await getTransferNonceFromEvent(originBridge)
   }
   const transferId: Buffer = await transfer.getTransferId(transferNonce)
   const { rootHash } = getRootHashFromTransferId(transferId)
 
   // Get state before transaction
-  const governanceAmountBefore: BigNumber = await l1_canonicalToken.balanceOf(await governance.getAddress())
-  const transferRootAmountWithdrawnBefore: BigNumber = (await l1_bridge.getTransferRoot(rootHash, transfer.amount))[1]
+  const governanceAmountBefore: BigNumber = await destinationPayoutToken.balanceOf(await governance.getAddress())
+  const transferRootAmountWithdrawnBefore: BigNumber = (await receivingBridge.getTransferRoot(rootHash, transfer.amount))[1]
 
   // Perform transaction
-  await l1_bridge.rescueTransferRoot(rootHash, amount, await governance.getAddress())
+  await receivingBridge.rescueTransferRoot(rootHash, amount, await governance.getAddress())
 
   // Validate state after transaction
-  const transferRootAmountWithdrawnAfter: BigNumber = (await l1_bridge.getTransferRoot(rootHash, transfer.amount))[1]
+  const transferRootAmountWithdrawnAfter: BigNumber = (await receivingBridge.getTransferRoot(rootHash, transfer.amount))[1]
   expect(transferRootAmountWithdrawnAfter).to.eq(transferRootAmountWithdrawnBefore.add(transfer.amount))
 
-  await expectBalanceOf(l1_canonicalToken, governance, governanceAmountBefore.add(transfer.amount))
+  await expectBalanceOf(destinationPayoutToken, governance, governanceAmountBefore.add(transfer.amount))
 }
 
 /**

@@ -310,10 +310,10 @@ abstract contract Bridge is Accounting {
         bytes32 transferRootId = getTransferRootId(rootHash, originalAmount);
         TransferRoot memory transferRoot = getTransferRoot(rootHash, originalAmount);
 
-        require(transferRoot.createdAt != 0, "L1_BRG: TransferRoot not found");
+        require(transferRoot.createdAt != 0, "BRG: TransferRoot not found");
         assert(transferRoot.total == originalAmount);
         uint256 rescueDelayEnd = transferRoot.createdAt.add(RESCUE_DELAY);
-        require(block.timestamp >= rescueDelayEnd, "L1_BRG: TransferRoot cannot be rescued before the Rescue Delay");
+        require(block.timestamp >= rescueDelayEnd, "BRG: TransferRoot cannot be rescued before the Rescue Delay");
 
         uint256 remainingAmount = transferRoot.total.sub(transferRoot.amountWithdrawn);
         _addToAmountWithdrawn(transferRootId, remainingAmount);
