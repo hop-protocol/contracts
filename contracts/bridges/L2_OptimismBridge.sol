@@ -6,6 +6,10 @@ pragma experimental ABIEncoderV2;
 import "../interfaces/optimism/messengers/iOVM_L2CrossDomainMessenger.sol";
 import "./L2_Bridge.sol";
 
+/**
+ * @dev An L2_Bridge for Optimism - https://community.optimism.io/docs/
+ */
+
 contract L2_OptimismBridge is L2_Bridge {
     iOVM_L2CrossDomainMessenger public messenger;
     uint32 public defaultGasLimit;

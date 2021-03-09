@@ -6,6 +6,11 @@ pragma experimental ABIEncoderV2;
 import "../interfaces/arbitrum/messengers/IGlobalInbox.sol";
 import "./MessengerWrapper.sol";
 
+/**
+ * @dev A MessengerWrapper for Arbitrum - https://developer.offchainlabs.com/
+ * @notice Deployed on layer-1
+ */
+
 contract ArbitrumMessengerWrapper is MessengerWrapper {
 
     IGlobalInbox public l1MessengerAddress;
@@ -36,6 +41,10 @@ contract ArbitrumMessengerWrapper is MessengerWrapper {
         defaultCallValue = _defaultCallValue;
     }
 
+    /** 
+     * @dev Sends a message to the l2BridgeAddress from layer-1
+     * @param _calldata The data that l2BridgeAddress will be called with
+     */
     function sendCrossDomainMessage(bytes memory _calldata) public override onlyL1Bridge {
         bytes memory subMessageWithoutData = abi.encode(
             defaultGasLimit,
