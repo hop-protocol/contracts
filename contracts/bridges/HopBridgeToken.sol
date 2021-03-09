@@ -10,10 +10,8 @@ import "@openzeppelin/contracts/access/Ownable.sol";
  */
 
 contract HopBridgeToken is ERC20, Ownable {
-    address public l1Governance;
 
     constructor (
-        address _l1Governance,
         string memory name,
         string memory symbol,
         uint8 decimals
@@ -21,8 +19,6 @@ contract HopBridgeToken is ERC20, Ownable {
         public
         ERC20(name, symbol)
     {
-        l1Governance = _l1Governance;
-
         _setupDecimals(decimals);
     }
 

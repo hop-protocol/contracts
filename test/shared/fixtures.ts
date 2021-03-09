@@ -123,7 +123,6 @@ export async function fixture (l1ChainId: BigNumber, l2ChainId: BigNumber, l1Alr
 
   // Deploy Hop bridge token
   const l2_hopBridgeToken = await L2_HopBridgeToken.deploy(
-    await governance.getAddress(),
     DEFAULT_H_BRIDGE_TOKEN_NAME,
     DEFAULT_H_BRIDGE_TOKEN_SYMBOL,
     DEFAULT_H_BRIDGE_TOKEN_DECIMALS
