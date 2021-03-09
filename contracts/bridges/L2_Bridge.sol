@@ -141,12 +141,12 @@ abstract contract L2_Bridge is Bridge {
             amountOutMin,
             deadline
         );
-        uint256 transferCount = pendingTransfers.length;
+        uint256 transferIndex = pendingTransfers.length;
         pendingTransfers.push(transferId);
 
         pendingAmountForChainId[chainId] = pendingAmountForChainId[chainId].add(amount);
 
-        emit TransferSent(transferId, recipient, amount, transferNonce, bonderFee, transferCount);
+        emit TransferSent(transferId, recipient, amount, transferNonce, bonderFee, transferIndex);
     }
 
     /**
