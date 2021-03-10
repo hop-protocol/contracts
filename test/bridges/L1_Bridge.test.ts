@@ -2359,7 +2359,7 @@ describe('L1_Bridge', () => {
     })
 
     it('Should not allow a transfer root to be challenged if an arbitrary root hash is passed in', async () => {
-      const expectedErrorMsg: string = 'L1_BRG: TransferRoot not found'
+      const expectedErrorMsg: string = 'L1_BRG: TransferRoot has not been bonded'
 
       await executeL1BridgeSendToL2(
         l1_canonicalToken,
@@ -2415,7 +2415,7 @@ describe('L1_Bridge', () => {
     })
 
     it('Should not allow a transfer root to be challenged if an incorrect originalAmount is passed in', async () => {
-      const expectedErrorMsg: string = 'L1_BRG: TransferRoot not found'
+      const expectedErrorMsg: string = 'L1_BRG: TransferRoot has not been bonded'
       const incorrectAmount: BigNumber = BigNumber.from('13371337')
 
       await executeL1BridgeSendToL2(
@@ -2620,7 +2620,7 @@ describe('L1_Bridge', () => {
     })
 
     it('Should not allow a transfer root challenge to be resolved if an arbitrary root hash is passed in', async () => {
-      const expectedErrorMsg: string = 'L1_BRG: TransferRoot not found'
+      const expectedErrorMsg: string = 'L1_BRG: TransferRoot has not been challenged'
 
       await executeL1BridgeSendToL2(
         l1_canonicalToken,
@@ -2779,7 +2779,7 @@ describe('L1_Bridge', () => {
     })
 
     it('Should not allow a transfer root challenge to be resolved if an incorrect originalAmount is passed in', async () => {
-      const expectedErrorMsg: string = 'L1_BRG: TransferRoot not found'
+      const expectedErrorMsg: string = 'L1_BRG: TransferRoot has not been challenged'
       const incorrectAmount: BigNumber = BigNumber.from('13371337')
 
       await executeL1BridgeSendToL2(
