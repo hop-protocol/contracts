@@ -70,9 +70,9 @@ abstract contract L1_Bridge is Bridge {
 
     /* ========== Modifiers ========== */
 
-    modifier onlyL2Bridge(uint256 chainId) {
+    modifier onlyL2Bridge(uint256 chainId, address expectedSender) {
         IMessengerWrapper messengerWrapper = crossDomainMessengerWrappers[chainId];
-        messengerWrapper.verifySender(msg.data);
+        messengerWrapper.verifySender(expectedSender, msg.data);
         _;
     }
 
@@ -191,7 +191,7 @@ abstract contract L1_Bridge is Bridge {
         uint256 rootCommittedAt
     )
         external
-        onlyL2Bridge(originChainId)
+        onlyL2Bridge(originChainId, msg.sender)
     {
         bytes32 transferRootId = getTransferRootId(rootHash, totalAmount);
         require(transferRootCommittedAt[transferRootId] == 0, "L1_BRG: TransferRoot already confirmed");

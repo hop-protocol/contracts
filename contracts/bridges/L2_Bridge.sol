@@ -23,6 +23,7 @@ abstract contract L2_Bridge is Bridge {
     address public l1Governance;
     HopBridgeToken public hToken;
     address public l1BridgeAddress;
+    address public l1MessengerWrapperAddress;
     L2_UniswapWrapper public uniswapWrapper;
     IERC20 public l2CanonicalToken;
     mapping(uint256 => bool) public supportedChainIds;
@@ -56,7 +57,7 @@ abstract contract L2_Bridge is Bridge {
     );
 
     modifier onlyL1Bridge {
-        _verifySender(l1BridgeAddress);
+        _verifySender(l1MessengerWrapperAddress);
         _;
     }
 
@@ -296,6 +297,10 @@ abstract contract L2_Bridge is Bridge {
 
     function setL1BridgeAddress(address _l1BridgeAddress) external onlyGovernance {
         l1BridgeAddress = _l1BridgeAddress;
+    }
+
+    function setL1MessengerWrapperAddress(address _l1MessengerWrapperAddress) external onlyGovernance {
+        l1MessengerWrapperAddress = _l1MessengerWrapperAddress;
     }
 
     function setMessengerGasLimit(uint256 _messengerGasLimit) external onlyGovernance {

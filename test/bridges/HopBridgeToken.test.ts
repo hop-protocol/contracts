@@ -17,6 +17,11 @@ import {
   DEFAULT_H_BRIDGE_TOKEN_DECIMALS
 } from '../../config/constants'
 
+import {
+  executeCanonicalBridgeSendMessage,
+  getSetHopBridgeTokenOwnerMessage
+} from '../shared/contractFunctionWrappers'
+
 describe('L1_Bridge', () => {
   let _fixture: IFixture
   let l1ChainId: BigNumber
@@ -25,8 +30,11 @@ describe('L1_Bridge', () => {
   let user: Signer
   let governance: Signer
 
+  let l1_messenger: Contract
+
   let l2_hopBridgeToken: Contract
   let l2_bridge: Contract
+  let l2_messenger: Contract
 
   let beforeAllSnapshotId: string
   let snapshotId: string
@@ -42,8 +50,10 @@ describe('L1_Bridge', () => {
     ;({
       user,
       governance,
+      l1_messenger,
       l2_hopBridgeToken,
       l2_bridge,
+      l2_messenger
     } = _fixture)
   })
 
@@ -82,7 +92,14 @@ describe('L1_Bridge', () => {
 
   it('Should allow the owner to mint tokens', async () => {
     // Set the owner to a known address for testing purposes
-    await l2_bridge.setHopBridgeTokenOwner(await user.getAddress())
+    const message: string = getSetHopBridgeTokenOwnerMessage(await user.getAddress())
+    await executeCanonicalBridgeSendMessage(
+      l1_messenger,
+      l2_bridge,
+      l2_messenger,
+      governance,
+      message
+    )
 
     const mintAmount: BigNumber = BigNumber.from('13371377')
     const userBalanceBefore: BigNumber = await l2_hopBridgeToken.balanceOf(await user.getAddress())
@@ -99,7 +116,14 @@ describe('L1_Bridge', () => {
 
   it('Should allow the owner to burn tokens', async () => {
     // Set the owner to a known address for testing purposes
-    await l2_bridge.setHopBridgeTokenOwner(await user.getAddress())
+    const message: string = getSetHopBridgeTokenOwnerMessage(await user.getAddress())
+    await executeCanonicalBridgeSendMessage(
+      l1_messenger,
+      l2_bridge,
+      l2_messenger,
+      governance,
+      message
+    )
 
     const mintAmount: BigNumber = BigNumber.from('13371377')
     const userBalanceBefore: BigNumber = await l2_hopBridgeToken.balanceOf(await user.getAddress())

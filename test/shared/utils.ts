@@ -16,7 +16,11 @@ import {
 
 import {
   executeCanonicalBridgeSendMessage,
-  executeL1BridgeSendToL2
+  executeCanonicalBridgeSendTokens,
+  executeL1BridgeSendToL2,
+  getSetL1BridgeAddressMessage,
+  getSetL1MessengerWrapperAddressMessage,
+  getSetUniswapWrapperAddressMessage
 } from './contractFunctionWrappers'
 
 import { IFixture } from './interfaces'
@@ -59,8 +63,8 @@ export const setUpDefaults = async (
   }
 
   await setUpL2HopBridgeToken(fixture)
-  await setUpL1AndL2Bridges(fixture, setUpL1AndL2BridgesOpts)
   await setUpL1AndL2Messengers(fixture)
+  await setUpL1AndL2Bridges(fixture, setUpL1AndL2BridgesOpts)
   await distributeCanonicalTokens(fixture, distributeCanonicalTokensOpts)
   await setUpBonderStake(fixture, setUpBonderStakeOpts)
   await setUpL2UniswapMarket(fixture, setUpL2UniswapMarketOpts)
@@ -75,11 +79,25 @@ export const setUpL2HopBridgeToken = async (fixture: IFixture) => {
   await l2_hopBridgeToken.transferOwnership(l2_bridge.address)
 }
 
+export const setUpL1AndL2Messengers = async (fixture: IFixture) => {
+  const { l1_messenger, l2_messenger } = fixture
+
+  // Set up L1
+  await l1_messenger.setTargetMessenger(l2_messenger.address)
+
+  // Set up L2
+  await l2_messenger.setTargetMessenger(l1_messenger.address)
+}
+
 export const setUpL1AndL2Bridges = async (fixture: IFixture, opts: any) => {
   const {
+    governance,
+    l1_messenger,
+    l1_canonicalBridge,
     l1_bridge,
     l1_messengerWrapper,
     l2_bridge,
+    l2_messenger,
     l2_uniswapWrapper
   } = fixture
 
@@ -92,18 +110,32 @@ export const setUpL1AndL2Bridges = async (fixture: IFixture, opts: any) => {
   )
 
   // Set up L2
-  await l2_bridge.setL1BridgeAddress(l1_bridge.address)
-  await l2_bridge.setUniswapWrapper(l2_uniswapWrapper.address)
-}
+  let message: string = getSetL1BridgeAddressMessage(l1_bridge)
+  await executeCanonicalBridgeSendMessage(
+    l1_messenger,
+    l2_bridge,
+    l2_messenger,
+    governance,
+    message
+  )
 
-export const setUpL1AndL2Messengers = async (fixture: IFixture) => {
-  const { l1_messenger, l2_messenger } = fixture
+  message = getSetL1MessengerWrapperAddressMessage(l1_messengerWrapper)
+  await executeCanonicalBridgeSendMessage(
+    l1_messenger,
+    l2_bridge,
+    l2_messenger,
+    governance,
+    message
+  )
 
-  // Set up L1
-  await l1_messenger.setTargetMessenger(l2_messenger.address)
-
-  // Set up L2
-  await l2_messenger.setTargetMessenger(l1_messenger.address)
+  message = getSetUniswapWrapperAddressMessage(l2_uniswapWrapper)
+  await executeCanonicalBridgeSendMessage(
+    l1_messenger,
+    l2_bridge,
+    l2_messenger,
+    governance,
+    message
+  )
 }
 
 export const distributeCanonicalTokens = async (
@@ -209,7 +241,7 @@ export const setUpL2UniswapMarket = async (fixture: IFixture, opts: any) => {
   } = opts
 
   // liquidityProvider moves funds across the canonical bridge
-  await executeCanonicalBridgeSendMessage(
+  await executeCanonicalBridgeSendTokens(
     l1_canonicalToken,
     l1_canonicalBridge,
     l2_canonicalToken,

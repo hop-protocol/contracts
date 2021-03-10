@@ -46,7 +46,7 @@ contract XDaiMessengerWrapper is MessengerWrapper {
     }
 
     /// @notice message data is not needed for message verification with the xDai AMB
-    function verifySender(bytes memory) public override {
+    function verifySender(address, bytes memory) public override {
         require(l1MessengerAddress.messageSender() == l2BridgeAddress);
 
         // With the xDai AMB, it is best practice to also check the source chainId
