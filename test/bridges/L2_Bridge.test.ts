@@ -28,10 +28,12 @@ import {
   executeCanonicalBridgeSendMessage,
   getSetUniswapWrapperAddressMessage,
   getSetL1BridgeAddressMessage,
+  getSetL1MessengerWrapperAddressMessage,
   getSetMessengerGasLimitMessage,
   getAddSupportedChainIdsMessage,
   getRemoveSupportedChainIdsMessage,
   getSetMinimumForceCommitDelayMessage,
+  getSetMaxPendingTransfersMessage,
   getSetHopBridgeTokenOwnerMessage,
   getSetMinimumBonderFeeRequirementsMessage
 } from '../shared/contractFunctionWrappers'
@@ -245,6 +247,22 @@ describe('L2_Bridge', () => {
       expect(l1BridgeAddress).to.eq(expectedL1BridgeAddress)
     })
 
+    it('Should set the L1 messenger wrapper address arbitrarily', async () => {
+      const expectedL1MessengerWrapperAddress: string = ONE_ADDRESS
+
+      const message: string = getSetL1MessengerWrapperAddressMessage(expectedL1MessengerWrapperAddress)
+      await executeCanonicalBridgeSendMessage(
+        l1_messenger,
+        l2_bridge,
+        l2_messenger,
+        governance,
+        message
+      )
+
+      const l1MessengerWrapperAddress: string = await l2_bridge.l1MessengerWrapperAddress()
+      expect(l1MessengerWrapperAddress).to.eq(expectedL1MessengerWrapperAddress)
+    })
+
     it('Should set the messenger gas limit arbitrarily', async () => {
       const expectedMessengerGasLimit: BigNumber = BigNumber.from('123')
 
@@ -319,6 +337,22 @@ describe('L2_Bridge', () => {
 
       const minimumForceCommitDelay: BigNumber = await l2_bridge.minimumForceCommitDelay()
       expect(minimumForceCommitDelay).to.eq(expectedMinimumForceCommitDelay)
+    })
+
+    it('Should set the max pending transfers arbitrarily', async () => {
+      const expectedMaxPendingTransfers: BigNumber = BigNumber.from('123')
+
+      const message: string = getSetMaxPendingTransfersMessage(expectedMaxPendingTransfers)
+      await executeCanonicalBridgeSendMessage(
+        l1_messenger,
+        l2_bridge,
+        l2_messenger,
+        governance,
+        message
+      )
+
+      const maxPendingTransfers: BigNumber = await l2_bridge.maxPendingTransfers()
+      expect(maxPendingTransfers).to.eq(expectedMaxPendingTransfers)
     })
 
     it('Should set a new owner of the HopBridgeToken', async () => {
@@ -575,6 +609,183 @@ describe('L2_Bridge', () => {
   /**
    * Non-Happy Path
    */
+
+  describe('setters', async () => {
+    it('Should not allow an arbitrary address to set the uniswap wrapper address arbitrarily', async () => {
+      const expectedErrorMsg: string = 'L2_OVM_BRG: Invalid cross-domain sender'
+      const expectedUniswapWrapperAddress: string = ONE_ADDRESS
+
+      const message: string = getSetUniswapWrapperAddressMessage(expectedUniswapWrapperAddress)
+      await expect(
+        executeCanonicalBridgeSendMessage(
+          l1_messenger,
+          l2_bridge,
+          l2_messenger,
+          user,
+          message
+        )
+      ).to.be.revertedWith(expectedErrorMsg)
+    })
+
+    it('Should not allow an arbitrary address to set the L1 bridge address arbitrarily', async () => {
+      const expectedErrorMsg: string = 'L2_OVM_BRG: Invalid cross-domain sender'
+      const expectedL1BridgeAddress: string = ONE_ADDRESS
+
+      const message: string = getSetL1BridgeAddressMessage(expectedL1BridgeAddress)
+      await expect(
+        executeCanonicalBridgeSendMessage(
+          l1_messenger,
+          l2_bridge,
+          l2_messenger,
+          user,
+          message
+        )
+      ).to.be.revertedWith(expectedErrorMsg)
+    })
+
+    it('Should not allow an arbitrary address to set the L1 messenger wrapper address arbitrarily', async () => {
+      const expectedErrorMsg: string = 'L2_OVM_BRG: Invalid cross-domain sender'
+      const expectedL1MessengerWrapperAddress: string = ONE_ADDRESS
+
+      const message: string = getSetL1MessengerWrapperAddressMessage(expectedL1MessengerWrapperAddress)
+      await expect(
+        executeCanonicalBridgeSendMessage(
+          l1_messenger,
+          l2_bridge,
+          l2_messenger,
+          user,
+          message
+        )
+      ).to.be.revertedWith(expectedErrorMsg)
+    })
+
+    it('Should not allow an arbitrary address to set the messenger gas limit arbitrarily', async () => {
+      const expectedErrorMsg: string = 'L2_OVM_BRG: Invalid cross-domain sender'
+      const expectedMessengerGasLimit: BigNumber = BigNumber.from('123')
+
+      const message: string = getSetMessengerGasLimitMessage(expectedMessengerGasLimit)
+      await expect(
+        executeCanonicalBridgeSendMessage(
+          l1_messenger,
+          l2_bridge,
+          l2_messenger,
+          user,
+          message
+        )
+      ).to.be.revertedWith(expectedErrorMsg)
+    })
+
+    it('Should not allow an arbitrary address to add support for a new chainId', async () => {
+      const expectedErrorMsg: string = 'L2_OVM_BRG: Invalid cross-domain sender'
+      const newChainId: BigNumber[] = [BigNumber.from('13371337')]
+
+      const message: string = getAddSupportedChainIdsMessage(newChainId)
+      await expect(
+        executeCanonicalBridgeSendMessage(
+          l1_messenger,
+          l2_bridge,
+          l2_messenger,
+          user,
+          message
+        )
+      ).to.be.revertedWith(expectedErrorMsg)
+    })
+
+    it('Should not allow an arbitrary address to remove support for a new chainId', async () => {
+      const expectedErrorMsg: string = 'L2_OVM_BRG: Invalid cross-domain sender'
+      const newChainId: BigNumber[] = [BigNumber.from('13371337')]
+
+      let message: string = getAddSupportedChainIdsMessage(newChainId)
+      await executeCanonicalBridgeSendMessage(
+        l1_messenger,
+        l2_bridge,
+        l2_messenger,
+        governance,
+        message
+      )
+
+      let isChainIdSupported: boolean = await l2_bridge.supportedChainIds(newChainId[0])
+      expect(isChainIdSupported).to.eq(true)
+
+      message = getRemoveSupportedChainIdsMessage(newChainId)
+      await expect(
+        executeCanonicalBridgeSendMessage(
+          l1_messenger,
+          l2_bridge,
+          l2_messenger,
+          user,
+          message
+        )
+      ).to.be.revertedWith(expectedErrorMsg)
+    })
+
+    it('Should not allow an arbitrary address to set the minimum force commit delay arbitrarily', async () => {
+      const expectedErrorMsg: string = 'L2_OVM_BRG: Invalid cross-domain sender'
+      const expectedMinimumForceCommitDelay: BigNumber = BigNumber.from('123')
+
+      const message: string = getSetMinimumForceCommitDelayMessage(expectedMinimumForceCommitDelay)
+      await expect(
+        executeCanonicalBridgeSendMessage(
+          l1_messenger,
+          l2_bridge,
+          l2_messenger,
+          user,
+          message
+        )
+      ).to.be.revertedWith(expectedErrorMsg)
+    })
+
+    it('Should not allow an arbitrary address to set the max pending transfers arbitrarily', async () => {
+      const expectedErrorMsg: string = 'L2_OVM_BRG: Invalid cross-domain sender'
+      const expectedMaxPendingTransfers: BigNumber = BigNumber.from('123')
+
+      const message: string = getSetMaxPendingTransfersMessage(expectedMaxPendingTransfers)
+      await expect(
+        executeCanonicalBridgeSendMessage(
+          l1_messenger,
+          l2_bridge,
+          l2_messenger,
+          user,
+          message
+        )
+      ).to.be.revertedWith(expectedErrorMsg)
+    })
+
+    it('Should not allow an arbitrary address to set a new owner of the HopBridgeToken', async () => {
+      const expectedErrorMsg: string = 'L2_OVM_BRG: Invalid cross-domain sender'
+      let hopBridgeTokenOwner: string = await l2_hopBridgeToken.owner()
+      expect(hopBridgeTokenOwner).to.eq(l2_bridge.address)
+
+      const newOwner: Signer = user
+      const message: string = getSetHopBridgeTokenOwnerMessage(await newOwner.getAddress())
+      await expect(
+        executeCanonicalBridgeSendMessage(
+          l1_messenger,
+          l2_bridge,
+          l2_messenger,
+          user,
+          message
+        )
+      ).to.be.revertedWith(expectedErrorMsg)
+    })
+
+    it('Should not allow an arbitrary address to set the minimum bonder fee requirements', async () => {
+      const expectedErrorMsg: string = 'L2_OVM_BRG: Invalid cross-domain sender'
+      const expectedMinBonderBps: BigNumber = BigNumber.from('13371337')
+      const expectedMinBonderFeeAbsolute: BigNumber = BigNumber.from('73317331')
+
+      const message: string = getSetMinimumBonderFeeRequirementsMessage(expectedMinBonderBps, expectedMinBonderFeeAbsolute)
+      await expect(
+        executeCanonicalBridgeSendMessage(
+          l1_messenger,
+          l2_bridge,
+          l2_messenger,
+          user,
+          message
+        )
+      ).to.be.revertedWith(expectedErrorMsg)
+    })
+  })
 
   describe('Edge cases', async () => {
     it('Should send tokens to L2 via send', async () => {

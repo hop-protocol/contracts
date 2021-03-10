@@ -826,6 +826,14 @@ export const getRemoveSupportedChainIdsMessage = (
   return ethersInterface.encodeFunctionData("removeSupportedChainIds", [ chainIds ])
 }
 
+export const getSetMaxPendingTransfersMessage = (
+  maxPendingTransfers: BigNumber
+) => {
+  const ABI = [ "function setMaxPendingTransfers(uint256 _maxPendingTransfers)" ];
+  const ethersInterface = new ethersUtils.Interface(ABI);
+  return ethersInterface.encodeFunctionData("setMaxPendingTransfers", [ maxPendingTransfers ])
+}
+
 export const getSetMinimumForceCommitDelayMessage = (
   minimumForceCommitDelay: BigNumber
 ) => {
