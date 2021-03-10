@@ -52,7 +52,7 @@ contract L2_XDaiBridge is L2_Bridge {
 
     function _verifySender(address expectedSender) internal override {
         require(messenger.messageSender() == expectedSender);
-        require(expectedSender == ambBridge);
+        require(msg.sender == ambBridge);
 
         // With the xDai AMB, it is best practice to also check the source chainId
         // https://docs.tokenbridge.net/amb-bridge/how-to-develop-xchain-apps-by-amb#receive-a-method-call-from-the-amb-bridge
