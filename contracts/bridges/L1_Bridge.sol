@@ -238,14 +238,12 @@ abstract contract L1_Bridge is Bridge {
     /**
      * @dev Challenge a TransferRoot believed to be fraudulent
      * @param rootHash The Merkle root of the TransferRoot Merkle tree
-     * @param totalAmountBonded The total amount bonded for this TransferRoot
+     * @param originalAmount The total amount bonded for this TransferRoot
      */
-    function challengeTransferBond(bytes32 rootHash, uint256 totalAmountBonded) external payable {
-        bytes32 transferRootId = getTransferRootId(rootHash, totalAmountBonded);
-        TransferRoot memory transferRoot = getTransferRoot(rootHash, totalAmountBonded);
+    function challengeTransferBond(bytes32 rootHash, uint256 originalAmount) external payable {
+        bytes32 transferRootId = getTransferRootId(rootHash, originalAmount);
         TransferBond storage transferBond = transferBonds[transferRootId];
 
-        require(transferRoot.total > 0, "L1_BRG: TransferRoot not found");
         require(transferRootCommittedAt[transferRootId] == 0, "L1_BRG: TransferRoot has already been confirmed");
         require(transferBond.createdAt != 0, "L1_BRG: TransferRoot has not been bonded");
         uint256 challengePeriodEnd = transferBond.createdAt.add(challengePeriod);
@@ -257,16 +255,16 @@ abstract contract L1_Bridge is Bridge {
 
         // Move amount from timeSlotToAmountBonded to debit
         uint256 timeSlot = getTimeSlot(transferBond.createdAt);
-        uint256 bondAmount = getBondForTransferAmount(transferRoot.total);
+        uint256 bondAmount = getBondForTransferAmount(originalAmount);
         timeSlotToAmountBonded[timeSlot] = timeSlotToAmountBonded[timeSlot].sub(bondAmount);
 
         _addDebit(transferBond.bonder, bondAmount);
 
         // Get stake for challenge
-        uint256 challengeStakeAmount = getChallengeAmountForTransferAmount(transferRoot.total);
+        uint256 challengeStakeAmount = getChallengeAmountForTransferAmount(originalAmount);
         _transferToBridge(msg.sender, challengeStakeAmount);
 
-        emit TransferBondChallenged(transferRootId, rootHash, totalAmountBonded);
+        emit TransferBondChallenged(transferRootId, rootHash, originalAmount);
     }
 
     /**
@@ -276,23 +274,21 @@ abstract contract L1_Bridge is Bridge {
      */
     function resolveChallenge(bytes32 rootHash, uint256 originalAmount) external {
         bytes32 transferRootId = getTransferRootId(rootHash, originalAmount);
-        TransferRoot memory transferRoot = getTransferRoot(rootHash, originalAmount);
         TransferBond storage transferBond = transferBonds[transferRootId];
 
-        require(transferRoot.total > 0, "L1_BRG: TransferRoot not found");
         require(transferBond.challengeStartTime != 0, "L1_BRG: TransferRoot has not been challenged");
         require(block.timestamp > transferBond.challengeStartTime.add(challengeResolutionPeriod), "L1_BRG: Challenge period has not ended");
         require(transferBond.challengeResolved == false, "L1_BRG: TransferRoot already resolved");
         transferBond.challengeResolved = true;
 
-        uint256 challengeStakeAmount = getChallengeAmountForTransferAmount(transferRoot.total);
+        uint256 challengeStakeAmount = getChallengeAmountForTransferAmount(originalAmount);
 
         if (transferRootCommittedAt[transferRootId] > 0) {
             // Invalid challenge
 
             if (transferBond.createdAt > transferRootCommittedAt[transferRootId].add(MIN_TRANSFER_ROOT_BOND_DELAY)) {
                 // Credit the bonder back with the bond amount plus the challenger's stake
-                _addCredit(transferBond.bonder, getBondForTransferAmount(transferRoot.total).add(challengeStakeAmount));
+                _addCredit(transferBond.bonder, getBondForTransferAmount(originalAmount).add(challengeStakeAmount));
             } else {
                 // If the TransferRoot was bonded before it was committed, the challenger and Bonder
                 // get their stake back. This discourages Bonders from tricking challengers into
@@ -302,7 +298,7 @@ abstract contract L1_Bridge is Bridge {
                 // Return the challenger's stake
                 _transferFromBridge(transferBond.challenger, challengeStakeAmount);
                 // Credit the bonder back with the bond amount
-                _addCredit(transferBond.bonder, getBondForTransferAmount(transferRoot.total));
+                _addCredit(transferBond.bonder, getBondForTransferAmount(originalAmount));
             }
         } else {
             // Valid challenge
