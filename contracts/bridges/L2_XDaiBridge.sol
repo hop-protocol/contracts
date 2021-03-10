@@ -14,6 +14,7 @@ contract L2_XDaiBridge is L2_Bridge {
     iArbitraryMessageBridge public messenger;
     /// @notice The xDai AMB uses bytes32 for chainId instead of uint256
     bytes32 public l1ChainId;
+    address public ambBridge;
 
     constructor (
         iArbitraryMessageBridge _messenger,
@@ -23,7 +24,8 @@ contract L2_XDaiBridge is L2_Bridge {
         address l1BridgeAddress,
         uint256[] memory supportedChainIds,
         address[] memory bonders,
-        bytes32 _l1ChainId
+        bytes32 _l1ChainId,
+        address _ambBridge
     )
         public
         L2_Bridge(
@@ -37,6 +39,7 @@ contract L2_XDaiBridge is L2_Bridge {
     {
         messenger = _messenger;
         l1ChainId = _l1ChainId;
+        ambBridge = _ambBridge;
     }
 
     function _sendCrossDomainMessage(bytes memory message) internal override {
@@ -49,6 +52,7 @@ contract L2_XDaiBridge is L2_Bridge {
 
     function _verifySender(address expectedSender) internal override {
         require(messenger.messageSender() == expectedSender);
+        require(msg.sender == ambBridge);
 
         // With the xDai AMB, it is best practice to also check the source chainId
         // https://docs.tokenbridge.net/amb-bridge/how-to-develop-xchain-apps-by-amb#receive-a-method-call-from-the-amb-bridge

@@ -47,7 +47,7 @@ contract L2_OptimismBridge is L2_Bridge {
     }
 
     function _verifySender(address expectedSender) internal override {
-        require(msg.sender == address(messenger), "L2_OVM_BRG: Caller is not l1MessengerAddress");
+        require(msg.sender == address(messenger), "L2_OVM_BRG: Caller is not the expected sender");
         // Verify that cross-domain sender is expectedSender
         require(messenger.xDomainMessageSender() == expectedSender, "L2_OVM_BRG: Invalid cross-domain sender");
     }

@@ -891,7 +891,6 @@ describe('L1_Bridge', () => {
         l2Transfer
       )
 
-      console.log('c')
       const expectedTransferIndex: BigNumber = BigNumber.from('1')
       await executeL2BridgeBondWithdrawalAndDistribute(
         l2_bridge,
@@ -905,7 +904,6 @@ describe('L1_Bridge', () => {
         expectedTransferIndex
       )
 
-      console.log('d')
       await executeL2BridgeCommitTransfers(
         l2_bridge,
         l2Transfer,
@@ -915,7 +913,6 @@ describe('L1_Bridge', () => {
       await l1_messenger.relayNextMessage()
       await l22_messenger.relayNextMessage()
 
-      console.log('e')
       const numTransfers: number = 2
       await executeBridgeSettleBondedWithdrawals(
         l22_bridge,

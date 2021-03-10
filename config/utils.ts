@@ -6,7 +6,8 @@ import {
   ARB_CHAIN_ADDRESS,
   DEFAULT_MESSENGER_WRAPPER_SUB_MESSAGE_TYPE,
   DEFAULT_MESSENGER_WRAPPER_GAS_PRICE,
-  DEFAULT_MESSENGER_WRAPPER_GAS_CALL_VALUE
+  DEFAULT_MESSENGER_WRAPPER_GAS_CALL_VALUE,
+  ZERO_ADDRESS
 } from './constants'
 
 export const getMessengerWrapperDefaults = (
@@ -34,8 +35,10 @@ export const getMessengerWrapperDefaults = (
   } else if (isChainIdXDai(chainId)) {
     gasLimit = 1000000
 
+    // TODO: Use realistic address
     additionalData.push(
-      chainId.toString()
+      chainId.toString(),
+      ZERO_ADDRESS
     )
   }
 
@@ -78,8 +81,10 @@ export const getL2BridgeDefaults = (
     const defaultGasLimit = DEFAULT_MESSENGER_WRAPPER_GAS_LIMIT
     additionalData.push(defaultGasLimit)
   } else if (isChainIdXDai(chainId)) {
+    // TODO: Use realistic address
     const l1ChainIdBytes32 = ethersUtils.formatBytes32String(l1ChainId.toString())
     additionalData.push(l1ChainIdBytes32)
+    additionalData.push(ZERO_ADDRESS)
   }
 
   defaults.push(

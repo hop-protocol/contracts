@@ -14,7 +14,7 @@ import {
   takeSnapshot
 } from '../shared/utils'
 import {
-  executeCanonicalBridgeSendMessage,
+  executeCanonicalBridgeSendTokens,
   executeL1BridgeSendToL2,
   executeBridgeBondWithdrawal,
   executeL1BridgeBondTransferRoot,
@@ -24,7 +24,16 @@ import {
   executeL2BridgeSend,
   executeL2BridgeSwapAndSend,
   executeL2BridgeCommitTransfers,
-  executeL2BridgeBondWithdrawalAndDistribute
+  executeL2BridgeBondWithdrawalAndDistribute,
+  executeCanonicalBridgeSendMessage,
+  getSetUniswapWrapperAddressMessage,
+  getSetL1BridgeAddressMessage,
+  getSetMessengerGasLimitMessage,
+  getAddSupportedChainIdsMessage,
+  getRemoveSupportedChainIdsMessage,
+  getSetMinimumForceCommitDelayMessage,
+  getSetHopBridgeTokenOwnerMessage,
+  getSetMinimumBonderFeeRequirementsMessage
 } from '../shared/contractFunctionWrappers'
 import { fixture } from '../shared/fixtures'
 import { IFixture } from '../shared/interfaces'
@@ -207,9 +216,15 @@ describe('L2_Bridge', () => {
     it('Should set the uniswap wrapper address arbitrarily', async () => {
       const expectedUniswapWrapperAddress: string = ONE_ADDRESS
 
-      await l2_bridge
-        .connect(governance)
-        .setUniswapWrapper(expectedUniswapWrapperAddress)
+      const message: string = getSetUniswapWrapperAddressMessage(expectedUniswapWrapperAddress)
+      await executeCanonicalBridgeSendMessage(
+        l1_messenger,
+        l2_bridge,
+        l2_messenger,
+        governance,
+        message
+      )
+
       const exchangeAddress: string = await l2_bridge.uniswapWrapper()
       expect(exchangeAddress).to.eq(expectedUniswapWrapperAddress)
     })
@@ -217,9 +232,15 @@ describe('L2_Bridge', () => {
     it('Should set the L1 bridge address arbitrarily', async () => {
       const expectedL1BridgeAddress: string = ONE_ADDRESS
 
-      await l2_bridge
-        .connect(governance)
-        .setL1BridgeAddress(expectedL1BridgeAddress)
+      const message: string = getSetL1BridgeAddressMessage(expectedL1BridgeAddress)
+      await executeCanonicalBridgeSendMessage(
+        l1_messenger,
+        l2_bridge,
+        l2_messenger,
+        governance,
+        message
+      )
+
       const l1BridgeAddress: string = await l2_bridge.l1BridgeAddress()
       expect(l1BridgeAddress).to.eq(expectedL1BridgeAddress)
     })
@@ -227,41 +248,75 @@ describe('L2_Bridge', () => {
     it('Should set the messenger gas limit arbitrarily', async () => {
       const expectedMessengerGasLimit: BigNumber = BigNumber.from('123')
 
-      await l2_bridge
-        .connect(governance)
-        .setMessengerGasLimit(expectedMessengerGasLimit)
+      const message: string = getSetMessengerGasLimitMessage(expectedMessengerGasLimit)
+      await executeCanonicalBridgeSendMessage(
+        l1_messenger,
+        l2_bridge,
+        l2_messenger,
+        governance,
+        message
+      )
+
       const messengerGasLimit: BigNumber = await l2_bridge.messengerGasLimit()
       expect(messengerGasLimit).to.eq(expectedMessengerGasLimit)
     })
 
     it('Should add support for a new chainId', async () => {
-      const newChainId: BigNumber = BigNumber.from('13371337')
+      const newChainId: BigNumber[] = [BigNumber.from('13371337')]
 
-      await l2_bridge.connect(governance).addSupportedChainIds([newChainId])
-      const isChainIdSupported: boolean = await l2_bridge.supportedChainIds(newChainId)
+      const message: string = getAddSupportedChainIdsMessage(newChainId)
+      await executeCanonicalBridgeSendMessage(
+        l1_messenger,
+        l2_bridge,
+        l2_messenger,
+        governance,
+        message
+      )
+
+      const isChainIdSupported: boolean = await l2_bridge.supportedChainIds(newChainId[0])
       expect(isChainIdSupported).to.eq(true)
     })
 
     it('Should add support for a new chainId then remove it', async () => {
-      const newChainId: BigNumber = BigNumber.from('13371337')
+      const newChainId: BigNumber[] = [BigNumber.from('13371337')]
 
-      await l2_bridge.connect(governance).addSupportedChainIds([newChainId])
+      let message: string = getAddSupportedChainIdsMessage(newChainId)
+      await executeCanonicalBridgeSendMessage(
+        l1_messenger,
+        l2_bridge,
+        l2_messenger,
+        governance,
+        message
+      )
 
-      let isChainIdSupported: boolean = await l2_bridge.supportedChainIds(newChainId)
+      let isChainIdSupported: boolean = await l2_bridge.supportedChainIds(newChainId[0])
       expect(isChainIdSupported).to.eq(true)
 
-      await l2_bridge.connect(governance).removeSupportedChainIds([newChainId])
+      message = getRemoveSupportedChainIdsMessage(newChainId)
+      await executeCanonicalBridgeSendMessage(
+        l1_messenger,
+        l2_bridge,
+        l2_messenger,
+        governance,
+        message
+      )
 
-      isChainIdSupported = await l2_bridge.supportedChainIds(newChainId)
+      isChainIdSupported = await l2_bridge.supportedChainIds(newChainId[0])
       expect(isChainIdSupported).to.eq(false)
     })
 
     it('Should set the minimum force commit delay arbitrarily', async () => {
       const expectedMinimumForceCommitDelay: BigNumber = BigNumber.from('123')
 
-      await l2_bridge
-        .connect(governance)
-        .setMinimumForceCommitDelay(expectedMinimumForceCommitDelay)
+      const message: string = getSetMinimumForceCommitDelayMessage(expectedMinimumForceCommitDelay)
+      await executeCanonicalBridgeSendMessage(
+        l1_messenger,
+        l2_bridge,
+        l2_messenger,
+        governance,
+        message
+      )
+
       const minimumForceCommitDelay: BigNumber = await l2_bridge.minimumForceCommitDelay()
       expect(minimumForceCommitDelay).to.eq(expectedMinimumForceCommitDelay)
     })
@@ -271,7 +326,14 @@ describe('L2_Bridge', () => {
       expect(hopBridgeTokenOwner).to.eq(l2_bridge.address)
 
       const newOwner: Signer = user
-      await l2_bridge.setHopBridgeTokenOwner(await newOwner.getAddress())
+      const message: string = getSetHopBridgeTokenOwnerMessage(await newOwner.getAddress())
+      await executeCanonicalBridgeSendMessage(
+        l1_messenger,
+        l2_bridge,
+        l2_messenger,
+        governance,
+        message
+      )
 
       hopBridgeTokenOwner = await l2_hopBridgeToken.owner()
       expect(hopBridgeTokenOwner).to.eq(await newOwner.getAddress())
@@ -281,7 +343,14 @@ describe('L2_Bridge', () => {
       const expectedMinBonderBps: BigNumber = BigNumber.from('13371337')
       const expectedMinBonderFeeAbsolute: BigNumber = BigNumber.from('73317331')
 
-      await l2_bridge.setMinimumBonderFeeRequirements(expectedMinBonderBps, expectedMinBonderFeeAbsolute)
+      const message: string = getSetMinimumBonderFeeRequirementsMessage(expectedMinBonderBps, expectedMinBonderFeeAbsolute)
+      await executeCanonicalBridgeSendMessage(
+        l1_messenger,
+        l2_bridge,
+        l2_messenger,
+        governance,
+        message
+      )
 
       const minBonderBps = await l2_bridge.minBonderBps()
       const minBonderFeeAbsolute= await l2_bridge.minBonderFeeAbsolute()
@@ -303,7 +372,7 @@ describe('L2_Bridge', () => {
   describe('swapAndSend', async () => {
     it('Should send tokens to L2 via swapAndSend', async () => {
       // Add the canonical token to the users' address on L2
-      await executeCanonicalBridgeSendMessage(
+      await executeCanonicalBridgeSendTokens(
         l1_canonicalToken,
         l1_canonicalBridge,
         l2_canonicalToken,
@@ -456,7 +525,7 @@ describe('L2_Bridge', () => {
     //   transfer.destinationDeadline = BigNumber.from(DEFAULT_DEADLINE)
 
     //   // Add the canonical token to the users' address on L2
-    //   await executeCanonicalBridgeSendMessage(
+    //   await executeCanonicalBridgeSendTokens(
     //     l1_canonicalToken,
     //     l1_canonicalBridge,
     //     l2_canonicalToken,
@@ -490,21 +559,7 @@ describe('L2_Bridge', () => {
 
   describe('setTransferRoot', async () => {
     it('Should set the transfer root', async () => {
-      const arbitraryAmount: BigNumber = BigNumber.from('13371337')
-      // Update l1 bridge address for testing purposes
-      await l2_bridge.setL1BridgeAddress(await user.getAddress())
-      expect(await l2_bridge.l1BridgeAddress()).to.eq(await user.getAddress())
-
-      await l2_bridge.setTransferRoot(ARBITRARY_ROOT_HASH, arbitraryAmount)
-
-      const currentTime: number = Math.floor(Date.now() / 1000)
-      const transferRoot = await l2_bridge.getTransferRoot(ARBITRARY_ROOT_HASH, arbitraryAmount)
-      expect(transferRoot[0]).to.eq(arbitraryAmount)
-      expect(transferRoot[1]).to.eq(0)
-      expect(transferRoot[2].toNumber()).to.be.closeTo(
-        currentTime,
-        TIMESTAMP_VARIANCE
-      )
+      // TODO: Test this with actual transaction flow
     })
   })
 

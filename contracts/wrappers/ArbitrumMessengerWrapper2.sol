@@ -47,8 +47,8 @@ contract ArbitrumMessengerWrapper is MessengerWrapper {
         arbInbox.sendContractTransaction(defaultGasLimit, defaultGasPrice, l2BridgeAddress, 0, _calldata);
     }
 
-    function verifySender(bytes memory /*_data*/) public override {
-        require(msg.sender == address(arbBridge), "ARB_MSG_WPR: Caller is not arbBridge");
+    function verifySender(address l1BridgeCaller, bytes memory /*_data*/) public override {
+        require(l1BridgeCaller == address(arbBridge), "ARB_MSG_WPR: Caller is not arbBridge");
         // Verify that sender is l2BridgeAddress
         require(IOutbox(arbBridge.activeOutbox()).l2ToL1Sender() == l2BridgeAddress, "ARB_MSG_WPR: Invalid cross-domain sender");
     }

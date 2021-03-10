@@ -1,4 +1,4 @@
-import { BigNumber, Contract, Signer } from 'ethers'
+import { BigNumber, Contract, Signer, utils as ethersUtils } from 'ethers'
 import Transfer from '../../lib/Transfer'
 import MerkleTree from '../../lib/MerkleTree'
 import { expect } from 'chai'
@@ -14,7 +14,7 @@ import {
  * Canonical Bridge
  */
 
-export const executeCanonicalBridgeSendMessage = async (
+export const executeCanonicalBridgeSendTokens = async (
   l1_canonicalToken: Contract,
   l1_canonicalBridge: Contract,
   l2_canonicalToken: Contract,
@@ -27,9 +27,31 @@ export const executeCanonicalBridgeSendMessage = async (
     .approve(l1_canonicalBridge.address, amount)
   await l1_canonicalBridge
     .connect(account)
-    .sendMessage(l2_canonicalToken.address, await account.getAddress(), amount)
+    .sendTokens(
+      l2_canonicalToken.address,
+      await account.getAddress(),
+      amount
+    )
   await l2_messenger.relayNextMessage()
   await expectBalanceOf(l2_canonicalToken, account, amount)
+}
+
+export const executeCanonicalBridgeSendMessage = async (
+  l1_messenger: Contract,
+  l2_bridge: Contract,
+  l2_messenger: Contract,
+  sender: Signer,
+  message: string
+) => {
+  const gasLimit: BigNumber = BigNumber.from('0')
+  await l1_messenger
+    .connect(sender)
+    .sendMessage(
+      l2_bridge.address,
+      message,
+      gasLimit
+    )
+  await l2_messenger.relayNextMessage()
 }
 
 /**
@@ -739,4 +761,92 @@ export const executeL2BridgeBondWithdrawalAndDistribute = async (
     transfer.recipient,
     expectedRecipientAmountAfterSlippage
   )
+}
+
+/**
+ * Canonical Bridge Messages
+ */
+
+export const getSetL1BridgeAddressMessage = (
+  l1_bridge: Contract | string
+) => {
+  const address = getAddressFromContractOrString(l1_bridge)
+  const ABI = [ "function setL1BridgeAddress(address _l1BridgeAddress)" ];
+  const ethersInterface = new ethersUtils.Interface(ABI);
+  return ethersInterface.encodeFunctionData("setL1BridgeAddress", [ address ])
+}
+
+export const getSetL1MessengerWrapperAddressMessage = (
+  l1_messengerWrapper: Contract | string
+) => {
+  const address = getAddressFromContractOrString(l1_messengerWrapper)
+  const ABI = [ "function setL1MessengerWrapperAddress(address _l1MessengerWrapperAddress)" ];
+  const ethersInterface = new ethersUtils.Interface(ABI);
+  return ethersInterface.encodeFunctionData("setL1MessengerWrapperAddress", [ address ])
+}
+
+export const getSetUniswapWrapperAddressMessage = (
+  l2_uniswapWrapper: Contract | string
+) => {
+  const address = getAddressFromContractOrString(l2_uniswapWrapper)
+  const ABI = [ "function setUniswapWrapper(address _uniswapWrapper)" ];
+  const ethersInterface = new ethersUtils.Interface(ABI);
+  return ethersInterface.encodeFunctionData("setUniswapWrapper", [ address ])
+}
+
+export const getSetMessengerGasLimitMessage = (
+  messengerGasLimit: BigNumber
+) => {
+  const ABI = [ "function setMessengerGasLimit(uint256 _messengerGasLimit)" ];
+  const ethersInterface = new ethersUtils.Interface(ABI);
+  return ethersInterface.encodeFunctionData("setMessengerGasLimit", [ messengerGasLimit ])
+}
+
+export const getSetHopBridgeTokenOwnerMessage = (
+  newOwnerAddress: string
+) => {
+  const ABI = [ "function setHopBridgeTokenOwner(address newOwner)" ];
+  const ethersInterface = new ethersUtils.Interface(ABI);
+  return ethersInterface.encodeFunctionData("setHopBridgeTokenOwner", [ newOwnerAddress ])
+}
+
+export const getAddSupportedChainIdsMessage = (
+  chainIds: BigNumber[]
+) => {
+  const ABI = [ "function addSupportedChainIds(uint256[] calldata chainIds)" ];
+  const ethersInterface = new ethersUtils.Interface(ABI);
+  return ethersInterface.encodeFunctionData("addSupportedChainIds", [ chainIds ])
+}
+
+export const getRemoveSupportedChainIdsMessage = (
+  chainIds: BigNumber[]
+) => {
+  const ABI = [ "function removeSupportedChainIds(uint256[] calldata chainIds)" ];
+  const ethersInterface = new ethersUtils.Interface(ABI);
+  return ethersInterface.encodeFunctionData("removeSupportedChainIds", [ chainIds ])
+}
+
+export const getSetMinimumForceCommitDelayMessage = (
+  minimumForceCommitDelay: BigNumber
+) => {
+  const ABI = [ "function setMinimumForceCommitDelay(uint256 _minimumForceCommitDelay)" ];
+  const ethersInterface = new ethersUtils.Interface(ABI);
+  return ethersInterface.encodeFunctionData("setMinimumForceCommitDelay", [ minimumForceCommitDelay ])
+}
+
+export const getSetMinimumBonderFeeRequirementsMessage = (
+  minBonderBps: BigNumber,
+  minBonderFeeAbsolute: BigNumber
+) => {
+  const ABI = [ "function setMinimumBonderFeeRequirements(uint256 _minBonderBps, uint256 _minBonderFeeAbsolute)" ];
+  const ethersInterface = new ethersUtils.Interface(ABI);
+  return ethersInterface.encodeFunctionData("setMinimumBonderFeeRequirements", [ minBonderBps, minBonderFeeAbsolute ])
+}
+
+const getAddressFromContractOrString = (input: Contract | string): string => {
+  if (typeof input === 'string') {
+    return input
+  } else {
+    return input.address
+  }
 }
