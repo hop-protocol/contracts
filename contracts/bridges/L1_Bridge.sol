@@ -72,7 +72,7 @@ abstract contract L1_Bridge is Bridge {
 
     modifier onlyL2Bridge(uint256 chainId) {
         IMessengerWrapper messengerWrapper = crossDomainMessengerWrappers[chainId];
-        messengerWrapper.verifySender(msg.data);
+        messengerWrapper.verifySender(msg.sender, msg.data);
         _;
     }
 

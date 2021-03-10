@@ -15,29 +15,34 @@ abstract contract MockMessenger {
     struct Message {
         address target;
         bytes message;
+        address sender;
     }
 
     Message public nextMessage;
     IERC20 public canonicalToken;
+    address public xDomainMessageSender;
 
     constructor(IERC20 _canonicalToken) public {
         canonicalToken = _canonicalToken;
     }
 
     function relayNextMessage() public {
+        xDomainMessageSender = nextMessage.sender;
         (bool success, bytes memory res) = nextMessage.target.call(nextMessage.message);
         require(success, _getRevertMsgFromRes(res));
     }
 
     function receiveMessage(
         address _target,
-        bytes memory _message
+        bytes memory _message,
+        address _sender
     )
         public
     {
         nextMessage = Message(
             _target,
-            _message
+            _message,
+            _sender
         );
     }
 

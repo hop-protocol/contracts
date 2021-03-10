@@ -26,6 +26,19 @@ contract Mock_L1_CanonicalBridge {
 
     function sendMessage(
         address _target,
+        bytes memory _message
+    )
+        public
+    {
+        messenger.sendMessage(
+            _target,
+            _message,
+            uint32(0)
+        );
+    }
+
+    function sendTokens(
+        address _target,
         address _recipient,
         uint256 _amount
     )
@@ -34,10 +47,7 @@ contract Mock_L1_CanonicalBridge {
         bytes memory mintCalldata = abi.encodeWithSignature("mint(address,uint256)", _recipient, _amount);
 
         canonicalToken.safeTransferFrom(msg.sender, address(this), _amount);
-        messenger.sendMessage(
-            _target,
-            mintCalldata,
-            uint32(0)
-        );
+
+        sendMessage(_target, mintCalldata);
     }
 }
