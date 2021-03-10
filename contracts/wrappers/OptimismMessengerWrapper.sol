@@ -41,8 +41,8 @@ contract OptimismMessengerWrapper is MessengerWrapper {
         );
     }
 
-    function verifySender(address expectedSender, bytes memory /*_data*/) public override {
-        require(expectedSender == address(l1MessengerAddress), "OVM_MSG_WPR: Caller is not l1MessengerAddress");
+    function verifySender(address l1BridgeCaller, bytes memory /*_data*/) public override {
+        require(l1BridgeCaller == address(l1MessengerAddress), "OVM_MSG_WPR: Caller is not l1MessengerAddress");
         // Verify that cross-domain sender is l2BridgeAddress
         require(l1MessengerAddress.xDomainMessageSender() == l2BridgeAddress, "OVM_MSG_WPR: Invalid cross-domain sender");
     }

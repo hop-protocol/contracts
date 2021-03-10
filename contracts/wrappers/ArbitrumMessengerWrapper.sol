@@ -66,7 +66,7 @@ contract ArbitrumMessengerWrapper is MessengerWrapper {
         );
     }
 
-    function verifySender(address expectedSender, bytes memory _data) public override {
+    function verifySender(address l1BridgeCaller, bytes memory _data) public override {
         // ToDo: Verify sender with Arbitrum L1 messenger
         // Verify that sender is l2BridgeAddress
     }

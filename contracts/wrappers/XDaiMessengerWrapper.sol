@@ -16,13 +16,15 @@ contract XDaiMessengerWrapper is MessengerWrapper {
     iArbitraryMessageBridge public l1MessengerAddress;
     /// @notice The xDai AMB uses bytes32 for chainId instead of uint256
     bytes32 public l2ChainId;
+    address public ambBridge;
 
     constructor(
         address _l1BridgeAddress,
         address _l2BridgeAddress,
         uint256 _defaultGasLimit,
         iArbitraryMessageBridge _l1MessengerAddress,
-        uint256 _l2ChainId
+        uint256 _l2ChainId,
+        address _ambBridge
     )
         public
     {
@@ -31,6 +33,7 @@ contract XDaiMessengerWrapper is MessengerWrapper {
         defaultGasLimit = _defaultGasLimit;
         l1MessengerAddress = _l1MessengerAddress;
         l2ChainId = bytes32(_l2ChainId);
+        ambBridge = _ambBridge;
     }
 
     /**
@@ -46,8 +49,9 @@ contract XDaiMessengerWrapper is MessengerWrapper {
     }
 
     /// @notice message data is not needed for message verification with the xDai AMB
-    function verifySender(address, bytes memory) public override {
+    function verifySender(address l1BridgeCaller, bytes memory) public override {
         require(l1MessengerAddress.messageSender() == l2BridgeAddress);
+        require(l1BridgeCaller == ambBridge);
 
         // With the xDai AMB, it is best practice to also check the source chainId
         // https://docs.tokenbridge.net/amb-bridge/how-to-develop-xchain-apps-by-amb#receive-a-method-call-from-the-amb-bridge
