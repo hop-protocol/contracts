@@ -1,4 +1,4 @@
-import { BigNumber, BigNumberish, Arrayish, Contract, Signer, utils as ethersUtils } from 'ethers'
+import { BigNumber, BigNumberish, BytesLike, Contract, Signer, utils as ethersUtils } from 'ethers'
 import Transfer from '../../lib/Transfer'
 import MerkleTree from '../../lib/MerkleTree'
 import { expect } from 'chai'
@@ -906,8 +906,8 @@ export class L2Call {
   constructor(
     maxGas: BigNumberish | undefined,
     gasPriceBid: BigNumberish | undefined,
-    destAddress: Arrayish | undefined,
-    calldata: Arrayish | undefined
+    destAddress: BytesLike | undefined,
+    calldata: BytesLike | undefined
   ) {
     if (!maxGas) {
       maxGas = 0
@@ -928,7 +928,7 @@ export class L2Call {
     this.kind = L2MessageCode.Call
   }
 
-  static fromData(data: Arrayish): L2Call {
+  static fromData(data: BytesLike): L2Call {
     const bytes = ethersUtils.arrayify(data)
     return new L2Call(
       bytes.slice(0, 32),
@@ -959,6 +959,6 @@ function hex32(val: BigNumber): Uint8Array {
   return ethersUtils.zeroPad(ethersUtils.arrayify(val), 32)
 }
 
-function encodedAddress(addr: Arrayish): Uint8Array {
+function encodedAddress(addr: BytesLike): Uint8Array {
   return ethersUtils.zeroPad(ethersUtils.arrayify(addr), 32)
 }
