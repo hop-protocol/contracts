@@ -3,7 +3,7 @@ require('dotenv').config()
 import { ethers, l2ethers as ovmEthers } from 'hardhat'
 import { BigNumber, ContractFactory, Contract, Signer } from 'ethers'
 
-import { getContractFactories, readConfigFile, updateConfigFile, waitAfterTransaction } from '../shared/utils'
+import { getContractFactories, readConfigFile, updateConfigFile, waitAfterTransaction, wait } from '../shared/utils'
 import { isChainIdXDai } from '../../config/utils'
 
 import {
@@ -79,6 +79,9 @@ export async function setupL2 (config: Config) {
    * Setup
    */
 
+  // Some chains take a while to send funds from L1 -> L2. Wait until the funds have been fully sent
+  await waitForFunds(liquidityProvider, l2_canonicalToken, l2_hopBridgeToken)
+
   // Set up Uniswap
   let approvalParams: any[] = [l2_uniswapRouter.address, LIQUIDITY_PROVIDER_UNISWAP_AMOUNT]
   if (isChainIdXDai(l2_chainId)) { approvalParams.push(overrides) }
@@ -102,6 +105,8 @@ export async function setupL2 (config: Config) {
     DEFAULT_DEADLINE,
   ]
   if (isChainIdXDai(l2_chainId)) { addLiquidityParams.push(overrides) }
+  console.log('0', l2_uniswapRouter.address)
+  console.log('1', ...addLiquidityParams)
   await l2_uniswapRouter
     .connect(liquidityProvider)
     .addLiquidity(...addLiquidityParams)
@@ -118,6 +123,27 @@ export async function setupL2 (config: Config) {
   updateConfigFile({
     uniswapPairAddress
   })
+}
+
+const waitForFunds = async (
+  account: Signer,
+  l2_canonicalToken: Contract,
+  l2_hopBridgeToken: Contract,
+) => {
+  let isFunded: boolean = false
+
+  while (!isFunded) {
+    const canonicalTokenBalance: BigNumber = await l2_canonicalToken.balanceOf(await account.getAddress(), overrides)
+    const hopBridgeTokenBalance: BigNumber = await l2_hopBridgeToken.balanceOf(await account.getAddress(), overrides)
+
+    if (canonicalTokenBalance.eq(0) || hopBridgeTokenBalance.eq(0)) {
+      await wait(10e3)
+    } else {
+      isFunded = true
+    }
+  }
+
+  return
 }
 
 if (require.main === module) {
