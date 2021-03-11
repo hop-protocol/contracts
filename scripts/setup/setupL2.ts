@@ -130,13 +130,18 @@ const waitForFunds = async (
   l2_canonicalToken: Contract,
   l2_hopBridgeToken: Contract,
 ) => {
+  let checkCount: number = 0
   let isFunded: boolean = false
 
   while (!isFunded) {
+    if (checkCount === 30) {
+      throw new Error('L2 Hop Bridge tokens have not arrived after more than 5 minutes')
+    }
     const canonicalTokenBalance: BigNumber = await l2_canonicalToken.balanceOf(await account.getAddress(), overrides)
     const hopBridgeTokenBalance: BigNumber = await l2_hopBridgeToken.balanceOf(await account.getAddress(), overrides)
 
     if (canonicalTokenBalance.eq(0) || hopBridgeTokenBalance.eq(0)) {
+      checkCount += 1
       await wait(10e3)
     } else {
       isFunded = true
