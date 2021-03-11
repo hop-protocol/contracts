@@ -1,13 +1,14 @@
-import { BigNumber, Contract, Signer, utils as ethersUtils } from 'ethers'
+import { BigNumber, BigNumberish, Arrayish, Contract, Signer, utils as ethersUtils } from 'ethers'
 import Transfer from '../../lib/Transfer'
 import MerkleTree from '../../lib/MerkleTree'
 import { expect } from 'chai'
 import { expectBalanceOf, getRootHashFromTransferId, getTransferNonceFromEvent } from './utils'
-
+import { isChainIdOptimism, isChainIdArbitrum, isChainIdXDai } from '../../config/utils'
 import {
   CHAIN_IDS,
   TIMESTAMP_VARIANCE,
   DEAD_ADDRESS,
+  ARB_CHAIN_ADDRESS
 } from '../../config/constants'
 
 /**
@@ -39,19 +40,54 @@ export const executeCanonicalBridgeSendTokens = async (
 export const executeCanonicalBridgeSendMessage = async (
   l1_messenger: Contract,
   l2_bridge: Contract,
-  l2_messenger: Contract,
+  l2_messenger: Contract | string,
   sender: Signer,
-  message: string
+  message: string,
+  isProdDeployment: boolean = false,
+  l2ChainId: BigNumber = BigNumber.from('0')
 ) => {
-  const gasLimit: BigNumber = BigNumber.from('0')
-  await l1_messenger
-    .connect(sender)
-    .sendMessage(
+  // TODO: Remove the isProdDeployment
+  // TODO: Remove l2ChainId
+  let gasLimit: BigNumber
+  if (!isProdDeployment) {
+    gasLimit = BigNumber.from('0')
+  } else {
+    gasLimit = BigNumber.from('1000000')
+  }
+
+  const params: any[] = [
+    l2_bridge.address,
+    message,
+    gasLimit
+  ]
+
+  if (isChainIdArbitrum(l2ChainId)) {
+    const tx: L2Call = new L2Call(
+      BigNumber.from('2000000'),
+      BigNumber.from('2000000'),
       l2_bridge.address,
-      message,
-      gasLimit
+      message
     )
-  await l2_messenger.relayNextMessage()
+    await l1_messenger
+      .connect(sender)
+      .sendL2Message(ARB_CHAIN_ADDRESS, tx.asData())
+  } else if (isChainIdOptimism(l2ChainId)) {
+    await l1_messenger
+      .connect(sender)
+      .sendMessage(...params)
+  } else if (isChainIdXDai(l2ChainId)) {
+    await l1_messenger
+      .connect(sender)
+      .requireToPassMessage(...params)
+  } else {
+    await l1_messenger
+      .connect(sender)
+      .sendMessage(...params)
+  }
+
+  if (!isProdDeployment && typeof l2_messenger === 'object') {
+    await l2_messenger.relayNextMessage()
+  }
 }
 
 /**
@@ -857,4 +893,72 @@ const getAddressFromContractOrString = (input: Contract | string): string => {
   } else {
     return input.address
   }
+}
+
+// TODO: Move this to utils
+export class L2Call {
+  public maxGas: BigNumber
+  public gasPriceBid: BigNumber
+  public destAddress: string
+  public calldata: string
+  public kind: L2MessageCode.Call
+
+  constructor(
+    maxGas: BigNumberish | undefined,
+    gasPriceBid: BigNumberish | undefined,
+    destAddress: Arrayish | undefined,
+    calldata: Arrayish | undefined
+  ) {
+    if (!maxGas) {
+      maxGas = 0
+    }
+    if (!gasPriceBid) {
+      gasPriceBid = 0
+    }
+    if (!destAddress) {
+      destAddress = ethersUtils.hexZeroPad('0x', 20)
+    }
+    if (!calldata) {
+      calldata = '0x'
+    }
+    this.maxGas = BigNumber.from(maxGas)
+    this.gasPriceBid = BigNumber.from(gasPriceBid)
+    this.destAddress = ethersUtils.hexlify(destAddress)
+    this.calldata = ethersUtils.hexlify(calldata)
+    this.kind = L2MessageCode.Call
+  }
+
+  static fromData(data: Arrayish): L2Call {
+    const bytes = ethersUtils.arrayify(data)
+    return new L2Call(
+      bytes.slice(0, 32),
+      bytes.slice(32, 64),
+      bytes.slice(64, 96),
+      bytes.slice(96)
+    )
+  }
+
+  asData(): Uint8Array {
+    return ethersUtils.concat([
+      hex32(this.maxGas),
+      hex32(this.gasPriceBid),
+      encodedAddress(this.destAddress),
+      this.calldata,
+    ])
+  }
+}
+export enum L2MessageCode {
+  Transaction = 0,
+  ContractTransaction = 1,
+  Call = 2,
+  TransactionBatch = 3,
+  SignedTransaction = 4,
+}
+
+function hex32(val: BigNumber): Uint8Array {
+  return ethersUtils.zeroPad(ethersUtils.arrayify(val), 32)
+}
+
+function encodedAddress(addr: Arrayish): Uint8Array {
+  return ethersUtils.zeroPad(ethersUtils.arrayify(addr), 32)
 }

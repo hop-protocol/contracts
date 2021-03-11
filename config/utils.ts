@@ -35,10 +35,11 @@ export const getMessengerWrapperDefaults = (
   } else if (isChainIdXDai(chainId)) {
     gasLimit = 1000000
 
-    // TODO: Use realistic address
+    const isAmbL1: boolean = true
+    const ambAddress: string = getXDaiAmbAddresses(isAmbL1)
     additionalData.push(
       chainId.toString(),
-      ZERO_ADDRESS
+      ambAddress
     )
   }
 
@@ -81,10 +82,13 @@ export const getL2BridgeDefaults = (
     const defaultGasLimit = DEFAULT_MESSENGER_WRAPPER_GAS_LIMIT
     additionalData.push(defaultGasLimit)
   } else if (isChainIdXDai(chainId)) {
-    // TODO: Use realistic address
+    const isAmbL1: boolean = false
     const l1ChainIdBytes32 = ethersUtils.formatBytes32String(l1ChainId.toString())
-    additionalData.push(l1ChainIdBytes32)
-    additionalData.push(ZERO_ADDRESS)
+    const ambAddress: string = getXDaiAmbAddresses(isAmbL1)
+    additionalData.push(
+      l1ChainIdBytes32,
+      ambAddress
+    )
   }
 
   defaults.push(
@@ -135,6 +139,15 @@ export const isChainIdXDai = (chainId: BigNumber): boolean => {
   }
 
   return false
+}
+
+export const getXDaiAmbAddresses = (isAmbL1: boolean): string => {
+  const kovanAmbAddress: string = '0xFe446bEF1DbF7AFE24E81e05BC8B271C1BA9a560'
+  const sokolAmbAddress: string = '0x40CdfF886715A4012fAD0219D15C98bB149AeF0e'
+  if (isAmbL1) {
+    return kovanAmbAddress
+  }
+  return sokolAmbAddress
 }
 
 // Create an array of strings for each supported chain ID

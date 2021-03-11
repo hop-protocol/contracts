@@ -93,7 +93,6 @@ export const setUpL1AndL2Bridges = async (fixture: IFixture, opts: any) => {
   const {
     governance,
     l1_messenger,
-    l1_canonicalBridge,
     l1_bridge,
     l1_messengerWrapper,
     l2_bridge,

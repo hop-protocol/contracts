@@ -104,7 +104,7 @@ export async function deployL2 (config: Config) {
     l2_uniswapRouter
   ))
 
-  ;({ l2_bridge } = await deployBridge(
+  ;({ l2_bridge, l2_uniswapWrapper } = await deployBridge(
     l2_chainId,
     l1_chainId,
     l2_chainId,
@@ -141,18 +141,21 @@ export async function deployL2 (config: Config) {
   const l2_bridgeAddress: string = l2_bridge.address
   const l2_uniswapFactoryAddress: string = l2_uniswapFactory.address
   const l2_uniswapRouterAddress: string = l2_uniswapRouter.address
+  const l2_uniswapWrapperAddress: string = l2_uniswapWrapper.address
 
   console.log('L2 Deployments Complete')
   console.log('L2 Hop Bridge Token :', l2_hopBridgeTokenAddress)
   console.log('L2 Bridge           :', l2_bridgeAddress)
   console.log('L2 Uniswap Factory  :', l2_uniswapFactoryAddress)
   console.log('L2 Uniswap Router   :', l2_uniswapRouterAddress)
+  console.log('L2 Uniswap Wrapper  :', l2_uniswapWrapperAddress)
 
   updateConfigFile({
     l2_hopBridgeTokenAddress,
     l2_bridgeAddress,
     l2_uniswapFactoryAddress,
-    l2_uniswapRouterAddress
+    l2_uniswapRouterAddress,
+    l2_uniswapWrapperAddress
   })
 
   return {

@@ -308,8 +308,8 @@ export const waitAfterTransaction = async (contract: Contract = null) => {
     await contract.deployed()
   }
 
-  // NOTE: 4 seconds seems to work fine. 3 seconds does not always work
-  const secondsToWait = 4e3
+  // NOTE: 5 seconds seems to work fine. 4 seconds does not always work
+  const secondsToWait = 5e3
   await wait(secondsToWait)
 }
 

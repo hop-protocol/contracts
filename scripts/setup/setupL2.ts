@@ -9,7 +9,6 @@ import { isChainIdXDai } from '../../config/utils'
 import {
   DEFAULT_DEADLINE,
   LIQUIDITY_PROVIDER_UNISWAP_AMOUNT,
-  ALL_SUPPORTED_CHAIN_IDS,
   DEFAULT_ETHERS_OVERRIDES as overrides
 } from '../../config/constants'
 
@@ -17,7 +16,6 @@ interface Config {
   l2_chainId: string | BigNumber 
   l2_canonicalTokenAddress: string
   l2_hopBridgeTokenAddress: string
-  l2_bridgeAddress: string
   l2_uniswapFactoryAddress: string
   l2_uniswapRouterAddress: string
 }
@@ -27,7 +25,6 @@ export async function setupL2 (config: Config) {
     l2_chainId,
     l2_canonicalTokenAddress,
     l2_hopBridgeTokenAddress,
-    l2_bridgeAddress,
     l2_uniswapFactoryAddress,
     l2_uniswapRouterAddress
   } = config
@@ -49,7 +46,6 @@ export async function setupL2 (config: Config) {
   // L2
   let l2_canonicalToken: Contract
   let l2_hopBridgeToken: Contract
-  let l2_bridge: Contract
   let l2_uniswapFactory: Contract
   let l2_uniswapRouter: Contract
 
@@ -76,18 +72,12 @@ export async function setupL2 (config: Config) {
   l2_canonicalToken = L2_MockERC20.attach(l2_canonicalTokenAddress)
   l2_hopBridgeToken = L2_HopBridgeToken.attach(l2_hopBridgeTokenAddress)
 
-  l2_bridge = L2_Bridge.attach(l2_bridgeAddress)
   l2_uniswapFactory = L2_UniswapFactory.attach(l2_uniswapFactoryAddress)
   l2_uniswapRouter = L2_UniswapRouter.attach(l2_uniswapRouterAddress)
 
   /**
    * Setup
    */
-
-  let addSupportedChainIdsParams: any[] = [ALL_SUPPORTED_CHAIN_IDS]
-  if (isChainIdXDai(l2_chainId)) { addSupportedChainIdsParams.push(overrides) }
-  await l2_bridge.addSupportedChainIds(...addSupportedChainIdsParams)
-  await waitAfterTransaction()
 
   // Set up Uniswap
   let approvalParams: any[] = [l2_uniswapRouter.address, LIQUIDITY_PROVIDER_UNISWAP_AMOUNT]
@@ -135,7 +125,6 @@ if (require.main === module) {
     l2_chainId,
     l2_canonicalTokenAddress,
     l2_hopBridgeTokenAddress,
-    l2_bridgeAddress,
     l2_uniswapFactoryAddress,
     l2_uniswapRouterAddress,
   } = readConfigFile()
@@ -143,7 +132,6 @@ if (require.main === module) {
     l2_chainId,
     l2_canonicalTokenAddress,
     l2_hopBridgeTokenAddress,
-    l2_bridgeAddress,
     l2_uniswapFactoryAddress,
     l2_uniswapRouterAddress
   })
