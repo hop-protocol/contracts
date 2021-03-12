@@ -7,19 +7,19 @@ import {
   getContractFactories,
   sendChainSpecificBridgeDeposit,
   readConfigFile,
-  waitAfterTransaction
+  waitAfterTransaction,
 } from '../shared/utils'
 import { getMessengerWrapperDefaults } from '../../config/utils'
 import { IGetMessengerWrapperDefaults } from '../../config/interfaces'
 import {
   ALL_SUPPORTED_CHAIN_IDS,
   LIQUIDITY_PROVIDER_INITIAL_BALANCE,
-  ZERO_ADDRESS
+  ZERO_ADDRESS,
+  DEFAULT_ETHERS_OVERRIDES as overrides
 } from '../../config/constants'
 
 import {
   executeCanonicalBridgeSendMessage,
-  getSetL1BridgeAddressMessage,
   getAddSupportedChainIdsMessage,
   getSetUniswapWrapperAddressMessage
 } from '../../test/shared/contractFunctionWrappers'
@@ -116,20 +116,8 @@ export async function setupL1 (config: Config) {
 
   // Set up L2 Bridge state (through the L1 Canonical Messenger)
   const isProdDeployment: boolean = true
-  let message: string = getSetL1BridgeAddressMessage(l1_bridge)
-  await executeCanonicalBridgeSendMessage(
-    l1_messenger,
-    l2_bridge,
-    ZERO_ADDRESS,
-    governance,
-    message,
-    isProdDeployment,
-    l2_chainId
-  )
-  await waitAfterTransaction()
-
   let addSupportedChainIdsParams: any[] = ALL_SUPPORTED_CHAIN_IDS
-  message = getAddSupportedChainIdsMessage(addSupportedChainIdsParams)
+  let message: string = getAddSupportedChainIdsMessage(addSupportedChainIdsParams)
   await executeCanonicalBridgeSendMessage(
     l1_messenger,
     l2_bridge,

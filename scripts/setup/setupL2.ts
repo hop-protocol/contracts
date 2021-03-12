@@ -9,6 +9,7 @@ import { isChainIdXDai } from '../../config/utils'
 import {
   DEFAULT_DEADLINE,
   LIQUIDITY_PROVIDER_UNISWAP_AMOUNT,
+  ZERO_ADDRESS,
   DEFAULT_ETHERS_OVERRIDES as overrides
 } from '../../config/constants'
 
@@ -16,6 +17,7 @@ interface Config {
   l2_chainId: string | BigNumber 
   l2_canonicalTokenAddress: string
   l2_hopBridgeTokenAddress: string
+  l2_bridgeAddress: string
   l2_uniswapFactoryAddress: string
   l2_uniswapRouterAddress: string
 }
@@ -25,6 +27,7 @@ export async function setupL2 (config: Config) {
     l2_chainId,
     l2_canonicalTokenAddress,
     l2_hopBridgeTokenAddress,
+    l2_bridgeAddress,
     l2_uniswapFactoryAddress,
     l2_uniswapRouterAddress
   } = config
@@ -46,6 +49,7 @@ export async function setupL2 (config: Config) {
   // L2
   let l2_canonicalToken: Contract
   let l2_hopBridgeToken: Contract
+  let l2_bridge: Contract
   let l2_uniswapFactory: Contract
   let l2_uniswapRouter: Contract
 
@@ -72,6 +76,7 @@ export async function setupL2 (config: Config) {
   l2_canonicalToken = L2_MockERC20.attach(l2_canonicalTokenAddress)
   l2_hopBridgeToken = L2_HopBridgeToken.attach(l2_hopBridgeTokenAddress)
 
+  l2_bridge = L2_Bridge.attach(l2_bridgeAddress)
   l2_uniswapFactory = L2_UniswapFactory.attach(l2_uniswapFactoryAddress)
   l2_uniswapRouter = L2_UniswapRouter.attach(l2_uniswapRouterAddress)
 
@@ -79,8 +84,14 @@ export async function setupL2 (config: Config) {
    * Setup
    */
 
-  // Some chains take a while to send funds from L1 -> L2. Wait until the funds have been fully sent
-  await waitForFunds(liquidityProvider, l2_canonicalToken, l2_hopBridgeToken)
+  // Some chains take a while to send state from L1 -> L2. Wait until the state have been fully sent.
+  await waitForL2StateVerification(
+    liquidityProvider,
+    l2_chainId,
+    l2_canonicalToken,
+    l2_hopBridgeToken,
+    l2_bridge
+  )
 
   // Set up Uniswap
   let approvalParams: any[] = [l2_uniswapRouter.address, LIQUIDITY_PROVIDER_UNISWAP_AMOUNT]
@@ -125,26 +136,49 @@ export async function setupL2 (config: Config) {
   })
 }
 
-const waitForFunds = async (
+const waitForL2StateVerification = async (
   account: Signer,
+  l2ChainId: BigNumber,
   l2_canonicalToken: Contract,
   l2_hopBridgeToken: Contract,
+  l2_bridge: Contract
 ) => {
   let checkCount: number = 0
-  let isFunded: boolean = false
+  let isStateSet: boolean = false
 
-  while (!isFunded) {
+  while (!isStateSet) {
     if (checkCount === 30) {
-      throw new Error('L2 Hop Bridge tokens have not arrived after more than 5 minutes')
+      throw new Error('L2 state has not been set after more than 5 minutes - Hop Bridge Token Balance')
     }
-    const canonicalTokenBalance: BigNumber = await l2_canonicalToken.balanceOf(await account.getAddress(), overrides)
-    const hopBridgeTokenBalance: BigNumber = await l2_hopBridgeToken.balanceOf(await account.getAddress(), overrides)
 
-    if (canonicalTokenBalance.eq(0) || hopBridgeTokenBalance.eq(0)) {
+    // Validate that the chainIds have been added
+    console.log('000', l2ChainId)
+    const isChainIdSupported: boolean = await l2_bridge.supportedChainIds(l2ChainId, overrides)
+
+    // Validate that the Uniswap wrapper address has been set
+    console.log('111')
+    const uniswapWrapperAddress: string = await l2_bridge.uniswapWrapper(overrides)
+    console.log('222', uniswapWrapperAddress)
+
+    // Validate that the Hop Bridge Token balance has been updated
+    const canonicalTokenBalance: BigNumber = await l2_canonicalToken.balanceOf(await account.getAddress(), overrides)
+    console.log('333', canonicalTokenBalance)
+    const hopBridgeTokenBalance: BigNumber = await l2_hopBridgeToken.balanceOf(await account.getAddress(), overrides)
+    console.log('444', hopBridgeTokenBalance)
+
+
+    if (
+      !isChainIdSupported ||
+      uniswapWrapperAddress === ZERO_ADDRESS ||
+      canonicalTokenBalance.eq(0) ||
+      hopBridgeTokenBalance.eq(0)
+    ) {
+      console.log('waiting')
       checkCount += 1
       await wait(10e3)
     } else {
-      isFunded = true
+      console.log('done!!')
+      isStateSet = true
     }
   }
 
@@ -156,6 +190,7 @@ if (require.main === module) {
     l2_chainId,
     l2_canonicalTokenAddress,
     l2_hopBridgeTokenAddress,
+    l2_bridgeAddress,
     l2_uniswapFactoryAddress,
     l2_uniswapRouterAddress,
   } = readConfigFile()
@@ -163,6 +198,7 @@ if (require.main === module) {
     l2_chainId,
     l2_canonicalTokenAddress,
     l2_hopBridgeTokenAddress,
+    l2_bridgeAddress,
     l2_uniswapFactoryAddress,
     l2_uniswapRouterAddress
   })
