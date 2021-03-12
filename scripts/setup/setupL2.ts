@@ -116,8 +116,6 @@ export async function setupL2 (config: Config) {
     DEFAULT_DEADLINE,
   ]
   if (isChainIdXDai(l2_chainId)) { addLiquidityParams.push(overrides) }
-  console.log('0', l2_uniswapRouter.address)
-  console.log('1', ...addLiquidityParams)
   await l2_uniswapRouter
     .connect(liquidityProvider)
     .addLiquidity(...addLiquidityParams)
@@ -152,19 +150,14 @@ const waitForL2StateVerification = async (
     }
 
     // Validate that the chainIds have been added
-    console.log('000', l2ChainId)
     const isChainIdSupported: boolean = await l2_bridge.supportedChainIds(l2ChainId, overrides)
 
     // Validate that the Uniswap wrapper address has been set
-    console.log('111')
     const uniswapWrapperAddress: string = await l2_bridge.uniswapWrapper(overrides)
-    console.log('222', uniswapWrapperAddress)
 
     // Validate that the Hop Bridge Token balance has been updated
     const canonicalTokenBalance: BigNumber = await l2_canonicalToken.balanceOf(await account.getAddress(), overrides)
-    console.log('333', canonicalTokenBalance)
     const hopBridgeTokenBalance: BigNumber = await l2_hopBridgeToken.balanceOf(await account.getAddress(), overrides)
-    console.log('444', hopBridgeTokenBalance)
 
 
     if (
@@ -173,11 +166,10 @@ const waitForL2StateVerification = async (
       canonicalTokenBalance.eq(0) ||
       hopBridgeTokenBalance.eq(0)
     ) {
-      console.log('waiting')
       checkCount += 1
       await wait(10e3)
     } else {
-      console.log('done!!')
+      console.log('Number of iterations before state update:', checkCount)
       isStateSet = true
     }
   }

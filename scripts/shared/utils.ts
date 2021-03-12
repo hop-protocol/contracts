@@ -8,14 +8,6 @@ import {
   ARB_CHAIN_ADDRESS
 } from '../../config/constants'
 
-export const verifyDeployment = async (contract: Contract, ethers) => {
-  const isCodeAtAddress =
-    (await ethers.provider.getCode(contract.address)).length > 50
-  if (!isCodeAtAddress) {
-    throw new Error('Did not deploy correctly')
-  }
-}
-
 export const getContractFactories = async (
   chainId: BigNumber,
   signer: Signer,
@@ -301,7 +293,7 @@ export const readConfigFile = () => {
   return data
 }
 
-export const waitAfterTransaction = async (contract: Contract = null) => {
+export const waitAfterTransaction = async (contract: Contract = null, ethers = null ) => {
   // Ethers does not wait long enough after `deployed()` on some networks
   // so we wait additional time to verify deployment
   if (contract) {
@@ -311,7 +303,20 @@ export const waitAfterTransaction = async (contract: Contract = null) => {
   // NOTE: 6 seconds seems to work fine. 5 seconds does not always work
   const secondsToWait = 6e3
   await wait(secondsToWait)
+
+  if (contract && ethers) {
+    await verifyDeployment(contract, ethers)
+  }
 }
+
+export const verifyDeployment = async (contract: Contract, ethers) => {
+  const isCodeAtAddress =
+    (await ethers.provider.getCode(contract.address)).length > 50
+  if (!isCodeAtAddress) {
+    throw new Error('Did not deploy correctly')
+  }
+}
+
 
 export const wait = async (t: number) => {
   return new Promise(resolve => setTimeout(() => resolve(null), t))
