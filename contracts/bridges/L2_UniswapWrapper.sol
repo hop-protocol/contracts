@@ -5,12 +5,10 @@ pragma experimental ABIEncoderV2;
 
 import "@uniswap/v2-periphery/contracts/interfaces/IUniswapV2Router02.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import "./L2_Bridge.sol";
 import "../interfaces/IWETH.sol";
 
 contract L2_UniswapWrapper {
-    using SafeERC20 for IERC20;
 
     L2_Bridge public bridge;
     IERC20 public l2CanonicalToken;
@@ -55,14 +53,14 @@ contract L2_UniswapWrapper {
             require(msg.value == amount, "L2_BRG: Value does not match amount");
             IWETH(address(l2CanonicalToken)).deposit{value: amount}();
         } else {
-            l2CanonicalToken.safeTransferFrom(msg.sender, address(this), amount);
+            require(l2CanonicalToken.transferFrom(msg.sender, address(this), amount), "L2_UW: TransferFrom failed");
         }
 
         address[] memory exchangePath = _getCHPath();
         uint256[] memory swapAmounts = IUniswapV2Router02(exchangeAddress).getAmountsOut(amount, exchangePath);
         uint256 swapAmount = swapAmounts[1];
 
-        l2CanonicalToken.approve(address(exchangeAddress), amount);
+        require(l2CanonicalToken.approve(address(exchangeAddress), amount), "L2_UW: TransferFrom failed");
         IUniswapV2Router02(exchangeAddress).swapExactTokensForTokens(
             amount,
             amountOutMin,
@@ -75,8 +73,8 @@ contract L2_UniswapWrapper {
     }
 
     function attemptSwap(address recipient, uint256 amount, uint256 amountOutMin, uint256 deadline) external {
-        hToken.safeTransferFrom(msg.sender, address(this), amount);
-        hToken.approve(address(exchangeAddress), amount);
+        require(hToken.transferFrom(msg.sender, address(this), amount), "L2_UW: TransferFrom failed");
+        require(hToken.approve(address(exchangeAddress), amount), "L2_UW: Approve failed");
 
         bool success = true;
         if (l2CanonicalTokenIsEth) {
@@ -103,7 +101,7 @@ contract L2_UniswapWrapper {
 
         if (!success) {
             // Transfer hToken to recipient if swap fails
-            hToken.safeTransfer(recipient, amount);
+            require(hToken.transfer(recipient, amount), "L2_UW: Transfer failed");
         }
     }
 
