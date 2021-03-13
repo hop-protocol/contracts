@@ -157,7 +157,8 @@ export async function fixture (l1ChainId: BigNumber, l2ChainId: BigNumber, l1Alr
   )
 
   // Deploy Uniswap Wrapper
-  const l2CanonicalTokenIsEth: boolean = false
+  const l2CanonicalTokenName = await l2_canonicalToken.symbol()
+  const l2CanonicalTokenIsEth: boolean = l2CanonicalTokenName === 'WETH'
   const l2_uniswapWrapper = await L2_UniswapWrapper.deploy(
     l2_bridge.address,
     l2_canonicalToken.address,

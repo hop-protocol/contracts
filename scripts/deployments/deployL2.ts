@@ -225,8 +225,8 @@ const deployBridge = async (
   l2_bridge = await L2_Bridge.connect(owner).deploy(...l2BridgeDeploymentParams)
   await waitAfterTransaction(l2_bridge, ethers)
 
-  // TODO: l2CanonicalTokenIsEth should be 'smart'
-  const l2CanonicalTokenIsEth: boolean = false
+  const l2CanonicalTokenName = await l2_canonicalToken.symbol()
+  const l2CanonicalTokenIsEth: boolean = l2CanonicalTokenName === 'WETH'
   l2_uniswapWrapper = await L2_UniswapWrapper.connect(owner).deploy(
     l2_bridge.address,
     l2_canonicalToken.address,
