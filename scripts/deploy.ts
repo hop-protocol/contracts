@@ -48,12 +48,13 @@ async function execScript(cmd: string) {
 }
 
 function getNetworkParams(networkName: string): NetworkParams {
+  const l1_bridgeAddress: string = '0xC3AfC5D83d99eac3450aC9801cd6dd839d93f962'
   if (networkName === 'optimism') {
     return {
       l2_networkName: networkName,
       l1_chainId: CHAIN_IDS.ETHEREUM.KOVAN.toString(),
       l2_chainId: CHAIN_IDS.OPTIMISM.HOP_TESTNET.toString(),
-      l1_bridgeAddress: '0x944371f72C0839127864095a114c6adA0c4B6793',
+      l1_bridgeAddress,
       l1_canonicalTokenAddress: '0x7d669A64deb8a4A51eEa755bb0E19FD39CE25Ae9',
       l1_messengerAddress: '0x77eeDe6CC8B46C76e50979Ce3b4163253979c519',
       l2_canonicalTokenAddress: '0x57eaeE3D9C99b93D8FD1b50EF274579bFEC8e14B',
@@ -68,7 +69,7 @@ function getNetworkParams(networkName: string): NetworkParams {
       l2_networkName: networkName,
       l1_chainId: CHAIN_IDS.ETHEREUM.KOVAN.toString(),
       l2_chainId: CHAIN_IDS.ARBITRUM.TESTNET_3.toString(),
-      l1_bridgeAddress: '0x944371f72C0839127864095a114c6adA0c4B6793',
+      l1_bridgeAddress,
       l1_canonicalTokenAddress: '0x7d669A64deb8a4A51eEa755bb0E19FD39CE25Ae9',
       l1_messengerAddress: '0xE681857DEfE8b454244e701BA63EfAa078d7eA85',
       l2_canonicalTokenAddress: '0x7d669A64deb8a4A51eEa755bb0E19FD39CE25Ae9',
@@ -83,7 +84,7 @@ function getNetworkParams(networkName: string): NetworkParams {
       l2_networkName: networkName,
       l1_chainId: CHAIN_IDS.ETHEREUM.KOVAN.toString(),
       l2_chainId: CHAIN_IDS.XDAI.SOKOL.toString(),
-      l1_bridgeAddress: '0x944371f72C0839127864095a114c6adA0c4B6793',
+      l1_bridgeAddress,
       l1_canonicalTokenAddress: '0x7d669A64deb8a4A51eEa755bb0E19FD39CE25Ae9',
       l1_messengerAddress: '0xFe446bEF1DbF7AFE24E81e05BC8B271C1BA9a560',
       l2_canonicalTokenAddress: '0x714983a8Dc3329bf3BeB8F36b49878CF944E5A3B',
