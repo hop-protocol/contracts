@@ -40,21 +40,12 @@ export const executeCanonicalBridgeSendTokens = async (
 export const executeCanonicalBridgeSendMessage = async (
   l1_messenger: Contract,
   l2_bridge: Contract,
-  l2_messenger: Contract | string,
+  l2_messenger: Contract,
   sender: Signer,
   message: string,
-  isProdDeployment: boolean = false,
   l2ChainId: BigNumber = BigNumber.from('0')
 ) => {
-  // TODO: Remove the isProdDeployment
-  // TODO: Remove l2ChainId
-  let gasLimit: BigNumber
-  if (!isProdDeployment) {
-    gasLimit = BigNumber.from('0')
-  } else {
-    gasLimit = BigNumber.from('1000000')
-  }
-
+  const gasLimit: BigNumber = BigNumber.from('1000000')
   const params: any[] = [
     l2_bridge.address,
     message,
@@ -62,15 +53,10 @@ export const executeCanonicalBridgeSendMessage = async (
   ]
 
   if (isChainIdArbitrum(l2ChainId)) {
-    const tx: L2Call = new L2Call(
-      BigNumber.from('2000000'),
-      BigNumber.from('2000000'),
-      l2_bridge.address,
-      message
-    )
+    const arbitrumParams: any = getArbitrumMessageParams(l2_bridge, message)
     await l1_messenger
       .connect(sender)
-      .sendL2Message(ARB_CHAIN_ADDRESS, tx.asData())
+      .sendL2Message(...arbitrumParams)
   } else if (isChainIdOptimism(l2ChainId)) {
     await l1_messenger
       .connect(sender)
@@ -85,7 +71,8 @@ export const executeCanonicalBridgeSendMessage = async (
       .sendMessage(...params)
   }
 
-  if (!isProdDeployment && typeof l2_messenger === 'object') {
+  // Prod deployments should pass in ZERO_ADDRESS for the l2_messenger param
+  if (typeof l2_messenger === 'object') {
     await l2_messenger.relayNextMessage()
   }
 }
@@ -955,10 +942,24 @@ export enum L2MessageCode {
   SignedTransaction = 4,
 }
 
-function hex32(val: BigNumber): Uint8Array {
+const hex32 = (val: BigNumber): Uint8Array => {
   return ethersUtils.zeroPad(ethersUtils.arrayify(val), 32)
 }
 
-function encodedAddress(addr: BytesLike): Uint8Array {
+const encodedAddress = (addr: BytesLike): Uint8Array => {
   return ethersUtils.zeroPad(ethersUtils.arrayify(addr), 32)
 }
+
+const getArbitrumMessageParams = (l2_bridge: Contract, message: string) => {
+  const tx: L2Call = new L2Call(
+    BigNumber.from('2000000'),
+    BigNumber.from('2000000'),
+    l2_bridge.address,
+    message
+  )
+
+  return [
+    ARB_CHAIN_ADDRESS,
+    tx.asData()
+  ]
+} 

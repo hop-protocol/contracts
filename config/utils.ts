@@ -58,7 +58,6 @@ export const getMessengerWrapperDefaults = (
 }
 
 export const getL2BridgeDefaults = (
-  isProdDeployment: boolean,
   chainId: BigNumber,
   l2MessengerAddress: string,
   governanceAddress: string,
@@ -72,10 +71,6 @@ export const getL2BridgeDefaults = (
   let defaults: IGetL2BridgeDefaults[] = []
 
   let additionalData = []
-
-  if (!isProdDeployment) {
-    defaults.push(chainId)
-  }
 
   if (isChainIdArbitrum(chainId)) {
   } else if (isChainIdOptimism(chainId)) {

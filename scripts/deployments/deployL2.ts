@@ -210,9 +210,7 @@ const deployBridge = async (
 ) => {
   // NOTE: Adding more CHAIN_IDs here will push the OVM deployment over the contract size limit
   //       If additional CHAIN_IDs must be added, do so after the deployment.
-  const isProdDeployment: boolean = true
   const l2BridgeDeploymentParams = getL2BridgeDefaults(
-    isProdDeployment,
     chainId,
     l2_messengerAddress,
     await owner.getAddress(),
