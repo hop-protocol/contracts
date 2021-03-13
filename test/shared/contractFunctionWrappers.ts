@@ -466,7 +466,7 @@ export const executeL1BridgeChallengeTransferBond = async (
 export const executeL1BridgeResolveChallenge = async (
   l1_canonicalToken: Contract,
   l1_bridge: Contract,
-  l2_bridge: Contract,
+  originBridge: Contract,
   amount: BigNumber,
   bonder: Signer,
   challenger: Signer,
@@ -479,7 +479,7 @@ export const executeL1BridgeResolveChallenge = async (
   if (customTransferNonce) {
     transferNonce = customTransferNonce
   } else {
-    transferNonce = await getTransferNonceFromEvent(l2_bridge)
+    transferNonce = await getTransferNonceFromEvent(originBridge)
   }
   const transferId: Buffer = await transfer.getTransferId(transferNonce)
   const { rootHash } = getRootHashFromTransferId(transferId)

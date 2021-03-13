@@ -1114,6 +1114,68 @@ describe('L1_Bridge', () => {
         transfer
       )
     })
+
+    it('Should send a transaction from L2 to L2, bond withdrawal on L2, and challenge the transfer bond', async () => {
+      await executeL1BridgeSendToL2(
+        l1_canonicalToken,
+        l1_bridge,
+        l2_hopBridgeToken,
+        l2_canonicalToken,
+        l2_messenger,
+        l2_uniswapRouter,
+        transfer.sender,
+        transfer.recipient,
+        relayer,
+        transfer.amount,
+        transfer.amountOutMin,
+        transfer.deadline,
+        defaultRelayerFee,
+        l2ChainId
+      )
+
+      await executeL2BridgeSend(
+        l2_hopBridgeToken,
+        l2_bridge,
+        l2Transfer
+      )
+
+      // Bond withdrawal on other L2
+      const actualTransferAmount: BigNumber = l2Transfer.amount
+      await executeL2BridgeBondWithdrawalAndDistribute(
+        l2_bridge,
+        l22_hopBridgeToken,
+        l22_bridge,
+        l22_canonicalToken,
+        l22_uniswapRouter,
+        l2Transfer,
+        bonder,
+        actualTransferAmount
+      )
+
+      await executeL2BridgeCommitTransfers(
+        l2_bridge,
+        l2Transfer,
+        bonder
+      )
+
+      await executeL1BridgeBondTransferRoot(
+        l1_bridge,
+        l2_bridge,
+        l2Transfer,
+        bonder,
+        DEFAULT_TIME_TO_WAIT
+      )
+
+      await executeL1BridgeChallengeTransferBond(
+        l1_canonicalToken,
+        l1_bridge,
+        l2_bridge,
+        l2Transfer.amount,
+        bonder,
+        challenger,
+        l2Transfer
+      )
+    })
   })
 
   describe('resolveChallenge', async () => {
@@ -1340,6 +1402,249 @@ describe('L1_Bridge', () => {
         challenger,
         transfer,
         shouldResolveSuccessfully
+      )
+    })
+
+    it('Should send a transaction from L2 to L2, bond withdrawal on L2, and challenge the transfer bond, and resolve unsuccessfully', async () => {
+      await executeL1BridgeSendToL2(
+        l1_canonicalToken,
+        l1_bridge,
+        l2_hopBridgeToken,
+        l2_canonicalToken,
+        l2_messenger,
+        l2_uniswapRouter,
+        transfer.sender,
+        transfer.recipient,
+        relayer,
+        transfer.amount,
+        transfer.amountOutMin,
+        transfer.deadline,
+        defaultRelayerFee,
+        l2ChainId
+      )
+
+      await executeL2BridgeSend(
+        l2_hopBridgeToken,
+        l2_bridge,
+        l2Transfer
+      )
+
+      // Bond withdrawal on other L2
+      const actualTransferAmount: BigNumber = l2Transfer.amount
+      await executeL2BridgeBondWithdrawalAndDistribute(
+        l2_bridge,
+        l22_hopBridgeToken,
+        l22_bridge,
+        l22_canonicalToken,
+        l22_uniswapRouter,
+        l2Transfer,
+        bonder,
+        actualTransferAmount
+      )
+
+      await executeL2BridgeCommitTransfers(
+        l2_bridge,
+        l2Transfer,
+        bonder
+      )
+
+      await executeL1BridgeBondTransferRoot(
+        l1_bridge,
+        l2_bridge,
+        l2Transfer,
+        bonder,
+        DEFAULT_TIME_TO_WAIT
+      )
+
+      await executeL1BridgeChallengeTransferBond(
+        l1_canonicalToken,
+        l1_bridge,
+        l2_bridge,
+        l2Transfer.amount,
+        bonder,
+        challenger,
+        l2Transfer
+      )
+
+      const timeToWait: number = 10 * SECONDS_IN_A_DAY
+      await increaseTime(timeToWait)
+      await l1_messenger.relayNextMessage()
+
+      const shouldResolveSuccessfully: boolean = false
+      const didBonderWaitMinTransferRootTime: boolean = false
+      await executeL1BridgeResolveChallenge(
+        l1_canonicalToken,
+        l1_bridge,
+        l2_bridge,
+        l2Transfer.amount,
+        bonder,
+        challenger,
+        l2Transfer,
+        shouldResolveSuccessfully,
+        didBonderWaitMinTransferRootTime
+      )
+    })
+
+    it('Should send a transaction from L2 to L2, commit the bond, wait the min time then bond, challenge the transfer bond, and resolve unsuccessfully', async () => {
+      await executeL1BridgeSendToL2(
+        l1_canonicalToken,
+        l1_bridge,
+        l2_hopBridgeToken,
+        l2_canonicalToken,
+        l2_messenger,
+        l2_uniswapRouter,
+        transfer.sender,
+        transfer.recipient,
+        relayer,
+        transfer.amount,
+        transfer.amountOutMin,
+        transfer.deadline,
+        defaultRelayerFee,
+        l2ChainId
+      )
+
+      await executeL2BridgeSend(
+        l2_hopBridgeToken,
+        l2_bridge,
+        l2Transfer
+      )
+
+      // Bond withdrawal on other L2
+      const actualTransferAmount: BigNumber = l2Transfer.amount
+      await executeL2BridgeBondWithdrawalAndDistribute(
+        l2_bridge,
+        l22_hopBridgeToken,
+        l22_bridge,
+        l22_canonicalToken,
+        l22_uniswapRouter,
+        l2Transfer,
+        bonder,
+        actualTransferAmount
+      )
+
+      await executeL2BridgeCommitTransfers(
+        l2_bridge,
+        l2Transfer,
+        bonder
+      )
+
+      // TODO: Get this from the contract
+      let timeToWait: number = 16 * SECONDS_IN_A_MINUTE
+      await increaseTime(timeToWait)
+
+      await executeL1BridgeBondTransferRoot(
+        l1_bridge,
+        l2_bridge,
+        l2Transfer,
+        bonder,
+        DEFAULT_TIME_TO_WAIT
+      )
+
+      await executeL1BridgeChallengeTransferBond(
+        l1_canonicalToken,
+        l1_bridge,
+        l2_bridge,
+        l2Transfer.amount,
+        bonder,
+        challenger,
+        l2Transfer
+      )
+
+      timeToWait = 10 * SECONDS_IN_A_DAY
+      await increaseTime(timeToWait)
+      await l1_messenger.relayNextMessage()
+
+      const shouldResolveSuccessfully: boolean = false
+      await executeL1BridgeResolveChallenge(
+        l1_canonicalToken,
+        l1_bridge,
+        l2_bridge,
+        l2Transfer.amount,
+        bonder,
+        challenger,
+        l2Transfer,
+        shouldResolveSuccessfully
+      )
+    })
+
+    it('Should send a transaction from L2 to L2, bond withdrawal on L2, challenge the transfer bond, and resolve successfully', async () => {
+      await executeL1BridgeSendToL2(
+        l1_canonicalToken,
+        l1_bridge,
+        l2_hopBridgeToken,
+        l2_canonicalToken,
+        l2_messenger,
+        l2_uniswapRouter,
+        transfer.sender,
+        transfer.recipient,
+        relayer,
+        transfer.amount,
+        transfer.amountOutMin,
+        transfer.deadline,
+        defaultRelayerFee,
+        l2ChainId
+      )
+
+      await executeL2BridgeSend(
+        l2_hopBridgeToken,
+        l2_bridge,
+        l2Transfer
+      )
+
+      // Bond withdrawal on other L2
+      const actualTransferAmount: BigNumber = l2Transfer.amount
+      await executeL2BridgeBondWithdrawalAndDistribute(
+        l2_bridge,
+        l22_hopBridgeToken,
+        l22_bridge,
+        l22_canonicalToken,
+        l22_uniswapRouter,
+        l2Transfer,
+        bonder,
+        actualTransferAmount
+      )
+
+      await executeL2BridgeCommitTransfers(
+        l2_bridge,
+        l2Transfer,
+        bonder
+      )
+
+      await executeL1BridgeBondTransferRoot(
+        l1_bridge,
+        l2_bridge,
+        l2Transfer,
+        bonder,
+        DEFAULT_TIME_TO_WAIT
+      )
+
+      await executeL1BridgeChallengeTransferBond(
+        l1_canonicalToken,
+        l1_bridge,
+        l2_bridge,
+        l2Transfer.amount,
+        bonder,
+        challenger,
+        l2Transfer
+      )
+
+      const timeToWait: number = 10 * SECONDS_IN_A_DAY
+      await increaseTime(timeToWait)
+
+      // Message is not relayed successfully
+
+      const shouldResolveSuccessfully: boolean = true
+      const didBonderWaitMinTransferRootTime: boolean = false
+      await executeL1BridgeResolveChallenge(
+        l1_canonicalToken,
+        l1_bridge,
+        l2_bridge,
+        l2Transfer.amount,
+        bonder,
+        challenger,
+        l2Transfer,
+        shouldResolveSuccessfully,
+        didBonderWaitMinTransferRootTime
       )
     })
   })
