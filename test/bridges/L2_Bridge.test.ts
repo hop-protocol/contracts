@@ -11,7 +11,8 @@ import {
   getTransferNonce,
   increaseTime,
   revertSnapshot,
-  takeSnapshot
+  takeSnapshot,
+  getTransferNonceFromEvent
 } from '../shared/utils'
 import {
   executeCanonicalBridgeSendTokens,
@@ -593,7 +594,59 @@ describe('L2_Bridge', () => {
 
   describe('setTransferRoot', async () => {
     it('Should set the transfer root', async () => {
-      // TODO: Test this with actual transaction flow
+      await executeL1BridgeSendToL2(
+        l1_canonicalToken,
+        l1_bridge,
+        l2_hopBridgeToken,
+        l2_canonicalToken,
+        l2_messenger,
+        l2_uniswapRouter,
+        transfer.sender,
+        transfer.recipient,
+        relayer,
+        transfer.amount,
+        transfer.amountOutMin,
+        transfer.deadline,
+        defaultRelayerFee,
+        l2ChainId
+      )
+
+      await executeL2BridgeSend(
+        l2_hopBridgeToken,
+        l2_bridge,
+        l2Transfer
+      )
+
+      await executeL2BridgeCommitTransfers(
+        l2_bridge,
+        l2Transfer,
+        bonder
+      )
+
+      await executeL1BridgeBondTransferRoot(
+        l1_bridge,
+        l2_bridge,
+        l2Transfer,
+        bonder,
+        DEFAULT_TIME_TO_WAIT
+      )
+
+      await l1_messenger.relayNextMessage()
+      await l22_messenger.relayNextMessage()
+
+      const transferIndex: BigNumber = BigNumber.from('0')
+      const transferNonce: string = await getTransferNonceFromEvent(l2_bridge, transferIndex)
+      const transferId: Buffer = await l2Transfer.getTransferId(transferNonce)
+      const { rootHash } = getRootHashFromTransferId(transferId)
+
+      const transferRoot = await l22_bridge.getTransferRoot(rootHash, l2Transfer.amount)
+      const currentTime: number = Math.floor(Date.now() / 1000)
+      expect(transferRoot[0]).to.eq(l2Transfer.amount)
+      expect(transferRoot[1]).to.eq(BigNumber.from('0'))
+      expect(transferRoot[2].toNumber()).to.be.closeTo(
+        currentTime,
+        TIMESTAMP_VARIANCE
+      )
     })
   })
 
@@ -783,6 +836,17 @@ describe('L2_Bridge', () => {
           user,
           message
         )
+      ).to.be.revertedWith(expectedErrorMsg)
+    })
+  })
+
+  describe('setTransferRoot', async () => {
+    it('Should not set a transfer root if it is set by an arbitrary address', async () => {
+      const expectedErrorMsg: string = 'L2_OVM_BRG: Caller is not the expected sender'
+
+      const totalAmount: BigNumber = BigNumber.from('0')
+      await expect(
+        l2_bridge.setTransferRoot(ARBITRARY_ROOT_HASH, totalAmount)
       ).to.be.revertedWith(expectedErrorMsg)
     })
   })
