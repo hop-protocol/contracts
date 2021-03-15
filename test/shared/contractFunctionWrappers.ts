@@ -40,7 +40,7 @@ export const executeCanonicalBridgeSendTokens = async (
 export const executeCanonicalBridgeSendMessage = async (
   l1_messenger: Contract,
   l2_bridge: Contract,
-  l2_messenger: Contract,
+  l2_messenger: Contract | string,
   sender: Signer,
   message: string,
   l2ChainId: BigNumber = BigNumber.from('0')
