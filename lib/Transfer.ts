@@ -2,8 +2,8 @@ import * as ethers from 'ethers'
 
 export type TransferProps = {
   chainId: ethers.BigNumber
-  sender: ethers.Signer 
-  recipient: ethers.Signer 
+  sender: ethers.Signer
+  recipient: ethers.Signer
   amount: ethers.BigNumber
   bonderFee: ethers.BigNumber
   amountOutMin: ethers.BigNumber
@@ -14,8 +14,8 @@ export type TransferProps = {
 
 export default class Transfer {
   chainId: ethers.BigNumber
-  sender: ethers.Signer 
-  recipient: ethers.Signer 
+  sender: ethers.Signer
+  recipient: ethers.Signer
   amount: ethers.BigNumber
   bonderFee: ethers.BigNumber
   amountOutMin: ethers.BigNumber
@@ -35,9 +35,16 @@ export default class Transfer {
     this.destinationDeadline = props.destinationDeadline
   }
 
-  async getTransferId (transferNonce: string, isSwapAndSend: boolean = false): Promise<Buffer> {
-    const actualAmountOutMin: ethers.BigNumber = isSwapAndSend ? this.destinationAmountOutMin: this.amountOutMin
-    const actualDeadline: ethers.BigNumber = isSwapAndSend ? this.destinationDeadline : this.deadline
+  async getTransferId (
+    transferNonce: string,
+    isSwapAndSend: boolean = false
+  ): Promise<Buffer> {
+    const actualAmountOutMin: ethers.BigNumber = isSwapAndSend
+      ? this.destinationAmountOutMin
+      : this.amountOutMin
+    const actualDeadline: ethers.BigNumber = isSwapAndSend
+      ? this.destinationDeadline
+      : this.deadline
     const data = ethers.utils.defaultAbiCoder.encode(
       [
         'uint256',

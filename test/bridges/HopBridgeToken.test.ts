@@ -2,11 +2,7 @@ import '@nomiclabs/hardhat-waffle'
 import { expect } from 'chai'
 import { Signer, Contract, BigNumber } from 'ethers'
 
-import {
-  setUpDefaults,
-  revertSnapshot,
-  takeSnapshot
-} from '../shared/utils'
+import { setUpDefaults, revertSnapshot, takeSnapshot } from '../shared/utils'
 import { fixture } from '../shared/fixtures'
 import { IFixture } from '../shared/interfaces'
 
@@ -57,16 +53,16 @@ describe('L1_Bridge', () => {
     } = _fixture)
   })
 
-  after(async() => {
+  after(async () => {
     await revertSnapshot(beforeAllSnapshotId)
   })
 
   // Take snapshot before each test and revert after each test
-  beforeEach(async() => {
+  beforeEach(async () => {
     snapshotId = await takeSnapshot()
   })
 
-  afterEach(async() => {
+  afterEach(async () => {
     await revertSnapshot(snapshotId)
   })
 
@@ -92,7 +88,9 @@ describe('L1_Bridge', () => {
 
   it('Should allow the owner to mint tokens', async () => {
     // Set the owner to a known address for testing purposes
-    const message: string = getSetHopBridgeTokenOwnerMessage(await user.getAddress())
+    const message: string = getSetHopBridgeTokenOwnerMessage(
+      await user.getAddress()
+    )
     await executeCanonicalBridgeSendMessage(
       l1_messenger,
       l2_bridge,
@@ -102,12 +100,18 @@ describe('L1_Bridge', () => {
     )
 
     const mintAmount: BigNumber = BigNumber.from('13371377')
-    const userBalanceBefore: BigNumber = await l2_hopBridgeToken.balanceOf(await user.getAddress())
+    const userBalanceBefore: BigNumber = await l2_hopBridgeToken.balanceOf(
+      await user.getAddress()
+    )
     const totalSupplyBefore: BigNumber = await l2_hopBridgeToken.totalSupply()
 
-    await l2_hopBridgeToken.connect(user).mint(await user.getAddress(), mintAmount)
+    await l2_hopBridgeToken
+      .connect(user)
+      .mint(await user.getAddress(), mintAmount)
 
-    const userBalanceAfter: BigNumber = await l2_hopBridgeToken.balanceOf(await user.getAddress())
+    const userBalanceAfter: BigNumber = await l2_hopBridgeToken.balanceOf(
+      await user.getAddress()
+    )
     const totalSupplyAfter: BigNumber = await l2_hopBridgeToken.totalSupply()
 
     expect(userBalanceAfter).to.eq(userBalanceBefore.add(mintAmount))
@@ -116,7 +120,9 @@ describe('L1_Bridge', () => {
 
   it('Should allow the owner to burn tokens', async () => {
     // Set the owner to a known address for testing purposes
-    const message: string = getSetHopBridgeTokenOwnerMessage(await user.getAddress())
+    const message: string = getSetHopBridgeTokenOwnerMessage(
+      await user.getAddress()
+    )
     await executeCanonicalBridgeSendMessage(
       l1_messenger,
       l2_bridge,
@@ -126,20 +132,30 @@ describe('L1_Bridge', () => {
     )
 
     const mintAmount: BigNumber = BigNumber.from('13371377')
-    const userBalanceBefore: BigNumber = await l2_hopBridgeToken.balanceOf(await user.getAddress())
+    const userBalanceBefore: BigNumber = await l2_hopBridgeToken.balanceOf(
+      await user.getAddress()
+    )
     const totalSupplyBefore: BigNumber = await l2_hopBridgeToken.totalSupply()
 
-    await l2_hopBridgeToken.connect(user).mint(await user.getAddress(), mintAmount)
+    await l2_hopBridgeToken
+      .connect(user)
+      .mint(await user.getAddress(), mintAmount)
 
-    let userBalanceAfter: BigNumber = await l2_hopBridgeToken.balanceOf(await user.getAddress())
+    let userBalanceAfter: BigNumber = await l2_hopBridgeToken.balanceOf(
+      await user.getAddress()
+    )
     let totalSupplyAfter: BigNumber = await l2_hopBridgeToken.totalSupply()
 
     expect(userBalanceAfter).to.eq(userBalanceBefore.add(mintAmount))
     expect(totalSupplyAfter).to.eq(totalSupplyBefore.add(mintAmount))
 
-    await l2_hopBridgeToken.connect(user).burn(await user.getAddress(), mintAmount)
+    await l2_hopBridgeToken
+      .connect(user)
+      .burn(await user.getAddress(), mintAmount)
 
-    userBalanceAfter = await l2_hopBridgeToken.balanceOf(await user.getAddress())
+    userBalanceAfter = await l2_hopBridgeToken.balanceOf(
+      await user.getAddress()
+    )
     totalSupplyAfter = await l2_hopBridgeToken.totalSupply()
 
     expect(userBalanceAfter).to.eq(userBalanceBefore)
@@ -161,5 +177,4 @@ describe('L1_Bridge', () => {
       l2_hopBridgeToken.connect(user).burn(await user.getAddress(), mintAmount)
     ).to.be.revertedWith(expectedErrorMsg)
   })
-
 })

@@ -1,13 +1,14 @@
 require('dotenv').config()
 
 import { ethers, ethers as ovmEthers } from 'hardhat'
-import { BigNumber, ContractFactory, Signer, Contract } from 'ethers'
+import { BigNumber, ContractFactory, Signer, Contract, providers } from 'ethers'
 
 import {
   getContractFactories,
   sendChainSpecificBridgeDeposit,
   readConfigFile,
   waitAfterTransaction,
+  Logger
 } from '../shared/utils'
 import { getMessengerWrapperDefaults } from '../../config/utils'
 import { IGetMessengerWrapperDefaults } from '../../config/interfaces'
@@ -25,6 +26,8 @@ import {
   getSetUniswapWrapperAddressMessage
 } from '../../test/shared/contractFunctionWrappers'
 
+const logger = Logger('setupL1')
+
 // NOTE: Transactions sometimes get stuck during this script. Ensure that each transaction has been made.
 
 interface Config {
@@ -38,6 +41,8 @@ interface Config {
 }
 
 export async function setupL1 (config: Config) {
+  logger.log('setup L1')
+
   let {
     l1_chainId,
     l2_chainId,
@@ -47,6 +52,15 @@ export async function setupL1 (config: Config) {
     l2_bridgeAddress,
     l2_uniswapWrapperAddress
   } = config
+
+  logger.log(`config:
+            l1_chainId: ${l1_chainId}
+            l2_chainId: ${l2_chainId}
+            l1_messengerAddress: ${l1_messengerAddress}
+            l1_canonicalTokenAddress: ${l1_canonicalTokenAddress}
+            l1_bridgeAddress: ${l1_bridgeAddress}
+            l2_bridgeAddress: ${l2_bridgeAddress}
+            l2_uniswapWrapperAddress: ${l2_uniswapWrapperAddress}`)
 
   l1_chainId = BigNumber.from(l1_chainId)
   l2_chainId = BigNumber.from(l2_chainId)
@@ -77,6 +91,14 @@ export async function setupL1 (config: Config) {
   liquidityProvider = accounts[2]
   governance = owner
 
+  logger.log('owner:', await owner.getAddress())
+  logger.log('liquidity provider:', await liquidityProvider.getAddress())
+  logger.log('governance:', await governance.getAddress())
+
+  // Transaction
+  let tx: providers.TransactionResponse
+
+  logger.log('getting contract factories')
   // Get the contract Factories
   ;({
     L1_MockERC20,
@@ -86,6 +108,7 @@ export async function setupL1 (config: Config) {
     L2_Bridge
   } = await getContractFactories(l2_chainId, owner, ethers, ovmEthers))
 
+  logger.log('attaching deployed contracts')
   // Attach already deployed contracts
   l1_messenger = L1_Messenger.attach(l1_messengerAddress)
   l1_canonicalToken = L1_MockERC20.attach(l1_canonicalTokenAddress)
@@ -103,21 +126,29 @@ export async function setupL1 (config: Config) {
     l2_bridge.address,
     l1_messenger.address
   )
+
+  logger.log('deploying L1 messenger wrapper')
   l1_messengerWrapper = await L1_MessengerWrapper.connect(owner).deploy(
     ...messengerWrapperDefaults
   )
   await waitAfterTransaction(l1_messengerWrapper)
 
+  logger.log('setting cross domain messenger wrapper on L1 bridge')
   // Set up the L1 bridge
-  await l1_bridge.setCrossDomainMessengerWrapper(
+  tx = await l1_bridge.setCrossDomainMessengerWrapper(
     l2_chainId,
     l1_messengerWrapper.address
   )
+  await tx.wait()
   await waitAfterTransaction()
 
   // Set up L2 Bridge state (through the L1 Canonical Messenger)
   let setL1MessengerWrapperAddressParams: string = l1_messengerWrapper.address
-  let message: string = getSetL1MessengerWrapperAddressMessage(setL1MessengerWrapperAddressParams)
+  let message: string = getSetL1MessengerWrapperAddressMessage(
+    setL1MessengerWrapperAddressParams
+  )
+
+  logger.log('setting L1 messenger wrapper address on L2 bridge')
   await executeCanonicalBridgeSendMessage(
     l1_messenger,
     l2_bridge,
@@ -130,6 +161,12 @@ export async function setupL1 (config: Config) {
 
   let addSupportedChainIdsParams: any[] = ALL_SUPPORTED_CHAIN_IDS
   message = getAddSupportedChainIdsMessage(addSupportedChainIdsParams)
+
+  logger.log('setting supported chain IDs on L2 bridge')
+  logger.log(
+    'chain IDs:',
+    ALL_SUPPORTED_CHAIN_IDS.map(v => v.toString()).join(', ')
+  )
   await executeCanonicalBridgeSendMessage(
     l1_messenger,
     l2_bridge,
@@ -141,6 +178,8 @@ export async function setupL1 (config: Config) {
   await waitAfterTransaction()
 
   message = getSetUniswapWrapperAddressMessage(l2_uniswapWrapperAddress)
+
+  logger.log('setting uniswap wrapper address on L2 bridge')
   await executeCanonicalBridgeSendMessage(
     l1_messenger,
     l2_bridge,
@@ -151,19 +190,26 @@ export async function setupL1 (config: Config) {
   )
   await waitAfterTransaction()
 
+  logger.log('minting L1 canonical token')
   // Get canonical token to L2
   // NOTE: If this is not the self-mintable testnet DAI, comment this line out
-  await l1_canonicalToken
+  tx = await l1_canonicalToken
     .connect(owner)
     .mint(
       await liquidityProvider.getAddress(),
       LIQUIDITY_PROVIDER_INITIAL_BALANCE
     )
+  await tx.wait()
   await waitAfterTransaction()
-  await l1_canonicalToken
+
+  logger.log('approving L1 canonical token')
+  tx = await l1_canonicalToken
     .connect(liquidityProvider)
     .approve(l1_messenger.address, LIQUIDITY_PROVIDER_INITIAL_BALANCE)
+  await tx.wait()
   await waitAfterTransaction()
+
+  logger.log('sending chain specific bridge deposit')
   await sendChainSpecificBridgeDeposit(
     l1_chainId,
     liquidityProvider,
@@ -173,24 +219,31 @@ export async function setupL1 (config: Config) {
   )
   await waitAfterTransaction()
 
+  logger.log('minting L1 canonical token')
   // Get hop token on L2
   // NOTE: If this is not the self-mintable testnet DAI, comment this line out
-  await l1_canonicalToken
+  tx = await l1_canonicalToken
     .connect(owner)
     .mint(
       await liquidityProvider.getAddress(),
       LIQUIDITY_PROVIDER_INITIAL_BALANCE
     )
+  await tx.wait()
   await waitAfterTransaction()
-  await l1_canonicalToken
+
+  logger.log('approving L1 canonical token')
+  tx = await l1_canonicalToken
     .connect(liquidityProvider)
     .approve(l1_bridge.address, LIQUIDITY_PROVIDER_INITIAL_BALANCE)
+  await tx.wait()
   await waitAfterTransaction()
 
   const amountOutMin: BigNumber = BigNumber.from('0')
   const deadline: BigNumber = BigNumber.from('0')
   const relayerFee: BigNumber = BigNumber.from('0')
-  await l1_bridge
+
+  logger.log('sending token to L2')
+  tx = await l1_bridge
     .connect(liquidityProvider)
     .sendToL2(
       l2_chainId,
@@ -200,9 +253,10 @@ export async function setupL1 (config: Config) {
       deadline,
       relayerFee
     )
+  await tx.wait()
   await waitAfterTransaction()
 
-  console.log('L1 Setup Complete')
+  logger.log('L1 Setup Complete')
 }
 
 if (require.main === module) {
@@ -224,8 +278,11 @@ if (require.main === module) {
     l2_bridgeAddress,
     l2_uniswapWrapperAddress
   })
-  .catch(error => {
-    console.error(error)
-  })
-  .finally(() => process.exit(0))
+    .then(() => {
+      process.exit(0)
+    })
+    .catch(error => {
+      logger.error(error)
+      process.exit(1)
+    })
 }

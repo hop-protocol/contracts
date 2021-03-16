@@ -1,13 +1,19 @@
 require('dotenv').config()
-import util from 'util'
 
-import { updateConfigFile } from './shared/utils'
+import {
+  readConfigFile,
+  updateConfigFile,
+  execScript,
+  Logger
+} from './shared/utils'
 import {
   CHAIN_IDS,
   DEFAULT_H_BRIDGE_TOKEN_NAME,
   DEFAULT_H_BRIDGE_TOKEN_SYMBOL,
   DEFAULT_H_BRIDGE_TOKEN_DECIMALS
 } from '../config/constants'
+
+const logger = Logger('deploy')
 
 interface NetworkParams {
   l2_networkName: string
@@ -23,80 +29,111 @@ interface NetworkParams {
   l2_hBridgeTokenDecimals: number
 }
 
-const exec = util.promisify(require('child_process').exec)
+// Example usage:
+// $ npm run deploy -- kovan
+// $ npm run deploy -- xdai
+// $ npm run deploy -- optimism
+async function main () {
+  logger.log('deploy script initiated')
+  const networkName: string = process.argv[2]
+  if (!networkName) {
+    throw new Error('network name not specified')
+  }
 
-async function main() {
-  const l2_networkName: string = 'xdai'
-  const networkParams: NetworkParams = getNetworkParams(l2_networkName)
-  validateInputs(networkParams)
+  const networkParams: NetworkParams = getNetworkParams(networkName)
   updateConfigFile(networkParams)
 
-  await execScript(`npm run deploy:l2-${l2_networkName}`)
-  await execScript(`npm run setup:l1-kovan`)
-  await execScript(`npm run setup:l2-${l2_networkName}`)
+  const scripts: string[] = []
+  if (networkName === 'kovan') {
+    scripts.push(`npm run deploy:l1-kovan`)
+  } else {
+    validateInputs(networkParams)
+    scripts.push(
+      `npm run deploy:l2-${networkName}`,
+      `npm run setup:l1-kovan`,
+      `npm run setup:l2-${networkName}`
+    )
+  }
+
+  for (let i = 0; i < scripts.length; i++) {
+    const script = scripts[i]
+    logger.log(`executing script ${i + 1}/${scripts.length} "${script}"`)
+    await execScript(script)
+  }
+
+  logger.log('complete')
 }
 
-async function execScript(cmd: string) {
-  let {stdout, stderr} = await exec(cmd)
-  if (stdout) {
-    process.stdout.write(stdout)
-  }
-  if (stderr) {
-    process.stderr.write(stderr)
-    process.exit(0)
+function getNetworkParams (networkName: string): NetworkParams {
+  const { l1_bridgeAddress } = readConfigFile()
+  switch (networkName) {
+    case 'kovan': {
+      return {
+        l2_networkName: '',
+        l1_chainId: CHAIN_IDS.ETHEREUM.KOVAN.toString(),
+        l2_chainId: CHAIN_IDS.OPTIMISM.HOP_TESTNET.toString(),
+        l1_bridgeAddress: '',
+        l1_canonicalTokenAddress: '0x7d669A64deb8a4A51eEa755bb0E19FD39CE25Ae9',
+        l1_messengerAddress: '0x77eeDe6CC8B46C76e50979Ce3b4163253979c519',
+        l2_canonicalTokenAddress: '',
+        l2_messengerAddress: '',
+        l2_hBridgeTokenName: DEFAULT_H_BRIDGE_TOKEN_NAME,
+        l2_hBridgeTokenSymbol: DEFAULT_H_BRIDGE_TOKEN_SYMBOL,
+        l2_hBridgeTokenDecimals: DEFAULT_H_BRIDGE_TOKEN_DECIMALS
+      }
+    }
+    case 'optimism': {
+      return {
+        l2_networkName: networkName,
+        l1_chainId: CHAIN_IDS.ETHEREUM.KOVAN.toString(),
+        l2_chainId: CHAIN_IDS.OPTIMISM.HOP_TESTNET.toString(),
+        l1_bridgeAddress,
+        l1_canonicalTokenAddress: '0x7d669A64deb8a4A51eEa755bb0E19FD39CE25Ae9',
+        l1_messengerAddress: '0x77eeDe6CC8B46C76e50979Ce3b4163253979c519',
+        l2_canonicalTokenAddress: '0x57eaeE3D9C99b93D8FD1b50EF274579bFEC8e14B',
+        l2_messengerAddress: '0x4200000000000000000000000000000000000007',
+        l2_hBridgeTokenName: DEFAULT_H_BRIDGE_TOKEN_NAME,
+        l2_hBridgeTokenSymbol: DEFAULT_H_BRIDGE_TOKEN_SYMBOL,
+        l2_hBridgeTokenDecimals: DEFAULT_H_BRIDGE_TOKEN_DECIMALS
+      }
+    }
+    case 'arbitrum': {
+      return {
+        l2_networkName: networkName,
+        l1_chainId: CHAIN_IDS.ETHEREUM.KOVAN.toString(),
+        l2_chainId: CHAIN_IDS.ARBITRUM.TESTNET_3.toString(),
+        l1_bridgeAddress,
+        l1_canonicalTokenAddress: '0x7d669A64deb8a4A51eEa755bb0E19FD39CE25Ae9',
+        l1_messengerAddress: '0xE681857DEfE8b454244e701BA63EfAa078d7eA85',
+        l2_canonicalTokenAddress: '0x7d669A64deb8a4A51eEa755bb0E19FD39CE25Ae9',
+        l2_messengerAddress: '0x0000000000000000000000000000000000000064',
+        l2_hBridgeTokenName: DEFAULT_H_BRIDGE_TOKEN_NAME,
+        l2_hBridgeTokenSymbol: DEFAULT_H_BRIDGE_TOKEN_SYMBOL,
+        l2_hBridgeTokenDecimals: DEFAULT_H_BRIDGE_TOKEN_DECIMALS
+      }
+    }
+    case 'xdai': {
+      return {
+        l2_networkName: networkName,
+        l1_chainId: CHAIN_IDS.ETHEREUM.KOVAN.toString(),
+        l2_chainId: CHAIN_IDS.XDAI.SOKOL.toString(),
+        l1_bridgeAddress,
+        l1_canonicalTokenAddress: '0x7d669A64deb8a4A51eEa755bb0E19FD39CE25Ae9',
+        l1_messengerAddress: '0xFe446bEF1DbF7AFE24E81e05BC8B271C1BA9a560',
+        l2_canonicalTokenAddress: '0x714983a8Dc3329bf3BeB8F36b49878CF944E5A3B',
+        l2_messengerAddress: '0x40CdfF886715A4012fAD0219D15C98bB149AeF0e',
+        l2_hBridgeTokenName: DEFAULT_H_BRIDGE_TOKEN_NAME,
+        l2_hBridgeTokenSymbol: DEFAULT_H_BRIDGE_TOKEN_SYMBOL,
+        l2_hBridgeTokenDecimals: DEFAULT_H_BRIDGE_TOKEN_DECIMALS
+      }
+    }
+    default: {
+      throw new Error(`Unsupported network: ${networkName}`)
+    }
   }
 }
 
-function getNetworkParams(networkName: string): NetworkParams {
-  const l1_bridgeAddress: string = '0xC3AfC5D83d99eac3450aC9801cd6dd839d93f962'
-  if (networkName === 'optimism') {
-    return {
-      l2_networkName: networkName,
-      l1_chainId: CHAIN_IDS.ETHEREUM.KOVAN.toString(),
-      l2_chainId: CHAIN_IDS.OPTIMISM.HOP_TESTNET.toString(),
-      l1_bridgeAddress,
-      l1_canonicalTokenAddress: '0x7d669A64deb8a4A51eEa755bb0E19FD39CE25Ae9',
-      l1_messengerAddress: '0x77eeDe6CC8B46C76e50979Ce3b4163253979c519',
-      l2_canonicalTokenAddress: '0x57eaeE3D9C99b93D8FD1b50EF274579bFEC8e14B',
-      l2_messengerAddress: '0x6d2f304CFF4e0B67dA4ab38C6A5C8184a2424D05',
-      l2_hBridgeTokenName: DEFAULT_H_BRIDGE_TOKEN_NAME,
-      l2_hBridgeTokenSymbol: DEFAULT_H_BRIDGE_TOKEN_SYMBOL,
-      l2_hBridgeTokenDecimals: DEFAULT_H_BRIDGE_TOKEN_DECIMALS
-    }
-  }
-  if (networkName === 'arbitrum') {
-    return {
-      l2_networkName: networkName,
-      l1_chainId: CHAIN_IDS.ETHEREUM.KOVAN.toString(),
-      l2_chainId: CHAIN_IDS.ARBITRUM.TESTNET_3.toString(),
-      l1_bridgeAddress,
-      l1_canonicalTokenAddress: '0x7d669A64deb8a4A51eEa755bb0E19FD39CE25Ae9',
-      l1_messengerAddress: '0xE681857DEfE8b454244e701BA63EfAa078d7eA85',
-      l2_canonicalTokenAddress: '0x7d669A64deb8a4A51eEa755bb0E19FD39CE25Ae9',
-      l2_messengerAddress: '0x0000000000000000000000000000000000000064',
-      l2_hBridgeTokenName: DEFAULT_H_BRIDGE_TOKEN_NAME,
-      l2_hBridgeTokenSymbol: DEFAULT_H_BRIDGE_TOKEN_SYMBOL,
-      l2_hBridgeTokenDecimals: DEFAULT_H_BRIDGE_TOKEN_DECIMALS
-    }
-  }
-  if (networkName === 'xdai') {
-    return {
-      l2_networkName: networkName,
-      l1_chainId: CHAIN_IDS.ETHEREUM.KOVAN.toString(),
-      l2_chainId: CHAIN_IDS.XDAI.SOKOL.toString(),
-      l1_bridgeAddress,
-      l1_canonicalTokenAddress: '0x7d669A64deb8a4A51eEa755bb0E19FD39CE25Ae9',
-      l1_messengerAddress: '0xFe446bEF1DbF7AFE24E81e05BC8B271C1BA9a560',
-      l2_canonicalTokenAddress: '0x714983a8Dc3329bf3BeB8F36b49878CF944E5A3B',
-      l2_messengerAddress: '0x40CdfF886715A4012fAD0219D15C98bB149AeF0e',
-      l2_hBridgeTokenName: DEFAULT_H_BRIDGE_TOKEN_NAME,
-      l2_hBridgeTokenSymbol: DEFAULT_H_BRIDGE_TOKEN_SYMBOL,
-      l2_hBridgeTokenDecimals: DEFAULT_H_BRIDGE_TOKEN_DECIMALS
-    }
-  }
-}
-
-function validateInputs(inputs: any) {
+function validateInputs (inputs: any) {
   if (
     !inputs.l2_networkName ||
     !inputs.l1_chainId ||
@@ -115,7 +152,10 @@ function validateInputs(inputs: any) {
 }
 
 main()
-.catch(error => {
-  console.error(error)
-})
-.finally(() => process.exit(0))
+  .then(() => {
+    process.exit(0)
+  })
+  .catch(error => {
+    logger.error(error)
+    process.exit(1)
+  })

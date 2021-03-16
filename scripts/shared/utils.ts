@@ -1,12 +1,15 @@
 import path from 'path'
+import { spawn } from 'child_process'
 import fs from 'fs'
 import { ContractFactory, Contract, BigNumber, Signer } from 'ethers'
 
-import { isChainIdOptimism, isChainIdArbitrum, isChainIdXDai } from '../../config/utils'
-
 import {
-  ARB_CHAIN_ADDRESS
-} from '../../config/constants'
+  isChainIdOptimism,
+  isChainIdArbitrum,
+  isChainIdXDai
+} from '../../config/utils'
+
+import { ARB_CHAIN_ADDRESS } from '../../config/constants'
 
 export const getContractFactories = async (
   chainId: BigNumber,
@@ -270,22 +273,25 @@ const configFilepath = path.resolve(__dirname, '../deploy_config.json')
 
 export const updateConfigFile = (newData: any) => {
   const data = readConfigFile()
-  fs.writeFileSync(configFilepath, JSON.stringify({ ...data, ...newData}, null, 2))
+  fs.writeFileSync(
+    configFilepath,
+    JSON.stringify({ ...data, ...newData }, null, 2)
+  )
 }
 
 export const readConfigFile = () => {
   let data: any = {
-    'l2_chainId':'',
-    'l1_canonicalTokenAddress':'',
-    'l1_messengerAddress':'',
-    'l1_bridgeAddress':'',
-    'l2_bridgeAddress':'',
-    'l2_canonicalTokenAddress':'',
-    'l2_hopBridgeTokenAddress':'',
-    'l2_messengerAddress':'',
-    'l2_uniswapFactoryAddress':'',
-    'l2_uniswapRouterAddress':'',
-    'l2_uniswapWrapperAddress':''
+    l2_chainId: '',
+    l1_canonicalTokenAddress: '',
+    l1_messengerAddress: '',
+    l1_bridgeAddress: '',
+    l2_bridgeAddress: '',
+    l2_canonicalTokenAddress: '',
+    l2_hopBridgeTokenAddress: '',
+    l2_messengerAddress: '',
+    l2_uniswapFactoryAddress: '',
+    l2_uniswapRouterAddress: '',
+    l2_uniswapWrapperAddress: ''
   }
   if (fs.existsSync(configFilepath)) {
     data = JSON.parse(fs.readFileSync(configFilepath, 'utf8'))
@@ -293,7 +299,10 @@ export const readConfigFile = () => {
   return data
 }
 
-export const waitAfterTransaction = async (contract: Contract = null, ethers = null ) => {
+export const waitAfterTransaction = async (
+  contract: Contract = null,
+  ethers = null
+) => {
   // Ethers does not wait long enough after `deployed()` on some networks
   // so we wait additional time to verify deployment
   if (contract) {
@@ -317,7 +326,39 @@ export const verifyDeployment = async (contract: Contract, ethers) => {
   }
 }
 
-
 export const wait = async (t: number) => {
   return new Promise(resolve => setTimeout(() => resolve(null), t))
+}
+
+export async function execScript (cmd: string) {
+  return new Promise((resolve, reject) => {
+    const parts = cmd.split(' ')
+    const proc = spawn(parts[0], parts.slice(1))
+    proc.stdout.on('data', data => {
+      process.stdout.write(data.toString())
+    })
+    proc.stderr.on('data', data => {
+      process.stderr.write(data.toString())
+    })
+    proc.on('exit', code => {
+      if (code !== 0) {
+        reject(code)
+        return
+      }
+
+      resolve(code)
+    })
+  })
+}
+
+export const Logger = (label: string) => {
+  label = `[${label}]`
+  return {
+    log: (...args: any[]) => {
+      console.log(label, ...args)
+    },
+    error: (...args: any[]) => {
+      console.error(label, ...args)
+    }
+  }
 }

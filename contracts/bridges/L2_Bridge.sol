@@ -64,7 +64,7 @@ abstract contract L2_Bridge is Bridge {
     /// @notice When l2CanonicalTokenIsEth is true, l2CanonicalToken should be set to the WETH address
     constructor (
         address _l1Governance,
-        HopBridgeToken _hToken, 
+        HopBridgeToken _hToken,
         IERC20 _l2CanonicalToken,
         address _l1BridgeAddress,
         uint256[] memory _supportedChainIds,
@@ -88,7 +88,7 @@ abstract contract L2_Bridge is Bridge {
     /* ========== Virtual functions ========== */
 
     function _sendCrossDomainMessage(bytes memory message) internal virtual;
-    function _verifySender(address expectedSender) internal virtual; 
+    function _verifySender(address expectedSender) internal virtual;
 
     /* ========== Public/External functions ========== */
 

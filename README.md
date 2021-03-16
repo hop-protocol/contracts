@@ -57,7 +57,6 @@ Transfers can be challenged by anyone. Challenges require a challenger to put up
   - [Detailed Transaction Diagrams](https://github.com/hop-exchange/contracts/blob/master/assets/Hop_Contract_Inheritance_Diagram.jpg)
   - [Contract Inheritance](https://github.com/hop-exchange/contracts/blob/master/assets/Hop_Transfer_Diagrams.jpg)
 
-
 ### Expected Usage
 
 In the happy path case, a user will send tokens from one layer to another and receive the tokens on the receiving chain within seconds. The Bonder (an off-chain node) will be running and will facilitate the transfers by calling bonded withdrawal functions on the receiving chain.
@@ -79,10 +78,12 @@ TransferRoots can be rescued if they are created in error. In the case where a T
 These are the expected, happy-path cases for users to send and receive funds on each layer.
 
 - **L1 -> L2**
+
   - User calls `L1_Bridge.sendToL2()`
     - Funds will show up on the appropriate layer-2 through the canonical layer-2 messenger
 
 - **L2 -> L1**
+
   - User calls `L2_Bridge.swapAndSend()`
   - Bonder calls `L1_Bridge.bondWithdrawal()`
 
@@ -93,6 +94,7 @@ These are the expected, happy-path cases for users to send and receive funds on 
 If the bonder is offline, the system relies on the canonical layer-2 bridge to settle transactions on layer-1.
 
 - **L2 -> L1 (bonder offline)**
+
   - User calls `L2_Bridge.swapAndSend()`
   - `L2_Bridge.commitTransfer()` is called by anyone after 100 txs or after 4 hours
   - Wait for the sending layer-2 to be confirmed on layer-1 (approximately 7 days)
