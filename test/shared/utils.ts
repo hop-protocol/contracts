@@ -25,7 +25,11 @@ import {
 
 import { IFixture } from './interfaces'
 
-import { isChainIdOptimism, isChainIdArbitrum, isChainIdXDai } from '../../config/utils'
+import {
+  isChainIdOptimism,
+  isChainIdArbitrum,
+  isChainIdXDai
+} from '../../config/utils'
 
 /**
  * Initialization functions
@@ -71,10 +75,7 @@ export const setUpDefaults = async (
 }
 
 export const setUpL2HopBridgeToken = async (fixture: IFixture) => {
-  const {
-    l2_hopBridgeToken,
-    l2_bridge
-  } = fixture
+  const { l2_hopBridgeToken, l2_bridge } = fixture
 
   await l2_hopBridgeToken.transferOwnership(l2_bridge.address)
 }
@@ -180,18 +181,10 @@ export const setUpBonderStake = async (fixture: IFixture, opts: any) => {
     l2_uniswapRouter
   } = fixture
 
-  const {
-    l2ChainId,
-    bondAmount,
-    amountOutMin,
-    deadline,
-    relayerFee
-  } = opts
+  const { l2ChainId, bondAmount, amountOutMin, deadline, relayerFee } = opts
 
   // Stake on L1
-  await l1_canonicalToken
-    .connect(bonder)
-    .approve(l1_bridge.address, bondAmount)
+  await l1_canonicalToken.connect(bonder).approve(l1_bridge.address, bondAmount)
   await l1_bridge.connect(bonder).stake(await bonder.getAddress(), bondAmount)
 
   // Stake on L2
@@ -212,9 +205,7 @@ export const setUpBonderStake = async (fixture: IFixture, opts: any) => {
     l2ChainId
   )
 
-  await l2_hopBridgeToken
-    .connect(bonder)
-    .approve(l2_bridge.address, bondAmount)
+  await l2_hopBridgeToken.connect(bonder).approve(l2_bridge.address, bondAmount)
   await l2_bridge.connect(bonder).stake(await bonder.getAddress(), bondAmount)
 }
 
@@ -311,7 +302,11 @@ export const setUpL2UniswapMarket = async (fixture: IFixture, opts: any) => {
     l2_uniswapPair,
     liquidityProviderBalance
   )
-  await expectBalanceOf(l2_hopBridgeToken, l2_uniswapPair, liquidityProviderBalance)
+  await expectBalanceOf(
+    l2_hopBridgeToken,
+    l2_uniswapPair,
+    liquidityProviderBalance
+  )
 }
 
 /**
@@ -357,7 +352,7 @@ export const getRootHashFromTransferId = (transferId: Buffer) => {
   const tree: MerkleTree = new MerkleTree([transferId])
   const rootHash: Buffer = tree.getRoot()
   const rootHashHex: string = tree.getHexRoot()
-  
+
   return {
     rootHash,
     rootHashHex
@@ -365,21 +360,31 @@ export const getRootHashFromTransferId = (transferId: Buffer) => {
 }
 
 export const getTransferRootId = (rootHash: string, totalAmount: BigNumber) => {
-  return ethers.utils.solidityKeccak256(['bytes32', 'uint256'], [rootHash, totalAmount])
+  return ethers.utils.solidityKeccak256(
+    ['bytes32', 'uint256'],
+    [rootHash, totalAmount]
+  )
 }
 
-export const getTransferNonceFromEvent = async (l2_bridge: Contract, transferIndex: BigNumber = BigNumber.from('0')): Promise<string> => {
-  const transfersSentEvent = (
-    await l2_bridge.queryFilter(l2_bridge.filters.TransferSent())
+export const getTransferNonceFromEvent = async (
+  l2_bridge: Contract,
+  transferIndex: BigNumber = BigNumber.from('0')
+): Promise<string> => {
+  const transfersSentEvent = await l2_bridge.queryFilter(
+    l2_bridge.filters.TransferSent()
   )
   return transfersSentEvent[transferIndex.toNumber()].topics[3]
 }
 
-export const getTransferNonce = (transferNonceIncrementer: BigNumber, chainId: BigNumber): string => {
+export const getTransferNonce = (
+  transferNonceIncrementer: BigNumber,
+  chainId: BigNumber
+): string => {
   const nonceDomainSeparator = getNonceDomainSeparator()
   return ethers.utils.solidityKeccak256(
     ['bytes32', 'uint256', 'uint256'],
-    [nonceDomainSeparator, chainId, transferNonceIncrementer])
+    [nonceDomainSeparator, chainId, transferNonceIncrementer]
+  )
 }
 
 export const getNonceDomainSeparator = (): string => {
@@ -401,7 +406,8 @@ export const revertSnapshot = async (id: string) => {
 }
 
 export const mineBlock = async (seconds: number) => {
-  const blockTimestamp: number = (await ethers.provider.getBlock('latest')).timestamp
+  const blockTimestamp: number = (await ethers.provider.getBlock('latest'))
+    .timestamp
   await ethers.provider.send('evm_mine', [blockTimestamp + seconds])
 }
 

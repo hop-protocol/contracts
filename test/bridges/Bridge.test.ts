@@ -37,22 +37,18 @@ describe('Bridge', () => {
     l2ChainId = CHAIN_IDS.OPTIMISM.TESTNET_1
     _fixture = await fixture(l1ChainId, l2ChainId)
     await setUpDefaults(_fixture, l2ChainId)
-    ;({
-      bonder,
-      mockBridge,
-      transfers
-    } = _fixture)
+    ;({ bonder, mockBridge, transfers } = _fixture)
   })
 
-  after(async() => {
+  after(async () => {
     await revertSnapshot(beforeAllSnapshotId)
   })
 
-  beforeEach(async() => {
+  beforeEach(async () => {
     snapshotId = await takeSnapshot()
   })
 
-  afterEach(async() => {
+  afterEach(async () => {
     await revertSnapshot(snapshotId)
   })
 
@@ -63,8 +59,13 @@ describe('Bridge', () => {
   it('Should get the correct transfer id', async () => {
     for (let i = 0; i < transfers.length; i++) {
       const transfer: Transfer = transfers[i]
-      const transferNonce: string = getTransferNonce(BigNumber.from('0'), transfer.chainId)
-      const expectedTransferId: Buffer = await transfer.getTransferId(transferNonce)
+      const transferNonce: string = getTransferNonce(
+        BigNumber.from('0'),
+        transfer.chainId
+      )
+      const expectedTransferId: Buffer = await transfer.getTransferId(
+        transferNonce
+      )
       const transferId = await mockBridge.getTransferId(
         transfer.chainId,
         await transfer.recipient.getAddress(),
@@ -85,16 +86,23 @@ describe('Bridge', () => {
   })
 
   it('Should get the correct transferRoot', async () => {
-    const expectedTransferRootId: string = '0x1d2412fbc997e6119c879bd18d25205aab0a2d98c6958cc176b5d9009fd1063b'
+    const expectedTransferRootId: string =
+      '0x1d2412fbc997e6119c879bd18d25205aab0a2d98c6958cc176b5d9009fd1063b'
 
     const transfer: Transfer = transfers[0]
     const transferNonceIncrementer: BigNumber = BigNumber.from('0')
-    const transferNonce: string = getTransferNonce(transferNonceIncrementer, transfer.chainId)
+    const transferNonce: string = getTransferNonce(
+      transferNonceIncrementer,
+      transfer.chainId
+    )
     const transferId: Buffer = await transfer.getTransferId(transferNonce)
     const tree: MerkleTree = new MerkleTree([transferId])
     const transferRootHash: Buffer = tree.getRoot()
 
-    const transferRootId: string = await mockBridge.getTransferRootId(transferRootHash, transfer.amount)
+    const transferRootId: string = await mockBridge.getTransferRootId(
+      transferRootHash,
+      transfer.amount
+    )
     expect(transferRootId).to.eq(expectedTransferRootId)
   })
 
@@ -105,12 +113,18 @@ describe('Bridge', () => {
 
     const transfer: Transfer = transfers[0]
     const transferNonceIncrementer: BigNumber = BigNumber.from('0')
-    const transferNonce: string = getTransferNonce(transferNonceIncrementer, transfer.chainId)
+    const transferNonce: string = getTransferNonce(
+      transferNonceIncrementer,
+      transfer.chainId
+    )
     const transferId: Buffer = await transfer.getTransferId(transferNonce)
     const tree: MerkleTree = new MerkleTree([transferId])
     const transferRootHash: Buffer = tree.getRoot()
 
-    const transferRoot: string = await mockBridge.getTransferRoot(transferRootHash, transfer.amount)
+    const transferRoot: string = await mockBridge.getTransferRoot(
+      transferRootHash,
+      transfer.amount
+    )
     expect(transferRoot[0]).to.eq(expectedTransferRootTotal)
     expect(transferRoot[1]).to.eq(expectedTransferRootAmountWithdrawn)
   })
@@ -121,10 +135,16 @@ describe('Bridge', () => {
 
     const transfer: Transfer = transfers[0]
     const transferNonceIncrementer: BigNumber = BigNumber.from('0')
-    const transferNonce: string = getTransferNonce(transferNonceIncrementer, transfer.chainId)
+    const transferNonce: string = getTransferNonce(
+      transferNonceIncrementer,
+      transfer.chainId
+    )
     const transferId: Buffer = await transfer.getTransferId(transferNonce)
 
-    const bondedWithdrawalAmount: string = await mockBridge.getBondedWithdrawalAmount(await bonder.getAddress(), transferId)
+    const bondedWithdrawalAmount: string = await mockBridge.getBondedWithdrawalAmount(
+      await bonder.getAddress(),
+      transferId
+    )
     expect(bondedWithdrawalAmount).to.eq(expectedBondedWithdrawalAmount)
   })
 
@@ -132,10 +152,15 @@ describe('Bridge', () => {
     // TODO: Set up test to use real data
     const transfer: Transfer = transfers[0]
     const transferNonceIncrementer: BigNumber = BigNumber.from('0')
-    const transferNonce: string = getTransferNonce(transferNonceIncrementer, transfer.chainId)
+    const transferNonce: string = getTransferNonce(
+      transferNonceIncrementer,
+      transfer.chainId
+    )
     const transferId: Buffer = await transfer.getTransferId(transferNonce)
 
-    const isTransferIdSpent: string = await mockBridge.isTransferIdSpent(transferId)
+    const isTransferIdSpent: string = await mockBridge.isTransferIdSpent(
+      transferId
+    )
     expect(isTransferIdSpent).to.eq(false)
   })
 
@@ -173,7 +198,10 @@ describe('Bridge', () => {
     transfer.deadline = BigNumber.from(0)
 
     // TODO: This can use the helper function getRootHashFromTransferId()
-    const transferNonce: string = getTransferNonce(BigNumber.from('0'), transfer.chainId)
+    const transferNonce: string = getTransferNonce(
+      BigNumber.from('0'),
+      transfer.chainId
+    )
     const transferId: Buffer = await transfer.getTransferId(transferNonce)
     const tree: MerkleTree = new MerkleTree([transferId])
     const transferRootHash: Buffer = tree.getRoot()

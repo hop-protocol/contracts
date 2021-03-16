@@ -21,13 +21,6 @@
     "typeRoots": ["./node_modules/@types", "./@types"],
     "lib": ["es6", "es2016", "esnext.asynciterable"]
   },
-  "include": [
-    "scripts/*",
-    "config/*",
-    "lib/*"
-  ],
-  "exclude": [
-    "node_modules/**",
-    "**/*.spec.ts"
-  ]
+  "include": ["scripts/*", "config/*", "lib/*"],
+  "exclude": ["node_modules/**", "**/*.spec.ts"]
 }

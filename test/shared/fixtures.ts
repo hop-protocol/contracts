@@ -6,8 +6,14 @@ import Transfer from '../../lib/Transfer'
 import { getL2SpecificArtifact } from './utils'
 import { IFixture } from './interfaces'
 
-import { getMessengerWrapperDefaults, getL2BridgeDefaults } from '../../config/utils'
-import { IGetMessengerWrapperDefaults, IGetL2BridgeDefaults } from '../../config/interfaces'
+import {
+  getMessengerWrapperDefaults,
+  getL2BridgeDefaults
+} from '../../config/utils'
+import {
+  IGetMessengerWrapperDefaults,
+  IGetL2BridgeDefaults
+} from '../../config/interfaces'
 import {
   CHAIN_IDS,
   DEFAULT_DEADLINE,
@@ -19,7 +25,11 @@ import {
   DEFAULT_H_BRIDGE_TOKEN_DECIMALS
 } from '../../config/constants'
 
-export async function fixture (l1ChainId: BigNumber, l2ChainId: BigNumber, l1AlreadySetOpts: any = {}): Promise<IFixture> {
+export async function fixture (
+  l1ChainId: BigNumber,
+  l2ChainId: BigNumber,
+  l1AlreadySetOpts: any = {}
+): Promise<IFixture> {
   const {
     l2_bridgeArtifact,
     l1_messengerWrapperArtifact
@@ -64,7 +74,7 @@ export async function fixture (l1ChainId: BigNumber, l2ChainId: BigNumber, l1Alr
     '@uniswap/v2-core/contracts/UniswapV2Factory.sol:UniswapV2Factory'
   )
   const L2_UniswapWrapper = await ethers.getContractFactory(
-    'contracts/bridges/L2_UniswapWrapper.sol:L2_UniswapWrapper',
+    'contracts/bridges/L2_UniswapWrapper.sol:L2_UniswapWrapper'
   )
 
   // Mock Factories
@@ -81,7 +91,9 @@ export async function fixture (l1ChainId: BigNumber, l2ChainId: BigNumber, l1Alr
   // Deploy canonical tokens
   let l1_canonicalToken: Contract
   if (l1AlreadySetOpts?.l1CanonicalTokenAddress) {
-    l1_canonicalToken = MockERC20.attach(l1AlreadySetOpts.l1CanonicalTokenAddress)
+    l1_canonicalToken = MockERC20.attach(
+      l1AlreadySetOpts.l1CanonicalTokenAddress
+    )
   } else {
     l1_canonicalToken = await MockERC20.deploy('Dai Stable Token', 'DAI')
   }
@@ -115,10 +127,9 @@ export async function fixture (l1ChainId: BigNumber, l2ChainId: BigNumber, l1Alr
   if (l1AlreadySetOpts?.l1BridgeAddress) {
     l1_bridge = L1_Bridge.attach(l1AlreadySetOpts.l1BridgeAddress)
   } else {
-    l1_bridge = await L1_Bridge.deploy(
-      l1_canonicalToken.address,
-      [await bonder.getAddress()]
-    )
+    l1_bridge = await L1_Bridge.deploy(l1_canonicalToken.address, [
+      await bonder.getAddress()
+    ])
   }
 
   // Deploy Hop bridge token
@@ -141,9 +152,7 @@ export async function fixture (l1ChainId: BigNumber, l2ChainId: BigNumber, l1Alr
     l1ChainId
   )
   // NOTE: Deployments of the Mock bridge require the first param to be the L2 Chain Id
-  const l2_bridge = await L2_Bridge.deploy(
-    l2ChainId, ...l2BridgeDefaults
-  )
+  const l2_bridge = await L2_Bridge.deploy(l2ChainId, ...l2BridgeDefaults)
 
   // Deploy Messenger Wrapper
   const messengerWrapperDefaults: IGetMessengerWrapperDefaults[] = getMessengerWrapperDefaults(
@@ -168,7 +177,9 @@ export async function fixture (l1ChainId: BigNumber, l2ChainId: BigNumber, l1Alr
   )
 
   // Mocks
-  const mockAccounting = await MockAccounting.deploy([await bonder.getAddress()])
+  const mockAccounting = await MockAccounting.deploy([
+    await bonder.getAddress()
+  ])
   const mockBridge = await MockBridge.deploy([await bonder.getAddress()])
 
   // Transfers
@@ -209,7 +220,7 @@ export async function fixture (l1ChainId: BigNumber, l2ChainId: BigNumber, l1Alr
       recipient: user,
       deadline: DEFAULT_DEADLINE,
       ...genericTransfer
-    }),
+    })
   ]
 
   return {

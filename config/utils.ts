@@ -1,5 +1,8 @@
 import { BigNumber, utils as ethersUtils } from 'ethers'
-import { IGetMessengerWrapperDefaults, IGetL2BridgeDefaults } from './interfaces'
+import {
+  IGetMessengerWrapperDefaults,
+  IGetL2BridgeDefaults
+} from './interfaces'
 import {
   CHAIN_IDS,
   DEFAULT_MESSENGER_WRAPPER_GAS_LIMIT,
@@ -37,18 +40,10 @@ export const getMessengerWrapperDefaults = (
 
     const isAmbL1: boolean = true
     const ambAddress: string = getXDaiAmbAddresses(isAmbL1)
-    additionalData.push(
-      chainId.toString(),
-      ambAddress
-    )
+    additionalData.push(chainId.toString(), ambAddress)
   }
 
-  defaults.push(
-    l1BridgeAddress,
-    l2BridgeAddress,
-    gasLimit,
-    l1MessengerAddress
-  )
+  defaults.push(l1BridgeAddress, l2BridgeAddress, gasLimit, l1MessengerAddress)
 
   if (additionalData.length !== 0) {
     defaults.push(...additionalData)
@@ -78,12 +73,11 @@ export const getL2BridgeDefaults = (
     additionalData.push(defaultGasLimit)
   } else if (isChainIdXDai(chainId)) {
     const isAmbL1: boolean = false
-    const l1ChainIdBytes32 = ethersUtils.formatBytes32String(l1ChainId.toString())
-    const ambAddress: string = getXDaiAmbAddresses(isAmbL1)
-    additionalData.push(
-      l1ChainIdBytes32,
-      ambAddress
+    const l1ChainIdBytes32 = ethersUtils.formatBytes32String(
+      l1ChainId.toString()
     )
+    const ambAddress: string = getXDaiAmbAddresses(isAmbL1)
+    additionalData.push(l1ChainIdBytes32, ambAddress)
   }
 
   defaults.push(
@@ -127,9 +121,7 @@ export const isChainIdArbitrum = (chainId: BigNumber): boolean => {
 }
 
 export const isChainIdXDai = (chainId: BigNumber): boolean => {
-  if (
-    chainId.eq(CHAIN_IDS.XDAI.SOKOL)
-  ) {
+  if (chainId.eq(CHAIN_IDS.XDAI.SOKOL)) {
     return true
   }
 
@@ -153,4 +145,3 @@ export const getAllSupportedChainIds = (obj: any): string[] =>
         .reduce((a: string[], b: any) => a.concat(b), [] as any[])
         .filter((a: any) => typeof a === 'string')
     : [obj]
-

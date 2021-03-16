@@ -3,14 +3,27 @@ require('dotenv').config()
 import { ContractFactory, Signer, Contract, BigNumber } from 'ethers'
 import { ethers, l2ethers as ovmEthers } from 'hardhat'
 
-import { getContractFactories, updateConfigFile, readConfigFile, waitAfterTransaction } from '../shared/utils'
+import {
+  getContractFactories,
+  updateConfigFile,
+  readConfigFile,
+  waitAfterTransaction,
+  Logger
+} from '../shared/utils'
 
-import { isChainIdOptimism, isChainIdArbitrum, isChainIdXDai, getL2BridgeDefaults } from '../../config/utils'
+import {
+  isChainIdOptimism,
+  isChainIdArbitrum,
+  isChainIdXDai,
+  getL2BridgeDefaults
+} from '../../config/utils'
 import {
   ZERO_ADDRESS,
   CHAIN_IDS,
   DEFAULT_ETHERS_OVERRIDES as overrides
 } from '../../config/constants'
+
+const logger = Logger('deployL2')
 
 interface Config {
   l1_chainId: string | BigNumber
@@ -24,6 +37,8 @@ interface Config {
 }
 
 export async function deployL2 (config: Config) {
+  logger.log('deploy L2')
+
   let {
     l1_chainId,
     l2_chainId,
@@ -34,6 +49,16 @@ export async function deployL2 (config: Config) {
     l2_hBridgeTokenSymbol,
     l2_hBridgeTokenDecimals
   } = config
+
+  logger.log(`config:
+            l1_chainId: ${l1_chainId}
+            l2_chainId: ${l2_chainId}
+            l1_bridgeAddress: ${l1_bridgeAddress}
+            l2_canonicalTokenAddress: ${l2_canonicalTokenAddress}
+            l2_messengerAddress: ${l2_messengerAddress}
+            l2_hBridgeTokenName: ${l2_hBridgeTokenName}
+            l2_hBridgeTokenSymbol: ${l2_hBridgeTokenSymbol}
+            l2_hBridgeTokenDecimals: ${l2_hBridgeTokenDecimals}`)
 
   l1_chainId = BigNumber.from(l1_chainId)
   l2_chainId = BigNumber.from(l2_chainId)
@@ -79,7 +104,9 @@ export async function deployL2 (config: Config) {
     L2_UniswapPair,
     L2_UniswapWrapper
   } = await getContractFactories(l2_chainId, owner, ethers, ovmEthers))
+  logger.log('got factories')
 
+  logger.log('attaching deployed contracts')
   // Attach already deployed contracts
   l1_bridge = L1_Bridge.attach(l1_bridgeAddress)
   l2_canonicalToken = L2_MockERC20.attach(l2_canonicalTokenAddress)
@@ -88,13 +115,16 @@ export async function deployL2 (config: Config) {
    * Deployments
    */
 
+  logger.log('deploying L2 hop bridge token')
   l2_hopBridgeToken = await L2_HopBridgeToken.deploy(
     l2_hBridgeTokenName,
     l2_hBridgeTokenSymbol,
     l2_hBridgeTokenDecimals
   )
+
   await waitAfterTransaction(l2_hopBridgeToken, ethers)
 
+  logger.log('deploying L2 uniswap factory and L2 uniswap router')
   ;({ l2_uniswapFactory, l2_uniswapRouter } = await deployUniswap(
     ethers,
     owner,
@@ -104,6 +134,7 @@ export async function deployL2 (config: Config) {
     l2_uniswapRouter
   ))
 
+  logger.log('deploying L2 bridge and L2 uniswap wrapper')
   ;({ l2_bridge, l2_uniswapWrapper } = await deployBridge(
     l2_chainId,
     l1_chainId,
@@ -122,6 +153,7 @@ export async function deployL2 (config: Config) {
     l2_messengerAddress
   ))
 
+  logger.log('deploying network specific contracts')
   await deployNetworkSpecificContracts(
     l2_chainId,
     owner,
@@ -133,7 +165,11 @@ export async function deployL2 (config: Config) {
 
   // Transfer ownership of the Hop Bridge Token to the L2 Bridge
   let transferOwnershipParams: any[] = [l2_bridge.address]
-  if (isChainIdXDai(l2_chainId)) { transferOwnershipParams.push(overrides) }
+  if (isChainIdXDai(l2_chainId)) {
+    transferOwnershipParams.push(overrides)
+  }
+
+  logger.log('transferring ownership of L2 hop bridge token')
   await l2_hopBridgeToken.transferOwnership(...transferOwnershipParams)
   await waitAfterTransaction()
 
@@ -143,12 +179,12 @@ export async function deployL2 (config: Config) {
   const l2_uniswapRouterAddress: string = l2_uniswapRouter.address
   const l2_uniswapWrapperAddress: string = l2_uniswapWrapper.address
 
-  console.log('L2 Deployments Complete')
-  console.log('L2 Hop Bridge Token :', l2_hopBridgeTokenAddress)
-  console.log('L2 Bridge           :', l2_bridgeAddress)
-  console.log('L2 Uniswap Factory  :', l2_uniswapFactoryAddress)
-  console.log('L2 Uniswap Router   :', l2_uniswapRouterAddress)
-  console.log('L2 Uniswap Wrapper  :', l2_uniswapWrapperAddress)
+  logger.log('L2 Deployments Complete')
+  logger.log('L2 Hop Bridge Token :', l2_hopBridgeTokenAddress)
+  logger.log('L2 Bridge           :', l2_bridgeAddress)
+  logger.log('L2 Uniswap Factory  :', l2_uniswapFactoryAddress)
+  logger.log('L2 Uniswap Router   :', l2_uniswapRouterAddress)
+  logger.log('L2 Uniswap Wrapper  :', l2_uniswapWrapperAddress)
 
   updateConfigFile({
     l2_hopBridgeTokenAddress,
@@ -237,7 +273,9 @@ const deployBridge = async (
   await waitAfterTransaction(l2_uniswapWrapper, ethers)
 
   let setUniswapWrapperParams: any[] = [l2_uniswapWrapper.address]
-  if (isChainIdXDai(l2ChainId)) { setUniswapWrapperParams.push(overrides) }
+  if (isChainIdXDai(l2ChainId)) {
+    setUniswapWrapperParams.push(overrides)
+  }
   await l2_bridge.setUniswapWrapper(...setUniswapWrapperParams)
   await waitAfterTransaction()
 
@@ -270,7 +308,9 @@ const deployNetworkSpecificContracts = async (
     await waitAfterTransaction(l2_uniswapPair, ethers)
 
     let setPairParams: any[] = [l2_uniswapPair]
-    if (isChainIdXDai(l2ChainId)) { setPairParams.push(overrides) }
+    if (isChainIdXDai(l2ChainId)) {
+      setPairParams.push(overrides)
+    }
     await l2_uniswapFactory.connect(owner).setPair(l2_uniswapPair.address)
     await waitAfterTransaction()
     const realPair = await l2_uniswapFactory.realPair()
@@ -301,8 +341,11 @@ if (require.main === module) {
     l2_hBridgeTokenSymbol,
     l2_hBridgeTokenDecimals
   })
-  .catch(error => {
-    console.error(error)
-  })
-  .finally(() => process.exit(0))
+    .then(() => {
+      process.exit(0)
+    })
+    .catch(error => {
+      logger.error(error)
+      process.exit(1)
+    })
 }

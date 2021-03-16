@@ -21,13 +21,17 @@ export const CHAIN_IDS: any = {
   }
 }
 
-export const ALL_SUPPORTED_CHAIN_IDS: string[] = (Object.values(CHAIN_IDS) as any[]).reduce((a: any[], b: any) => [...a, ...Object.values(b)], [])
+export const ALL_SUPPORTED_CHAIN_IDS: string[] = (Object.values(
+  CHAIN_IDS
+) as any[]).reduce((a: any[], b: any) => [...a, ...Object.values(b)], [])
 
 export const ZERO_ADDRESS: string = '0x0000000000000000000000000000000000000000'
 export const ONE_ADDRESS: string = '0x0000000000000000000000000000000000000001'
 export const DEAD_ADDRESS: string = '0x000000000000000000000000000000000000dEaD'
-export const ARBITRARY_ROOT_HASH: string = '0x7465737400000000000000000000000000000000000000000000000000000000'
-export const ARBITRARY_TRANSFER_NONCE: string = '0x7465737400000000000000000000000000000000000000000000000000000000'
+export const ARBITRARY_ROOT_HASH: string =
+  '0x7465737400000000000000000000000000000000000000000000000000000000'
+export const ARBITRARY_TRANSFER_NONCE: string =
+  '0x7465737400000000000000000000000000000000000000000000000000000000'
 export const MAX_APPROVAL: BigNumber = BigNumber.from(
   '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff'
 )
@@ -77,5 +81,5 @@ export const DEFAULT_TIME_TO_WAIT: number = 0
 export const TIMESTAMP_VARIANCE: number = 1000000
 
 export const DEFAULT_ETHERS_OVERRIDES = {
-  gasLimit: 3000000
+  gasLimit: 2000000
 }
