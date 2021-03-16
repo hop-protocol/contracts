@@ -29,7 +29,7 @@ interface NetworkParams {
   l2_hBridgeTokenDecimals: number
 }
 
-// example usage:
+// Example usage:
 // $ npm run deploy -- kovan
 // $ npm run deploy -- xdai
 // $ npm run deploy -- optimism
@@ -91,7 +91,7 @@ function getNetworkParams (networkName: string): NetworkParams {
         l1_canonicalTokenAddress: '0x7d669A64deb8a4A51eEa755bb0E19FD39CE25Ae9',
         l1_messengerAddress: '0x77eeDe6CC8B46C76e50979Ce3b4163253979c519',
         l2_canonicalTokenAddress: '0x57eaeE3D9C99b93D8FD1b50EF274579bFEC8e14B',
-        l2_messengerAddress: '0x6d2f304CFF4e0B67dA4ab38C6A5C8184a2424D05',
+        l2_messengerAddress: '0x4200000000000000000000000000000000000007',
         l2_hBridgeTokenName: DEFAULT_H_BRIDGE_TOKEN_NAME,
         l2_hBridgeTokenSymbol: DEFAULT_H_BRIDGE_TOKEN_SYMBOL,
         l2_hBridgeTokenDecimals: DEFAULT_H_BRIDGE_TOKEN_DECIMALS

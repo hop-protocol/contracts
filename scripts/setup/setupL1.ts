@@ -1,7 +1,7 @@
 require('dotenv').config()
 
 import { ethers, ethers as ovmEthers } from 'hardhat'
-import { BigNumber, ContractFactory, Signer, Contract } from 'ethers'
+import { BigNumber, ContractFactory, Signer, Contract, providers } from 'ethers'
 
 import {
   getContractFactories,
@@ -91,6 +91,14 @@ export async function setupL1 (config: Config) {
   liquidityProvider = accounts[2]
   governance = owner
 
+  logger.log('owner:', await owner.getAddress())
+  logger.log('liquidity provider:', await liquidityProvider.getAddress())
+  logger.log('governance:', await governance.getAddress())
+
+  // Transaction
+  let tx: providers.TransactionResponse
+
+  logger.log('getting contract factories')
   // Get the contract Factories
   ;({
     L1_MockERC20,
@@ -99,7 +107,6 @@ export async function setupL1 (config: Config) {
     L1_MessengerWrapper,
     L2_Bridge
   } = await getContractFactories(l2_chainId, owner, ethers, ovmEthers))
-  logger.log('got contract factories')
 
   logger.log('attaching deployed contracts')
   // Attach already deployed contracts
@@ -124,15 +131,15 @@ export async function setupL1 (config: Config) {
   l1_messengerWrapper = await L1_MessengerWrapper.connect(owner).deploy(
     ...messengerWrapperDefaults
   )
-
   await waitAfterTransaction(l1_messengerWrapper)
 
   logger.log('setting cross domain messenger wrapper on L1 bridge')
   // Set up the L1 bridge
-  await l1_bridge.setCrossDomainMessengerWrapper(
+  tx = await l1_bridge.setCrossDomainMessengerWrapper(
     l2_chainId,
     l1_messengerWrapper.address
   )
+  await tx.wait()
   await waitAfterTransaction()
 
   // Set up L2 Bridge state (through the L1 Canonical Messenger)
@@ -186,18 +193,20 @@ export async function setupL1 (config: Config) {
   logger.log('minting L1 canonical token')
   // Get canonical token to L2
   // NOTE: If this is not the self-mintable testnet DAI, comment this line out
-  await l1_canonicalToken
+  tx = await l1_canonicalToken
     .connect(owner)
     .mint(
       await liquidityProvider.getAddress(),
       LIQUIDITY_PROVIDER_INITIAL_BALANCE
     )
+  await tx.wait()
   await waitAfterTransaction()
 
   logger.log('approving L1 canonical token')
-  await l1_canonicalToken
+  tx = await l1_canonicalToken
     .connect(liquidityProvider)
     .approve(l1_messenger.address, LIQUIDITY_PROVIDER_INITIAL_BALANCE)
+  await tx.wait()
   await waitAfterTransaction()
 
   logger.log('sending chain specific bridge deposit')
@@ -213,27 +222,28 @@ export async function setupL1 (config: Config) {
   logger.log('minting L1 canonical token')
   // Get hop token on L2
   // NOTE: If this is not the self-mintable testnet DAI, comment this line out
-  await l1_canonicalToken
+  tx = await l1_canonicalToken
     .connect(owner)
     .mint(
       await liquidityProvider.getAddress(),
       LIQUIDITY_PROVIDER_INITIAL_BALANCE
     )
+  await tx.wait()
   await waitAfterTransaction()
 
   logger.log('approving L1 canonical token')
-  await l1_canonicalToken
+  tx = await l1_canonicalToken
     .connect(liquidityProvider)
     .approve(l1_bridge.address, LIQUIDITY_PROVIDER_INITIAL_BALANCE)
+  await tx.wait()
   await waitAfterTransaction()
-  logger.log('got receipt')
 
   const amountOutMin: BigNumber = BigNumber.from('0')
   const deadline: BigNumber = BigNumber.from('0')
   const relayerFee: BigNumber = BigNumber.from('0')
 
   logger.log('sending token to L2')
-  await l1_bridge
+  tx = await l1_bridge
     .connect(liquidityProvider)
     .sendToL2(
       l2_chainId,
@@ -243,6 +253,7 @@ export async function setupL1 (config: Config) {
       deadline,
       relayerFee
     )
+  await tx.wait()
   await waitAfterTransaction()
 
   logger.log('L1 Setup Complete')

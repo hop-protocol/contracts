@@ -1,7 +1,7 @@
 require('dotenv').config()
 
-import { ContractFactory, Signer, Contract, BigNumber } from 'ethers'
 import { ethers, l2ethers as ovmEthers } from 'hardhat'
+import { ContractFactory, Signer, Contract, BigNumber, providers } from 'ethers'
 
 import {
   getContractFactories,
@@ -93,6 +93,13 @@ export async function deployL2 (config: Config) {
   owner = accounts[0]
   bonder = accounts[1]
 
+  logger.log('owner:', await owner.getAddress())
+  logger.log('bonder:', await bonder.getAddress())
+
+  // Transaction
+  let tx: providers.TransactionResponse
+
+  logger.log('getting contract factories')
   // Get the contract Factories
   ;({
     L1_Bridge,
@@ -104,7 +111,6 @@ export async function deployL2 (config: Config) {
     L2_UniswapPair,
     L2_UniswapWrapper
   } = await getContractFactories(l2_chainId, owner, ethers, ovmEthers))
-  logger.log('got factories')
 
   logger.log('attaching deployed contracts')
   // Attach already deployed contracts
@@ -121,7 +127,6 @@ export async function deployL2 (config: Config) {
     l2_hBridgeTokenSymbol,
     l2_hBridgeTokenDecimals
   )
-
   await waitAfterTransaction(l2_hopBridgeToken, ethers)
 
   logger.log('deploying L2 uniswap factory and L2 uniswap router')
@@ -170,7 +175,8 @@ export async function deployL2 (config: Config) {
   }
 
   logger.log('transferring ownership of L2 hop bridge token')
-  await l2_hopBridgeToken.transferOwnership(...transferOwnershipParams)
+  tx = await l2_hopBridgeToken.transferOwnership(...transferOwnershipParams)
+  await tx.wait()
   await waitAfterTransaction()
 
   const l2_hopBridgeTokenAddress: string = l2_hopBridgeToken.address
@@ -276,7 +282,8 @@ const deployBridge = async (
   if (isChainIdXDai(l2ChainId)) {
     setUniswapWrapperParams.push(overrides)
   }
-  await l2_bridge.setUniswapWrapper(...setUniswapWrapperParams)
+  const tx = await l2_bridge.setUniswapWrapper(...setUniswapWrapperParams)
+  await tx.wait()
   await waitAfterTransaction()
 
   return {
@@ -311,7 +318,10 @@ const deployNetworkSpecificContracts = async (
     if (isChainIdXDai(l2ChainId)) {
       setPairParams.push(overrides)
     }
-    await l2_uniswapFactory.connect(owner).setPair(l2_uniswapPair.address)
+    const tx = await l2_uniswapFactory
+      .connect(owner)
+      .setPair(l2_uniswapPair.address)
+    await tx.wait()
     await waitAfterTransaction()
     const realPair = await l2_uniswapFactory.realPair()
     if (l2_uniswapPair.address !== realPair) {

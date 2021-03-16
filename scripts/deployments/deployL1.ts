@@ -1,7 +1,7 @@
 require('dotenv').config()
 
 import { ethers } from 'hardhat'
-import { ContractFactory, Contract, Signer, BigNumber } from 'ethers'
+import { ContractFactory, Contract, Signer, BigNumber, providers } from 'ethers'
 
 import {
   getContractFactories,
@@ -34,13 +34,19 @@ export async function deployL1 (config: Config) {
   const owner: Signer = accounts[0]
   const bonder: Signer = accounts[1]
 
+  logger.log('owner:', await owner.getAddress())
+  logger.log('bonder:', await bonder.getAddress())
+
+  // Transaction
+  let tx: providers.TransactionResponse
+
   // Factories
   let L1_Bridge: ContractFactory
 
+  logger.log('getting contract factories')
   // Contracts
   let l1_bridge: Contract
   ;({ L1_Bridge } = await getContractFactories(l1_chainId, bonder, ethers))
-  logger.log('got contract factories')
 
   /**
    * Deployments
