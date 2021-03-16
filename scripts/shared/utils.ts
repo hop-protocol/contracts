@@ -25,11 +25,8 @@ export const getContractFactories = async (
     'contracts/bridges/L1_ERC20_Bridge.sol:L1_ERC20_Bridge',
     { signer }
   )
-  const L1_TokenBridge: ContractFactory = await ethers.getContractFactory(
-    'contracts/test/optimism/mockOVM_L1_ERC20_Bridge.sol:L1ERC20Bridge',
-    { signer }
-  )
 
+  let L1_TokenBridge: ContractFactory
   let L1_Messenger: ContractFactory
   let L1_MessengerWrapper: ContractFactory
   let L2_MockERC20: ContractFactory
@@ -40,6 +37,7 @@ export const getContractFactories = async (
   let L2_UniswapPair: ContractFactory
   let L2_UniswapWrapper: ContractFactory
   ;({
+    L1_TokenBridge,
     L1_Messenger,
     L1_MessengerWrapper,
     L2_MockERC20,
@@ -53,10 +51,10 @@ export const getContractFactories = async (
 
   return {
     L1_MockERC20,
+    L1_TokenBridge,
     L1_Bridge,
     L1_MessengerWrapper,
     L1_Messenger,
-    L1_TokenBridge,
     L2_MockERC20,
     L2_HopBridgeToken,
     L2_Bridge,
@@ -81,6 +79,7 @@ const getNetworkSpecificFactories = async (
     return getXDaiContractFactories(signer, ethers)
   } else {
     return {
+      L1_TokenBridge: null,
       L1_Messenger: null,
       L1_MessengerWrapper: null,
       L2_MockERC20: null,
@@ -99,6 +98,10 @@ const getOptimismContractFactories = async (
   ethers: any,
   ovmEthers: any
 ) => {
+  const L1_TokenBridge: ContractFactory = await ethers.getContractFactory(
+    'contracts/test/optimism/mockOVM_L1_ERC20_Bridge.sol:L1ERC20Bridge',
+    { signer }
+  )
   const L1_Messenger: ContractFactory = await ethers.getContractFactory(
     'contracts/test/optimism/mockOVM_CrossDomainMessenger.sol:mockOVM_CrossDomainMessenger',
     { signer }
@@ -137,6 +140,7 @@ const getOptimismContractFactories = async (
   )
 
   return {
+    L1_TokenBridge,
     L1_Messenger,
     L1_MessengerWrapper,
     L2_MockERC20,
@@ -150,6 +154,10 @@ const getOptimismContractFactories = async (
 }
 
 const getArbitrumContractFactories = async (signer: Signer, ethers: any) => {
+  const L1_TokenBridge: ContractFactory = await ethers.getContractFactory(
+    'contracts/test/arbitrum/inbox/GlobalInbox.sol:GlobalInbox',
+    { signer }
+  )
   const L1_Messenger: ContractFactory = await ethers.getContractFactory(
     'contracts/test/arbitrum/inbox/GlobalInbox.sol:GlobalInbox',
     { signer }
@@ -184,6 +192,7 @@ const getArbitrumContractFactories = async (signer: Signer, ethers: any) => {
   )
 
   return {
+    L1_TokenBridge,
     L1_Messenger,
     L1_MessengerWrapper,
     L2_MockERC20,
@@ -197,6 +206,10 @@ const getArbitrumContractFactories = async (signer: Signer, ethers: any) => {
 }
 
 const getXDaiContractFactories = async (signer: Signer, ethers: any) => {
+  const L1_TokenBridge: ContractFactory = await ethers.getContractFactory(
+    'contracts/test/xDai/IForeignOmniBridge.sol:IForeignOmniBridge',
+    { signer }
+  )
   const L1_Messenger: ContractFactory = await ethers.getContractFactory(
     'contracts/test/xDai/ArbitraryMessageBridge.sol:ArbitraryMessageBridge',
     { signer }
@@ -231,6 +244,7 @@ const getXDaiContractFactories = async (signer: Signer, ethers: any) => {
   )
 
   return {
+    L1_TokenBridge,
     L1_Messenger,
     L1_MessengerWrapper,
     L2_MockERC20,
@@ -253,7 +267,10 @@ export const sendChainSpecificBridgeDeposit = async (
   if (isChainIdOptimism(chainId)) {
     const tx = await l1_tokenBridge
       .connect(sender)
-      .deposit(await sender.getAddress(), amount)
+      .deposit(
+        await sender.getAddress(),
+        amount
+      )
     await tx.wait()
   } else if (isChainIdArbitrum(chainId)) {
     const tx = await l1_tokenBridge
@@ -268,7 +285,11 @@ export const sendChainSpecificBridgeDeposit = async (
   } else if (isChainIdXDai(chainId)) {
     const tx = await l1_tokenBridge
       .connect(sender)
-      .relayTokens(l1_canonicalToken.address, await sender.getAddress(), amount)
+      .relayTokens(
+        l1_canonicalToken.address,
+        await sender.getAddress(),
+        amount
+      )
     await tx.wait()
   } else {
     throw new Error(`Unsupported chain ID "${chainId}"`)

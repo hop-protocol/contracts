@@ -37,9 +37,6 @@ export async function deployL1 (config: Config) {
   logger.log('owner:', await owner.getAddress())
   logger.log('bonder:', await bonder.getAddress())
 
-  // Transaction
-  let tx: providers.TransactionResponse
-
   // Factories
   let L1_Bridge: ContractFactory
 

@@ -209,3 +209,7 @@ The following steps are to add a new layer-2 (Xyz, for example) to the Hop Syste
 - Why do my Optimism contract interactions appear to work but do not update state?
 
   - If `overrides` are added to Optimism contract invocations, the code will say the tx has succeeded, but no state will be updated.
+
+- Why do my Optimism deployments and transactions sometimes hang?
+
+  - Optimism seems to have introduced a denylist for some addresses on their public chain. Addresses that have interacted with their old public chain have seemingly been denylisted on their newest one.
