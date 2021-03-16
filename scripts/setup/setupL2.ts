@@ -177,17 +177,19 @@ export async function setupL2 (config: Config) {
   logger.log(`parameters:
     l2_hopBridgeToken: ${l2_hopBridgeToken.address}
     l2_canonicalToken: ${l2_canonicalToken.address}`)
-  const uniswapPairAddress = await l2_uniswapFactory.getPair(...getPairParams)
+  const l2_uniswapPairAddress = await l2_uniswapFactory.getPair(
+    ...getPairParams
+  )
 
   logger.log('L2 Setup Complete')
-  logger.log('L2 Uniswap Pair Address:', uniswapPairAddress)
+  logger.log('L2 Uniswap Pair Address:', l2_uniswapPairAddress)
 
   updateConfigFile({
-    uniswapPairAddress
+    l2_uniswapPairAddress
   })
 
   return {
-    uniswapPairAddress
+    l2_uniswapPairAddress
   }
 }
 

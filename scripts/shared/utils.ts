@@ -25,6 +25,10 @@ export const getContractFactories = async (
     'contracts/bridges/L1_ERC20_Bridge.sol:L1_ERC20_Bridge',
     { signer }
   )
+  const L1_TokenBridge: ContractFactory = await ethers.getContractFactory(
+    'contracts/test/optimism/mockOVM_L1_ERC20_Bridge.sol:L1ERC20Bridge',
+    { signer }
+  )
 
   let L1_Messenger: ContractFactory
   let L1_MessengerWrapper: ContractFactory
@@ -52,6 +56,7 @@ export const getContractFactories = async (
     L1_Bridge,
     L1_MessengerWrapper,
     L1_Messenger,
+    L1_TokenBridge,
     L2_MockERC20,
     L2_HopBridgeToken,
     L2_Bridge,
@@ -242,17 +247,16 @@ export const sendChainSpecificBridgeDeposit = async (
   chainId: BigNumber,
   sender: Signer,
   amount: BigNumber,
-  l1_messenger: Contract,
+  l1_tokenBridge: Contract,
   l1_canonicalToken: Contract
 ) => {
   if (isChainIdOptimism(chainId)) {
-    await l1_messenger
+    const tx = await l1_tokenBridge
       .connect(sender)
-      .deposit(await sender.getAddress(), amount, true)
-  }
-
-  if (isChainIdArbitrum(chainId)) {
-    await l1_messenger
+      .deposit(await sender.getAddress(), amount)
+    await tx.wait()
+  } else if (isChainIdArbitrum(chainId)) {
+    const tx = await l1_tokenBridge
       .connect(sender)
       .depositERC20Message(
         ARB_CHAIN_ADDRESS,
@@ -260,12 +264,14 @@ export const sendChainSpecificBridgeDeposit = async (
         await sender.getAddress(),
         amount
       )
-  }
-
-  if (isChainIdXDai(chainId)) {
-    await l1_messenger
+    await tx.wait()
+  } else if (isChainIdXDai(chainId)) {
+    const tx = await l1_tokenBridge
       .connect(sender)
-      .relayTokens(l1_canonicalToken.address, amount)
+      .relayTokens(l1_canonicalToken.address, await sender.getAddress(), amount)
+    await tx.wait()
+  } else {
+    throw new Error(`Unsupported chain ID "${chainId}"`)
   }
 }
 

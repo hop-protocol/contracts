@@ -39,7 +39,7 @@ export default {
       chainId: CHAIN_IDS.ARBITRUM.TESTNET_3.toNumber()
     },
     optimism: {
-      url: 'https://kovan.optimism.rpc.hop.exchange',
+      url: 'https://kovan.optimism.io',
       accounts: desiredAccounts,
       gasPrice: 0,
       gas: 9000000,

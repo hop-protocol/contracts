@@ -1,6 +1,6 @@
 require('dotenv').config()
 
-import { ethers, ethers as ovmEthers } from 'hardhat'
+import { ethers, l2ethers as ovmEthers } from 'hardhat'
 import { BigNumber, ContractFactory, Signer, Contract, providers } from 'ethers'
 
 import {
@@ -76,6 +76,7 @@ export async function setupL1 (config: Config) {
   let L1_Bridge: ContractFactory
   let L1_MessengerWrapper: ContractFactory
   let L1_Messenger: ContractFactory
+  let L1_TokenBridge: ContractFactory
   let L2_Bridge: ContractFactory
 
   // Contracts
@@ -83,6 +84,7 @@ export async function setupL1 (config: Config) {
   let l1_messengerWrapper: Contract
   let l1_bridge: Contract
   let l1_messenger: Contract
+  let l1_tokenBridge: Contract
   let l2_bridge: Contract
 
   // Instantiate the wallets
@@ -105,6 +107,7 @@ export async function setupL1 (config: Config) {
     L1_Bridge,
     L1_Messenger,
     L1_MessengerWrapper,
+    L1_TokenBridge,
     L2_Bridge
   } = await getContractFactories(l2_chainId, owner, ethers, ovmEthers))
 
@@ -114,6 +117,42 @@ export async function setupL1 (config: Config) {
   l1_canonicalToken = L1_MockERC20.attach(l1_canonicalTokenAddress)
   l1_bridge = L1_Bridge.attach(l1_bridgeAddress)
   l2_bridge = L2_Bridge.attach(l2_bridgeAddress)
+
+  // optimism
+  const l1_tokenBridgeAddress = '0xC76F55Dd0aeF08e46a454DCbb4fAA940d4450C72'
+  l1_tokenBridge = L1_TokenBridge.attach(l1_tokenBridgeAddress)
+
+  // xdai
+  //const l1_tokenBridgeAddress = '0xA960d095470f7509955d5402e36d9DB984B5C8E2'
+
+  /*
+	// xdai
+	const abi = [
+{
+      "constant": false,
+      "inputs": [
+        {
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "name": "_receiver",
+          "type": "address"
+        },
+        {
+          "name": "_amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "relayTokens",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function"
+    }
+	]
+  l1_tokenBridge = new Contract(l1_tokenBridgeAddress, abi, owner)
+	*/
 
   /**
    * Setup
@@ -205,16 +244,16 @@ export async function setupL1 (config: Config) {
   logger.log('approving L1 canonical token')
   tx = await l1_canonicalToken
     .connect(liquidityProvider)
-    .approve(l1_messenger.address, LIQUIDITY_PROVIDER_INITIAL_BALANCE)
+    .approve(l1_tokenBridge.address, LIQUIDITY_PROVIDER_INITIAL_BALANCE)
   await tx.wait()
   await waitAfterTransaction()
 
   logger.log('sending chain specific bridge deposit')
   await sendChainSpecificBridgeDeposit(
-    l1_chainId,
+    l2_chainId,
     liquidityProvider,
     LIQUIDITY_PROVIDER_INITIAL_BALANCE,
-    l1_messenger,
+    l1_tokenBridge,
     l1_canonicalToken
   )
   await waitAfterTransaction()

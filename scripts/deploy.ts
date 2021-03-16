@@ -89,8 +89,13 @@ function getNetworkParams (networkName: string): NetworkParams {
         l2_chainId: CHAIN_IDS.OPTIMISM.HOP_TESTNET.toString(),
         l1_bridgeAddress,
         l1_canonicalTokenAddress: '0x7d669A64deb8a4A51eEa755bb0E19FD39CE25Ae9',
-        l1_messengerAddress: '0x77eeDe6CC8B46C76e50979Ce3b4163253979c519',
-        l2_canonicalTokenAddress: '0x57eaeE3D9C99b93D8FD1b50EF274579bFEC8e14B',
+
+        //l1_messengerAddress: '0x77eeDe6CC8B46C76e50979Ce3b4163253979c519',
+        l1_messengerAddress: '0xb89065D5eB05Cac554FDB11fC764C679b4202322',
+
+        //l2_canonicalTokenAddress: '0x57eaeE3D9C99b93D8FD1b50EF274579bFEC8e14B',
+        l2_canonicalTokenAddress: '0x782e1ec5F7381269b2e5DC4eD58648C60161539b',
+
         l2_messengerAddress: '0x4200000000000000000000000000000000000007',
         l2_hBridgeTokenName: DEFAULT_H_BRIDGE_TOKEN_NAME,
         l2_hBridgeTokenSymbol: DEFAULT_H_BRIDGE_TOKEN_SYMBOL,
