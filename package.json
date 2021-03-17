@@ -30,7 +30,9 @@
     "deploy:l1-optimism-canonical-bridge": "hardhat run scripts/deployments/optimism-canonical-bridge/deployL1.ts --network kovan",
     "deploy:l2-optimism-canonical-bridge": "hardhat run scripts/deployments/optimism-canonical-bridge/deployL2.ts --network optimism",
     "setup:l2-optimism-canonical-bridge": "hardhat run scripts/setup/optimism-canonical-bridge/setupL2.ts --network optimism",
-    "check-l2-bridge-bytecode-size": "cat artifacts/contracts/bridges/L2_OptimismBridge.sol/L2_OptimismBridge.ovm.json | jq -r '.deployedBytecode' | wc -c"
+    "check-l2-bridge-bytecode-size": "cat artifacts/contracts/bridges/L2_OptimismBridge.sol/L2_OptimismBridge.ovm.json | jq -r '.deployedBytecode' | wc -c",
+    "deploy:l1-kovan:erc20": "hardhat run scripts/erc20/deploy.ts --network kovan",
+    "deploy:l2-optimism:erc20": "hardhat run scripts/erc20/deploy.ts --network optimism"
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.0",
