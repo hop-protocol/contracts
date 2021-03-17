@@ -56,7 +56,7 @@ export const executeCanonicalBridgeSendMessage = async (
   message: string,
   l2ChainId: BigNumber = BigNumber.from('0')
 ) => {
-  const gasLimit: BigNumber = BigNumber.from('1000000')
+  const gasLimit: BigNumber = BigNumber.from('1500000')
   const params: any[] = [l2_bridge.address, message, gasLimit]
 
   if (isChainIdArbitrum(l2ChainId)) {

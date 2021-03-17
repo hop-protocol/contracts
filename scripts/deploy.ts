@@ -19,6 +19,7 @@ interface NetworkParams {
   l2_networkName: string
   l1_chainId: string
   l2_chainId: string
+  l1_tokenBridgeAddress: string
   l1_bridgeAddress: string
   l1_canonicalTokenAddress: string
   l1_messengerAddress: string
@@ -72,6 +73,7 @@ function getNetworkParams (networkName: string): NetworkParams {
         l2_networkName: '',
         l1_chainId: CHAIN_IDS.ETHEREUM.KOVAN.toString(),
         l2_chainId: CHAIN_IDS.OPTIMISM.HOP_TESTNET.toString(),
+        l1_tokenBridgeAddress: '',
         l1_bridgeAddress: '',
         l1_canonicalTokenAddress: '0x7d669A64deb8a4A51eEa755bb0E19FD39CE25Ae9',
         l1_messengerAddress: '0x77eeDe6CC8B46C76e50979Ce3b4163253979c519',
@@ -87,10 +89,11 @@ function getNetworkParams (networkName: string): NetworkParams {
         l2_networkName: networkName,
         l1_chainId: CHAIN_IDS.ETHEREUM.KOVAN.toString(),
         l2_chainId: CHAIN_IDS.OPTIMISM.HOP_TESTNET.toString(),
+        l1_tokenBridgeAddress: '0xC76F55Dd0aeF08e46a454DCbb4fAA940d4450C72',
         l1_bridgeAddress,
         l1_canonicalTokenAddress: '0x7d669A64deb8a4A51eEa755bb0E19FD39CE25Ae9',
-        l1_messengerAddress: '0x77eeDe6CC8B46C76e50979Ce3b4163253979c519',
-        l2_canonicalTokenAddress: '0x57eaeE3D9C99b93D8FD1b50EF274579bFEC8e14B',
+        l1_messengerAddress: '0xb89065D5eB05Cac554FDB11fC764C679b4202322',
+        l2_canonicalTokenAddress: '0x782e1ec5F7381269b2e5DC4eD58648C60161539b',
         l2_messengerAddress: '0x4200000000000000000000000000000000000007',
         l2_hBridgeTokenName: DEFAULT_H_BRIDGE_TOKEN_NAME,
         l2_hBridgeTokenSymbol: DEFAULT_H_BRIDGE_TOKEN_SYMBOL,
@@ -102,6 +105,7 @@ function getNetworkParams (networkName: string): NetworkParams {
         l2_networkName: networkName,
         l1_chainId: CHAIN_IDS.ETHEREUM.KOVAN.toString(),
         l2_chainId: CHAIN_IDS.ARBITRUM.TESTNET_3.toString(),
+        l1_tokenBridgeAddress: 'TODO',
         l1_bridgeAddress,
         l1_canonicalTokenAddress: '0x7d669A64deb8a4A51eEa755bb0E19FD39CE25Ae9',
         l1_messengerAddress: '0xE681857DEfE8b454244e701BA63EfAa078d7eA85',
@@ -117,6 +121,7 @@ function getNetworkParams (networkName: string): NetworkParams {
         l2_networkName: networkName,
         l1_chainId: CHAIN_IDS.ETHEREUM.KOVAN.toString(),
         l2_chainId: CHAIN_IDS.XDAI.SOKOL.toString(),
+        l1_tokenBridgeAddress: '0xA960d095470f7509955d5402e36d9DB984B5C8E2',
         l1_bridgeAddress,
         l1_canonicalTokenAddress: '0x7d669A64deb8a4A51eEa755bb0E19FD39CE25Ae9',
         l1_messengerAddress: '0xFe446bEF1DbF7AFE24E81e05BC8B271C1BA9a560',

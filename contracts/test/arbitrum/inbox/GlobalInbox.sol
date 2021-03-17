@@ -34,7 +34,6 @@ contract GlobalInbox {
         address erc20,
         address to,
         uint256 value
-    ) external {
-    }
+    ) external {}
 
 }

@@ -26,6 +26,7 @@ export const getContractFactories = async (
     { signer }
   )
 
+  let L1_TokenBridge: ContractFactory
   let L1_Messenger: ContractFactory
   let L1_MessengerWrapper: ContractFactory
   let L2_MockERC20: ContractFactory
@@ -36,6 +37,7 @@ export const getContractFactories = async (
   let L2_UniswapPair: ContractFactory
   let L2_UniswapWrapper: ContractFactory
   ;({
+    L1_TokenBridge,
     L1_Messenger,
     L1_MessengerWrapper,
     L2_MockERC20,
@@ -49,6 +51,7 @@ export const getContractFactories = async (
 
   return {
     L1_MockERC20,
+    L1_TokenBridge,
     L1_Bridge,
     L1_MessengerWrapper,
     L1_Messenger,
@@ -76,6 +79,7 @@ const getNetworkSpecificFactories = async (
     return getXDaiContractFactories(signer, ethers)
   } else {
     return {
+      L1_TokenBridge: null,
       L1_Messenger: null,
       L1_MessengerWrapper: null,
       L2_MockERC20: null,
@@ -94,6 +98,10 @@ const getOptimismContractFactories = async (
   ethers: any,
   ovmEthers: any
 ) => {
+  const L1_TokenBridge: ContractFactory = await ethers.getContractFactory(
+    'contracts/test/optimism/mockOVM_L1_ERC20_Bridge.sol:L1ERC20Bridge',
+    { signer }
+  )
   const L1_Messenger: ContractFactory = await ethers.getContractFactory(
     'contracts/test/optimism/mockOVM_CrossDomainMessenger.sol:mockOVM_CrossDomainMessenger',
     { signer }
@@ -132,6 +140,7 @@ const getOptimismContractFactories = async (
   )
 
   return {
+    L1_TokenBridge,
     L1_Messenger,
     L1_MessengerWrapper,
     L2_MockERC20,
@@ -145,6 +154,10 @@ const getOptimismContractFactories = async (
 }
 
 const getArbitrumContractFactories = async (signer: Signer, ethers: any) => {
+  const L1_TokenBridge: ContractFactory = await ethers.getContractFactory(
+    'contracts/test/arbitrum/inbox/GlobalInbox.sol:GlobalInbox',
+    { signer }
+  )
   const L1_Messenger: ContractFactory = await ethers.getContractFactory(
     'contracts/test/arbitrum/inbox/GlobalInbox.sol:GlobalInbox',
     { signer }
@@ -179,6 +192,7 @@ const getArbitrumContractFactories = async (signer: Signer, ethers: any) => {
   )
 
   return {
+    L1_TokenBridge,
     L1_Messenger,
     L1_MessengerWrapper,
     L2_MockERC20,
@@ -192,6 +206,10 @@ const getArbitrumContractFactories = async (signer: Signer, ethers: any) => {
 }
 
 const getXDaiContractFactories = async (signer: Signer, ethers: any) => {
+  const L1_TokenBridge: ContractFactory = await ethers.getContractFactory(
+    'contracts/test/xDai/IForeignOmniBridge.sol:IForeignOmniBridge',
+    { signer }
+  )
   const L1_Messenger: ContractFactory = await ethers.getContractFactory(
     'contracts/test/xDai/ArbitraryMessageBridge.sol:ArbitraryMessageBridge',
     { signer }
@@ -226,6 +244,7 @@ const getXDaiContractFactories = async (signer: Signer, ethers: any) => {
   )
 
   return {
+    L1_TokenBridge,
     L1_Messenger,
     L1_MessengerWrapper,
     L2_MockERC20,
@@ -242,17 +261,19 @@ export const sendChainSpecificBridgeDeposit = async (
   chainId: BigNumber,
   sender: Signer,
   amount: BigNumber,
-  l1_messenger: Contract,
+  l1_tokenBridge: Contract,
   l1_canonicalToken: Contract
 ) => {
   if (isChainIdOptimism(chainId)) {
-    await l1_messenger
+    const tx = await l1_tokenBridge
       .connect(sender)
-      .deposit(await sender.getAddress(), amount, true)
-  }
-
-  if (isChainIdArbitrum(chainId)) {
-    await l1_messenger
+      .deposit(
+        await sender.getAddress(),
+        amount
+      )
+    await tx.wait()
+  } else if (isChainIdArbitrum(chainId)) {
+    const tx = await l1_tokenBridge
       .connect(sender)
       .depositERC20Message(
         ARB_CHAIN_ADDRESS,
@@ -260,12 +281,18 @@ export const sendChainSpecificBridgeDeposit = async (
         await sender.getAddress(),
         amount
       )
-  }
-
-  if (isChainIdXDai(chainId)) {
-    await l1_messenger
+    await tx.wait()
+  } else if (isChainIdXDai(chainId)) {
+    const tx = await l1_tokenBridge
       .connect(sender)
-      .relayTokens(l1_canonicalToken.address, amount)
+      .relayTokens(
+        l1_canonicalToken.address,
+        await sender.getAddress(),
+        amount
+      )
+    await tx.wait()
+  } else {
+    throw new Error(`Unsupported chain ID "${chainId}"`)
   }
 }
 
@@ -353,12 +380,14 @@ export async function execScript (cmd: string) {
 
 export const Logger = (label: string) => {
   label = `[${label}]`
+  let timestamp: string = new Date(Date.now()).toISOString().substr(11, 8)
+  timestamp = `[${timestamp}]`
   return {
     log: (...args: any[]) => {
-      console.log(label, ...args)
+      console.log(label, timestamp, ...args)
     },
     error: (...args: any[]) => {
-      console.error(label, ...args)
+      console.error(label, timestamp, ...args)
     }
   }
 }

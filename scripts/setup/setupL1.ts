@@ -1,6 +1,6 @@
 require('dotenv').config()
 
-import { ethers, ethers as ovmEthers } from 'hardhat'
+import { ethers, l2ethers as ovmEthers } from 'hardhat'
 import { BigNumber, ContractFactory, Signer, Contract, providers } from 'ethers'
 
 import {
@@ -15,8 +15,7 @@ import { IGetMessengerWrapperDefaults } from '../../config/interfaces'
 import {
   ALL_SUPPORTED_CHAIN_IDS,
   LIQUIDITY_PROVIDER_INITIAL_BALANCE,
-  ZERO_ADDRESS,
-  DEFAULT_ETHERS_OVERRIDES as overrides
+  ZERO_ADDRESS
 } from '../../config/constants'
 
 import {
@@ -28,11 +27,10 @@ import {
 
 const logger = Logger('setupL1')
 
-// NOTE: Transactions sometimes get stuck during this script. Ensure that each transaction has been made.
-
 interface Config {
   l1_chainId: string | BigNumber
   l2_chainId: string | BigNumber
+  l1_tokenBridgeAddress: string
   l1_messengerAddress: string
   l1_canonicalTokenAddress: string
   l1_bridgeAddress: string
@@ -46,6 +44,7 @@ export async function setupL1 (config: Config) {
   let {
     l1_chainId,
     l2_chainId,
+    l1_tokenBridgeAddress,
     l1_messengerAddress,
     l1_canonicalTokenAddress,
     l1_bridgeAddress,
@@ -57,6 +56,7 @@ export async function setupL1 (config: Config) {
             l1_chainId: ${l1_chainId}
             l2_chainId: ${l2_chainId}
             l1_messengerAddress: ${l1_messengerAddress}
+            l1_tokenBridgeAddress: ${l1_tokenBridgeAddress}
             l1_canonicalTokenAddress: ${l1_canonicalTokenAddress}
             l1_bridgeAddress: ${l1_bridgeAddress}
             l2_bridgeAddress: ${l2_bridgeAddress}
@@ -73,6 +73,7 @@ export async function setupL1 (config: Config) {
 
   // Factories
   let L1_MockERC20: ContractFactory
+  let L1_TokenBridge: ContractFactory
   let L1_Bridge: ContractFactory
   let L1_MessengerWrapper: ContractFactory
   let L1_Messenger: ContractFactory
@@ -80,6 +81,7 @@ export async function setupL1 (config: Config) {
 
   // Contracts
   let l1_canonicalToken: Contract
+  let l1_tokenBridge: Contract
   let l1_messengerWrapper: Contract
   let l1_bridge: Contract
   let l1_messenger: Contract
@@ -102,14 +104,17 @@ export async function setupL1 (config: Config) {
   // Get the contract Factories
   ;({
     L1_MockERC20,
+    L1_TokenBridge,
     L1_Bridge,
     L1_Messenger,
     L1_MessengerWrapper,
+    L1_TokenBridge,
     L2_Bridge
   } = await getContractFactories(l2_chainId, owner, ethers, ovmEthers))
 
   logger.log('attaching deployed contracts')
   // Attach already deployed contracts
+  l1_tokenBridge = L1_TokenBridge.attach(l1_tokenBridgeAddress)
   l1_messenger = L1_Messenger.attach(l1_messengerAddress)
   l1_canonicalToken = L1_MockERC20.attach(l1_canonicalTokenAddress)
   l1_bridge = L1_Bridge.attach(l1_bridgeAddress)
@@ -205,16 +210,16 @@ export async function setupL1 (config: Config) {
   logger.log('approving L1 canonical token')
   tx = await l1_canonicalToken
     .connect(liquidityProvider)
-    .approve(l1_messenger.address, LIQUIDITY_PROVIDER_INITIAL_BALANCE)
+    .approve(l1_tokenBridge.address, LIQUIDITY_PROVIDER_INITIAL_BALANCE)
   await tx.wait()
   await waitAfterTransaction()
 
   logger.log('sending chain specific bridge deposit')
   await sendChainSpecificBridgeDeposit(
-    l1_chainId,
+    l2_chainId,
     liquidityProvider,
     LIQUIDITY_PROVIDER_INITIAL_BALANCE,
-    l1_messenger,
+    l1_tokenBridge,
     l1_canonicalToken
   )
   await waitAfterTransaction()
@@ -263,6 +268,7 @@ if (require.main === module) {
   const {
     l1_chainId,
     l2_chainId,
+    l1_tokenBridgeAddress,
     l1_messengerAddress,
     l1_canonicalTokenAddress,
     l1_bridgeAddress,
@@ -272,6 +278,7 @@ if (require.main === module) {
   setupL1({
     l1_chainId,
     l2_chainId,
+    l1_tokenBridgeAddress,
     l1_messengerAddress,
     l1_canonicalTokenAddress,
     l1_bridgeAddress,

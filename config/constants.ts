@@ -81,5 +81,5 @@ export const DEFAULT_TIME_TO_WAIT: number = 0
 export const TIMESTAMP_VARIANCE: number = 1000000
 
 export const DEFAULT_ETHERS_OVERRIDES = {
-  gasLimit: 2000000
+  gasLimit: 2500000
 }
