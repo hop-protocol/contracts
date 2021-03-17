@@ -1,8 +1,5 @@
-pragma solidity ^0.7.0;
-
-interface IERC20 {}
-interface IERC677 is IERC20 {}
+pragma solidity 0.6.12;
 
 contract IForeignOmniBridge {
-    function relayTokens(IERC677 _receiver, uint256 _value) external {}
+    function relayTokens(address token, address _receiver, uint256 _amount) external {}
 }
