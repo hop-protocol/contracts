@@ -380,12 +380,14 @@ export async function execScript (cmd: string) {
 
 export const Logger = (label: string) => {
   label = `[${label}]`
+  let timestamp: string = new Date(Date.now()).toISOString().substr(11, 8)
+  timestamp = `[${timestamp}]`
   return {
     log: (...args: any[]) => {
-      console.log(label, ...args)
+      console.log(label, timestamp, ...args)
     },
     error: (...args: any[]) => {
-      console.error(label, ...args)
+      console.error(label, timestamp, ...args)
     }
   }
 }

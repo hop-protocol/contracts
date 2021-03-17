@@ -62,6 +62,15 @@ export default {
             runs: numOptimizerRuns
           }
         },
+        version: '0.7.0'
+      },
+      {
+        settings: {
+          optimizer: {
+            enabled: isOptimizerEnabled,
+            runs: numOptimizerRuns
+          }
+        },
         version: '0.6.12'
       },
       {

@@ -15,8 +15,7 @@ import { IGetMessengerWrapperDefaults } from '../../config/interfaces'
 import {
   ALL_SUPPORTED_CHAIN_IDS,
   LIQUIDITY_PROVIDER_INITIAL_BALANCE,
-  ZERO_ADDRESS,
-  DEFAULT_ETHERS_OVERRIDES as overrides
+  ZERO_ADDRESS
 } from '../../config/constants'
 
 import {
@@ -27,8 +26,6 @@ import {
 } from '../../test/shared/contractFunctionWrappers'
 
 const logger = Logger('setupL1')
-
-// NOTE: Transactions sometimes get stuck during this script. Ensure that each transaction has been made.
 
 interface Config {
   l1_chainId: string | BigNumber
