@@ -49,7 +49,7 @@ export async function deployL1 (config: Config) {
    * Deployments
    */
 
-  logger.log('deploying L1 canonical token address')
+  logger.log('deploying L1 bridge')
   l1_bridge = await L1_Bridge.connect(owner).deploy(l1_canonicalTokenAddress, [
     await bonder.getAddress()
   ])

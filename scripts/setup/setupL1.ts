@@ -108,7 +108,6 @@ export async function setupL1 (config: Config) {
     L1_Bridge,
     L1_Messenger,
     L1_MessengerWrapper,
-    L1_TokenBridge,
     L2_Bridge
   } = await getContractFactories(l2_chainId, owner, ethers, ovmEthers))
 
