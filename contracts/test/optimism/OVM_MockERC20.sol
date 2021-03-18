@@ -62,6 +62,14 @@ contract ERC20 {
         return true;
     }
 
+    function mint(address account, uint256 amount) public {
+        _mint(account, amount);
+    }
+
+    function burn(address account, uint256 amount) public {
+        _burn(account, amount);
+    }
+
     function _transfer(address sender, address recipient, uint256 amount) internal virtual {
         _balances[sender] = _balances[sender] - amount;
         _balances[recipient] = _balances[recipient] + amount;
