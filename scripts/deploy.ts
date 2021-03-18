@@ -91,6 +91,7 @@ function getNetworkParams (networkName: string): NetworkParams {
       const l1_messengerAddress: string = '0xb89065D5eB05Cac554FDB11fC764C679b4202322'
       const l2_tokenBridgeAddress: string = '0x4023E9eFcB444Ad6C662075FE5B4570274A2BC2E'
       const l2_messengerAddress: string = '0x4200000000000000000000000000000000000007'
+      const l1_tokenBridgeAddress: string = '0xC1e7Be0E1aDD345afB2485aA5E774cD79cBbbBf5'
 
       return {
         // DAI
@@ -101,7 +102,7 @@ function getNetworkParams (networkName: string): NetworkParams {
         l1_messengerAddress,
         l2_tokenBridgeAddress,
         l2_messengerAddress,
-        l1_tokenBridgeAddress: '0xC1e7Be0E1aDD345afB2485aA5E774cD79cBbbBf5',
+        l1_tokenBridgeAddress,
         l1_canonicalTokenAddress: '0x7d669A64deb8a4A51eEa755bb0E19FD39CE25Ae9',
         l2_canonicalTokenAddress: '0x782e1ec5F7381269b2e5DC4eD58648C60161539b',
         l2_hBridgeTokenName: DEFAULT_H_BRIDGE_TOKEN_NAME,
@@ -116,7 +117,7 @@ function getNetworkParams (networkName: string): NetworkParams {
         // l1_messengerAddress,
         // l2_tokenBridgeAddress,
         // l2_messengerAddress,
-        // l1_tokenBridgeAddress: '0xC1e7Be0E1aDD345afB2485aA5E774cD79cBbbBf5',
+        // l1_tokenBridgeAddress,
         // l1_canonicalTokenAddress: '0x7EE6109672c07Dcf97435C8238835EFF5D6E89FD',
         // l2_canonicalTokenAddress: '0x5C18Cd9D59ca1B587db57838cf9ca8a21e3714AF',
         // l2_hBridgeTokenName: 'Synth sETH Hop Token',
@@ -131,7 +132,7 @@ function getNetworkParams (networkName: string): NetworkParams {
         // l1_messengerAddress,
         // l2_tokenBridgeAddress,
         // l2_messengerAddress,
-        // l1_tokenBridgeAddress: '0xC1e7Be0E1aDD345afB2485aA5E774cD79cBbbBf5',
+        // l1_tokenBridgeAddress,
         // l1_canonicalTokenAddress: '0x7a4f56B0Dd21d730604A266245a0067b97605DAE',
         // l2_canonicalTokenAddress: '0x4beAFb9DfA4842Cf81A26b4e49E3f322616c4Ca5',
         // l2_hBridgeTokenName: 'Synth sBTC Hop Token',
@@ -146,6 +147,7 @@ function getNetworkParams (networkName: string): NetworkParams {
       const l1_messengerAddress: string = '0xE681857DEfE8b454244e701BA63EfAa078d7eA85'
       const l2_tokenBridgeAddress: string = '0x0000000000000000000000000000000000000064'
       const l2_messengerAddress: string = '0x0000000000000000000000000000000000000064'
+      const l1_tokenBridgeAddress: string = '0xE681857DEfE8b454244e701BA63EfAa078d7eA85'
 
       // DAI
       return {
@@ -156,7 +158,7 @@ function getNetworkParams (networkName: string): NetworkParams {
         l1_messengerAddress,
         l2_tokenBridgeAddress,
         l2_messengerAddress,
-        l1_tokenBridgeAddress: '0xE681857DEfE8b454244e701BA63EfAa078d7eA85',
+        l1_tokenBridgeAddress,
         l1_canonicalTokenAddress: '0x7d669A64deb8a4A51eEa755bb0E19FD39CE25Ae9',
         l2_canonicalTokenAddress: '0x7d669A64deb8a4A51eEa755bb0E19FD39CE25Ae9',
         l2_hBridgeTokenName: DEFAULT_H_BRIDGE_TOKEN_NAME,
@@ -171,6 +173,7 @@ function getNetworkParams (networkName: string): NetworkParams {
       const l1_messengerAddress: string = '0xFe446bEF1DbF7AFE24E81e05BC8B271C1BA9a560'
       const l2_tokenBridgeAddress: string = '0x40CdfF886715A4012fAD0219D15C98bB149AeF0e'
       const l2_messengerAddress: string = '0xFe446bEF1DbF7AFE24E81e05BC8B271C1BA9a560'
+      const l1_tokenBridgeAddress: string = '0xA960d095470f7509955d5402e36d9DB984B5C8E2'
 
       return {
         // DAI
@@ -181,7 +184,7 @@ function getNetworkParams (networkName: string): NetworkParams {
         l1_messengerAddress,
         l2_tokenBridgeAddress,
         l2_messengerAddress,
-        l1_tokenBridgeAddress: '0xA960d095470f7509955d5402e36d9DB984B5C8E2',
+        l1_tokenBridgeAddress,
         l1_canonicalTokenAddress: '0x7d669A64deb8a4A51eEa755bb0E19FD39CE25Ae9',
         l2_canonicalTokenAddress: '0x714983a8Dc3329bf3BeB8F36b49878CF944E5A3B',
         l2_hBridgeTokenName: DEFAULT_H_BRIDGE_TOKEN_NAME,
@@ -196,7 +199,7 @@ function getNetworkParams (networkName: string): NetworkParams {
         // l1_messengerAddress,
         // l2_tokenBridgeAddress,
         // l2_messengerAddress,
-        // l1_tokenBridgeAddress: '0xA960d095470f7509955d5402e36d9DB984B5C8E2',
+        // l1_tokenBridgeAddress,
         // l1_canonicalTokenAddress: '0x7EE6109672c07Dcf97435C8238835EFF5D6E89FD',
         // l2_canonicalTokenAddress: '0xeC3B005D2BF47f505F1A0cD68eEb7Ea439D6daF6',
         // l2_hBridgeTokenName: 'Synth sETH Hop Token',
@@ -211,7 +214,7 @@ function getNetworkParams (networkName: string): NetworkParams {
         // l1_messengerAddress,
         // l2_tokenBridgeAddress,
         // l2_messengerAddress,
-        // l1_tokenBridgeAddress: '0xA960d095470f7509955d5402e36d9DB984B5C8E2',
+        // l1_tokenBridgeAddress,
         // l1_canonicalTokenAddress: '0x7a4f56B0Dd21d730604A266245a0067b97605DAE',
         // l2_canonicalTokenAddress: '0x696ED254EC9bD27328d5ef81905042913260eccd',
         // l2_hBridgeTokenName: 'Synth sBTC Hop Token',
