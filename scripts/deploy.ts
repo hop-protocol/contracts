@@ -15,6 +15,11 @@ import {
 
 const logger = Logger('deploy')
 
+interface KovanParams {
+  l1_chainId: string
+  l1_canonicalTokenAddress: string
+}
+
 interface NetworkParams {
   l2_networkName: string
   l1_chainId: string
@@ -24,6 +29,7 @@ interface NetworkParams {
   l1_canonicalTokenAddress: string
   l1_messengerAddress: string
   l2_canonicalTokenAddress: string
+  l2_tokenBridgeAddress: string
   l2_messengerAddress: string
   l2_hBridgeTokenName: string
   l2_hBridgeTokenSymbol: string
@@ -41,13 +47,16 @@ async function main () {
     throw new Error('network name not specified')
   }
 
-  const networkParams: NetworkParams = getNetworkParams(networkName)
-  updateConfigFile(networkParams)
-
   const scripts: string[] = []
   if (networkName === 'kovan') {
+    const networkParams: KovanParams = getKovanParams()
+    updateConfigFile(networkParams)
+
     scripts.push(`npm run deploy:l1-kovan`)
   } else {
+    const networkParams: NetworkParams = getNetworkParams(networkName)
+    updateConfigFile(networkParams)
+
     validateInputs(networkParams)
     scripts.push(
       `npm run deploy:l2-${networkName}`,
@@ -65,128 +74,146 @@ async function main () {
   logger.log('complete')
 }
 
+function getKovanParams (): KovanParams {
+  return {
+    l1_chainId: CHAIN_IDS.ETHEREUM.KOVAN.toString(),
+    l1_canonicalTokenAddress: '0x7d669A64deb8a4A51eEa755bb0E19FD39CE25Ae9',
+  }
+}
+
 function getNetworkParams (networkName: string): NetworkParams {
   const { l1_bridgeAddress } = readConfigFile()
   switch (networkName) {
-    case 'kovan': {
-      return {
-        l2_networkName: null,
-        l1_chainId: CHAIN_IDS.ETHEREUM.KOVAN.toString(),
-        l2_chainId: null,
-        l1_tokenBridgeAddress: null,
-        l1_bridgeAddress: null,
-        l1_canonicalTokenAddress: '0x7d669A64deb8a4A51eEa755bb0E19FD39CE25Ae9',
-        l1_messengerAddress: null,
-        l2_canonicalTokenAddress: null,
-        l2_messengerAddress: null,
-        l2_hBridgeTokenName: null,
-        l2_hBridgeTokenSymbol: null,
-        l2_hBridgeTokenDecimals: null
-      }
-    }
     case 'optimism': {
+      const l2_networkName: string = networkName
+      const l1_chainId: string = CHAIN_IDS.ETHEREUM.KOVAN.toString()
+      const l2_chainId: string = CHAIN_IDS.OPTIMISM.HOP_TESTNET.toString()
+      const l1_messengerAddress: string = '0xb89065D5eB05Cac554FDB11fC764C679b4202322'
+      const l2_tokenBridgeAddress: string = '0x4023E9eFcB444Ad6C662075FE5B4570274A2BC2E'
+      const l2_messengerAddress: string = '0x4200000000000000000000000000000000000007'
+
       return {
         // DAI
-        l2_networkName: networkName,
-        l1_chainId: CHAIN_IDS.ETHEREUM.KOVAN.toString(),
-        l2_chainId: CHAIN_IDS.OPTIMISM.HOP_TESTNET.toString(),
-        l1_tokenBridgeAddress: '0xC1e7Be0E1aDD345afB2485aA5E774cD79cBbbBf5',
+        l2_networkName,
+        l1_chainId,
+        l2_chainId,
         l1_bridgeAddress,
+        l1_messengerAddress,
+        l2_tokenBridgeAddress,
+        l2_messengerAddress,
+        l1_tokenBridgeAddress: '0xC1e7Be0E1aDD345afB2485aA5E774cD79cBbbBf5',
         l1_canonicalTokenAddress: '0x7d669A64deb8a4A51eEa755bb0E19FD39CE25Ae9',
-        l1_messengerAddress: '0xb89065D5eB05Cac554FDB11fC764C679b4202322',
         l2_canonicalTokenAddress: '0x782e1ec5F7381269b2e5DC4eD58648C60161539b',
-        l2_messengerAddress: '0x4200000000000000000000000000000000000007',
         l2_hBridgeTokenName: DEFAULT_H_BRIDGE_TOKEN_NAME,
         l2_hBridgeTokenSymbol: DEFAULT_H_BRIDGE_TOKEN_SYMBOL,
         l2_hBridgeTokenDecimals: DEFAULT_H_BRIDGE_TOKEN_DECIMALS
 
         // sETH
-        // l2_networkName: networkName,
-        // l1_chainId: CHAIN_IDS.ETHEREUM.KOVAN.toString(),
-        // l2_chainId: CHAIN_IDS.OPTIMISM.HOP_TESTNET.toString(),
-        // l1_tokenBridgeAddress: '0xC1e7Be0E1aDD345afB2485aA5E774cD79cBbbBf5',
+        // l2_networkName,
+        // l1_chainId,
+        // l2_chainId,
         // l1_bridgeAddress,
+        // l1_messengerAddress,
+        // l2_tokenBridgeAddress,
+        // l2_messengerAddress,
+        // l1_tokenBridgeAddress: '0xC1e7Be0E1aDD345afB2485aA5E774cD79cBbbBf5',
         // l1_canonicalTokenAddress: '0x7EE6109672c07Dcf97435C8238835EFF5D6E89FD',
-        // l1_messengerAddress: '0xb89065D5eB05Cac554FDB11fC764C679b4202322',
         // l2_canonicalTokenAddress: '0x5C18Cd9D59ca1B587db57838cf9ca8a21e3714AF',
-        // l2_messengerAddress: '0x4200000000000000000000000000000000000007',
         // l2_hBridgeTokenName: 'Synth sETH Hop Token',
         // l2_hBridgeTokenSymbol: 'hsETH',
         // l2_hBridgeTokenDecimals: DEFAULT_H_BRIDGE_TOKEN_DECIMALS
 
         // sBTC
-        // l2_networkName: networkName,
-        // l1_chainId: CHAIN_IDS.ETHEREUM.KOVAN.toString(),
-        // l2_chainId: CHAIN_IDS.OPTIMISM.HOP_TESTNET.toString(),
-        // l1_tokenBridgeAddress: '0xC1e7Be0E1aDD345afB2485aA5E774cD79cBbbBf5',
+        // l2_networkName,
+        // l1_chainId,
+        // l2_chainId,
         // l1_bridgeAddress,
+        // l1_messengerAddress,
+        // l2_tokenBridgeAddress,
+        // l2_messengerAddress,
+        // l1_tokenBridgeAddress: '0xC1e7Be0E1aDD345afB2485aA5E774cD79cBbbBf5',
         // l1_canonicalTokenAddress: '0x7a4f56B0Dd21d730604A266245a0067b97605DAE',
-        // l1_messengerAddress: '0xb89065D5eB05Cac554FDB11fC764C679b4202322',
         // l2_canonicalTokenAddress: '0x4beAFb9DfA4842Cf81A26b4e49E3f322616c4Ca5',
-        // l2_messengerAddress: '0x4200000000000000000000000000000000000007',
         // l2_hBridgeTokenName: 'Synth sBTC Hop Token',
         // l2_hBridgeTokenSymbol: 'hsBTC',
         // l2_hBridgeTokenDecimals: DEFAULT_H_BRIDGE_TOKEN_DECIMALS
       }
     }
     case 'arbitrum': {
+      const l2_networkName: string = networkName
+      const l1_chainId: string = CHAIN_IDS.ETHEREUM.KOVAN.toString()
+      const l2_chainId: string = CHAIN_IDS.ARBITRUM.TESTNET_3.toString()
+      const l1_messengerAddress: string = '0xE681857DEfE8b454244e701BA63EfAa078d7eA85'
+      const l2_tokenBridgeAddress: string = '0x0000000000000000000000000000000000000064'
+      const l2_messengerAddress: string = '0x0000000000000000000000000000000000000064'
+
+      // DAI
       return {
-        l2_networkName: networkName,
-        l1_chainId: CHAIN_IDS.ETHEREUM.KOVAN.toString(),
-        l2_chainId: CHAIN_IDS.ARBITRUM.TESTNET_3.toString(),
-        l1_tokenBridgeAddress: 'TODO',
+        l2_networkName,
+        l1_chainId,
+        l2_chainId,
         l1_bridgeAddress,
+        l1_messengerAddress,
+        l2_tokenBridgeAddress,
+        l2_messengerAddress,
+        l1_tokenBridgeAddress: '0xE681857DEfE8b454244e701BA63EfAa078d7eA85',
         l1_canonicalTokenAddress: '0x7d669A64deb8a4A51eEa755bb0E19FD39CE25Ae9',
-        l1_messengerAddress: '0xE681857DEfE8b454244e701BA63EfAa078d7eA85',
         l2_canonicalTokenAddress: '0x7d669A64deb8a4A51eEa755bb0E19FD39CE25Ae9',
-        l2_messengerAddress: '0x0000000000000000000000000000000000000064',
         l2_hBridgeTokenName: DEFAULT_H_BRIDGE_TOKEN_NAME,
         l2_hBridgeTokenSymbol: DEFAULT_H_BRIDGE_TOKEN_SYMBOL,
         l2_hBridgeTokenDecimals: DEFAULT_H_BRIDGE_TOKEN_DECIMALS
       }
     }
     case 'xdai': {
+      const l2_networkName: string = networkName
+      const l1_chainId: string = CHAIN_IDS.ETHEREUM.KOVAN.toString()
+      const l2_chainId: string = CHAIN_IDS.XDAI.SOKOL.toString()
+      const l1_messengerAddress: string = '0xFe446bEF1DbF7AFE24E81e05BC8B271C1BA9a560'
+      const l2_tokenBridgeAddress: string = '0x40CdfF886715A4012fAD0219D15C98bB149AeF0e'
+      const l2_messengerAddress: string = '0xFe446bEF1DbF7AFE24E81e05BC8B271C1BA9a560'
+
       return {
         // DAI
-        l2_networkName: networkName,
-        l1_chainId: CHAIN_IDS.ETHEREUM.KOVAN.toString(),
-        l2_chainId: CHAIN_IDS.XDAI.SOKOL.toString(),
-        l1_tokenBridgeAddress: '0xA960d095470f7509955d5402e36d9DB984B5C8E2',
+        l2_networkName,
+        l1_chainId,
+        l2_chainId,
         l1_bridgeAddress,
+        l1_messengerAddress,
+        l2_tokenBridgeAddress,
+        l2_messengerAddress,
+        l1_tokenBridgeAddress: '0xA960d095470f7509955d5402e36d9DB984B5C8E2',
         l1_canonicalTokenAddress: '0x7d669A64deb8a4A51eEa755bb0E19FD39CE25Ae9',
-        l1_messengerAddress: '0xFe446bEF1DbF7AFE24E81e05BC8B271C1BA9a560',
         l2_canonicalTokenAddress: '0x714983a8Dc3329bf3BeB8F36b49878CF944E5A3B',
-        l2_messengerAddress: '0x40CdfF886715A4012fAD0219D15C98bB149AeF0e',
         l2_hBridgeTokenName: DEFAULT_H_BRIDGE_TOKEN_NAME,
         l2_hBridgeTokenSymbol: DEFAULT_H_BRIDGE_TOKEN_SYMBOL,
         l2_hBridgeTokenDecimals: DEFAULT_H_BRIDGE_TOKEN_DECIMALS
 
         // sETH
-        // l2_networkName: networkName,
-        // l1_chainId: CHAIN_IDS.ETHEREUM.KOVAN.toString(),
-        // l2_chainId: CHAIN_IDS.XDAI.SOKOL.toString(),
-        // l1_tokenBridgeAddress: '0xA960d095470f7509955d5402e36d9DB984B5C8E2',
+        // l2_networkName,
+        // l1_chainId,
+        // l2_chainId,
         // l1_bridgeAddress,
+        // l1_messengerAddress,
+        // l2_tokenBridgeAddress,
+        // l2_messengerAddress,
+        // l1_tokenBridgeAddress: '0xA960d095470f7509955d5402e36d9DB984B5C8E2',
         // l1_canonicalTokenAddress: '0x7EE6109672c07Dcf97435C8238835EFF5D6E89FD',
-        // l1_messengerAddress: '0xFe446bEF1DbF7AFE24E81e05BC8B271C1BA9a560',
         // l2_canonicalTokenAddress: '0xeC3B005D2BF47f505F1A0cD68eEb7Ea439D6daF6',
-        // // TODO: Change to bridge
-        // l2_messengerAddress: '0x40CdfF886715A4012fAD0219D15C98bB149AeF0e',
         // l2_hBridgeTokenName: 'Synth sETH Hop Token',
         // l2_hBridgeTokenSymbol: 'hsETH',
         // l2_hBridgeTokenDecimals: DEFAULT_H_BRIDGE_TOKEN_DECIMALS
 
         // sBTC
-        // l2_networkName: networkName,
-        // l1_chainId: CHAIN_IDS.ETHEREUM.KOVAN.toString(),
-        // l2_chainId: CHAIN_IDS.XDAI.SOKOL.toString(),
-        // l1_tokenBridgeAddress: '0xA960d095470f7509955d5402e36d9DB984B5C8E2',
+        // l2_networkName,
+        // l1_chainId,
+        // l2_chainId,
         // l1_bridgeAddress,
+        // l1_messengerAddress,
+        // l2_tokenBridgeAddress,
+        // l2_messengerAddress,
+        // l1_tokenBridgeAddress: '0xA960d095470f7509955d5402e36d9DB984B5C8E2',
         // l1_canonicalTokenAddress: '0x7a4f56B0Dd21d730604A266245a0067b97605DAE',
-        // l1_messengerAddress: '0xFe446bEF1DbF7AFE24E81e05BC8B271C1BA9a560',
         // l2_canonicalTokenAddress: '0x696ED254EC9bD27328d5ef81905042913260eccd',
-        // // TODO: Change to bridge
-        // l2_messengerAddress: '0x40CdfF886715A4012fAD0219D15C98bB149AeF0e',
         // l2_hBridgeTokenName: 'Synth sBTC Hop Token',
         // l2_hBridgeTokenSymbol: 'hsBTC',
         // l2_hBridgeTokenDecimals: DEFAULT_H_BRIDGE_TOKEN_DECIMALS
