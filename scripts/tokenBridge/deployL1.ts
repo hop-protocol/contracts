@@ -9,23 +9,15 @@ async function main () {
   const signer = (await ethers.getSigners())[0]
   console.log('signer:', await signer.getAddress())
 
-  const L1ERC20Bridge = await ethers.getContractFactory('L1ERC20Bridge', {
+  const L1ERC20Bridge = await ethers.getContractFactory('OVM_L1_ERC20_Bridge', {
     signer: (await ethers.getSigners())[0]
   })
 
   const l1_messenger = {
     address: '0xb89065D5eB05Cac554FDB11fC764C679b4202322'
   }
-  const l1_erc20 = {
-    address: '0x1AaA3666F2842bff3e2FD6832d254772cf8bb18f'
-  }
-  const l2_erc20 = {
-    address: '0xf145f37BcD99a03E647e8804284811040Ee33cD9'
-  }
 
   const l1_erc20Bridge = await L1ERC20Bridge.deploy(
-    l1_erc20.address,
-    l2_erc20.address,
     l1_messenger.address
   )
   await l1_erc20Bridge.deployed()

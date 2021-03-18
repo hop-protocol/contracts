@@ -6,15 +6,15 @@ import { iOVM_BaseCrossDomainMessenger } from "@eth-optimism/contracts/build/con
 
 contract OVM_L2_ERC20_Bridge {
     address public l1ERC20BridgeAddress;
-    iOVM_BaseCrossDomainMessenger public messenger;
+    iOVM_BaseCrossDomainMessenger public l2Messenger;
     address public l1TokenAddress;
 
     constructor (
-        address _messenger,
-        address _L1ERC20BridgeAddress,
+        address _l2Messenger,
+        address _l1ERC20BridgeAddress,
         address _l1TokenAddress
     ) public {
-        messenger = iOVM_BaseCrossDomainMessenger(_messenger);
+        l2Messenger = iOVM_BaseCrossDomainMessenger(_l2Messenger);
         l1ERC20BridgeAddress = _L1ERC20BridgeAddress;
         l1TokenAddress = _l1TokenAddress;
     }
@@ -32,6 +32,6 @@ contract OVM_L2_ERC20_Bridge {
 
         // send the message over to the L1CrossDomainMessenger
         uint32 gasLimit = 2500000;
-        messenger.sendMessage(l1ERC20BridgeAddress, message, gasLimit);
+        l2Messenger.sendMessage(l1ERC20BridgeAddress, message, gasLimit);
     }
 }
