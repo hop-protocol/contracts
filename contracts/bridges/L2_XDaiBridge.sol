@@ -24,7 +24,7 @@ contract L2_XDaiBridge is L2_Bridge {
         address l1BridgeAddress,
         uint256[] memory supportedChainIds,
         address[] memory bonders,
-        bytes32 _l1ChainId,
+        uint256 _l1ChainId,
         address _ambBridge
     )
         public
@@ -38,7 +38,7 @@ contract L2_XDaiBridge is L2_Bridge {
         )
     {
         messenger = _messenger;
-        l1ChainId = _l1ChainId;
+        l1ChainId = bytes32(_l1ChainId);
         ambBridge = _ambBridge;
     }
 

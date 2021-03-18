@@ -143,7 +143,6 @@ export async function deployL2 (config: Config) {
   ;({ l2_bridge, l2_uniswapWrapper } = await deployBridge(
     l2_chainId,
     l1_chainId,
-    l2_chainId,
     ethers,
     owner,
     bonder,
@@ -236,7 +235,6 @@ const deployUniswap = async (
 const deployBridge = async (
   chainId: BigNumber,
   l1ChainId: BigNumber,
-  l2ChainId: BigNumber,
   ethers: any,
   owner: Signer,
   bonder: Signer,
@@ -277,14 +275,6 @@ const deployBridge = async (
     l2_uniswapRouter.address
   )
   await waitAfterTransaction(l2_uniswapWrapper, ethers)
-
-  let setUniswapWrapperParams: any[] = [l2_uniswapWrapper.address]
-  if (isChainIdXDai(l2ChainId)) {
-    setUniswapWrapperParams.push(overrides)
-  }
-  const tx = await l2_bridge.setUniswapWrapper(...setUniswapWrapperParams)
-  await tx.wait()
-  await waitAfterTransaction()
 
   return {
     l2_bridge,

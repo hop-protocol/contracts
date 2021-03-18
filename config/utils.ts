@@ -9,8 +9,7 @@ import {
   ARB_CHAIN_ADDRESS,
   DEFAULT_MESSENGER_WRAPPER_SUB_MESSAGE_TYPE,
   DEFAULT_MESSENGER_WRAPPER_GAS_PRICE,
-  DEFAULT_MESSENGER_WRAPPER_GAS_CALL_VALUE,
-  ZERO_ADDRESS
+  DEFAULT_MESSENGER_WRAPPER_GAS_CALL_VALUE
 } from './constants'
 
 export const getMessengerWrapperDefaults = (
@@ -73,11 +72,8 @@ export const getL2BridgeDefaults = (
     additionalData.push(defaultGasLimit)
   } else if (isChainIdXDai(chainId)) {
     const isAmbL1: boolean = false
-    const l1ChainIdBytes32 = ethersUtils.formatBytes32String(
-      l1ChainId.toString()
-    )
     const ambAddress: string = getXDaiAmbAddresses(isAmbL1)
-    additionalData.push(l1ChainIdBytes32, ambAddress)
+    additionalData.push(l1ChainId, ambAddress)
   }
 
   defaults.push(
@@ -130,7 +126,7 @@ export const isChainIdXDai = (chainId: BigNumber): boolean => {
 
 export const getXDaiAmbAddresses = (isAmbL1: boolean): string => {
   const kovanAmbAddress: string = '0xFe446bEF1DbF7AFE24E81e05BC8B271C1BA9a560'
-  const sokolAmbAddress: string = '0x40CdfF886715A4012fAD0219D15C98bB149AeF0e'
+  const sokolAmbAddress: string = '0xFe446bEF1DbF7AFE24E81e05BC8B271C1BA9a560'
   if (isAmbL1) {
     return kovanAmbAddress
   }

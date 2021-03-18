@@ -17,7 +17,7 @@ contract Mock_L2_XDaiBridge is L2_XDaiBridge {
         address l1BridgeAddress,
         uint256[] memory supportedChainIds,
         address[] memory bonders,
-        bytes32 l1ChainId,
+        uint256 l1ChainId,
         address ambBridge
     )
         public
