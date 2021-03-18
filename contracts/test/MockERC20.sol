@@ -14,8 +14,4 @@ contract MockERC20 is ERC20 {
     function burn(address _recipient, uint256 _amount) public {
         _burn(_recipient, _amount);
     }
-    
-    function approveThing(address _recipient, uint256 _amount) public {
-        _approve(msg.sender, _recipient, _amount);
-    }
 }

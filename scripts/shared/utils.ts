@@ -262,12 +262,15 @@ export const sendChainSpecificBridgeDeposit = async (
   sender: Signer,
   amount: BigNumber,
   l1_tokenBridge: Contract,
-  l1_canonicalToken: Contract
+  l1_canonicalToken: Contract,
+  l2_canonicalToken: Contract
 ) => {
   if (isChainIdOptimism(chainId)) {
     const tx = await l1_tokenBridge
       .connect(sender)
       .deposit(
+        l1_canonicalToken.address,
+        l2_canonicalToken.address,
         await sender.getAddress(),
         amount
       )

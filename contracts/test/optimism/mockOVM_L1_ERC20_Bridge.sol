@@ -1,8 +1,7 @@
 //SPDX-License-Identifier: Unlicense
 pragma solidity >0.6.0 <0.8.0;
 
-import { ERC20 } from "./OVM_MockERC20.sol";
-import { L2ERC20 } from "./mockOVM_L2_ERC20.sol";
+import { MockERC20 } from "../MockERC20.sol";
 import { iOVM_BaseCrossDomainMessenger } from "@eth-optimism/contracts/build/contracts/iOVM/bridge/iOVM_BaseCrossDomainMessenger.sol";
 
 contract OVM_L1_ERC20_Bridge {
@@ -21,7 +20,7 @@ contract OVM_L1_ERC20_Bridge {
         address _depositor,
         uint256 _amount
     ) public {
-        ERC20(_l1TokenAddress).transferFrom(
+        MockERC20(_l1TokenAddress).transferFrom(
             _depositor,
             address(this),
             _amount
@@ -45,6 +44,6 @@ contract OVM_L1_ERC20_Bridge {
         address _withdrawer,
         uint256 _amount
     ) public {
-        ERC20(_l1TokenAddress).transfer(_withdrawer, _amount);
+        MockERC20(_l1TokenAddress).transfer(_withdrawer, _amount);
     }
 }

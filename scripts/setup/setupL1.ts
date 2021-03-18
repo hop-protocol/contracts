@@ -34,6 +34,7 @@ interface Config {
   l1_messengerAddress: string
   l1_canonicalTokenAddress: string
   l1_bridgeAddress: string
+  l2_canonicalTokenAddress: string
   l2_bridgeAddress: string
   l2_uniswapWrapperAddress: string
 }
@@ -48,6 +49,7 @@ export async function setupL1 (config: Config) {
     l1_messengerAddress,
     l1_canonicalTokenAddress,
     l1_bridgeAddress,
+    l2_canonicalTokenAddress,
     l2_bridgeAddress,
     l2_uniswapWrapperAddress
   } = config
@@ -59,6 +61,7 @@ export async function setupL1 (config: Config) {
             l1_tokenBridgeAddress: ${l1_tokenBridgeAddress}
             l1_canonicalTokenAddress: ${l1_canonicalTokenAddress}
             l1_bridgeAddress: ${l1_bridgeAddress}
+            l2_canonicalTokenAddress: ${l2_canonicalTokenAddress}
             l2_bridgeAddress: ${l2_bridgeAddress}
             l2_uniswapWrapperAddress: ${l2_uniswapWrapperAddress}`)
 
@@ -85,6 +88,7 @@ export async function setupL1 (config: Config) {
   let l1_messengerWrapper: Contract
   let l1_bridge: Contract
   let l1_messenger: Contract
+  let l2_canonicalToken: Contract
   let l2_bridge: Contract
 
   // Instantiate the wallets
@@ -116,6 +120,7 @@ export async function setupL1 (config: Config) {
   l1_tokenBridge = L1_TokenBridge.attach(l1_tokenBridgeAddress)
   l1_messenger = L1_Messenger.attach(l1_messengerAddress)
   l1_canonicalToken = L1_MockERC20.attach(l1_canonicalTokenAddress)
+  l2_canonicalToken = L1_MockERC20.attach(l2_canonicalTokenAddress)
   l1_bridge = L1_Bridge.attach(l1_bridgeAddress)
   l2_bridge = L2_Bridge.attach(l2_bridgeAddress)
 
@@ -219,7 +224,8 @@ export async function setupL1 (config: Config) {
     liquidityProvider,
     LIQUIDITY_PROVIDER_INITIAL_BALANCE,
     l1_tokenBridge,
-    l1_canonicalToken
+    l1_canonicalToken,
+    l2_canonicalToken
   )
   await waitAfterTransaction()
 
@@ -271,6 +277,7 @@ if (require.main === module) {
     l1_messengerAddress,
     l1_canonicalTokenAddress,
     l1_bridgeAddress,
+    l2_canonicalTokenAddress,
     l2_bridgeAddress,
     l2_uniswapWrapperAddress
   } = readConfigFile()
@@ -280,6 +287,7 @@ if (require.main === module) {
     l1_tokenBridgeAddress,
     l1_messengerAddress,
     l1_canonicalTokenAddress,
+    l2_canonicalTokenAddress,
     l1_bridgeAddress,
     l2_bridgeAddress,
     l2_uniswapWrapperAddress

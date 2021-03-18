@@ -15,22 +15,18 @@ async function main () {
   })
 
   const l2_messenger = {
-    address: 'todo'
+    address: '0x4200000000000000000000000000000000000007'
   }
 
   const l1_tokenBridge = {
-    address: 'todo'
-  }
-
-  const l1_erc20 = {
-    address: 'todo'
+    address: '0xC1e7Be0E1aDD345afB2485aA5E774cD79cBbbBf5'
   }
 
   const l2_tokenBridge = await L2_TokenBridge.deploy(
     l2_messenger.address,
-    l1_tokenBridge.address,
-    l1_erc20.address
+    l1_tokenBridge.address
   )
+
   await l2_tokenBridge.deployed()
   console.log('L2 Token Bridge address:', l2_tokenBridge.address)
   console.log(
