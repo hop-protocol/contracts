@@ -54,6 +54,9 @@ async function main () {
 
     scripts.push(`npm run deploy:l1-kovan`)
   } else {
+    if (networkName === 'xdai') {
+      showL2CanonicalTokenWarning()
+    }
     const networkParams: NetworkParams = getNetworkParams(networkName)
     updateConfigFile(networkParams)
 
@@ -244,6 +247,19 @@ function validateInputs (inputs: any) {
   ) {
     throw new Error('Inputs must be defined')
   }
+}
+
+function showL2CanonicalTokenWarning() {
+  logger.log(
+    `
+    ********************************************
+    * If this is the first time a token is     *
+    * being used on L2, you must first         *
+    * generate the L2 canonical token address  *
+    * by sending tokens across the bridge.     *
+    ********************************************
+    `
+  )
 }
 
 main()

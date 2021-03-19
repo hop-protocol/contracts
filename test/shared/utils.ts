@@ -1,5 +1,12 @@
 import { ethers } from 'hardhat'
-import { BigNumber, Signer, Contract, BigNumberish } from 'ethers'
+import {
+  BigNumber,
+  BigNumberish,
+  BytesLike,
+  Contract,
+  Signer,
+  utils as ethersUtils
+} from 'ethers'
 import { expect } from 'chai'
 import MerkleTree from '../../lib/MerkleTree'
 import {
@@ -11,7 +18,8 @@ import {
   DEFAULT_DEADLINE,
   CHALLENGER_INITIAL_BALANCE,
   DEFAULT_RELAYER_FEE,
-  UNISWAP_LP_MINIMUM_LIQUIDITY
+  UNISWAP_LP_MINIMUM_LIQUIDITY,
+  ARB_CHAIN_ADDRESS
 } from '../../config/constants'
 
 import {
@@ -391,6 +399,85 @@ export const getNonceDomainSeparator = (): string => {
   // keccak256(abi.encodePacked("L2_Bridge v1.0"));
   const domainSeparatorString: string = 'L2_Bridge v1.0'
   return ethers.utils.solidityKeccak256(['string'], [domainSeparatorString])
+}
+
+enum L2MessageCode {
+  Transaction = 0,
+  ContractTransaction = 1,
+  Call = 2,
+  TransactionBatch = 3,
+  SignedTransaction = 4
+}
+
+export class L2Call {
+  public maxGas: BigNumber
+  public gasPriceBid: BigNumber
+  public destAddress: string
+  public calldata: string
+  public kind: L2MessageCode.Call
+
+  constructor (
+    maxGas: BigNumberish | undefined,
+    gasPriceBid: BigNumberish | undefined,
+    destAddress: BytesLike | undefined,
+    calldata: BytesLike | undefined
+  ) {
+    if (!maxGas) {
+      maxGas = 0
+    }
+    if (!gasPriceBid) {
+      gasPriceBid = 0
+    }
+    if (!destAddress) {
+      destAddress = ethersUtils.hexZeroPad('0x', 20)
+    }
+    if (!calldata) {
+      calldata = '0x'
+    }
+    this.maxGas = BigNumber.from(maxGas)
+    this.gasPriceBid = BigNumber.from(gasPriceBid)
+    this.destAddress = ethersUtils.hexlify(destAddress)
+    this.calldata = ethersUtils.hexlify(calldata)
+    this.kind = L2MessageCode.Call
+  }
+
+  static fromData (data: BytesLike): L2Call {
+    const bytes = ethersUtils.arrayify(data)
+    return new L2Call(
+      bytes.slice(0, 32),
+      bytes.slice(32, 64),
+      bytes.slice(64, 96),
+      bytes.slice(96)
+    )
+  }
+
+  asData (): Uint8Array {
+    return ethersUtils.concat([
+      hex32(this.maxGas),
+      hex32(this.gasPriceBid),
+      encodedAddress(this.destAddress),
+      this.calldata
+    ])
+  }
+}
+
+const hex32 = (val: BigNumber): Uint8Array => {
+  return ethersUtils.zeroPad(ethersUtils.arrayify(val), 32)
+}
+
+const encodedAddress = (addr: BytesLike): Uint8Array => {
+  return ethersUtils.zeroPad(ethersUtils.arrayify(addr), 32)
+}
+
+export const getArbitrumMessageParams = (l2_bridge: Contract, message: string) => {
+  const tx: L2Call = new L2Call(
+    BigNumber.from('2000000'),
+    BigNumber.from('2000000'),
+    l2_bridge.address,
+    message
+  )
+
+  return [ARB_CHAIN_ADDRESS, tx.asData()]
 }
 
 /**
