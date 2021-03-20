@@ -18,17 +18,23 @@ contract Mock_L1_Messenger is MockMessenger {
 
     /* ========== Arbitrum ========== */
 
-    function sendL2Message(
-        address _arbChain,
-        bytes memory _message
+    // TODO: Use a realistic value
+    function bridge() external returns (address) {
+        return address(0);
+    }
+
+    function sendContractTransaction(
+        uint256 _defaultGasLimit,
+        uint256 _defaultGasPrice,
+        address _target,
+        uint256 _value,
+        bytes calldata _message
     )
         public
     {
-        (address decodedTarget, bytes memory decodedMessage) = decodeMessage(_message);
-
         targetMessenger.receiveMessage(
-            decodedTarget,
-            decodedMessage,
+            _target,
+            _message,
             msg.sender
         );
     }

@@ -8,11 +8,10 @@ import { IFixture } from '../shared/interfaces'
 
 import {
   CHAIN_IDS,
-  ARB_CHAIN_ADDRESS,
   DEFAULT_MESSENGER_WRAPPER_GAS_LIMIT,
   DEFAULT_MESSENGER_WRAPPER_GAS_PRICE,
   DEFAULT_MESSENGER_WRAPPER_GAS_CALL_VALUE,
-  DEFAULT_MESSENGER_WRAPPER_SUB_MESSAGE_TYPE
+  ZERO_ADDRESS
 } from '../../config/constants'
 
 export const MAX_NUM_SENDS_BEFORE_COMMIT = 10
@@ -45,21 +44,24 @@ describe('Arbitrum Messenger Wrapper', () => {
     const expectedL1BridgeAddress: string = l1_bridge.address
     const expectedL2BridgeAddress: string = l2_bridge.address
     const expectedDefaultGasLimit: number = DEFAULT_MESSENGER_WRAPPER_GAS_LIMIT
-    const expectedL1MessengerAddress: string = l1_messenger.address
+    const expectedArbInbox: string = l1_messenger.address
+    const expectedArbBridge: string = ZERO_ADDRESS
     const expectedDefaultGasPrice: number = DEFAULT_MESSENGER_WRAPPER_GAS_PRICE
     const expectedDefaultCallValue: number = DEFAULT_MESSENGER_WRAPPER_GAS_CALL_VALUE
 
     const l1BridgeAddress: string = await l1_messengerWrapper.l1BridgeAddress()
     const l2BridgeAddress: string = await l1_messengerWrapper.l2BridgeAddress()
     const defaultGasLimit: number = await l1_messengerWrapper.defaultGasLimit()
-    const l1MessengerAddress: string = await l1_messengerWrapper.l1MessengerAddress()
+    const arbInbox: string = await l1_messengerWrapper.arbInbox()
+    const arbBridge: string = await l1_messengerWrapper.arbBridge()
     const defaultGasPrice: string = await l1_messengerWrapper.defaultGasPrice()
     const defaultCallValue: string = await l1_messengerWrapper.defaultCallValue()
 
     expect(expectedL1BridgeAddress).to.eq(l1BridgeAddress)
     expect(expectedL2BridgeAddress).to.eq(l2BridgeAddress)
     expect(expectedDefaultGasLimit).to.eq(defaultGasLimit)
-    expect(expectedL1MessengerAddress).to.eq(l1MessengerAddress)
+    expect(expectedArbInbox).to.eq(arbInbox)
+    expect(expectedArbBridge).to.eq(arbBridge)
     expect(expectedDefaultGasPrice).to.eq(defaultGasPrice)
     expect(expectedDefaultCallValue).to.eq(defaultCallValue)
   })
