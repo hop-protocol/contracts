@@ -14,7 +14,7 @@ import {
 } from '../../config/constants'
 
 import {
-  executeCanonicalBridgeSendMessage,
+  executeCanonicalMessengerSendMessage,
   getSetHopBridgeTokenOwnerMessage
 } from '../shared/contractFunctionWrappers'
 
@@ -91,7 +91,7 @@ describe('L1_Bridge', () => {
     const message: string = getSetHopBridgeTokenOwnerMessage(
       await user.getAddress()
     )
-    await executeCanonicalBridgeSendMessage(
+    await executeCanonicalMessengerSendMessage(
       l1_messenger,
       l2_bridge,
       l2_messenger,
@@ -123,7 +123,7 @@ describe('L1_Bridge', () => {
     const message: string = getSetHopBridgeTokenOwnerMessage(
       await user.getAddress()
     )
-    await executeCanonicalBridgeSendMessage(
+    await executeCanonicalMessengerSendMessage(
       l1_messenger,
       l2_bridge,
       l2_messenger,

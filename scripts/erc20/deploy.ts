@@ -8,8 +8,8 @@ import { isChainIdOptimism } from '../../config/utils'
 // $ npm run deploy:l1-kovan:erc20
 // $ npm run deploy:l2-optimism:erc20
 async function main () {
-  const erc20Name = 'Synth sBTC'
-  const erc20Symbol = 'sBTC'
+  const erc20Name = 'Dai Stablecoin'
+  const erc20Symbol = 'DAI'
 
   const network = await ethers.provider.getNetwork()
   console.log('network:', network)

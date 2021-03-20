@@ -33,10 +33,10 @@ export default {
       chainId: CHAIN_IDS.ETHEREUM.KOVAN.toNumber()
     },
     arbitrum: {
-      url: 'https://kovan3.arbitrum.io/rpc',
+      url: 'https://kovan4.arbitrum.io/rpc',
       accounts: desiredAccounts,
       gasPrice: 0,
-      chainId: CHAIN_IDS.ARBITRUM.TESTNET_3.toNumber()
+      chainId: CHAIN_IDS.ARBITRUM.TESTNET_4.toNumber()
     },
     optimism: {
       url: 'https://kovan.optimism.io',

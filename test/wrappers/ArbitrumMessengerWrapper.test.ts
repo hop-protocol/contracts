@@ -30,7 +30,7 @@ describe('Arbitrum Messenger Wrapper', () => {
 
   beforeEach(async () => {
     l1ChainId = CHAIN_IDS.ETHEREUM.KOVAN
-    l2ChainId = CHAIN_IDS.ARBITRUM.TESTNET_3
+    l2ChainId = CHAIN_IDS.ARBITRUM.TESTNET_4
 
     _fixture = await fixture(l1ChainId, l2ChainId)
     await setUpDefaults(_fixture, l2ChainId)
@@ -46,8 +46,6 @@ describe('Arbitrum Messenger Wrapper', () => {
     const expectedL2BridgeAddress: string = l2_bridge.address
     const expectedDefaultGasLimit: number = DEFAULT_MESSENGER_WRAPPER_GAS_LIMIT
     const expectedL1MessengerAddress: string = l1_messenger.address
-    const expectedArbChain: string = ARB_CHAIN_ADDRESS
-    const expectedDefaultSubMessageType: string = DEFAULT_MESSENGER_WRAPPER_SUB_MESSAGE_TYPE
     const expectedDefaultGasPrice: number = DEFAULT_MESSENGER_WRAPPER_GAS_PRICE
     const expectedDefaultCallValue: number = DEFAULT_MESSENGER_WRAPPER_GAS_CALL_VALUE
 
@@ -55,8 +53,6 @@ describe('Arbitrum Messenger Wrapper', () => {
     const l2BridgeAddress: string = await l1_messengerWrapper.l2BridgeAddress()
     const defaultGasLimit: number = await l1_messengerWrapper.defaultGasLimit()
     const l1MessengerAddress: string = await l1_messengerWrapper.l1MessengerAddress()
-    const arbChain: string = await l1_messengerWrapper.arbChain()
-    const defaultSubMessageType: string = await l1_messengerWrapper.defaultSubMessageType()
     const defaultGasPrice: string = await l1_messengerWrapper.defaultGasPrice()
     const defaultCallValue: string = await l1_messengerWrapper.defaultCallValue()
 
@@ -64,8 +60,6 @@ describe('Arbitrum Messenger Wrapper', () => {
     expect(expectedL2BridgeAddress).to.eq(l2BridgeAddress)
     expect(expectedDefaultGasLimit).to.eq(defaultGasLimit)
     expect(expectedL1MessengerAddress).to.eq(l1MessengerAddress)
-    expect(expectedArbChain).to.eq(arbChain)
-    expect(expectedDefaultSubMessageType).to.eq(defaultSubMessageType)
     expect(expectedDefaultGasPrice).to.eq(defaultGasPrice)
     expect(expectedDefaultCallValue).to.eq(defaultCallValue)
   })

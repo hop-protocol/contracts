@@ -3,7 +3,9 @@
 pragma solidity 0.6.12;
 pragma experimental ABIEncoderV2;
 
-import "../interfaces/arbitrum/messengers/IGlobalInbox.sol";
+import "../interfaces/arbitrum/messengers/IInbox.sol";
+import "../interfaces/arbitrum/messengers/IBridge.sol";
+import "../interfaces/arbitrum/messengers/IOutbox.sol";
 import "./MessengerWrapper.sol";
 
 /**
@@ -13,9 +15,8 @@ import "./MessengerWrapper.sol";
 
 contract ArbitrumMessengerWrapper is MessengerWrapper {
 
-    IGlobalInbox public l1MessengerAddress;
-    address public arbChain;
-    byte public defaultSubMessageType;
+    IInbox public arbInbox;
+    IBridge public arbBridge;
     uint256 public defaultGasPrice;
     uint256 public defaultCallValue;
 
@@ -23,9 +24,7 @@ contract ArbitrumMessengerWrapper is MessengerWrapper {
         address _l1BridgeAddress,
         address _l2BridgeAddress,
         uint256 _defaultGasLimit,
-        IGlobalInbox _l1MessengerAddress,
-        address _arbChain,
-        byte _defaultSubMessageType,
+        IInbox _arbInbox,
         uint256 _defaultGasPrice,
         uint256 _defaultCallValue
     )
@@ -34,9 +33,8 @@ contract ArbitrumMessengerWrapper is MessengerWrapper {
         l1BridgeAddress = _l1BridgeAddress;
         l2BridgeAddress = _l2BridgeAddress;
         defaultGasLimit = _defaultGasLimit;
-        l1MessengerAddress = _l1MessengerAddress;
-        arbChain = _arbChain;
-        defaultSubMessageType = _defaultSubMessageType;
+        arbInbox = _arbInbox;
+        arbBridge = arbInbox.bridge();
         defaultGasPrice = _defaultGasPrice;
         defaultCallValue = _defaultCallValue;
     }
@@ -46,28 +44,12 @@ contract ArbitrumMessengerWrapper is MessengerWrapper {
      * @param _calldata The data that l2BridgeAddress will be called with
      */
     function sendCrossDomainMessage(bytes memory _calldata) public override onlyL1Bridge {
-        bytes memory subMessageWithoutData = abi.encode(
-            defaultGasLimit,
-            defaultGasPrice,
-            uint256(l2BridgeAddress),
-            defaultCallValue
-        );
-        bytes memory subMessage = abi.encodePacked(
-            subMessageWithoutData,
-            _calldata
-        );
-        bytes memory prefixedSubMessage = abi.encodePacked(
-            defaultSubMessageType,
-            subMessage
-        );
-        l1MessengerAddress.sendL2Message(
-            arbChain,
-            prefixedSubMessage
-        );
+        arbInbox.sendContractTransaction(defaultGasLimit, defaultGasPrice, l2BridgeAddress, 0, _calldata);
     }
 
-    function verifySender(address l1BridgeCaller, bytes memory _data) public override {
-        // ToDo: Verify sender with Arbitrum L1 messenger
+    function verifySender(address l1BridgeCaller, bytes memory /*_data*/) public override {
+        require(l1BridgeCaller == address(arbBridge), "ARB_MSG_WPR: Caller is not arbBridge");
         // Verify that sender is l2BridgeAddress
+        require(IOutbox(arbBridge.activeOutbox()).l2ToL1Sender() == l2BridgeAddress, "ARB_MSG_WPR: Invalid cross-domain sender");
     }
 }

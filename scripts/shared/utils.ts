@@ -9,8 +9,6 @@ import {
   isChainIdXDai
 } from '../../config/utils'
 
-import { ARB_CHAIN_ADDRESS } from '../../config/constants'
-
 export const getContractFactories = async (
   chainId: BigNumber,
   signer: Signer,
@@ -155,11 +153,11 @@ const getOptimismContractFactories = async (
 
 const getArbitrumContractFactories = async (signer: Signer, ethers: any) => {
   const L1_TokenBridge: ContractFactory = await ethers.getContractFactory(
-    'contracts/test/arbitrum/inbox/GlobalInbox.sol:GlobalInbox',
+    'contracts/test/arbitrum/IInbox.sol:IInbox',
     { signer }
   )
   const L1_Messenger: ContractFactory = await ethers.getContractFactory(
-    'contracts/test/arbitrum/inbox/GlobalInbox.sol:GlobalInbox',
+    'contracts/test/arbitrum/IInbox.sol:IInbox',
     { signer }
   )
   const L1_MessengerWrapper: ContractFactory = await ethers.getContractFactory(
@@ -278,9 +276,9 @@ export const sendChainSpecificBridgeDeposit = async (
   } else if (isChainIdArbitrum(chainId)) {
     const tx = await l1_tokenBridge
       .connect(sender)
-      .depositERC20Message(
-        ARB_CHAIN_ADDRESS,
+      .deposit(
         l1_canonicalToken.address,
+        l2_canonicalToken.address,
         await sender.getAddress(),
         amount
       )

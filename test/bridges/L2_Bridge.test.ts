@@ -26,7 +26,7 @@ import {
   executeL2BridgeSwapAndSend,
   executeL2BridgeCommitTransfers,
   executeL2BridgeBondWithdrawalAndDistribute,
-  executeCanonicalBridgeSendMessage,
+  executeCanonicalMessengerSendMessage,
   getSetUniswapWrapperAddressMessage,
   getSetL1BridgeAddressMessage,
   getSetL1MessengerWrapperAddressMessage,
@@ -103,7 +103,7 @@ describe('L2_Bridge', () => {
 
     l1ChainId = CHAIN_IDS.ETHEREUM.KOVAN
     l2ChainId = CHAIN_IDS.OPTIMISM.TESTNET_1
-    l22ChainId = CHAIN_IDS.ARBITRUM.TESTNET_3
+    l22ChainId = CHAIN_IDS.ARBITRUM.TESTNET_4
 
     _fixture = await fixture(l1ChainId, l2ChainId)
     await setUpDefaults(_fixture, l2ChainId)
@@ -224,7 +224,7 @@ describe('L2_Bridge', () => {
       const message: string = getSetUniswapWrapperAddressMessage(
         expectedUniswapWrapperAddress
       )
-      await executeCanonicalBridgeSendMessage(
+      await executeCanonicalMessengerSendMessage(
         l1_messenger,
         l2_bridge,
         l2_messenger,
@@ -242,7 +242,7 @@ describe('L2_Bridge', () => {
       const message: string = getSetL1BridgeAddressMessage(
         expectedL1BridgeAddress
       )
-      await executeCanonicalBridgeSendMessage(
+      await executeCanonicalMessengerSendMessage(
         l1_messenger,
         l2_bridge,
         l2_messenger,
@@ -260,7 +260,7 @@ describe('L2_Bridge', () => {
       const message: string = getSetL1MessengerWrapperAddressMessage(
         expectedL1MessengerWrapperAddress
       )
-      await executeCanonicalBridgeSendMessage(
+      await executeCanonicalMessengerSendMessage(
         l1_messenger,
         l2_bridge,
         l2_messenger,
@@ -278,7 +278,7 @@ describe('L2_Bridge', () => {
       const message: string = getSetMessengerGasLimitMessage(
         expectedMessengerGasLimit
       )
-      await executeCanonicalBridgeSendMessage(
+      await executeCanonicalMessengerSendMessage(
         l1_messenger,
         l2_bridge,
         l2_messenger,
@@ -294,7 +294,7 @@ describe('L2_Bridge', () => {
       const newChainId: BigNumber[] = [BigNumber.from('13371337')]
 
       const message: string = getAddSupportedChainIdsMessage(newChainId)
-      await executeCanonicalBridgeSendMessage(
+      await executeCanonicalMessengerSendMessage(
         l1_messenger,
         l2_bridge,
         l2_messenger,
@@ -312,7 +312,7 @@ describe('L2_Bridge', () => {
       const newChainId: BigNumber[] = [BigNumber.from('13371337')]
 
       let message: string = getAddSupportedChainIdsMessage(newChainId)
-      await executeCanonicalBridgeSendMessage(
+      await executeCanonicalMessengerSendMessage(
         l1_messenger,
         l2_bridge,
         l2_messenger,
@@ -326,7 +326,7 @@ describe('L2_Bridge', () => {
       expect(isChainIdSupported).to.eq(true)
 
       message = getRemoveSupportedChainIdsMessage(newChainId)
-      await executeCanonicalBridgeSendMessage(
+      await executeCanonicalMessengerSendMessage(
         l1_messenger,
         l2_bridge,
         l2_messenger,
@@ -344,7 +344,7 @@ describe('L2_Bridge', () => {
       const message: string = getSetMinimumForceCommitDelayMessage(
         expectedMinimumForceCommitDelay
       )
-      await executeCanonicalBridgeSendMessage(
+      await executeCanonicalMessengerSendMessage(
         l1_messenger,
         l2_bridge,
         l2_messenger,
@@ -362,7 +362,7 @@ describe('L2_Bridge', () => {
       const message: string = getSetMaxPendingTransfersMessage(
         expectedMaxPendingTransfers
       )
-      await executeCanonicalBridgeSendMessage(
+      await executeCanonicalMessengerSendMessage(
         l1_messenger,
         l2_bridge,
         l2_messenger,
@@ -382,7 +382,7 @@ describe('L2_Bridge', () => {
       const message: string = getSetHopBridgeTokenOwnerMessage(
         await newOwner.getAddress()
       )
-      await executeCanonicalBridgeSendMessage(
+      await executeCanonicalMessengerSendMessage(
         l1_messenger,
         l2_bridge,
         l2_messenger,
@@ -402,7 +402,7 @@ describe('L2_Bridge', () => {
         expectedMinBonderBps,
         expectedMinBonderFeeAbsolute
       )
-      await executeCanonicalBridgeSendMessage(
+      await executeCanonicalMessengerSendMessage(
         l1_messenger,
         l2_bridge,
         l2_messenger,
@@ -662,7 +662,7 @@ describe('L2_Bridge', () => {
         expectedUniswapWrapperAddress
       )
       await expect(
-        executeCanonicalBridgeSendMessage(
+        executeCanonicalMessengerSendMessage(
           l1_messenger,
           l2_bridge,
           l2_messenger,
@@ -680,7 +680,7 @@ describe('L2_Bridge', () => {
         expectedL1BridgeAddress
       )
       await expect(
-        executeCanonicalBridgeSendMessage(
+        executeCanonicalMessengerSendMessage(
           l1_messenger,
           l2_bridge,
           l2_messenger,
@@ -698,7 +698,7 @@ describe('L2_Bridge', () => {
         expectedL1MessengerWrapperAddress
       )
       await expect(
-        executeCanonicalBridgeSendMessage(
+        executeCanonicalMessengerSendMessage(
           l1_messenger,
           l2_bridge,
           l2_messenger,
@@ -716,7 +716,7 @@ describe('L2_Bridge', () => {
         expectedMessengerGasLimit
       )
       await expect(
-        executeCanonicalBridgeSendMessage(
+        executeCanonicalMessengerSendMessage(
           l1_messenger,
           l2_bridge,
           l2_messenger,
@@ -732,7 +732,7 @@ describe('L2_Bridge', () => {
 
       const message: string = getAddSupportedChainIdsMessage(newChainId)
       await expect(
-        executeCanonicalBridgeSendMessage(
+        executeCanonicalMessengerSendMessage(
           l1_messenger,
           l2_bridge,
           l2_messenger,
@@ -747,7 +747,7 @@ describe('L2_Bridge', () => {
       const newChainId: BigNumber[] = [BigNumber.from('13371337')]
 
       let message: string = getAddSupportedChainIdsMessage(newChainId)
-      await executeCanonicalBridgeSendMessage(
+      await executeCanonicalMessengerSendMessage(
         l1_messenger,
         l2_bridge,
         l2_messenger,
@@ -762,7 +762,7 @@ describe('L2_Bridge', () => {
 
       message = getRemoveSupportedChainIdsMessage(newChainId)
       await expect(
-        executeCanonicalBridgeSendMessage(
+        executeCanonicalMessengerSendMessage(
           l1_messenger,
           l2_bridge,
           l2_messenger,
@@ -780,7 +780,7 @@ describe('L2_Bridge', () => {
         expectedMinimumForceCommitDelay
       )
       await expect(
-        executeCanonicalBridgeSendMessage(
+        executeCanonicalMessengerSendMessage(
           l1_messenger,
           l2_bridge,
           l2_messenger,
@@ -798,7 +798,7 @@ describe('L2_Bridge', () => {
         expectedMaxPendingTransfers
       )
       await expect(
-        executeCanonicalBridgeSendMessage(
+        executeCanonicalMessengerSendMessage(
           l1_messenger,
           l2_bridge,
           l2_messenger,
@@ -818,7 +818,7 @@ describe('L2_Bridge', () => {
         await newOwner.getAddress()
       )
       await expect(
-        executeCanonicalBridgeSendMessage(
+        executeCanonicalMessengerSendMessage(
           l1_messenger,
           l2_bridge,
           l2_messenger,
@@ -838,7 +838,7 @@ describe('L2_Bridge', () => {
         expectedMinBonderFeeAbsolute
       )
       await expect(
-        executeCanonicalBridgeSendMessage(
+        executeCanonicalMessengerSendMessage(
           l1_messenger,
           l2_bridge,
           l2_messenger,

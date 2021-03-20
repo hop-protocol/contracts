@@ -20,7 +20,7 @@ import {
 
 import {
   getSetL1MessengerWrapperAddressMessage,
-  executeCanonicalBridgeSendMessage,
+  executeCanonicalMessengerSendMessage,
   getAddSupportedChainIdsMessage,
   getSetUniswapWrapperAddressMessage
 } from '../../test/shared/contractFunctionWrappers'
@@ -158,7 +158,7 @@ export async function setupL1 (config: Config) {
   )
 
   logger.log('setting L1 messenger wrapper address on L2 bridge')
-  await executeCanonicalBridgeSendMessage(
+  await executeCanonicalMessengerSendMessage(
     l1_messenger,
     l2_bridge,
     ZERO_ADDRESS,
@@ -176,7 +176,7 @@ export async function setupL1 (config: Config) {
     'chain IDs:',
     ALL_SUPPORTED_CHAIN_IDS.map(v => v.toString()).join(', ')
   )
-  await executeCanonicalBridgeSendMessage(
+  await executeCanonicalMessengerSendMessage(
     l1_messenger,
     l2_bridge,
     ZERO_ADDRESS,
@@ -189,7 +189,7 @@ export async function setupL1 (config: Config) {
   message = getSetUniswapWrapperAddressMessage(l2_uniswapWrapperAddress)
 
   logger.log('setting uniswap wrapper address on L2 bridge')
-  await executeCanonicalBridgeSendMessage(
+  await executeCanonicalMessengerSendMessage(
     l1_messenger,
     l2_bridge,
     ZERO_ADDRESS,

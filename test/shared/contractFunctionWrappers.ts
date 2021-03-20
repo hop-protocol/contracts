@@ -10,8 +10,7 @@ import { expect } from 'chai'
 import {
   expectBalanceOf,
   getRootHashFromTransferId,
-  getTransferNonceFromEvent,
-  getArbitrumMessageParams
+  getTransferNonceFromEvent
 } from './utils'
 import {
   isChainIdOptimism,
@@ -46,7 +45,7 @@ export const executeCanonicalBridgeSendTokens = async (
   await expectBalanceOf(l2_canonicalToken, account, amount)
 }
 
-export const executeCanonicalBridgeSendMessage = async (
+export const executeCanonicalMessengerSendMessage = async (
   l1_messenger: Contract,
   l2_bridge: Contract,
   l2_messenger: Contract | string,
@@ -58,8 +57,12 @@ export const executeCanonicalBridgeSendMessage = async (
   const params: any[] = [l2_bridge.address, message, gasLimit]
 
   if (isChainIdArbitrum(l2ChainId)) {
-    const arbitrumParams: any = getArbitrumMessageParams(l2_bridge, message)
-    await l1_messenger.connect(sender).sendL2Message(...arbitrumParams)
+    const gasPrice: BigNumber = BigNumber.from('50000000000')
+    const amount: BigNumber = BigNumber.from('0')
+    const arbitrumParams: any[] = [gasLimit, gasPrice, l2_bridge.address, amount, message]
+    await l1_messenger
+      .connect(sender)
+      .sendContractTransaction(...arbitrumParams);
   } else if (isChainIdOptimism(l2ChainId)) {
     await l1_messenger.connect(sender).sendMessage(...params)
   } else if (isChainIdXDai(l2ChainId)) {

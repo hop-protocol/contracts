@@ -6,7 +6,6 @@ import {
 import {
   CHAIN_IDS,
   DEFAULT_MESSENGER_WRAPPER_GAS_LIMIT,
-  ARB_CHAIN_ADDRESS,
   DEFAULT_MESSENGER_WRAPPER_SUB_MESSAGE_TYPE,
   DEFAULT_MESSENGER_WRAPPER_GAS_PRICE,
   DEFAULT_MESSENGER_WRAPPER_GAS_CALL_VALUE
@@ -27,8 +26,6 @@ export const getMessengerWrapperDefaults = (
     gasLimit = DEFAULT_MESSENGER_WRAPPER_GAS_LIMIT
 
     additionalData.push(
-      ARB_CHAIN_ADDRESS,
-      DEFAULT_MESSENGER_WRAPPER_SUB_MESSAGE_TYPE,
       DEFAULT_MESSENGER_WRAPPER_GAS_PRICE,
       DEFAULT_MESSENGER_WRAPPER_GAS_CALL_VALUE
     )
@@ -108,7 +105,8 @@ export const isChainIdOptimism = (chainId: BigNumber): boolean => {
 export const isChainIdArbitrum = (chainId: BigNumber): boolean => {
   if (
     chainId.eq(CHAIN_IDS.ARBITRUM.TESTNET_2) ||
-    chainId.eq(CHAIN_IDS.ARBITRUM.TESTNET_3)
+    chainId.eq(CHAIN_IDS.ARBITRUM.TESTNET_3) ||
+    chainId.eq(CHAIN_IDS.ARBITRUM.TESTNET_4)
   ) {
     return true
   }

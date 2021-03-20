@@ -14,7 +14,8 @@ export const CHAIN_IDS: any = {
   },
   ARBITRUM: {
     TESTNET_2: BigNumber.from('152709604825713'),
-    TESTNET_3: BigNumber.from('79377087078960')
+    TESTNET_3: BigNumber.from('79377087078960'),
+    TESTNET_4: BigNumber.from('212984383488152')
   },
   XDAI: {
     SOKOL: BigNumber.from('77')
@@ -35,8 +36,6 @@ export const ARBITRARY_TRANSFER_NONCE: string =
 export const MAX_APPROVAL: BigNumber = BigNumber.from(
   '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff'
 )
-export const ARB_CHAIN_ADDRESS: string =
-  '0x2e8aF9f74046D3E55202Fcfb893348316B142230'
 
 export const DEFAULT_MESSENGER_WRAPPER_GAS_LIMIT: number = 8000000
 export const DEFAULT_MESSENGER_WRAPPER_GAS_PRICE: number = 0
