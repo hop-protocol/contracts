@@ -60,6 +60,7 @@ describe('L1_Bridge', () => {
   let challenger: Signer
   let relayer: Signer
   let governance: Signer
+  let otherUser: Signer
 
   let l1_canonicalToken: Contract
   let l1_bridge: Contract
@@ -75,6 +76,7 @@ describe('L1_Bridge', () => {
   let l22_bridge: Contract
   let l22_messenger: Contract
   let l22_uniswapRouter: Contract
+  let l22_uniswapWrapper: Contract
 
   let transfers: Transfer[]
   let transfer: Transfer
@@ -91,7 +93,7 @@ describe('L1_Bridge', () => {
 
     l1ChainId = CHAIN_IDS.ETHEREUM.KOVAN
     l2ChainId = CHAIN_IDS.OPTIMISM.TESTNET_1
-    l22ChainId = CHAIN_IDS.ARBITRUM.TESTNET_3
+    l22ChainId = CHAIN_IDS.ARBITRUM.TESTNET_4
 
     _fixture = await fixture(l1ChainId, l2ChainId)
     await setUpDefaults(_fixture, l2ChainId)
@@ -101,6 +103,7 @@ describe('L1_Bridge', () => {
       challenger,
       relayer,
       governance,
+      otherUser,
       l1_canonicalToken,
       l1_bridge,
       l1_messenger,
@@ -124,7 +127,8 @@ describe('L1_Bridge', () => {
       l2_hopBridgeToken: l22_hopBridgeToken,
       l2_bridge: l22_bridge,
       l2_messenger: l22_messenger,
-      l2_uniswapRouter: l22_uniswapRouter
+      l2_uniswapRouter: l22_uniswapRouter,
+      l2_uniswapWrapper: l22_uniswapWrapper
     } = _fixture)
 
     transfer = transfers[0]
@@ -197,7 +201,8 @@ describe('L1_Bridge', () => {
     )
   })
 
-  it.skip('Should allow a user to send from L2 to L2, wait until the transfer is confirmed, and then withdraw', async () => {
+  it('Should allow a user to send from L2 to L2, wait until the transfer is confirmed, and then withdraw', async () => {
+    console.log('a')
     await executeL1BridgeSendToL2(
       l1_canonicalToken,
       l1_bridge,
@@ -229,7 +234,8 @@ describe('L1_Bridge', () => {
       l22_bridge,
       l2_bridge,
       l2Transfer,
-      bonder
+      bonder,
+      l22_hopBridgeToken
     )
   })
 
@@ -800,6 +806,7 @@ describe('L1_Bridge', () => {
     })
 
     it.skip('Should send two transactions from L2 to L2, bond it, and settle the bonded withdrawals', async () => {
+      const amountToSend: BigNumber = transfer.amount.mul(2)
       await executeL1BridgeSendToL2(
         l1_canonicalToken,
         l1_bridge,
@@ -810,24 +817,7 @@ describe('L1_Bridge', () => {
         transfer.sender,
         transfer.recipient,
         relayer,
-        transfer.amount,
-        transfer.amountOutMin,
-        transfer.deadline,
-        defaultRelayerFee,
-        l2ChainId
-      )
-
-      await executeL1BridgeSendToL2(
-        l1_canonicalToken,
-        l1_bridge,
-        l2_hopBridgeToken,
-        l2_canonicalToken,
-        l2_messenger,
-        l2_uniswapRouter,
-        transfer.sender,
-        transfer.recipient,
-        relayer,
-        transfer.amount,
+        amountToSend,
         transfer.amountOutMin,
         transfer.deadline,
         defaultRelayerFee,
@@ -848,9 +838,14 @@ describe('L1_Bridge', () => {
         actualTransferAmount
       )
 
-      await executeL2BridgeSend(l2_hopBridgeToken, l2_bridge, l2Transfer)
-
       const expectedTransferIndex: BigNumber = BigNumber.from('1')
+      await executeL2BridgeSend(
+        l2_hopBridgeToken,
+        l2_bridge,
+        l2Transfer,
+        expectedTransferIndex
+      )
+
       await executeL2BridgeBondWithdrawalAndDistribute(
         l2_bridge,
         l22_hopBridgeToken,
@@ -860,10 +855,15 @@ describe('L1_Bridge', () => {
         l2Transfer,
         bonder,
         actualTransferAmount,
-        expectedTransferIndex
+        expectedTransferIndex,
+        l22_uniswapWrapper
       )
 
-      await executeL2BridgeCommitTransfers(l2_bridge, l2Transfer, bonder)
+      await executeL2BridgeCommitTransfers(
+        l2_bridge,
+        l2Transfer,
+        bonder
+      )
 
       await l1_messenger.relayNextMessage()
       await l22_messenger.relayNextMessage()

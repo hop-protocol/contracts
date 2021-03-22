@@ -246,7 +246,8 @@ export const executeBridgeWithdraw = async (
   destinationBridge: Contract,
   originBridge: Contract,
   transfer: Transfer,
-  bonder: Signer
+  bonder: Signer,
+  destinationHopToken: Contract = null
 ) => {
   const transferNonce: string = await getTransferNonceFromEvent(originBridge)
   const transferId: Buffer = await transfer.getTransferId(transferNonce)
@@ -257,12 +258,18 @@ export const executeBridgeWithdraw = async (
   const { rootHash } = getRootHashFromTransferId(transferId)
 
   // Get state before transaction
-  const recipientBalanceBefore: BigNumber = await destinationCanonicalToken.balanceOf(
+  const recipientCanonicalTokenBalanceBefore: BigNumber = await destinationCanonicalToken.balanceOf(
     await transfer.recipient.getAddress()
   )
   const bonderBalanceBefore: BigNumber = await destinationCanonicalToken.balanceOf(
     await bonder.getAddress()
   )
+  let recipientHopTokenBalanceBefore: BigNumber
+  if (destinationHopToken) {
+    recipientHopTokenBalanceBefore = await destinationCanonicalToken.balanceOf(
+      await bonder.getAddress()
+    )
+  }
   const transferRootAmountWithdrawnBefore: BigNumber = (
     await destinationBridge.getTransferRoot(rootHash, transfer.amount)
   )[1]
@@ -292,11 +299,22 @@ export const executeBridgeWithdraw = async (
   )[1]
 
   // NOTE: Unbonded withdrawals do not pay the bonder
-  await expectBalanceOf(
-    destinationCanonicalToken,
-    transfer.recipient,
-    recipientBalanceBefore.add(transfer.amount)
-  )
+  const isSwap = !(transfer.destinationAmountOutMin.eq(0) && transfer.destinationDeadline.eq(0))
+  const isDestinationL1 = !destinationHopToken
+  if (isSwap || isDestinationL1) {
+    await expectBalanceOf(
+      destinationCanonicalToken,
+      transfer.recipient,
+      recipientCanonicalTokenBalanceBefore.add(transfer.amount)
+    )
+  } else {
+    await expectBalanceOf(
+      destinationHopToken,
+      transfer.recipient,
+      recipientHopTokenBalanceBefore.add(transfer.amount)
+    )
+    console.log('1')
+  }
 
   await expectBalanceOf(destinationCanonicalToken, bonder, bonderBalanceBefore)
 
@@ -936,7 +954,8 @@ export const executeL2BridgeBondWithdrawalAndDistribute = async (
   transfer: Transfer,
   bonder: Signer,
   actualTransferAmount: BigNumber,
-  expectedTransferIndex: BigNumber = BigNumber.from('0')
+  expectedTransferIndex: BigNumber = BigNumber.from('0'),
+  l2_uniswapWrapper = null
 ) => {
   // Get state before transaction
   const transferNonce = await getTransferNonceFromEvent(
@@ -946,10 +965,14 @@ export const executeL2BridgeBondWithdrawalAndDistribute = async (
   const bonderBalanceBefore: BigNumber = await l2_hopBridgeToken.balanceOf(
     await bonder.getAddress()
   )
+  const recipientCanonicalTokenBalanceBefore: BigNumber = await l2_canonicalToken.balanceOf(
+    await transfer.recipient.getAddress()
+  )
 
+  // TODO: Perform path based on isSwap
   const expectedAmountsRecipientBridge: BigNumber[] = await l2_uniswapRouter.getAmountsOut(
     actualTransferAmount.sub(transfer.bonderFee),
-    [l2_canonicalToken.address, l2_hopBridgeToken.address]
+    [l2_hopBridgeToken.address, l2_canonicalToken.address]
   )
   const expectedRecipientAmountAfterSlippage: BigNumber =
     expectedAmountsRecipientBridge[1]
@@ -967,7 +990,14 @@ export const executeL2BridgeBondWithdrawalAndDistribute = async (
     )
 
   // Validate state after transaction
-  await expectBalanceOf(l2_hopBridgeToken, transfer.recipient, 0)
+  const isSwap = !(transfer.destinationAmountOutMin.eq(0) && transfer.destinationDeadline.eq(0))
+  // const isDestinationL1 = !destinationHopToken
+  if (isSwap) {
+    // TODO: Handle is swap
+  } else {
+    await expectBalanceOf(l2_hopBridgeToken, transfer.recipient, 0)
+  }
+
   await expectBalanceOf(
     l2_hopBridgeToken,
     bonder,
@@ -976,7 +1006,7 @@ export const executeL2BridgeBondWithdrawalAndDistribute = async (
   await expectBalanceOf(
     l2_canonicalToken,
     transfer.recipient,
-    expectedRecipientAmountAfterSlippage
+    recipientCanonicalTokenBalanceBefore.add(expectedRecipientAmountAfterSlippage)
   )
 }
 
