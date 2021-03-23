@@ -313,7 +313,6 @@ export const executeBridgeWithdraw = async (
       transfer.recipient,
       recipientHopTokenBalanceBefore.add(transfer.amount)
     )
-    console.log('1')
   }
 
   await expectBalanceOf(destinationCanonicalToken, bonder, bonderBalanceBefore)
@@ -480,19 +479,20 @@ export const executeBridgeSettleBondedWithdrawal = async (
 export const executeBridgeSettleBondedWithdrawals = async (
   l1_bridge: Contract,
   l2_bridge: Contract,
-  transfer: Transfer,
-  bonder: Signer,
-  numTransfers: number = 1
+  transfers: Transfer[],
+  bonder: Signer
 ) => {
+  // Get state before transaction
+  const numTransfers: BigNumber = BigNumber.from(transfers.length)
+  let totalTransferAmount: BigNumber = BigNumber.from('0')
+
   let transferNonces: string[] = []
   let transferIds: Buffer[] = []
-  for (let i = 0; i < numTransfers; i++) {
-    transferNonces.push(await getTransferNonceFromEvent(l2_bridge))
-    transferIds.push(await transfer.getTransferId(transferNonces[i]))
+  for (let i = 0; i < numTransfers.toNumber(); i++) {
+    transferNonces.push(await getTransferNonceFromEvent(l2_bridge, BigNumber.from(i)))
+    transferIds.push(await transfers[i].getTransferId(transferNonces[i]))
+    totalTransferAmount = totalTransferAmount.add(transfers[i].amount)
   }
-
-  // TODO: Needs to be more dynamic
-  const { rootHash } = getRootHashFromTransferId(transferIds[0])
 
   // Get state before transaction
   const bondedAmountBefore: BigNumber = await l1_bridge.getCredit(
@@ -505,19 +505,30 @@ export const executeBridgeSettleBondedWithdrawals = async (
     .settleBondedWithdrawals(
       await bonder.getAddress(),
       transferIds,
-      transfer.amount
+      totalTransferAmount
     )
+  console.log('tidBefore', (await l1_bridge.tidBefore()).toString())
+  console.log('tidAfter', (await l1_bridge.tidAfter()).toString())
 
   // Validate state after transaction
   const currentTime: number = Math.floor(Date.now() / 1000)
+  let calculatedTransferIds: Buffer[] = []
+  for (let i = 0; i < numTransfers.toNumber(); i++) {
+    const transferNonce = await getTransferNonceFromEvent(
+      l2_bridge,
+      BigNumber.from(i)
+    )
+    calculatedTransferIds.push(await transfers[i].getTransferId(transferNonce))
+  }
+  const expectedMerkleTree = new MerkleTree(calculatedTransferIds)
   const transferRoot: number = await l1_bridge.getTransferRoot(
-    rootHash,
-    transfer.amount
+    expectedMerkleTree.getHexRoot(),
+    totalTransferAmount
   )
   const credit = await l1_bridge.getCredit(await bonder.getAddress())
-  const expectedCredit: BigNumber = bondedAmountBefore.add(transfer.amount)
-  expect(transferRoot[0]).to.eq(transfer.amount)
-  expect(transferRoot[1]).to.eq(transfer.amount)
+  const expectedCredit: BigNumber = bondedAmountBefore.add(totalTransferAmount)
+  expect(transferRoot[0]).to.eq(totalTransferAmount)
+  expect(transferRoot[1]).to.eq(totalTransferAmount)
   expect(transferRoot[2].toNumber()).to.be.closeTo(
     currentTime,
     TIMESTAMP_VARIANCE
@@ -879,36 +890,51 @@ export const executeL2BridgeSwapAndSend = async (
 
 export const executeL2BridgeCommitTransfers = async (
   l2_bridge: Contract,
-  transfer: Transfer,
-  bonder: Signer,
-  expectedTransferIndex: BigNumber = BigNumber.from('0')
+  transfers: Transfer[],
+  bonder: Signer
 ) => {
   // Get state before transaction
-  const transferNonce = await getTransferNonceFromEvent(
-    l2_bridge,
-    expectedTransferIndex
+  const destinationChainId: BigNumber = transfers[0].chainId
+  const numTransfers: BigNumber = BigNumber.from(transfers.length)
+  let expectedPendingAmountForChainId: BigNumber = BigNumber.from('0')
+
+  for (let i = 0; i < numTransfers.toNumber(); i++) {
+    // All transfers passed in here should have the same chainId
+    expect(destinationChainId).to.eq(transfers[i].chainId)
+
+    const transferNonce = await getTransferNonceFromEvent(
+      l2_bridge,
+      BigNumber.from(i)
+    )
+
+    const pendingTransferIdsForChainId: string = await l2_bridge.pendingTransferIdsForChainId(
+      transfers[i].chainId,
+      i
+    )
+
+    const expectedPendingTransferIdsForChainId: string = await transfers[i].getTransferIdHex(
+      transferNonce
+    )
+
+    expect(pendingTransferIdsForChainId).to.eq(
+      expectedPendingTransferIdsForChainId
+    )
+
+    expectedPendingAmountForChainId = expectedPendingAmountForChainId.add(transfers[i].amount)
+  }
+
+  let pendingAmountForChainId: BigNumber = await l2_bridge.pendingAmountForChainId(
+    transfers[0].chainId
   )
-  const pendingTransferIdsForChainId: string = await l2_bridge.pendingTransferIdsForChainId(
-    transfer.chainId,
-    0
-  )
-  const expectedPendingTransferIdsForChainId: string = await transfer.getTransferIdHex(
-    transferNonce
-  )
-  expect(pendingTransferIdsForChainId).to.eq(
-    expectedPendingTransferIdsForChainId
-  )
-  let pendingAmountForChainId = await l2_bridge.pendingAmountForChainId(
-    transfer.chainId
-  )
-  expect(pendingAmountForChainId).to.eq(transfer.amount)
+
+  expect(pendingAmountForChainId).to.eq(expectedPendingAmountForChainId)
 
   // Perform transaction
-  await l2_bridge.connect(bonder).commitTransfers(transfer.chainId)
+  await l2_bridge.connect(bonder).commitTransfers(destinationChainId)
 
   // Validate state after transaction
   const lastCommitTimeForChainId: BigNumber = await l2_bridge.lastCommitTimeForChainId(
-    transfer.chainId
+    destinationChainId
   )
   const currentTime: number = Math.floor(Date.now() / 1000)
   expect(lastCommitTimeForChainId.toNumber()).to.be.closeTo(
@@ -918,7 +944,7 @@ export const executeL2BridgeCommitTransfers = async (
   const expectedErrorMsg: string =
     'VM Exception while processing transaction: invalid opcode'
   try {
-    await l2_bridge.pendingTransferIdsForChainId(transfer.chainId, 0)
+    await l2_bridge.pendingTransferIdsForChainId(destinationChainId, 0)
     throw new Error(
       'There should not be a pending transfer ID for chainId in this slot.'
     )
@@ -928,21 +954,28 @@ export const executeL2BridgeCommitTransfers = async (
 
   // Verify state post-transaction
   pendingAmountForChainId = await l2_bridge.pendingAmountForChainId(
-    transfer.chainId
+    destinationChainId  
   )
-  expect(pendingAmountForChainId).to.eq(transfer.amount)
+  expect(pendingAmountForChainId).to.eq(expectedPendingAmountForChainId)
 
-  const expectedMerkleTree = new MerkleTree([
-    await transfer.getTransferId(transferNonce)
-  ])
+  let transferIds: Buffer[] = []
+  for (let i = 0; i < numTransfers.toNumber(); i++) {
+    const transferNonce = await getTransferNonceFromEvent(
+      l2_bridge,
+      BigNumber.from(i)
+    )
+    transferIds.push(await transfers[i].getTransferId(transferNonce))
+  }
+  const expectedMerkleTree = new MerkleTree(transferIds)
 
+  // There should only be a single TransfersCommitted event
   const transfersCommittedEvent = (
     await l2_bridge.queryFilter(l2_bridge.filters.TransfersCommitted())
-  )[expectedTransferIndex.toNumber()]
+  )[0]
   const transfersCommittedArgs = transfersCommittedEvent.args
   expect(transfersCommittedArgs[0]).to.eq(expectedMerkleTree.getHexRoot())
   const pendingChainAmounts = transfersCommittedArgs[1]
-  expect(pendingChainAmounts).to.eq(transfer.amount)
+  expect(pendingChainAmounts).to.eq(expectedPendingAmountForChainId)
 }
 
 export const executeL2BridgeBondWithdrawalAndDistribute = async (
@@ -954,8 +987,7 @@ export const executeL2BridgeBondWithdrawalAndDistribute = async (
   transfer: Transfer,
   bonder: Signer,
   actualTransferAmount: BigNumber,
-  expectedTransferIndex: BigNumber = BigNumber.from('0'),
-  l2_uniswapWrapper = null
+  expectedTransferIndex: BigNumber = BigNumber.from('0')
 ) => {
   // Get state before transaction
   const transferNonce = await getTransferNonceFromEvent(
@@ -969,7 +1001,6 @@ export const executeL2BridgeBondWithdrawalAndDistribute = async (
     await transfer.recipient.getAddress()
   )
 
-  // TODO: Perform path based on isSwap
   const expectedAmountsRecipientBridge: BigNumber[] = await l2_uniswapRouter.getAmountsOut(
     actualTransferAmount.sub(transfer.bonderFee),
     [l2_hopBridgeToken.address, l2_canonicalToken.address]
@@ -988,12 +1019,11 @@ export const executeL2BridgeBondWithdrawalAndDistribute = async (
       transfer.amountOutMin,
       transfer.deadline
     )
-
+  
   // Validate state after transaction
   const isSwap = !(transfer.destinationAmountOutMin.eq(0) && transfer.destinationDeadline.eq(0))
-  // const isDestinationL1 = !destinationHopToken
   if (isSwap) {
-    // TODO: Handle is swap
+    // TODO: Handle a swap
   } else {
     await expectBalanceOf(l2_hopBridgeToken, transfer.recipient, 0)
   }

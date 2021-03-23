@@ -480,7 +480,7 @@ describe('L2_Bridge', () => {
       const timeToWait: number = 4 * SECONDS_IN_AN_HOUR
       await increaseTime(timeToWait)
 
-      await executeL2BridgeCommitTransfers(l2_bridge, transfer, user)
+      await executeL2BridgeCommitTransfers(l2_bridge, [transfer], user)
     })
 
     it('Should commit a transfer by the bonder at any time', async () => {
@@ -494,7 +494,7 @@ describe('L2_Bridge', () => {
         bonder
       )
 
-      await executeL2BridgeCommitTransfers(l2_bridge, transfer, bonder)
+      await executeL2BridgeCommitTransfers(l2_bridge, [transfer], bonder)
     })
 
     it('Should commit a transfer with two sends -- to L1 and to L2', async () => {
@@ -535,13 +535,12 @@ describe('L2_Bridge', () => {
         expectedTransferIndex
       )
 
-      await executeL2BridgeCommitTransfers(l2_bridge, customTransfer, bonder)
+      await executeL2BridgeCommitTransfers(l2_bridge, [customTransfer], bonder)
 
       await executeL2BridgeCommitTransfers(
         l2_bridge,
-        customL2Transfer,
+        [customL2Transfer],
         bonder,
-        expectedTransferIndex
       )
     })
   })
@@ -602,7 +601,7 @@ describe('L2_Bridge', () => {
 
       await executeL2BridgeSend(l2_hopBridgeToken, l2_bridge, l2Transfer)
 
-      await executeL2BridgeCommitTransfers(l2_bridge, l2Transfer, bonder)
+      await executeL2BridgeCommitTransfers(l2_bridge, [l2Transfer], bonder)
 
       await executeL1BridgeBondTransferRoot(
         l1_bridge,

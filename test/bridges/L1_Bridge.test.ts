@@ -186,7 +186,7 @@ describe('L1_Bridge', () => {
 
     await executeL2BridgeSend(l2_hopBridgeToken, l2_bridge, transfer)
 
-    await executeL2BridgeCommitTransfers(l2_bridge, transfer, bonder)
+    await executeL2BridgeCommitTransfers(l2_bridge, [transfer], bonder)
 
     const timeToWait: number = 11 * SECONDS_IN_A_DAY
     await increaseTime(timeToWait)
@@ -202,7 +202,6 @@ describe('L1_Bridge', () => {
   })
 
   it('Should allow a user to send from L2 to L2, wait until the transfer is confirmed, and then withdraw', async () => {
-    console.log('a')
     await executeL1BridgeSendToL2(
       l1_canonicalToken,
       l1_bridge,
@@ -222,7 +221,7 @@ describe('L1_Bridge', () => {
 
     await executeL2BridgeSend(l2_hopBridgeToken, l2_bridge, l2Transfer)
 
-    await executeL2BridgeCommitTransfers(l2_bridge, l2Transfer, bonder)
+    await executeL2BridgeCommitTransfers(l2_bridge, [l2Transfer], bonder)
 
     const timeToWait: number = 11 * SECONDS_IN_A_DAY
     await increaseTime(timeToWait)
@@ -296,7 +295,7 @@ describe('L1_Bridge', () => {
       bonder
     )
 
-    await executeL2BridgeCommitTransfers(l2_bridge, transfer, bonder)
+    await executeL2BridgeCommitTransfers(l2_bridge, [transfer], bonder)
 
     await executeL1BridgeBondTransferRoot(
       l1_bridge,
@@ -309,7 +308,7 @@ describe('L1_Bridge', () => {
     await executeBridgeSettleBondedWithdrawals(
       l1_bridge,
       l2_bridge,
-      transfer,
+      [transfer],
       bonder
     )
 
@@ -372,7 +371,7 @@ describe('L1_Bridge', () => {
       bonder
     )
 
-    await executeL2BridgeCommitTransfers(l2_bridge, transfer, bonder)
+    await executeL2BridgeCommitTransfers(l2_bridge, [transfer], bonder)
 
     await executeL1BridgeBondTransferRoot(
       l1_bridge,
@@ -385,7 +384,7 @@ describe('L1_Bridge', () => {
     await executeBridgeSettleBondedWithdrawals(
       l1_bridge,
       l2_bridge,
-      transfer,
+      [transfer],
       bonder
     )
 
@@ -608,7 +607,7 @@ describe('L1_Bridge', () => {
         bonder
       )
 
-      await executeL2BridgeCommitTransfers(l2_bridge, transfer, bonder)
+      await executeL2BridgeCommitTransfers(l2_bridge, [transfer], bonder)
 
       await executeL1BridgeBondTransferRoot(
         l1_bridge,
@@ -652,7 +651,7 @@ describe('L1_Bridge', () => {
         actualTransferAmount
       )
 
-      await executeL2BridgeCommitTransfers(l2_bridge, l2Transfer, bonder)
+      await executeL2BridgeCommitTransfers(l2_bridge, [l2Transfer], bonder)
 
       await executeL1BridgeBondTransferRoot(
         l1_bridge,
@@ -706,7 +705,7 @@ describe('L1_Bridge', () => {
         bonder
       )
 
-      await executeL2BridgeCommitTransfers(l2_bridge, transfer, bonder)
+      await executeL2BridgeCommitTransfers(l2_bridge, [transfer], bonder)
 
       await l1_messenger.relayNextMessage()
 
@@ -750,7 +749,7 @@ describe('L1_Bridge', () => {
         actualTransferAmount
       )
 
-      await executeL2BridgeCommitTransfers(l2_bridge, l2Transfer, bonder)
+      await executeL2BridgeCommitTransfers(l2_bridge, [l2Transfer], bonder)
 
       await l1_messenger.relayNextMessage()
       await l22_messenger.relayNextMessage()
@@ -793,19 +792,19 @@ describe('L1_Bridge', () => {
         bonder
       )
 
-      await executeL2BridgeCommitTransfers(l2_bridge, transfer, bonder)
+      await executeL2BridgeCommitTransfers(l2_bridge, [transfer], bonder)
 
       await l1_messenger.relayNextMessage()
 
       await executeBridgeSettleBondedWithdrawals(
         l1_bridge,
         l2_bridge,
-        transfer,
+        [transfer],
         bonder
       )
     })
 
-    it.skip('Should send two transactions from L2 to L2, bond it, and settle the bonded withdrawals', async () => {
+    it.only('Should send two transactions from L2 to L2, bond it, and settle the bonded withdrawals', async () => {
       const amountToSend: BigNumber = transfer.amount.mul(2)
       await executeL1BridgeSendToL2(
         l1_canonicalToken,
@@ -855,26 +854,23 @@ describe('L1_Bridge', () => {
         l2Transfer,
         bonder,
         actualTransferAmount,
-        expectedTransferIndex,
-        l22_uniswapWrapper
+        expectedTransferIndex
       )
 
       await executeL2BridgeCommitTransfers(
         l2_bridge,
-        l2Transfer,
-        bonder
+        [l2Transfer, l2Transfer],
+        bonder,
       )
 
       await l1_messenger.relayNextMessage()
       await l22_messenger.relayNextMessage()
 
-      const numTransfers: number = 2
       await executeBridgeSettleBondedWithdrawals(
         l22_bridge,
         l2_bridge,
-        l2Transfer,
-        bonder,
-        numTransfers
+        [l2Transfer, l2Transfer],
+        bonder
       )
     })
   })
@@ -908,7 +904,7 @@ describe('L1_Bridge', () => {
         bonder
       )
 
-      await executeL2BridgeCommitTransfers(l2_bridge, transfer, bonder)
+      await executeL2BridgeCommitTransfers(l2_bridge, [transfer], bonder)
 
       // Send the committed transfer the L1
       await l1_messenger.relayNextMessage()
@@ -977,7 +973,7 @@ describe('L1_Bridge', () => {
         actualTransferAmount
       )
 
-      await executeL2BridgeCommitTransfers(l2_bridge, l2Transfer, bonder)
+      await executeL2BridgeCommitTransfers(l2_bridge, [l2Transfer], bonder)
 
       // Send the committed transfer the L1
       await l1_messenger.relayNextMessage()
@@ -1045,7 +1041,7 @@ describe('L1_Bridge', () => {
         bonder
       )
 
-      await executeL2BridgeCommitTransfers(l2_bridge, transfer, bonder)
+      await executeL2BridgeCommitTransfers(l2_bridge, [transfer], bonder)
 
       await executeL1BridgeBondTransferRoot(
         l1_bridge,
@@ -1099,7 +1095,7 @@ describe('L1_Bridge', () => {
         actualTransferAmount
       )
 
-      await executeL2BridgeCommitTransfers(l2_bridge, l2Transfer, bonder)
+      await executeL2BridgeCommitTransfers(l2_bridge, [l2Transfer], bonder)
 
       await executeL1BridgeBondTransferRoot(
         l1_bridge,
@@ -1150,7 +1146,7 @@ describe('L1_Bridge', () => {
         bonder
       )
 
-      await executeL2BridgeCommitTransfers(l2_bridge, transfer, bonder)
+      await executeL2BridgeCommitTransfers(l2_bridge, [transfer], bonder)
 
       await executeL1BridgeBondTransferRoot(
         l1_bridge,
@@ -1217,7 +1213,7 @@ describe('L1_Bridge', () => {
         bonder
       )
 
-      await executeL2BridgeCommitTransfers(l2_bridge, transfer, bonder)
+      await executeL2BridgeCommitTransfers(l2_bridge, [transfer], bonder)
 
       // TODO: Get this from the contract
       let timeToWait: number = 16 * SECONDS_IN_A_MINUTE
@@ -1286,7 +1282,7 @@ describe('L1_Bridge', () => {
         bonder
       )
 
-      await executeL2BridgeCommitTransfers(l2_bridge, transfer, bonder)
+      await executeL2BridgeCommitTransfers(l2_bridge, [transfer], bonder)
 
       await executeL1BridgeBondTransferRoot(
         l1_bridge,
@@ -1357,7 +1353,7 @@ describe('L1_Bridge', () => {
         actualTransferAmount
       )
 
-      await executeL2BridgeCommitTransfers(l2_bridge, l2Transfer, bonder)
+      await executeL2BridgeCommitTransfers(l2_bridge, [l2Transfer], bonder)
 
       await executeL1BridgeBondTransferRoot(
         l1_bridge,
@@ -1429,7 +1425,7 @@ describe('L1_Bridge', () => {
         actualTransferAmount
       )
 
-      await executeL2BridgeCommitTransfers(l2_bridge, l2Transfer, bonder)
+      await executeL2BridgeCommitTransfers(l2_bridge, [l2Transfer], bonder)
 
       // TODO: Get this from the contract
       let timeToWait: number = 16 * SECONDS_IN_A_MINUTE
@@ -1503,7 +1499,7 @@ describe('L1_Bridge', () => {
         actualTransferAmount
       )
 
-      await executeL2BridgeCommitTransfers(l2_bridge, l2Transfer, bonder)
+      await executeL2BridgeCommitTransfers(l2_bridge, [l2Transfer], bonder)
 
       await executeL1BridgeBondTransferRoot(
         l1_bridge,
@@ -1616,7 +1612,7 @@ describe('L1_Bridge', () => {
 
       await executeL2BridgeSend(l2_hopBridgeToken, l2_bridge, transfer)
 
-      await executeL2BridgeCommitTransfers(l2_bridge, transfer, bonder)
+      await executeL2BridgeCommitTransfers(l2_bridge, [transfer], bonder)
 
       await l1_messenger.relayNextMessage()
 
@@ -1878,7 +1874,7 @@ describe('L1_Bridge', () => {
         bonder
       )
 
-      await executeL2BridgeCommitTransfers(l2_bridge, transfer, bonder)
+      await executeL2BridgeCommitTransfers(l2_bridge, [transfer], bonder)
 
       await l1_messenger.relayNextMessage()
 
@@ -2070,7 +2066,7 @@ describe('L1_Bridge', () => {
         bonder
       )
 
-      await executeL2BridgeCommitTransfers(l2_bridge, transfer, bonder)
+      await executeL2BridgeCommitTransfers(l2_bridge, [transfer], bonder)
 
       // Mimic the same data that would be sent with relayNextMessage()
       const transferNonce = await getTransferNonceFromEvent(l2_bridge)
@@ -2125,7 +2121,7 @@ describe('L1_Bridge', () => {
         bonder
       )
 
-      await executeL2BridgeCommitTransfers(l2_bridge, transfer, bonder)
+      await executeL2BridgeCommitTransfers(l2_bridge, [transfer], bonder)
 
       await l1_messenger.relayNextMessage()
 
@@ -2176,7 +2172,7 @@ describe('L1_Bridge', () => {
         bonder
       )
 
-      await executeL2BridgeCommitTransfers(l2_bridge, l2Transfer, bonder)
+      await executeL2BridgeCommitTransfers(l2_bridge, [l2Transfer], bonder)
 
       // Unset the supported chainId for this test
       await l1_bridge.setCrossDomainMessengerWrapper(
@@ -2222,7 +2218,7 @@ describe('L1_Bridge', () => {
         bonder
       )
 
-      await executeL2BridgeCommitTransfers(l2_bridge, transfer, bonder)
+      await executeL2BridgeCommitTransfers(l2_bridge, [transfer], bonder)
 
       await executeL1BridgeBondTransferRoot(
         l1_bridge,
@@ -2283,7 +2279,7 @@ describe('L1_Bridge', () => {
         bonder
       )
 
-      await executeL2BridgeCommitTransfers(l2_bridge, transfer, bonder)
+      await executeL2BridgeCommitTransfers(l2_bridge, [transfer], bonder)
 
       await executeL1BridgeBondTransferRoot(
         l1_bridge,
@@ -2340,7 +2336,7 @@ describe('L1_Bridge', () => {
         bonder
       )
 
-      await executeL2BridgeCommitTransfers(l2_bridge, transfer, bonder)
+      await executeL2BridgeCommitTransfers(l2_bridge, [transfer], bonder)
 
       await executeL1BridgeBondTransferRoot(
         l1_bridge,
@@ -2404,7 +2400,7 @@ describe('L1_Bridge', () => {
         bonder
       )
 
-      await executeL2BridgeCommitTransfers(l2_bridge, transfer, bonder)
+      await executeL2BridgeCommitTransfers(l2_bridge, [transfer], bonder)
 
       await executeL1BridgeBondTransferRoot(
         l1_bridge,
@@ -2453,7 +2449,7 @@ describe('L1_Bridge', () => {
         bonder
       )
 
-      await executeL2BridgeCommitTransfers(l2_bridge, transfer, bonder)
+      await executeL2BridgeCommitTransfers(l2_bridge, [transfer], bonder)
 
       await executeL1BridgeBondTransferRoot(
         l1_bridge,
@@ -2514,7 +2510,7 @@ describe('L1_Bridge', () => {
         bonder
       )
 
-      await executeL2BridgeCommitTransfers(l2_bridge, transfer, bonder)
+      await executeL2BridgeCommitTransfers(l2_bridge, [transfer], bonder)
 
       await executeL1BridgeBondTransferRoot(
         l1_bridge,
@@ -2570,7 +2566,7 @@ describe('L1_Bridge', () => {
         bonder
       )
 
-      await executeL2BridgeCommitTransfers(l2_bridge, transfer, bonder)
+      await executeL2BridgeCommitTransfers(l2_bridge, [transfer], bonder)
 
       await executeL1BridgeBondTransferRoot(
         l1_bridge,
@@ -2626,7 +2622,7 @@ describe('L1_Bridge', () => {
         bonder
       )
 
-      await executeL2BridgeCommitTransfers(l2_bridge, transfer, bonder)
+      await executeL2BridgeCommitTransfers(l2_bridge, [transfer], bonder)
 
       await executeL1BridgeBondTransferRoot(
         l1_bridge,
@@ -2682,7 +2678,7 @@ describe('L1_Bridge', () => {
         bonder
       )
 
-      await executeL2BridgeCommitTransfers(l2_bridge, transfer, bonder)
+      await executeL2BridgeCommitTransfers(l2_bridge, [transfer], bonder)
 
       await executeL1BridgeBondTransferRoot(
         l1_bridge,
@@ -2752,7 +2748,7 @@ describe('L1_Bridge', () => {
         bonder
       )
 
-      await executeL2BridgeCommitTransfers(l2_bridge, transfer, bonder)
+      await executeL2BridgeCommitTransfers(l2_bridge, [transfer], bonder)
 
       await executeL1BridgeBondTransferRoot(
         l1_bridge,
@@ -2812,7 +2808,7 @@ describe('L1_Bridge', () => {
         bonder
       )
 
-      await executeL2BridgeCommitTransfers(l2_bridge, transfer, bonder)
+      await executeL2BridgeCommitTransfers(l2_bridge, [transfer], bonder)
 
       await executeL1BridgeBondTransferRoot(
         l1_bridge,
@@ -2897,7 +2893,7 @@ describe('L1_Bridge', () => {
         bonder
       )
 
-      await executeL2BridgeCommitTransfers(l2_bridge, transfer, bonder)
+      await executeL2BridgeCommitTransfers(l2_bridge, [transfer], bonder)
 
       await executeL1BridgeBondTransferRoot(
         l1_bridge,
@@ -3185,7 +3181,7 @@ describe('L1_Bridge', () => {
         bonder
       )
 
-      await executeL2BridgeCommitTransfers(l2_bridge, customTransfer, bonder)
+      await executeL2BridgeCommitTransfers(l2_bridge, [customTransfer], bonder)
 
       await executeL1BridgeBondTransferRoot(
         l1_bridge,
@@ -3231,7 +3227,7 @@ describe('L1_Bridge', () => {
         actualTransferAmount
       )
 
-      await executeL2BridgeCommitTransfers(l2_bridge, customTransfer, bonder)
+      await executeL2BridgeCommitTransfers(l2_bridge, [customTransfer], bonder)
 
       await executeL1BridgeBondTransferRoot(
         l1_bridge,
