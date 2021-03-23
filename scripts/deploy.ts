@@ -80,7 +80,7 @@ async function main () {
 function getKovanParams (): KovanParams {
   return {
     l1_chainId: CHAIN_IDS.ETHEREUM.KOVAN.toString(),
-    l1_canonicalTokenAddress: '0x7d669A64deb8a4A51eEa755bb0E19FD39CE25Ae9',
+    l1_canonicalTokenAddress: '0x943599d17FE82Bb4563b1823500f3267f91Acd2e',
   }
 }
 
@@ -98,19 +98,19 @@ function getNetworkParams (networkName: string): NetworkParams {
 
       return {
         // DAI
-        l2_networkName,
-        l1_chainId,
-        l2_chainId,
-        l1_bridgeAddress,
-        l1_messengerAddress,
-        l2_tokenBridgeAddress,
-        l2_messengerAddress,
-        l1_tokenBridgeAddress,
-        l1_canonicalTokenAddress: '0x7d669A64deb8a4A51eEa755bb0E19FD39CE25Ae9',
-        l2_canonicalTokenAddress: '0x782e1ec5F7381269b2e5DC4eD58648C60161539b',
-        l2_hBridgeTokenName: DEFAULT_H_BRIDGE_TOKEN_NAME,
-        l2_hBridgeTokenSymbol: DEFAULT_H_BRIDGE_TOKEN_SYMBOL,
-        l2_hBridgeTokenDecimals: DEFAULT_H_BRIDGE_TOKEN_DECIMALS
+        // l2_networkName,
+        // l1_chainId,
+        // l2_chainId,
+        // l1_bridgeAddress,
+        // l1_messengerAddress,
+        // l2_tokenBridgeAddress,
+        // l2_messengerAddress,
+        // l1_tokenBridgeAddress,
+        // l1_canonicalTokenAddress: '0x7d669A64deb8a4A51eEa755bb0E19FD39CE25Ae9',
+        // l2_canonicalTokenAddress: '0x782e1ec5F7381269b2e5DC4eD58648C60161539b',
+        // l2_hBridgeTokenName: DEFAULT_H_BRIDGE_TOKEN_NAME,
+        // l2_hBridgeTokenSymbol: DEFAULT_H_BRIDGE_TOKEN_SYMBOL,
+        // l2_hBridgeTokenDecimals: DEFAULT_H_BRIDGE_TOKEN_DECIMALS
 
         // sETH
         // l2_networkName,
@@ -141,6 +141,51 @@ function getNetworkParams (networkName: string): NetworkParams {
         // l2_hBridgeTokenName: 'Synth sBTC Hop Token',
         // l2_hBridgeTokenSymbol: 'hsBTC',
         // l2_hBridgeTokenDecimals: DEFAULT_H_BRIDGE_TOKEN_DECIMALS
+
+        // USDC
+        // l2_networkName,
+        // l1_chainId,
+        // l2_chainId,
+        // l1_bridgeAddress,
+        // l1_messengerAddress,
+        // l2_tokenBridgeAddress,
+        // l2_messengerAddress,
+        // l1_tokenBridgeAddress,
+        // l1_canonicalTokenAddress: '0x7326510Cf9Ae0397dbBaF37FABba54f0A7b8D100',
+        // l2_canonicalTokenAddress: '0x56836Eec6d4EfCcFBc162C0851007D9F72aD202B',
+        // l2_hBridgeTokenName: 'USD Coin Hop Token',
+        // l2_hBridgeTokenSymbol: 'hUSDC',
+        // l2_hBridgeTokenDecimals: DEFAULT_H_BRIDGE_TOKEN_DECIMALS
+
+        // WBTC
+        // l2_networkName,
+        // l1_chainId,
+        // l2_chainId,
+        // l1_bridgeAddress,
+        // l1_messengerAddress,
+        // l2_tokenBridgeAddress,
+        // l2_messengerAddress,
+        // l1_tokenBridgeAddress,
+        // l1_canonicalTokenAddress: '0x1E1a556D2166A006e662864D376e8DD249087150',
+        // l2_canonicalTokenAddress: '0x067ca83e321979E31b06250E05d18a12e4f6A8f1',
+        // l2_hBridgeTokenName: 'Wrapped BTC Hop Token',
+        // l2_hBridgeTokenSymbol: 'hWBTC',
+        // l2_hBridgeTokenDecimals: DEFAULT_H_BRIDGE_TOKEN_DECIMALS
+
+        // TST
+        l2_networkName,
+        l1_chainId,
+        l2_chainId,
+        l1_bridgeAddress,
+        l1_messengerAddress,
+        l2_tokenBridgeAddress,
+        l2_messengerAddress,
+        l1_tokenBridgeAddress,
+        l1_canonicalTokenAddress: '0x943599d17FE82Bb4563b1823500f3267f91Acd2e',
+        l2_canonicalTokenAddress: '0x943599d17FE82Bb4563b1823500f3267f91Acd2e',
+        l2_hBridgeTokenName: 'Test Coin Hop Token',
+        l2_hBridgeTokenSymbol: 'TST',
+        l2_hBridgeTokenDecimals: DEFAULT_H_BRIDGE_TOKEN_DECIMALS
       }
     }
     case 'arbitrum': {
@@ -180,19 +225,19 @@ function getNetworkParams (networkName: string): NetworkParams {
 
       return {
         // DAI
-        l2_networkName,
-        l1_chainId,
-        l2_chainId,
-        l1_bridgeAddress,
-        l1_messengerAddress,
-        l2_tokenBridgeAddress,
-        l2_messengerAddress,
-        l1_tokenBridgeAddress,
-        l1_canonicalTokenAddress: '0x7d669A64deb8a4A51eEa755bb0E19FD39CE25Ae9',
-        l2_canonicalTokenAddress: '0x714983a8Dc3329bf3BeB8F36b49878CF944E5A3B',
-        l2_hBridgeTokenName: DEFAULT_H_BRIDGE_TOKEN_NAME,
-        l2_hBridgeTokenSymbol: DEFAULT_H_BRIDGE_TOKEN_SYMBOL,
-        l2_hBridgeTokenDecimals: DEFAULT_H_BRIDGE_TOKEN_DECIMALS
+        // l2_networkName,
+        // l1_chainId,
+        // l2_chainId,
+        // l1_bridgeAddress,
+        // l1_messengerAddress,
+        // l2_tokenBridgeAddress,
+        // l2_messengerAddress,
+        // l1_tokenBridgeAddress,
+        // l1_canonicalTokenAddress: '0x7d669A64deb8a4A51eEa755bb0E19FD39CE25Ae9',
+        // l2_canonicalTokenAddress: '0x714983a8Dc3329bf3BeB8F36b49878CF944E5A3B',
+        // l2_hBridgeTokenName: DEFAULT_H_BRIDGE_TOKEN_NAME,
+        // l2_hBridgeTokenSymbol: DEFAULT_H_BRIDGE_TOKEN_SYMBOL,
+        // l2_hBridgeTokenDecimals: DEFAULT_H_BRIDGE_TOKEN_DECIMALS
 
         // sETH
         // l2_networkName,
@@ -223,6 +268,51 @@ function getNetworkParams (networkName: string): NetworkParams {
         // l2_hBridgeTokenName: 'Synth sBTC Hop Token',
         // l2_hBridgeTokenSymbol: 'hsBTC',
         // l2_hBridgeTokenDecimals: DEFAULT_H_BRIDGE_TOKEN_DECIMALS
+
+        // USDC
+        // l2_networkName,
+        // l1_chainId,
+        // l2_chainId,
+        // l1_bridgeAddress,
+        // l1_messengerAddress,
+        // l2_tokenBridgeAddress,
+        // l2_messengerAddress,
+        // l1_tokenBridgeAddress,
+        // l1_canonicalTokenAddress: '0x7326510Cf9Ae0397dbBaF37FABba54f0A7b8D100',
+        // l2_canonicalTokenAddress: '0x452AED3fdB2E83A1352624321629180aB1489Dd0',
+        // l2_hBridgeTokenName: 'USD Coin Hop Token',
+        // l2_hBridgeTokenSymbol: 'hUSDC',
+        // l2_hBridgeTokenDecimals: DEFAULT_H_BRIDGE_TOKEN_DECIMALS
+
+        // WBTC
+        // l2_networkName,
+        // l1_chainId,
+        // l2_chainId,
+        // l1_bridgeAddress,
+        // l1_messengerAddress,
+        // l2_tokenBridgeAddress,
+        // l2_messengerAddress,
+        // l1_tokenBridgeAddress,
+        // l1_canonicalTokenAddress: '0x1E1a556D2166A006e662864D376e8DD249087150',
+        // l2_canonicalTokenAddress: '0x94490EF228D4aBD189694f86D1684D972431380b',
+        // l2_hBridgeTokenName: 'Wrapped BTC Hop Token',
+        // l2_hBridgeTokenSymbol: 'hWBTC',
+        // l2_hBridgeTokenDecimals: DEFAULT_H_BRIDGE_TOKEN_DECIMALS
+
+        // TST
+        l2_networkName,
+        l1_chainId,
+        l2_chainId,
+        l1_bridgeAddress,
+        l1_messengerAddress,
+        l2_tokenBridgeAddress,
+        l2_messengerAddress,
+        l1_tokenBridgeAddress,
+        l1_canonicalTokenAddress: '0x943599d17FE82Bb4563b1823500f3267f91Acd2e',
+        l2_canonicalTokenAddress: '0x1a844c99766d67E6031c337E28233Fe2BF773603',
+        l2_hBridgeTokenName: 'Test Coin Hop Token',
+        l2_hBridgeTokenSymbol: 'TST',
+        l2_hBridgeTokenDecimals: DEFAULT_H_BRIDGE_TOKEN_DECIMALS
       }
     }
     default: {
