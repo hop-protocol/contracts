@@ -57,7 +57,6 @@ describe('L1_Bridge', () => {
     await revertSnapshot(beforeAllSnapshotId)
   })
 
-  // Take snapshot before each test and revert after each test
   beforeEach(async () => {
     snapshotId = await takeSnapshot()
   })

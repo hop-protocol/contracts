@@ -144,7 +144,6 @@ describe('L1_Bridge', () => {
     await revertSnapshot(beforeAllSnapshotId)
   })
 
-  // Take snapshot before each test and revert after each test
   beforeEach(async () => {
     snapshotId = await takeSnapshot()
   })
@@ -804,7 +803,7 @@ describe('L1_Bridge', () => {
       )
     })
 
-    it.only('Should send two transactions from L2 to L2, bond it, and settle the bonded withdrawals', async () => {
+    it.skip('Should send two transactions from L2 to L2, bond it, and settle the bonded withdrawals', async () => {
       const amountToSend: BigNumber = transfer.amount.mul(2)
       await executeL1BridgeSendToL2(
         l1_canonicalToken,

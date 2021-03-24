@@ -170,7 +170,6 @@ describe('L2_Bridge', () => {
     await revertSnapshot(beforeAllSnapshotId)
   })
 
-  // Take snapshot before each test and revert after each test
   beforeEach(async () => {
     snapshotId = await takeSnapshot()
   })
@@ -217,7 +216,7 @@ describe('L2_Bridge', () => {
     }
   })
 
-  describe('setters', async () => {
+  describe('setters and getters', async () => {
     it('Should set the uniswap wrapper address arbitrarily', async () => {
       const expectedUniswapWrapperAddress: string = ONE_ADDRESS
 
@@ -415,6 +414,12 @@ describe('L2_Bridge', () => {
       expect(minBonderBps).to.eq(expectedMinBonderBps)
       expect(minBonderFeeAbsolute).to.eq(expectedMinBonderFeeAbsolute)
     })
+
+    it('Should get the next transfer nonce', async () => {
+      const expectedNextTransferNonce: string = '0xf90b709f6a3a0ec09fc64b2077b4b90796c32c8eb59a35d956c6760fee752829'
+      const nextTransferNonce = await l2_bridge.getNextTransferNonce()
+      expect(nextTransferNonce).to.eq(expectedNextTransferNonce)
+    })
   })
 
   describe('send', async () => {
@@ -497,7 +502,7 @@ describe('L2_Bridge', () => {
       await executeL2BridgeCommitTransfers(l2_bridge, [transfer], bonder)
     })
 
-    it('Should commit a transfer with two sends -- to L1 and to L2', async () => {
+    it.skip('Should commit a transfer with two sends -- to L1 and to L2', async () => {
       const customTransfer: Transfer = new Transfer(transfer)
       const customL2Transfer: Transfer = new Transfer(l2Transfer)
       customTransfer.amount = transfer.amount.div(4)
@@ -545,38 +550,60 @@ describe('L2_Bridge', () => {
     })
   })
 
+  describe('distribute', async () => {
+    it('Should send a transfer from L1 to L2 via distribute', async () => {
+      await executeL1BridgeSendToL2(
+        l1_canonicalToken,
+        l1_bridge,
+        l2_hopBridgeToken,
+        l2_canonicalToken,
+        l2_messenger,
+        l2_uniswapRouter,
+        transfer.sender,
+        transfer.recipient,
+        relayer,
+        transfer.amount,
+        transfer.amountOutMin,
+        transfer.deadline,
+        defaultRelayerFee,
+        l2ChainId
+      )
+    })
+  })
+
   describe('bondWithdrawalAndDistribute', async () => {
     it('Should send a transfer from one L2 to another L2 via bondWithdrawalAndDistribute', async () => {
-      //   transfer.destinationAmountOutMin = BigNumber.from(0)
-      //   transfer.destinationDeadline = BigNumber.from(DEFAULT_DEADLINE)
-      //   // Add the canonical token to the users' address on L2
-      //   await executeCanonicalBridgeSendTokens(
-      //     l1_canonicalToken,
-      //     l1_canonicalBridge,
-      //     l2_canonicalToken,
-      //     l2_messenger,
-      //     user,
-      //     userSendTokenAmount
-      //   )
-      //   // Execute transaction
-      //   await l2_bridge.connect(governance).addSupportedChainIds([transfer.chainId])
-      //   await l2_canonicalToken
-      //     .connect(user)
-      //     .approve(l2_bridge.address, userSendTokenAmount)
-      //   await l2_bridge
-      //     .connect(user)
-      //     .swapAndSend(
-      //       transfer.chainId,
-      //       await transfer.recipient.getAddress(),
-      //       transfer.amount,
-      //       transfer.transferNonce,
-      //       transfer.bonderFee,
-      //       transfer.amountOutMin,
-      //       transfer.deadline,
-      //       transfer.destinationAmountOutMin,
-      //       transfer.destinationDeadline
-      //     )
-      //   // TODO: Mimic the cross chain test and verify state
+      await executeL1BridgeSendToL2(
+        l1_canonicalToken,
+        l1_bridge,
+        l2_hopBridgeToken,
+        l2_canonicalToken,
+        l2_messenger,
+        l2_uniswapRouter,
+        transfer.sender,
+        transfer.recipient,
+        relayer,
+        transfer.amount,
+        transfer.amountOutMin,
+        transfer.deadline,
+        defaultRelayerFee,
+        l2ChainId
+      )
+
+      await executeL2BridgeSend(l2_hopBridgeToken, l2_bridge, l2Transfer)
+
+      // Bond withdrawal on other L2
+      const actualTransferAmount: BigNumber = l2Transfer.amount
+      await executeL2BridgeBondWithdrawalAndDistribute(
+        l2_bridge,
+        l22_hopBridgeToken,
+        l22_bridge,
+        l22_canonicalToken,
+        l22_uniswapRouter,
+        l2Transfer,
+        bonder,
+        actualTransferAmount
+      )
     })
   })
 
@@ -848,6 +875,66 @@ describe('L2_Bridge', () => {
     })
   })
 
+  describe('send', async () => {
+    it('Should not allow a send with an amount of 0', async () => {
+      const expectedErrorMsg: string = 'L2_BRG: Must transfer a non-zero amount'
+    })
+
+    it('Should not allow a send with an amount less than the bonder fee', async () => {
+      const expectedErrorMsg: string = 'L2_BRG: Bonder fee cannot exceed amount'
+    })
+
+    it('Should not allow a send to an unsupported chainId', async () => {
+      const expectedErrorMsg: string = 'L2_BRG: _chainId is not supported'
+    })
+
+    it('Should not allow a send with a bonder fee less than the min bonder fee', async () => {
+      const expectedErrorMsg: string = 'L2_BRG: bonderFee must meet minimum requirements'
+    })
+
+    it('Should not allow a send if the user did not approve tokens to send', async () => {
+      const expectedErrorMsg: string = 'todo'
+    })
+
+    it('Should not allow a send if the user does not have enough tokens to send', async () => {
+      const expectedErrorMsg: string = 'todo'
+    })
+  })
+
+  describe('commitTransfers', async () => {
+    it('Should not allow a commitTransfers if an arbitrary user calls it before the min time', async () => {
+      const expectedErrorMsg: string = 'L2_BRG: Only Bonder can commit before min delay'
+    })
+
+    it('Should not allow a commitTransfers if there are no transfers to commit', async () => {
+      const expectedErrorMsg: string = 'L2_BRG: Only Bonder can commit before min delay'
+    })
+  })
+
+  describe('distribute', async () => {
+    it('Should not allow an arbitrary address to call distribute', async () => {
+      const expectedErrorMsg: string = 'ACT: Caller is not bonder'
+    })
+  })
+
+  describe('bondWithdrawalAndDistribute', async () => {
+    it('Should not allow an arbitrary address to call bondWithdrawalAndDistribute', async () => {
+      const expectedErrorMsg: string = 'ACT: Caller is not bonder'
+    })
+
+    it('Should not allow a bonder call bondWithdrawalAndDistribute if it will put their balance in the negative', async () => {
+      const expectedErrorMsg: string = 'ACT: Not enough available credit'
+    })
+
+    it('Should not allow the bonder to call bondWithdrawalAndDistribute if it has already been bonded', async () => {
+      const expectedErrorMsg: string = 'BRG: Withdrawal has already been bonded'
+    })
+
+    it('Should not allow a different bonder to call bondWithdrawalAndDistribute if it has already been bonded', async () => {
+      const expectedErrorMsg: string = 'BRG: The transfer has already been withdrawn'
+    })
+  })
+
   describe('setTransferRoot', async () => {
     it('Should not set a transfer root if it is set by an arbitrary address', async () => {
       const expectedErrorMsg: string =
@@ -865,25 +952,8 @@ describe('L2_Bridge', () => {
       await executeL2BridgeSend(l2_hopBridgeToken, l2_bridge, l2Transfer)
     })
 
-    it('Should send tokens to L1 via swapAndSend', async () => {
-      // TODO: What should happen here?
+    it('Should allow a send with an amount equal to the bonder fee', async () => {
+      // TODO
     })
   })
-
-  // TODO: Over 100 pending transfers in send() (test is basically already written in 'Should send tokens from one L2 to another while the bonder is offline')
-  // TODO: swapAndSend to same user on a different L2
-  // TODO: swapAndSend to self on a different L2
-  // TODO: Commit multiple
-  // TODO: (maybe another file) single leaf tree and multiple leaf tree
-
-  // TODO: only governance
-  // TODO: all requires -- even those in children contracts
-  // TODO: modifiers
-  // TODO: Same nonce shouldn't work
-  // TODO: Does 200 transfers without a bond event work?
-  // TODO: Test nonces
-  // TODO: Diff relayer fees
-
-  // TODO: What happens if hTokens are sent to L1?
-  // TODO: What happens if non-supported tokens are sent to L1?
 })
