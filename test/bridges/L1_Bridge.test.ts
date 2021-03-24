@@ -1199,11 +1199,9 @@ describe('L1_Bridge', () => {
         defaultRelayerFee,
         l2ChainId
       )
-      console.log('ablah 1')
 
       await executeL2BridgeSend(l2_hopBridgeToken, l2_bridge, transfer)
 
-      console.log('ablah 2')
       await executeBridgeBondWithdrawal(
         l1_canonicalToken,
         l1_bridge,
@@ -1211,7 +1209,6 @@ describe('L1_Bridge', () => {
         transfer,
         bonder
       )
-      console.log('ablah 3')
 
       await executeL2BridgeCommitTransfers(l2_bridge, [transfer], bonder)
 
