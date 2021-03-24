@@ -323,10 +323,11 @@ export const executeBridgeBondWithdrawal = async (
   destinationBridge: Contract,
   originBridge: Contract,
   transfer: Transfer,
-  bonder: Signer
+  bonder: Signer,
+  transferIndex: BigNumber = BigNumber.from('0')
 ) => {
   // Get state before transaction
-  const transferNonce = await getTransferNonceFromEvent(originBridge)
+  const transferNonce = await getTransferNonceFromEvent(originBridge, transferIndex)
   const senderBalanceBefore: BigNumber = await destinationReceiptToken.balanceOf(
     await transfer.sender.getAddress()
   )
@@ -990,11 +991,18 @@ export const executeL2BridgeBondWithdrawalAndDistribute = async (
     await transfer.recipient.getAddress()
   )
 
-  const expectedRecipientAmountAfterSlippage: BigNumber = await l2_swap.calculateSwap(
-    '0',
-    '1',
-    actualTransferAmount.sub(transfer.bonderFee)
-  )
+  
+  const swapAmount: BigNumber = actualTransferAmount.sub(transfer.bonderFee)
+  let expectedRecipientAmountAfterSlippage: BigNumber
+  if (swapAmount.eq(0)) {
+    expectedRecipientAmountAfterSlippage = BigNumber.from('0')
+  } else {
+    expectedRecipientAmountAfterSlippage = await l2_swap.calculateSwap(
+      '0',
+      '1',
+      swapAmount
+    )
+  }
 
   // Perform transaction
   await l2_bridge
