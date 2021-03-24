@@ -110,6 +110,7 @@ abstract contract L1_Bridge is Bridge {
         IMessengerWrapper messengerWrapper = crossDomainMessengerWrappers[chainId];
         require(messengerWrapper != IMessengerWrapper(0), "L1_BRG: chainId not supported");
         require(isChainIdPaused[chainId] == false, "L1_BRG: Sends to this chainId are paused");
+        require(amount > 0, "L1_BRG: Must transfer a non-zero amount");
         require(amount >= relayerFee, "L1_BRG: Relayer fee cannot exceed amount");
 
         _transferToBridge(msg.sender, amount);

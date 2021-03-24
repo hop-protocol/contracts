@@ -1657,6 +1657,31 @@ describe('L1_Bridge', () => {
   })
 
   describe('sendToL2', async () => {
+    it('Should not allow a user to sendToL2 with an amount of 0', async () => {
+      const expectedErrorMsg: string = 'L1_BRG: Must transfer a non-zero amount'
+      const customTransfer: Transfer = new Transfer(transfer)
+      customTransfer.amount = BigNumber.from('0')
+
+      await expect(
+        executeL1BridgeSendToL2(
+          l1_canonicalToken,
+          l1_bridge,
+          l2_hopBridgeToken,
+          l2_canonicalToken,
+          l2_messenger,
+          l2_uniswapRouter,
+          customTransfer.sender,
+          customTransfer.recipient,
+          relayer,
+          customTransfer.amount,
+          transfer.amountOutMin,
+          transfer.deadline,
+          defaultRelayerFee,
+          l2ChainId
+        )
+      ).to.be.revertedWith(expectedErrorMsg)
+    })
+
     it('Should not allow a transfer to L2 via sendToL2 if the messenger wrapper for the L2 is not defined', async () => {
       const invalidChainId: BigNumber = BigNumber.from('123')
       const expectedErrorMsg: string = 'L1_BRG: chainId not supported'
@@ -3082,28 +3107,6 @@ describe('L1_Bridge', () => {
   })
 
   describe('Edge cases', async () => {
-    it('Should allow a user to sendToL2 with an amount of 0', async () => {
-      const customTransfer: Transfer = new Transfer(transfer)
-      customTransfer.amount = BigNumber.from('0')
-
-      await executeL1BridgeSendToL2(
-        l1_canonicalToken,
-        l1_bridge,
-        l2_hopBridgeToken,
-        l2_canonicalToken,
-        l2_messenger,
-        l2_uniswapRouter,
-        customTransfer.sender,
-        customTransfer.recipient,
-        relayer,
-        customTransfer.amount,
-        transfer.amountOutMin,
-        transfer.deadline,
-        defaultRelayerFee,
-        l2ChainId
-      )
-    })
-
     it('Should allow a user to sendToL2 with an amountOutMin that is greater than expected', async () => {
       const largeValue: BigNumber = BigNumber.from(
         '999999999999999999999999999'
