@@ -28,7 +28,7 @@ import {
   executeL2BridgeCommitTransfers,
   executeL2BridgeBondWithdrawalAndDistribute,
   executeCanonicalMessengerSendMessage,
-  getSetUniswapWrapperAddressMessage,
+  getSetAmmWrapperAddressMessage,
   getSetL1BridgeAddressMessage,
   getSetL1MessengerWrapperAddressMessage,
   getSetMessengerGasLimitMessage,
@@ -49,7 +49,7 @@ import {
   DEFAULT_DEADLINE,
   ONE_ADDRESS,
   INITIAL_BONDED_AMOUNT,
-  LIQUIDITY_PROVIDER_UNISWAP_AMOUNT,
+  LIQUIDITY_PROVIDER_AMM_AMOUNT,
   ZERO_ADDRESS,
   SECONDS_IN_AN_HOUR,
   TIMESTAMP_VARIANCE,
@@ -82,13 +82,13 @@ describe('L2_Bridge', () => {
   let l2_hopBridgeToken: Contract
   let l2_bridge: Contract
   let l2_messenger: Contract
-  let l2_uniswapRouter: Contract
-  let l2_uniswapWrapper: Contract
+  let l2_swap: Contract
+  let l2_ammWrapper: Contract
   let l22_canonicalToken: Contract
   let l22_hopBridgeToken: Contract
   let l22_bridge: Contract
   let l22_messenger: Contract
-  let l22_uniswapRouter: Contract
+  let l22_swap: Contract
 
   let transfers: Transfer[]
   let transfer: Transfer
@@ -123,8 +123,8 @@ describe('L2_Bridge', () => {
       l2_hopBridgeToken,
       l2_bridge,
       l2_messenger,
-      l2_uniswapRouter,
-      l2_uniswapWrapper,
+      l2_swap,
+      l2_ammWrapper,
       transfers
     } = _fixture)
 
@@ -139,13 +139,13 @@ describe('L2_Bridge', () => {
       l2_hopBridgeToken: l22_hopBridgeToken,
       l2_bridge: l22_bridge,
       l2_messenger: l22_messenger,
-      l2_uniswapRouter: l22_uniswapRouter
+      l2_swap: l22_swap
     } = _fixture)
 
     transfer = transfers[0]
     l2Transfer = transfers[1]
 
-    originalBondedAmount = LIQUIDITY_PROVIDER_UNISWAP_AMOUNT.add(
+    originalBondedAmount = LIQUIDITY_PROVIDER_AMM_AMOUNT.add(
       INITIAL_BONDED_AMOUNT
     )
     defaultRelayerFee = DEFAULT_RELAYER_FEE
@@ -157,7 +157,7 @@ describe('L2_Bridge', () => {
       l2_hopBridgeToken,
       l2_canonicalToken,
       l2_messenger,
-      l2_uniswapRouter,
+      l2_swap,
       transfer.sender,
       transfer.recipient,
       relayer,
@@ -220,11 +220,11 @@ describe('L2_Bridge', () => {
   })
 
   describe('setters and getters', async () => {
-    it('Should set the uniswap wrapper address arbitrarily', async () => {
-      const expectedUniswapWrapperAddress: string = ONE_ADDRESS
+    it('Should set the amm wrapper address arbitrarily', async () => {
+      const expectedAmmWrapperAddress: string = ONE_ADDRESS
 
-      const message: string = getSetUniswapWrapperAddressMessage(
-        expectedUniswapWrapperAddress
+      const message: string = getSetAmmWrapperAddressMessage(
+        expectedAmmWrapperAddress
       )
       await executeCanonicalMessengerSendMessage(
         l1_messenger,
@@ -234,8 +234,8 @@ describe('L2_Bridge', () => {
         message
       )
 
-      const exchangeAddress: string = await l2_bridge.uniswapWrapper()
-      expect(exchangeAddress).to.eq(expectedUniswapWrapperAddress)
+      const exchangeAddress: string = await l2_bridge.ammWrapper()
+      expect(exchangeAddress).to.eq(expectedAmmWrapperAddress)
     })
 
     it('Should set the L1 bridge address arbitrarily', async () => {
@@ -447,8 +447,8 @@ describe('L2_Bridge', () => {
         l2_bridge,
         l2_canonicalToken,
         l2_hopBridgeToken,
-        l2_uniswapRouter,
-        l2_uniswapWrapper,
+        l2_swap,
+        l2_ammWrapper,
         l2Transfer
       )
     })
@@ -536,7 +536,7 @@ describe('L2_Bridge', () => {
         l22_hopBridgeToken,
         l22_bridge,
         l22_canonicalToken,
-        l22_uniswapRouter,
+        l22_swap,
         customL2Transfer,
         bonder,
         actualTransferAmount,
@@ -561,7 +561,7 @@ describe('L2_Bridge', () => {
         l2_hopBridgeToken,
         l2_canonicalToken,
         l2_messenger,
-        l2_uniswapRouter,
+        l2_swap,
         transfer.sender,
         transfer.recipient,
         relayer,
@@ -582,7 +582,7 @@ describe('L2_Bridge', () => {
         l2_hopBridgeToken,
         l2_canonicalToken,
         l2_messenger,
-        l2_uniswapRouter,
+        l2_swap,
         transfer.sender,
         transfer.recipient,
         relayer,
@@ -602,7 +602,7 @@ describe('L2_Bridge', () => {
         l22_hopBridgeToken,
         l22_bridge,
         l22_canonicalToken,
-        l22_uniswapRouter,
+        l22_swap,
         l2Transfer,
         bonder,
         actualTransferAmount
@@ -618,7 +618,7 @@ describe('L2_Bridge', () => {
         l2_hopBridgeToken,
         l2_canonicalToken,
         l2_messenger,
-        l2_uniswapRouter,
+        l2_swap,
         transfer.sender,
         transfer.recipient,
         relayer,
@@ -683,12 +683,12 @@ describe('L2_Bridge', () => {
    */
 
   describe('setters', async () => {
-    it('Should not allow an arbitrary address to set the uniswap wrapper address arbitrarily', async () => {
+    it('Should not allow an arbitrary address to set the amm wrapper address arbitrarily', async () => {
       const expectedErrorMsg: string = 'L2_OVM_BRG: Invalid cross-domain sender'
-      const expectedUniswapWrapperAddress: string = ONE_ADDRESS
+      const expectedAmmWrapperAddress: string = ONE_ADDRESS
 
-      const message: string = getSetUniswapWrapperAddressMessage(
-        expectedUniswapWrapperAddress
+      const message: string = getSetAmmWrapperAddressMessage(
+        expectedAmmWrapperAddress
       )
       await expect(
         executeCanonicalMessengerSendMessage(
@@ -935,7 +935,7 @@ describe('L2_Bridge', () => {
         l2_hopBridgeToken,
         l2_canonicalToken,
         l2_messenger,
-        l2_uniswapRouter,
+        l2_swap,
         transfer.sender,
         transfer.recipient,
         relayer,
@@ -1030,7 +1030,7 @@ describe('L2_Bridge', () => {
         l2_hopBridgeToken,
         l2_canonicalToken,
         l2_messenger,
-        l2_uniswapRouter,
+        l2_swap,
         transfer.sender,
         transfer.recipient,
         relayer,
@@ -1050,7 +1050,7 @@ describe('L2_Bridge', () => {
         l22_hopBridgeToken,
         l22_bridge,
         l22_canonicalToken,
-        l22_uniswapRouter,
+        l22_swap,
         l2Transfer,
         bonder,
         actualTransferAmount
@@ -1062,7 +1062,7 @@ describe('L2_Bridge', () => {
           l22_hopBridgeToken,
           l22_bridge,
           l22_canonicalToken,
-          l22_uniswapRouter,
+          l22_swap,
           l2Transfer,
           bonder,
           actualTransferAmount
@@ -1088,7 +1088,7 @@ describe('L2_Bridge', () => {
         l2_hopBridgeToken,
         l2_canonicalToken,
         l2_messenger,
-        l2_uniswapRouter,
+        l2_swap,
         transfer.sender,
         transfer.recipient,
         relayer,
@@ -1108,7 +1108,7 @@ describe('L2_Bridge', () => {
         l22_hopBridgeToken,
         l22_bridge,
         l22_canonicalToken,
-        l22_uniswapRouter,
+        l22_swap,
         l2Transfer,
         bonder,
         actualTransferAmount
@@ -1120,7 +1120,7 @@ describe('L2_Bridge', () => {
           l22_hopBridgeToken,
           l22_bridge,
           l22_canonicalToken,
-          l22_uniswapRouter,
+          l22_swap,
           l2Transfer,
           otherUser,
           actualTransferAmount
@@ -1153,7 +1153,7 @@ describe('L2_Bridge', () => {
         l2_hopBridgeToken,
         l2_canonicalToken,
         l2_messenger,
-        l2_uniswapRouter,
+        l2_swap,
         transfer.sender,
         transfer.recipient,
         relayer,

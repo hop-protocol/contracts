@@ -12,13 +12,13 @@ import MerkleTree from '../../lib/MerkleTree'
 import {
   USER_INITIAL_BALANCE,
   LIQUIDITY_PROVIDER_INITIAL_BALANCE,
-  LIQUIDITY_PROVIDER_UNISWAP_AMOUNT,
+  LIQUIDITY_PROVIDER_AMM_AMOUNT,
   BONDER_INITIAL_BALANCE,
   INITIAL_BONDED_AMOUNT,
   DEFAULT_DEADLINE,
   CHALLENGER_INITIAL_BALANCE,
   DEFAULT_RELAYER_FEE,
-  UNISWAP_LP_MINIMUM_LIQUIDITY
+  AMM_LP_MINIMUM_LIQUIDITY
 } from '../../config/constants'
 
 import {
@@ -27,7 +27,7 @@ import {
   executeL1BridgeSendToL2,
   getSetL1BridgeAddressMessage,
   getSetL1MessengerWrapperAddressMessage,
-  getSetUniswapWrapperAddressMessage
+  getSetAmmWrapperAddressMessage
 } from './contractFunctionWrappers'
 
 import { IFixture } from './interfaces'
@@ -65,9 +65,9 @@ export const setUpDefaults = async (
     relayerFee: DEFAULT_RELAYER_FEE
   }
 
-  const setUpL2UniswapMarketOpts = {
+  const setUpL2AmmMarketOpts = {
     l2ChainId: l2ChainId,
-    liquidityProviderBalance: LIQUIDITY_PROVIDER_UNISWAP_AMOUNT,
+    liquidityProviderBalance: LIQUIDITY_PROVIDER_AMM_AMOUNT,
     amountOutMin: BigNumber.from('0'),
     deadline: BigNumber.from('0'),
     relayerFee: DEFAULT_RELAYER_FEE
@@ -78,7 +78,7 @@ export const setUpDefaults = async (
   await setUpL1AndL2Bridges(fixture, setUpL1AndL2BridgesOpts)
   await distributeCanonicalTokens(fixture, distributeCanonicalTokensOpts)
   await setUpBonderStake(fixture, setUpBonderStakeOpts)
-  await setUpL2UniswapMarket(fixture, setUpL2UniswapMarketOpts)
+  await setUpL2AmmMarket(fixture, setUpL2AmmMarketOpts)
 }
 
 export const setUpL2HopBridgeToken = async (fixture: IFixture) => {
@@ -105,7 +105,7 @@ export const setUpL1AndL2Bridges = async (fixture: IFixture, opts: any) => {
     l1_messengerWrapper,
     l2_bridge,
     l2_messenger,
-    l2_uniswapWrapper
+    l2_ammWrapper
   } = fixture
 
   const { messengerWrapperChainId } = opts
@@ -135,7 +135,7 @@ export const setUpL1AndL2Bridges = async (fixture: IFixture, opts: any) => {
     message
   )
 
-  message = getSetUniswapWrapperAddressMessage(l2_uniswapWrapper)
+  message = getSetAmmWrapperAddressMessage(l2_ammWrapper)
   await executeCanonicalMessengerSendMessage(
     l1_messenger,
     l2_bridge,
@@ -185,7 +185,7 @@ export const setUpBonderStake = async (fixture: IFixture, opts: any) => {
     l2_canonicalToken,
     l2_bridge,
     l2_messenger,
-    l2_uniswapRouter
+    l2_swap
   } = fixture
 
   const { l2ChainId, bondAmount, amountOutMin, deadline, relayerFee } = opts
@@ -201,7 +201,7 @@ export const setUpBonderStake = async (fixture: IFixture, opts: any) => {
     l2_hopBridgeToken,
     l2_canonicalToken,
     l2_messenger,
-    l2_uniswapRouter,
+    l2_swap,
     bonder,
     bonder,
     bonder,
@@ -216,7 +216,7 @@ export const setUpBonderStake = async (fixture: IFixture, opts: any) => {
   await l2_bridge.connect(bonder).stake(await bonder.getAddress(), bondAmount)
 }
 
-export const setUpL2UniswapMarket = async (fixture: IFixture, opts: any) => {
+export const setUpL2AmmMarket = async (fixture: IFixture, opts: any) => {
   const {
     l1_bridge,
     l1_canonicalToken,
@@ -224,8 +224,7 @@ export const setUpL2UniswapMarket = async (fixture: IFixture, opts: any) => {
     l2_hopBridgeToken,
     l2_messenger,
     liquidityProvider,
-    l2_uniswapRouter,
-    l2_uniswapFactory,
+    l2_swap,
     l2_canonicalToken
   } = fixture
 
@@ -254,7 +253,7 @@ export const setUpL2UniswapMarket = async (fixture: IFixture, opts: any) => {
     l2_hopBridgeToken,
     l2_canonicalToken,
     l2_messenger,
-    l2_uniswapRouter,
+    l2_swap,
     liquidityProvider,
     liquidityProvider,
     liquidityProvider,
@@ -268,50 +267,40 @@ export const setUpL2UniswapMarket = async (fixture: IFixture, opts: any) => {
   // liquidityProvider adds liquidity to the pool on L2
   await l2_canonicalToken
     .connect(liquidityProvider)
-    .approve(l2_uniswapRouter.address, liquidityProviderBalance)
+    .approve(l2_swap.address, liquidityProviderBalance)
   await l2_hopBridgeToken
     .connect(liquidityProvider)
-    .approve(l2_uniswapRouter.address, liquidityProviderBalance)
-  await l2_uniswapRouter
+    .approve(l2_swap.address, liquidityProviderBalance)
+  await l2_swap
     .connect(liquidityProvider)
     .addLiquidity(
-      l2_canonicalToken.address,
-      l2_hopBridgeToken.address,
-      liquidityProviderBalance,
-      liquidityProviderBalance,
+      [liquidityProviderBalance, liquidityProviderBalance],
       '0',
-      '0',
-      await liquidityProvider.getAddress(),
       DEFAULT_DEADLINE
     )
   await expectBalanceOf(l2_canonicalToken, liquidityProvider, '0')
   await expectBalanceOf(l2_hopBridgeToken, liquidityProvider, '0')
 
-  const l2_uniswapPairAddress: string = await l2_uniswapFactory.getPair(
-    l2_canonicalToken.address,
-    l2_hopBridgeToken.address
-  )
-  const l2_uniswapPair: Contract = await ethers.getContractAt(
-    '@uniswap/v2-core/contracts/UniswapV2Pair.sol:UniswapV2Pair',
-    l2_uniswapPairAddress
-  )
-  const lpTokenTotalBalance: BigNumber = await l2_uniswapPair.totalSupply()
-  const expectedLiquidityProviderBalance = lpTokenTotalBalance.sub(
-    UNISWAP_LP_MINIMUM_LIQUIDITY
-  )
+  const ERC20 = await ethers.getContractFactory('@openzeppelin/contracts/token/ERC20/ERC20.sol:ERC20')
+
+  const swapStorage = await l2_swap.swapStorage()
+  const lpTokenAddress = swapStorage.lpToken
+  const lpToken = ERC20.attach(lpTokenAddress)
+
+  const lpTokenTotalBalance: BigNumber = await lpToken.totalSupply()
   await expectBalanceOf(
-    l2_uniswapPair,
+    lpToken,
     liquidityProvider,
-    expectedLiquidityProviderBalance
+    lpTokenTotalBalance
   )
   await expectBalanceOf(
     l2_canonicalToken,
-    l2_uniswapPair,
+    l2_swap,
     liquidityProviderBalance
   )
   await expectBalanceOf(
     l2_hopBridgeToken,
-    l2_uniswapPair,
+    l2_swap,
     liquidityProviderBalance
   )
 }

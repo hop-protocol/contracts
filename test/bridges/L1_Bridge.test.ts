@@ -35,7 +35,7 @@ import {
   DEFAULT_DEADLINE,
   BONDER_INITIAL_BALANCE,
   INITIAL_BONDED_AMOUNT,
-  LIQUIDITY_PROVIDER_UNISWAP_AMOUNT,
+  LIQUIDITY_PROVIDER_AMM_AMOUNT,
   ZERO_ADDRESS,
   SECONDS_IN_A_MINUTE,
   SECONDS_IN_A_DAY,
@@ -69,14 +69,13 @@ describe('L1_Bridge', () => {
   let l2_hopBridgeToken: Contract
   let l2_bridge: Contract
   let l2_messenger: Contract
-  let l2_uniswapRouter: Contract
-  let l2_uniswapWrapper: Contract
+  let l2_swap: Contract
+  let l2_ammWrapper: Contract
   let l22_hopBridgeToken: Contract
   let l22_canonicalToken: Contract
   let l22_bridge: Contract
   let l22_messenger: Contract
-  let l22_uniswapRouter: Contract
-  let l22_uniswapWrapper: Contract
+  let l22_swap: Contract
 
   let transfers: Transfer[]
   let transfer: Transfer
@@ -111,8 +110,8 @@ describe('L1_Bridge', () => {
       l2_hopBridgeToken,
       l2_bridge,
       l2_messenger,
-      l2_uniswapRouter,
-      l2_uniswapWrapper,
+      l2_swap,
+      l2_ammWrapper,
       transfers
     } = _fixture)
 
@@ -127,14 +126,13 @@ describe('L1_Bridge', () => {
       l2_hopBridgeToken: l22_hopBridgeToken,
       l2_bridge: l22_bridge,
       l2_messenger: l22_messenger,
-      l2_uniswapRouter: l22_uniswapRouter,
-      l2_uniswapWrapper: l22_uniswapWrapper
+      l2_swap: l22_swap
     } = _fixture)
 
     transfer = transfers[0]
     l2Transfer = transfers[1]
 
-    originalBondedAmount = LIQUIDITY_PROVIDER_UNISWAP_AMOUNT.add(
+    originalBondedAmount = LIQUIDITY_PROVIDER_AMM_AMOUNT.add(
       INITIAL_BONDED_AMOUNT
     )
     defaultRelayerFee = DEFAULT_RELAYER_FEE
@@ -172,7 +170,7 @@ describe('L1_Bridge', () => {
       l2_hopBridgeToken,
       l2_canonicalToken,
       l2_messenger,
-      l2_uniswapRouter,
+      l2_swap,
       transfer.sender,
       transfer.recipient,
       relayer,
@@ -207,7 +205,7 @@ describe('L1_Bridge', () => {
       l2_hopBridgeToken,
       l2_canonicalToken,
       l2_messenger,
-      l2_uniswapRouter,
+      l2_swap,
       transfer.sender,
       transfer.recipient,
       relayer,
@@ -244,7 +242,7 @@ describe('L1_Bridge', () => {
       l2_hopBridgeToken,
       l2_canonicalToken,
       l2_messenger,
-      l2_uniswapRouter,
+      l2_swap,
       transfer.sender,
       transfer.recipient,
       relayer,
@@ -273,7 +271,7 @@ describe('L1_Bridge', () => {
       l2_hopBridgeToken,
       l2_canonicalToken,
       l2_messenger,
-      l2_uniswapRouter,
+      l2_swap,
       transfer.sender,
       transfer.recipient,
       relayer,
@@ -349,7 +347,7 @@ describe('L1_Bridge', () => {
       l2_hopBridgeToken,
       l2_canonicalToken,
       l2_messenger,
-      l2_uniswapRouter,
+      l2_swap,
       transfer.sender,
       transfer.recipient,
       relayer,
@@ -533,7 +531,7 @@ describe('L1_Bridge', () => {
         l2_hopBridgeToken,
         l2_canonicalToken,
         l2_messenger,
-        l2_uniswapRouter,
+        l2_swap,
         transfer.sender,
         transfer.recipient,
         relayer,
@@ -558,7 +556,7 @@ describe('L1_Bridge', () => {
         l2_hopBridgeToken,
         l2_canonicalToken,
         l2_messenger,
-        l2_uniswapRouter,
+        l2_swap,
         transfer.sender,
         transfer.recipient,
         relayer,
@@ -585,7 +583,7 @@ describe('L1_Bridge', () => {
         l2_hopBridgeToken,
         l2_canonicalToken,
         l2_messenger,
-        l2_uniswapRouter,
+        l2_swap,
         transfer.sender,
         transfer.recipient,
         relayer,
@@ -624,7 +622,7 @@ describe('L1_Bridge', () => {
         l2_hopBridgeToken,
         l2_canonicalToken,
         l2_messenger,
-        l2_uniswapRouter,
+        l2_swap,
         transfer.sender,
         transfer.recipient,
         relayer,
@@ -644,7 +642,7 @@ describe('L1_Bridge', () => {
         l22_hopBridgeToken,
         l22_bridge,
         l22_canonicalToken,
-        l22_uniswapRouter,
+        l22_swap,
         l2Transfer,
         bonder,
         actualTransferAmount
@@ -683,7 +681,7 @@ describe('L1_Bridge', () => {
         l2_hopBridgeToken,
         l2_canonicalToken,
         l2_messenger,
-        l2_uniswapRouter,
+        l2_swap,
         transfer.sender,
         transfer.recipient,
         relayer,
@@ -723,7 +721,7 @@ describe('L1_Bridge', () => {
         l2_hopBridgeToken,
         l2_canonicalToken,
         l2_messenger,
-        l2_uniswapRouter,
+        l2_swap,
         transfer.sender,
         transfer.recipient,
         relayer,
@@ -742,7 +740,7 @@ describe('L1_Bridge', () => {
         l22_hopBridgeToken,
         l22_bridge,
         l22_canonicalToken,
-        l22_uniswapRouter,
+        l22_swap,
         l2Transfer,
         bonder,
         actualTransferAmount
@@ -770,7 +768,7 @@ describe('L1_Bridge', () => {
         l2_hopBridgeToken,
         l2_canonicalToken,
         l2_messenger,
-        l2_uniswapRouter,
+        l2_swap,
         transfer.sender,
         transfer.recipient,
         relayer,
@@ -811,7 +809,7 @@ describe('L1_Bridge', () => {
         l2_hopBridgeToken,
         l2_canonicalToken,
         l2_messenger,
-        l2_uniswapRouter,
+        l2_swap,
         transfer.sender,
         transfer.recipient,
         relayer,
@@ -830,7 +828,7 @@ describe('L1_Bridge', () => {
         l22_hopBridgeToken,
         l22_bridge,
         l22_canonicalToken,
-        l22_uniswapRouter,
+        l22_swap,
         l2Transfer,
         bonder,
         actualTransferAmount
@@ -849,7 +847,7 @@ describe('L1_Bridge', () => {
         l22_hopBridgeToken,
         l22_bridge,
         l22_canonicalToken,
-        l22_uniswapRouter,
+        l22_swap,
         l2Transfer,
         bonder,
         actualTransferAmount,
@@ -882,7 +880,7 @@ describe('L1_Bridge', () => {
         l2_hopBridgeToken,
         l2_canonicalToken,
         l2_messenger,
-        l2_uniswapRouter,
+        l2_swap,
         transfer.sender,
         transfer.recipient,
         relayer,
@@ -946,7 +944,7 @@ describe('L1_Bridge', () => {
         l2_hopBridgeToken,
         l2_canonicalToken,
         l2_messenger,
-        l2_uniswapRouter,
+        l2_swap,
         transfer.sender,
         transfer.recipient,
         relayer,
@@ -966,7 +964,7 @@ describe('L1_Bridge', () => {
         l22_hopBridgeToken,
         l22_bridge,
         l22_canonicalToken,
-        l22_uniswapRouter,
+        l22_swap,
         l2Transfer,
         bonder,
         actualTransferAmount
@@ -995,7 +993,7 @@ describe('L1_Bridge', () => {
         TIMESTAMP_VARIANCE
       )
       expect(await l1_bridge.chainBalance(l22ChainId)).to.eq(
-        LIQUIDITY_PROVIDER_UNISWAP_AMOUNT.add(INITIAL_BONDED_AMOUNT)
+        LIQUIDITY_PROVIDER_AMM_AMOUNT.add(INITIAL_BONDED_AMOUNT)
       )
 
       const nextMessage = await l22_messenger.nextMessage()
@@ -1019,7 +1017,7 @@ describe('L1_Bridge', () => {
         l2_hopBridgeToken,
         l2_canonicalToken,
         l2_messenger,
-        l2_uniswapRouter,
+        l2_swap,
         transfer.sender,
         transfer.recipient,
         relayer,
@@ -1068,7 +1066,7 @@ describe('L1_Bridge', () => {
         l2_hopBridgeToken,
         l2_canonicalToken,
         l2_messenger,
-        l2_uniswapRouter,
+        l2_swap,
         transfer.sender,
         transfer.recipient,
         relayer,
@@ -1088,7 +1086,7 @@ describe('L1_Bridge', () => {
         l22_hopBridgeToken,
         l22_bridge,
         l22_canonicalToken,
-        l22_uniswapRouter,
+        l22_swap,
         l2Transfer,
         bonder,
         actualTransferAmount
@@ -1124,7 +1122,7 @@ describe('L1_Bridge', () => {
         l2_hopBridgeToken,
         l2_canonicalToken,
         l2_messenger,
-        l2_uniswapRouter,
+        l2_swap,
         transfer.sender,
         transfer.recipient,
         relayer,
@@ -1191,7 +1189,7 @@ describe('L1_Bridge', () => {
         l2_hopBridgeToken,
         l2_canonicalToken,
         l2_messenger,
-        l2_uniswapRouter,
+        l2_swap,
         transfer.sender,
         transfer.recipient,
         relayer,
@@ -1201,9 +1199,11 @@ describe('L1_Bridge', () => {
         defaultRelayerFee,
         l2ChainId
       )
+      console.log('ablah 1')
 
       await executeL2BridgeSend(l2_hopBridgeToken, l2_bridge, transfer)
 
+      console.log('ablah 2')
       await executeBridgeBondWithdrawal(
         l1_canonicalToken,
         l1_bridge,
@@ -1211,6 +1211,7 @@ describe('L1_Bridge', () => {
         transfer,
         bonder
       )
+      console.log('ablah 3')
 
       await executeL2BridgeCommitTransfers(l2_bridge, [transfer], bonder)
 
@@ -1260,7 +1261,7 @@ describe('L1_Bridge', () => {
         l2_hopBridgeToken,
         l2_canonicalToken,
         l2_messenger,
-        l2_uniswapRouter,
+        l2_swap,
         transfer.sender,
         transfer.recipient,
         relayer,
@@ -1326,7 +1327,7 @@ describe('L1_Bridge', () => {
         l2_hopBridgeToken,
         l2_canonicalToken,
         l2_messenger,
-        l2_uniswapRouter,
+        l2_swap,
         transfer.sender,
         transfer.recipient,
         relayer,
@@ -1346,7 +1347,7 @@ describe('L1_Bridge', () => {
         l22_hopBridgeToken,
         l22_bridge,
         l22_canonicalToken,
-        l22_uniswapRouter,
+        l22_swap,
         l2Transfer,
         bonder,
         actualTransferAmount
@@ -1398,7 +1399,7 @@ describe('L1_Bridge', () => {
         l2_hopBridgeToken,
         l2_canonicalToken,
         l2_messenger,
-        l2_uniswapRouter,
+        l2_swap,
         transfer.sender,
         transfer.recipient,
         relayer,
@@ -1418,7 +1419,7 @@ describe('L1_Bridge', () => {
         l22_hopBridgeToken,
         l22_bridge,
         l22_canonicalToken,
-        l22_uniswapRouter,
+        l22_swap,
         l2Transfer,
         bonder,
         actualTransferAmount
@@ -1472,7 +1473,7 @@ describe('L1_Bridge', () => {
         l2_hopBridgeToken,
         l2_canonicalToken,
         l2_messenger,
-        l2_uniswapRouter,
+        l2_swap,
         transfer.sender,
         transfer.recipient,
         relayer,
@@ -1492,7 +1493,7 @@ describe('L1_Bridge', () => {
         l22_hopBridgeToken,
         l22_bridge,
         l22_canonicalToken,
-        l22_uniswapRouter,
+        l22_swap,
         l2Transfer,
         bonder,
         actualTransferAmount
@@ -1598,7 +1599,7 @@ describe('L1_Bridge', () => {
         l2_hopBridgeToken,
         l2_canonicalToken,
         l2_messenger,
-        l2_uniswapRouter,
+        l2_swap,
         transfer.sender,
         transfer.recipient,
         relayer,
@@ -1668,7 +1669,7 @@ describe('L1_Bridge', () => {
           l2_hopBridgeToken,
           l2_canonicalToken,
           l2_messenger,
-          l2_uniswapRouter,
+          l2_swap,
           customTransfer.sender,
           customTransfer.recipient,
           relayer,
@@ -1692,7 +1693,7 @@ describe('L1_Bridge', () => {
           l2_hopBridgeToken,
           l2_canonicalToken,
           l2_messenger,
-          l2_uniswapRouter,
+          l2_swap,
           transfer.sender,
           transfer.recipient,
           relayer,
@@ -1719,7 +1720,7 @@ describe('L1_Bridge', () => {
           l2_hopBridgeToken,
           l2_canonicalToken,
           l2_messenger,
-          l2_uniswapRouter,
+          l2_swap,
           transfer.sender,
           transfer.recipient,
           relayer,
@@ -1744,7 +1745,7 @@ describe('L1_Bridge', () => {
           l2_hopBridgeToken,
           l2_canonicalToken,
           l2_messenger,
-          l2_uniswapRouter,
+          l2_swap,
           transfer.sender,
           transfer.recipient,
           relayer,
@@ -1795,7 +1796,7 @@ describe('L1_Bridge', () => {
           l2_hopBridgeToken,
           l2_canonicalToken,
           l2_messenger,
-          l2_uniswapRouter,
+          l2_swap,
           transfer.sender,
           transfer.recipient,
           relayer,
@@ -1836,7 +1837,7 @@ describe('L1_Bridge', () => {
         l2_hopBridgeToken,
         l2_canonicalToken,
         l2_messenger,
-        l2_uniswapRouter,
+        l2_swap,
         transfer.sender,
         transfer.recipient,
         relayer,
@@ -1877,7 +1878,7 @@ describe('L1_Bridge', () => {
         l2_hopBridgeToken,
         l2_canonicalToken,
         l2_messenger,
-        l2_uniswapRouter,
+        l2_swap,
         transfer.sender,
         transfer.recipient,
         relayer,
@@ -1923,7 +1924,7 @@ describe('L1_Bridge', () => {
         l2_hopBridgeToken,
         l2_canonicalToken,
         l2_messenger,
-        l2_uniswapRouter,
+        l2_swap,
         transfer.sender,
         transfer.recipient,
         relayer,
@@ -1980,7 +1981,7 @@ describe('L1_Bridge', () => {
         l2_hopBridgeToken,
         l2_canonicalToken,
         l2_messenger,
-        l2_uniswapRouter,
+        l2_swap,
         transfer.sender,
         transfer.recipient,
         relayer,
@@ -2021,7 +2022,7 @@ describe('L1_Bridge', () => {
         l2_hopBridgeToken,
         l2_canonicalToken,
         l2_messenger,
-        l2_uniswapRouter,
+        l2_swap,
         l2Transfer.sender,
         l2Transfer.recipient,
         relayer,
@@ -2069,7 +2070,7 @@ describe('L1_Bridge', () => {
         l2_hopBridgeToken,
         l2_canonicalToken,
         l2_messenger,
-        l2_uniswapRouter,
+        l2_swap,
         transfer.sender,
         transfer.recipient,
         relayer,
@@ -2124,7 +2125,7 @@ describe('L1_Bridge', () => {
         l2_hopBridgeToken,
         l2_canonicalToken,
         l2_messenger,
-        l2_uniswapRouter,
+        l2_swap,
         transfer.sender,
         transfer.recipient,
         relayer,
@@ -2175,7 +2176,7 @@ describe('L1_Bridge', () => {
         l2_hopBridgeToken,
         l2_canonicalToken,
         l2_messenger,
-        l2_uniswapRouter,
+        l2_swap,
         transfer.sender,
         transfer.recipient,
         relayer,
@@ -2221,7 +2222,7 @@ describe('L1_Bridge', () => {
         l2_hopBridgeToken,
         l2_canonicalToken,
         l2_messenger,
-        l2_uniswapRouter,
+        l2_swap,
         transfer.sender,
         transfer.recipient,
         relayer,
@@ -2282,7 +2283,7 @@ describe('L1_Bridge', () => {
         l2_hopBridgeToken,
         l2_canonicalToken,
         l2_messenger,
-        l2_uniswapRouter,
+        l2_swap,
         transfer.sender,
         transfer.recipient,
         relayer,
@@ -2339,7 +2340,7 @@ describe('L1_Bridge', () => {
         l2_hopBridgeToken,
         l2_canonicalToken,
         l2_messenger,
-        l2_uniswapRouter,
+        l2_swap,
         transfer.sender,
         transfer.recipient,
         relayer,
@@ -2403,7 +2404,7 @@ describe('L1_Bridge', () => {
         l2_hopBridgeToken,
         l2_canonicalToken,
         l2_messenger,
-        l2_uniswapRouter,
+        l2_swap,
         transfer.sender,
         transfer.recipient,
         relayer,
@@ -2452,7 +2453,7 @@ describe('L1_Bridge', () => {
         l2_hopBridgeToken,
         l2_canonicalToken,
         l2_messenger,
-        l2_uniswapRouter,
+        l2_swap,
         transfer.sender,
         transfer.recipient,
         relayer,
@@ -2513,7 +2514,7 @@ describe('L1_Bridge', () => {
         l2_hopBridgeToken,
         l2_canonicalToken,
         l2_messenger,
-        l2_uniswapRouter,
+        l2_swap,
         transfer.sender,
         transfer.recipient,
         relayer,
@@ -2569,7 +2570,7 @@ describe('L1_Bridge', () => {
         l2_hopBridgeToken,
         l2_canonicalToken,
         l2_messenger,
-        l2_uniswapRouter,
+        l2_swap,
         transfer.sender,
         transfer.recipient,
         relayer,
@@ -2625,7 +2626,7 @@ describe('L1_Bridge', () => {
         l2_hopBridgeToken,
         l2_canonicalToken,
         l2_messenger,
-        l2_uniswapRouter,
+        l2_swap,
         transfer.sender,
         transfer.recipient,
         relayer,
@@ -2681,7 +2682,7 @@ describe('L1_Bridge', () => {
         l2_hopBridgeToken,
         l2_canonicalToken,
         l2_messenger,
-        l2_uniswapRouter,
+        l2_swap,
         transfer.sender,
         transfer.recipient,
         relayer,
@@ -2751,7 +2752,7 @@ describe('L1_Bridge', () => {
         l2_hopBridgeToken,
         l2_canonicalToken,
         l2_messenger,
-        l2_uniswapRouter,
+        l2_swap,
         transfer.sender,
         transfer.recipient,
         relayer,
@@ -2811,7 +2812,7 @@ describe('L1_Bridge', () => {
         l2_hopBridgeToken,
         l2_canonicalToken,
         l2_messenger,
-        l2_uniswapRouter,
+        l2_swap,
         transfer.sender,
         transfer.recipient,
         relayer,
@@ -2896,7 +2897,7 @@ describe('L1_Bridge', () => {
         l2_hopBridgeToken,
         l2_canonicalToken,
         l2_messenger,
-        l2_uniswapRouter,
+        l2_swap,
         transfer.sender,
         transfer.recipient,
         relayer,
@@ -3119,7 +3120,7 @@ describe('L1_Bridge', () => {
         l2_hopBridgeToken,
         l2_canonicalToken,
         l2_messenger,
-        l2_uniswapRouter,
+        l2_swap,
         customTransfer.sender,
         customTransfer.recipient,
         relayer,
@@ -3141,7 +3142,7 @@ describe('L1_Bridge', () => {
         l2_hopBridgeToken,
         l2_canonicalToken,
         l2_messenger,
-        l2_uniswapRouter,
+        l2_swap,
         customTransfer.sender,
         customTransfer.recipient,
         relayer,
@@ -3162,7 +3163,7 @@ describe('L1_Bridge', () => {
         l2_hopBridgeToken,
         l2_canonicalToken,
         l2_messenger,
-        l2_uniswapRouter,
+        l2_swap,
         transfer.sender,
         transfer.recipient,
         relayer,
@@ -3203,7 +3204,7 @@ describe('L1_Bridge', () => {
         l2_hopBridgeToken,
         l2_canonicalToken,
         l2_messenger,
-        l2_uniswapRouter,
+        l2_swap,
         transfer.sender,
         transfer.recipient,
         relayer,
@@ -3223,7 +3224,7 @@ describe('L1_Bridge', () => {
         l22_hopBridgeToken,
         l22_bridge,
         l22_canonicalToken,
-        l22_uniswapRouter,
+        l22_swap,
         customTransfer,
         bonder,
         actualTransferAmount
