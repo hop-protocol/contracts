@@ -507,8 +507,6 @@ export const executeBridgeSettleBondedWithdrawals = async (
       transferIds,
       totalTransferAmount
     )
-  console.log('tidBefore', (await l1_bridge.tidBefore()).toString())
-  console.log('tidAfter', (await l1_bridge.tidAfter()).toString())
 
   // Validate state after transaction
   const currentTime: number = Math.floor(Date.now() / 1000)
@@ -908,7 +906,7 @@ export const executeL2BridgeCommitTransfers = async (
     )
 
     const pendingTransferIdsForChainId: string = await l2_bridge.pendingTransferIdsForChainId(
-      transfers[i].chainId,
+      destinationChainId,
       i
     )
 

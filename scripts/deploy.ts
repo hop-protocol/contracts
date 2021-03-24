@@ -80,7 +80,7 @@ async function main () {
 function getKovanParams (): KovanParams {
   return {
     l1_chainId: CHAIN_IDS.ETHEREUM.KOVAN.toString(),
-    l1_canonicalTokenAddress: '0x943599d17FE82Bb4563b1823500f3267f91Acd2e',
+    l1_canonicalTokenAddress: '0x7d669A64deb8a4A51eEa755bb0E19FD39CE25Ae9',
   }
 }
 
@@ -191,11 +191,11 @@ function getNetworkParams (networkName: string): NetworkParams {
     case 'arbitrum': {
       const l2_networkName: string = networkName
       const l1_chainId: string = CHAIN_IDS.ETHEREUM.KOVAN.toString()
-      const l2_chainId: string = CHAIN_IDS.ARBITRUM.TESTNET_3.toString()
-      const l1_messengerAddress: string = '0xE681857DEfE8b454244e701BA63EfAa078d7eA85'
-      const l2_tokenBridgeAddress: string = '0x0000000000000000000000000000000000000064'
+      const l2_chainId: string = CHAIN_IDS.ARBITRUM.TESTNET_4.toString()
+      const l1_messengerAddress: string = '0x97884F2B6A2AF19C38AA0a15716CF2aC931A3c73'
+      const l2_tokenBridgeAddress: string = '0xE49CCf3e19d847f8FF4d6962684A3242abF63f07'
       const l2_messengerAddress: string = '0x0000000000000000000000000000000000000064'
-      const l1_tokenBridgeAddress: string = '0xE681857DEfE8b454244e701BA63EfAa078d7eA85'
+      const l1_tokenBridgeAddress: string = '0x5d4958A5A5C336299445353EAB2b1CD85a331B52'
 
       // DAI
       return {
@@ -208,7 +208,7 @@ function getNetworkParams (networkName: string): NetworkParams {
         l2_messengerAddress,
         l1_tokenBridgeAddress,
         l1_canonicalTokenAddress: '0x7d669A64deb8a4A51eEa755bb0E19FD39CE25Ae9',
-        l2_canonicalTokenAddress: '0x7d669A64deb8a4A51eEa755bb0E19FD39CE25Ae9',
+        l2_canonicalTokenAddress: '0xD98Ba848F10697A914a8c007dBCD05fCe2A0b84f',
         l2_hBridgeTokenName: DEFAULT_H_BRIDGE_TOKEN_NAME,
         l2_hBridgeTokenSymbol: DEFAULT_H_BRIDGE_TOKEN_SYMBOL,
         l2_hBridgeTokenDecimals: DEFAULT_H_BRIDGE_TOKEN_DECIMALS
