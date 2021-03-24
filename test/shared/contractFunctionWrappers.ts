@@ -1042,6 +1042,30 @@ export const executeL2BridgeBondWithdrawalAndDistribute = async (
  * Canonical Bridge Messages
  */
 
+export const getAddBonderMessage = (
+  newBonderAddress: string
+) => {
+  const ABI = [
+    'function addBonder(address bonder)'
+  ]
+  const ethersInterface = new ethersUtils.Interface(ABI)
+  return ethersInterface.encodeFunctionData('addBonder', [
+    newBonderAddress
+  ])
+}
+
+export const getRemoveBonderMessage = (
+  bonderAddress: string
+) => {
+  const ABI = [
+    'function removeBonder(address bonder)'
+  ]
+  const ethersInterface = new ethersUtils.Interface(ABI)
+  return ethersInterface.encodeFunctionData('removeBonder', [
+    bonderAddress
+  ])
+}
+
 export const getSetL1BridgeAddressMessage = (l1_bridge: Contract | string) => {
   const address = getAddressFromContractOrString(l1_bridge)
   const ABI = ['function setL1BridgeAddress(address _l1BridgeAddress)']

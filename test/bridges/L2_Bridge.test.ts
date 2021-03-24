@@ -16,6 +16,7 @@ import {
 } from '../shared/utils'
 import {
   executeCanonicalBridgeSendTokens,
+  getAddBonderMessage,
   executeL1BridgeSendToL2,
   executeBridgeBondWithdrawal,
   executeL1BridgeBondTransferRoot,
@@ -71,6 +72,7 @@ describe('L2_Bridge', () => {
   let bonder: Signer
   let governance: Signer
   let relayer: Signer
+  let otherUser: Signer
 
   let l1_canonicalToken: Contract
   let l1_bridge: Contract
@@ -112,6 +114,7 @@ describe('L2_Bridge', () => {
       bonder,
       governance,
       relayer,
+      otherUser,
       l1_canonicalToken,
       l1_bridge,
       l1_messenger,
@@ -878,60 +881,251 @@ describe('L2_Bridge', () => {
   describe('send', async () => {
     it('Should not allow a send with an amount of 0', async () => {
       const expectedErrorMsg: string = 'L2_BRG: Must transfer a non-zero amount'
+      const customTransfer: Transfer = new Transfer(transfer)
+      customTransfer.amount = BigNumber.from('0')
+      await expect(
+        executeL2BridgeSend(l2_hopBridgeToken, l2_bridge, customTransfer)
+      ).to.be.revertedWith(expectedErrorMsg)
     })
 
     it('Should not allow a send with an amount less than the bonder fee', async () => {
       const expectedErrorMsg: string = 'L2_BRG: Bonder fee cannot exceed amount'
+      const customTransfer: Transfer = new Transfer(transfer)
+      customTransfer.bonderFee = customTransfer.amount.add(1)
+      await expect(
+        executeL2BridgeSend(l2_hopBridgeToken, l2_bridge, customTransfer)
+      ).to.be.revertedWith(expectedErrorMsg)
     })
 
     it('Should not allow a send to an unsupported chainId', async () => {
       const expectedErrorMsg: string = 'L2_BRG: _chainId is not supported'
+      const customTransfer: Transfer = new Transfer(transfer)
+      customTransfer.chainId = BigNumber.from('1337')
+      await expect(
+        executeL2BridgeSend(l2_hopBridgeToken, l2_bridge, customTransfer)
+      ).to.be.revertedWith(expectedErrorMsg)
     })
 
     it('Should not allow a send with a bonder fee less than the min bonder fee', async () => {
       const expectedErrorMsg: string = 'L2_BRG: bonderFee must meet minimum requirements'
-    })
-
-    it('Should not allow a send if the user did not approve tokens to send', async () => {
-      const expectedErrorMsg: string = 'todo'
+      const customTransfer: Transfer = new Transfer(transfer)
+      customTransfer.bonderFee = BigNumber.from('1')
+      await expect(
+        executeL2BridgeSend(l2_hopBridgeToken, l2_bridge, customTransfer)
+      ).to.be.revertedWith(expectedErrorMsg)
     })
 
     it('Should not allow a send if the user does not have enough tokens to send', async () => {
-      const expectedErrorMsg: string = 'todo'
+      const expectedErrorMsg: string = 'ERC20: burn amount exceeds balance'
+      const senderBalance: BigNumber = await l2_hopBridgeToken.balanceOf(await transfer.sender.getAddress())
+      await l2_hopBridgeToken.connect(transfer.sender).transfer(ONE_ADDRESS, senderBalance)
+      await expect(
+        executeL2BridgeSend(l2_hopBridgeToken, l2_bridge, transfer)
+      ).to.be.revertedWith(expectedErrorMsg)
     })
   })
 
   describe('commitTransfers', async () => {
     it('Should not allow a commitTransfers if an arbitrary user calls it before the min time', async () => {
       const expectedErrorMsg: string = 'L2_BRG: Only Bonder can commit before min delay'
+
+      await executeL1BridgeSendToL2(
+        l1_canonicalToken,
+        l1_bridge,
+        l2_hopBridgeToken,
+        l2_canonicalToken,
+        l2_messenger,
+        l2_uniswapRouter,
+        transfer.sender,
+        transfer.recipient,
+        relayer,
+        transfer.amount.mul(2),
+        transfer.amountOutMin,
+        transfer.deadline,
+        defaultRelayerFee,
+        l2ChainId
+      )
+
+      await executeL2BridgeSend(l2_hopBridgeToken, l2_bridge, transfer)
+      await l2_bridge.connect(bonder).commitTransfers(transfer.chainId)
+
+      await executeL2BridgeSend(l2_hopBridgeToken, l2_bridge, transfer)
+      await expect(
+        l2_bridge.connect(transfer.sender).commitTransfers(transfer.chainId)
+      ).to.be.revertedWith(expectedErrorMsg)
     })
 
     it('Should not allow a commitTransfers if there are no transfers to commit', async () => {
-      const expectedErrorMsg: string = 'L2_BRG: Only Bonder can commit before min delay'
+      const expectedErrorMsg: string = 'L2_BRG: Must commit at least 1 Transfer'
+      await expect(
+        l2_bridge.connect(transfer.sender).commitTransfers(transfer.chainId)
+      ).to.be.revertedWith(expectedErrorMsg)
     })
   })
 
   describe('distribute', async () => {
     it('Should not allow an arbitrary address to call distribute', async () => {
-      const expectedErrorMsg: string = 'ACT: Caller is not bonder'
+      const expectedErrorMsg: string = 'L2_OVM_BRG: Caller is not the expected sender'
+      await expect(
+        l2_bridge
+          .connect(transfer.sender)
+          .distribute(
+            await transfer.recipient.getAddress(),
+            transfer.amount,
+            transfer.amountOutMin,
+            transfer.deadline,
+            transfer.bonderFee
+          )
+      ).to.be.revertedWith(expectedErrorMsg)
     })
   })
 
   describe('bondWithdrawalAndDistribute', async () => {
     it('Should not allow an arbitrary address to call bondWithdrawalAndDistribute', async () => {
       const expectedErrorMsg: string = 'ACT: Caller is not bonder'
+      await expect(
+        l2_bridge
+          .connect(transfer.sender)
+          .bondWithdrawalAndDistribute(
+            await transfer.recipient.getAddress(),
+            transfer.amount,
+            ARBITRARY_ROOT_HASH,
+            transfer.bonderFee,
+            transfer.amountOutMin,
+            transfer.deadline
+          )
+      ).to.be.revertedWith(expectedErrorMsg)
     })
 
-    it('Should not allow a bonder call bondWithdrawalAndDistribute if it will put their balance in the negative', async () => {
+    it('Should not allow a bonder to call bondWithdrawalAndDistribute if it will put their balance in the negative', async () => {
       const expectedErrorMsg: string = 'ACT: Not enough available credit'
+      const message: string = getAddBonderMessage(await otherUser.getAddress())
+      await executeCanonicalMessengerSendMessage(
+        l1_messenger,
+        l2_bridge,
+        l2_messenger,
+        governance,
+        message
+      )
+
+      await expect(
+        l2_bridge
+          .connect(otherUser)
+          .bondWithdrawalAndDistribute(
+            await transfer.recipient.getAddress(),
+            transfer.amount,
+            ARBITRARY_ROOT_HASH,
+            transfer.bonderFee,
+            transfer.amountOutMin,
+            transfer.deadline
+          )
+      ).to.be.revertedWith(expectedErrorMsg)
     })
 
     it('Should not allow the bonder to call bondWithdrawalAndDistribute if it has already been bonded', async () => {
       const expectedErrorMsg: string = 'BRG: Withdrawal has already been bonded'
+      await executeL1BridgeSendToL2(
+        l1_canonicalToken,
+        l1_bridge,
+        l2_hopBridgeToken,
+        l2_canonicalToken,
+        l2_messenger,
+        l2_uniswapRouter,
+        transfer.sender,
+        transfer.recipient,
+        relayer,
+        transfer.amount,
+        transfer.amountOutMin,
+        transfer.deadline,
+        defaultRelayerFee,
+        l2ChainId
+      )
+
+      await executeL2BridgeSend(l2_hopBridgeToken, l2_bridge, l2Transfer)
+
+      // Bond withdrawal on other L2
+      const actualTransferAmount: BigNumber = l2Transfer.amount
+      await executeL2BridgeBondWithdrawalAndDistribute(
+        l2_bridge,
+        l22_hopBridgeToken,
+        l22_bridge,
+        l22_canonicalToken,
+        l22_uniswapRouter,
+        l2Transfer,
+        bonder,
+        actualTransferAmount
+      )
+
+      await expect(
+        executeL2BridgeBondWithdrawalAndDistribute(
+          l2_bridge,
+          l22_hopBridgeToken,
+          l22_bridge,
+          l22_canonicalToken,
+          l22_uniswapRouter,
+          l2Transfer,
+          bonder,
+          actualTransferAmount
+        )
+      ).to.be.revertedWith(expectedErrorMsg)
     })
 
     it('Should not allow a different bonder to call bondWithdrawalAndDistribute if it has already been bonded', async () => {
       const expectedErrorMsg: string = 'BRG: The transfer has already been withdrawn'
+
+      const message: string = getAddBonderMessage(await otherUser.getAddress())
+      await executeCanonicalMessengerSendMessage(
+        l1_messenger,
+        l22_bridge,
+        l2_messenger,
+        governance,
+        message
+      )
+
+      await executeL1BridgeSendToL2(
+        l1_canonicalToken,
+        l1_bridge,
+        l2_hopBridgeToken,
+        l2_canonicalToken,
+        l2_messenger,
+        l2_uniswapRouter,
+        transfer.sender,
+        transfer.recipient,
+        relayer,
+        transfer.amount,
+        transfer.amountOutMin,
+        transfer.deadline,
+        defaultRelayerFee,
+        l2ChainId
+      )
+
+      await executeL2BridgeSend(l2_hopBridgeToken, l2_bridge, l2Transfer)
+
+      // Bond withdrawal on other L2
+      const actualTransferAmount: BigNumber = l2Transfer.amount
+      await executeL2BridgeBondWithdrawalAndDistribute(
+        l2_bridge,
+        l22_hopBridgeToken,
+        l22_bridge,
+        l22_canonicalToken,
+        l22_uniswapRouter,
+        l2Transfer,
+        bonder,
+        actualTransferAmount
+      )
+
+      await expect(
+        executeL2BridgeBondWithdrawalAndDistribute(
+          l2_bridge,
+          l22_hopBridgeToken,
+          l22_bridge,
+          l22_canonicalToken,
+          l22_uniswapRouter,
+          l2Transfer,
+          otherUser,
+          actualTransferAmount
+        )
+      ).to.be.revertedWith(expectedErrorMsg)
     })
   })
 
@@ -953,7 +1147,28 @@ describe('L2_Bridge', () => {
     })
 
     it('Should allow a send with an amount equal to the bonder fee', async () => {
-      // TODO
+      await executeL1BridgeSendToL2(
+        l1_canonicalToken,
+        l1_bridge,
+        l2_hopBridgeToken,
+        l2_canonicalToken,
+        l2_messenger,
+        l2_uniswapRouter,
+        transfer.sender,
+        transfer.recipient,
+        relayer,
+        transfer.amount.mul(2),
+        transfer.amountOutMin,
+        transfer.deadline,
+        defaultRelayerFee,
+        l2ChainId
+      )
+
+      const customTransfer: Transfer = new Transfer(transfer)
+      customTransfer.bonderFee = customTransfer.amount
+
+      console.log
+      await executeL2BridgeSend(l2_hopBridgeToken, l2_bridge, customTransfer)
     })
   })
 })
