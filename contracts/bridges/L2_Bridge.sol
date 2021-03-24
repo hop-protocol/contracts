@@ -9,7 +9,7 @@ import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import "./Bridge.sol";
 import "./HopBridgeToken.sol";
 import "../libraries/MerkleUtils.sol";
-import "./L2_UniswapWrapper.sol";
+import "./L2_AmmWrapper.sol";
 
 /**
  * @dev The L2_Bridge is responsible for aggregating pending Transfers into TransferRoots. Each newly
@@ -24,7 +24,7 @@ abstract contract L2_Bridge is Bridge {
     HopBridgeToken public hToken;
     address public l1BridgeAddress;
     address public l1MessengerWrapperAddress;
-    L2_UniswapWrapper public uniswapWrapper;
+    L2_AmmWrapper public ammWrapper;
     IERC20 public l2CanonicalToken;
     mapping(uint256 => bool) public supportedChainIds;
     uint256 public minimumForceCommitDelay = 4 hours;
@@ -270,8 +270,8 @@ abstract contract L2_Bridge is Bridge {
             hToken.mint(recipient, amountAfterFee);
         } else {
             hToken.mint(address(this), amountAfterFee);
-            hToken.approve(address(uniswapWrapper), amountAfterFee);
-            uniswapWrapper.attemptSwap(recipient, amountAfterFee, amountOutMin, deadline);
+            hToken.approve(address(ammWrapper), amountAfterFee);
+            ammWrapper.attemptSwap(recipient, amountAfterFee, amountOutMin, deadline);
         }
     }
 
@@ -291,8 +291,8 @@ abstract contract L2_Bridge is Bridge {
 
     /* ========== External Config Management Functions ========== */
 
-    function setUniswapWrapper(L2_UniswapWrapper _uniswapWrapper) external onlyGovernance {
-        uniswapWrapper = _uniswapWrapper;
+    function setAmmWrapper(L2_AmmWrapper _ammWrapper) external onlyGovernance {
+        ammWrapper = _ammWrapper;
     }
 
     function setL1BridgeAddress(address _l1BridgeAddress) external onlyGovernance {

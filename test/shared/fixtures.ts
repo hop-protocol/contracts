@@ -67,15 +67,32 @@ export async function fixture (
   const L2_Messenger = await ethers.getContractFactory(
     'contracts/test/Mock_L2_Messenger.sol:Mock_L2_Messenger'
   )
-  const L2_UniswapRouter = await ethers.getContractFactory(
-    'contracts/uniswap/UniswapV2Router02.sol:UniswapV2Router02'
+
+  const MathUtils = await ethers.getContractFactory('MathUtils')
+  const mathUtils = await MathUtils.deploy()
+  await mathUtils.deployed()
+
+  const SwapUtils = await ethers.getContractFactory(
+    'SwapUtils',
+    {
+      libraries: {
+        'MathUtils': mathUtils.address
+      }
+    }
   )
-  const L2_UniswapFactory = await ethers.getContractFactory(
-    '@uniswap/v2-core/contracts/UniswapV2Factory.sol:UniswapV2Factory'
+  const swapUtils = await SwapUtils.deploy()
+  await swapUtils.deployed()
+
+  const L2_Swap = await ethers.getContractFactory(
+    'Swap',
+    {
+      libraries: {
+        'SwapUtils': swapUtils.address
+      }
+    }
   )
-  const L2_UniswapWrapper = await ethers.getContractFactory(
-    'contracts/bridges/L2_UniswapWrapper.sol:L2_UniswapWrapper'
-  )
+
+  const L2_AmmWrapper = await ethers.getContractFactory('L2_AmmWrapper')
 
   // Mock Factories
   const MockERC20 = await ethers.getContractFactory(
@@ -110,16 +127,6 @@ export async function fixture (
   const l1_canonicalBridge = await L1_CanonicalBridge.deploy(
     l1_canonicalToken.address,
     l1_messenger.address
-  )
-
-  // Deploy Uniswap contracts
-  const weth = await MockERC20.deploy('WETH', 'WETH')
-  const l2_uniswapFactory = await L2_UniswapFactory.deploy(
-    await user.getAddress()
-  )
-  const l2_uniswapRouter = await L2_UniswapRouter.deploy(
-    l2_uniswapFactory.address,
-    weth.address
   )
 
   // Deploy Hop L1 contracts
@@ -165,15 +172,27 @@ export async function fixture (
     ...messengerWrapperDefaults
   )
 
-  // Deploy Uniswap Wrapper
+  // Deploy AMM contracts
+  const l2_swap = await L2_Swap.deploy()
+  await l2_swap.initialize(
+    [l2_canonicalToken.address, l2_hopBridgeToken.address],
+    ['18', '18'],
+    'Hop DAI LP Token',
+    'HOP-LP-DAI',
+    '200',
+    '4000000',
+    '0',
+    '0'
+  )
+
   const l2CanonicalTokenName = await l2_canonicalToken.symbol()
   const l2CanonicalTokenIsEth: boolean = l2CanonicalTokenName === 'WETH'
-  const l2_uniswapWrapper = await L2_UniswapWrapper.deploy(
+  const l2_ammWrapper = await L2_AmmWrapper.deploy(
     l2_bridge.address,
     l2_canonicalToken.address,
     l2CanonicalTokenIsEth,
     l2_hopBridgeToken.address,
-    l2_uniswapRouter.address
+    l2_swap.address
   )
 
   // Mocks
@@ -240,9 +259,8 @@ export async function fixture (
     L1_MessengerWrapper,
     L1_Messenger,
     L2_Messenger,
-    L2_UniswapRouter,
-    L2_UniswapFactory,
-    L2_UniswapWrapper,
+    L2_Swap,
+    L2_AmmWrapper,
     MockAccounting,
     MockBridge,
     l1_canonicalToken,
@@ -254,9 +272,8 @@ export async function fixture (
     l2_hopBridgeToken,
     l2_bridge,
     l2_canonicalToken,
-    l2_uniswapFactory,
-    l2_uniswapRouter,
-    l2_uniswapWrapper,
+    l2_swap,
+    l2_ammWrapper,
     mockAccounting,
     mockBridge,
     transfers

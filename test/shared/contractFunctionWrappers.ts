@@ -87,7 +87,7 @@ export const executeL1BridgeSendToL2 = async (
   l2_hopBridgeToken: Contract,
   l2_canonicalToken: Contract,
   l2_messenger: Contract,
-  l2_uniswapRouter: Contract,
+  l2_swap: Contract,
   sender: Signer,
   recipient: Signer,
   relayer: Signer,
@@ -98,15 +98,10 @@ export const executeL1BridgeSendToL2 = async (
   l2ChainId: BigNumber
 ) => {
   // Get state before transaction
-  // The test suite setup might not have defined the Uniswap Router yet
+  // The test suite setup might not have defined the Amm Router yet
   let expectedAmountAfterSlippage: BigNumber
   if (!amountOutMin.eq(0) || !deadline.eq(0)) {
-    const expectedAmounts: BigNumber[] = await l2_uniswapRouter.getAmountsOut(
-      amount,
-      [l2_canonicalToken.address, l2_hopBridgeToken.address]
-    )
-
-    expectedAmountAfterSlippage = expectedAmounts[1]
+    expectedAmountAfterSlippage = await l2_swap.calculateSwap('0', '1', amount)
   }
 
   const senderL1CanonicalTokenBalanceBefore: BigNumber = await l1_canonicalToken.balanceOf(
@@ -820,25 +815,21 @@ export const executeL2BridgeSwapAndSend = async (
   l2_bridge: Contract,
   l2_canonicalToken: Contract,
   l2_hopBridgeToken: Contract,
-  l2_uniswapRouter: Contract,
-  l2_uniswapWrapper: Contract,
+  l2_swap: Contract,
+  l2_ammWrapper: Contract,
   transfer: Transfer
 ) => {
   // Get state before transaction
   const senderBalanceBefore: BigNumber = await l2_canonicalToken.balanceOf(
     await transfer.sender.getAddress()
   )
-  const expectedAmounts: BigNumber[] = await l2_uniswapRouter.getAmountsOut(
-    transfer.amount,
-    [l2_canonicalToken.address, l2_hopBridgeToken.address]
-  )
-  const expectedAmountAfterSlippage: BigNumber = expectedAmounts[1]
+  const expectedAmountAfterSlippage: BigNumber = await l2_swap.calculateSwap('0', '1', transfer.amount)
 
   // Perform transaction
   await l2_canonicalToken
     .connect(transfer.sender)
-    .approve(l2_uniswapWrapper.address, transfer.amount)
-  await l2_uniswapWrapper
+    .approve(l2_ammWrapper.address, transfer.amount)
+  await l2_ammWrapper
     .connect(transfer.sender)
     .swapAndSend(
       transfer.chainId,
@@ -981,7 +972,7 @@ export const executeL2BridgeBondWithdrawalAndDistribute = async (
   l2_hopBridgeToken: Contract,
   l2_bridge: Contract,
   l2_canonicalToken: Contract,
-  l2_uniswapRouter: Contract,
+  l2_swap: Contract,
   transfer: Transfer,
   bonder: Signer,
   actualTransferAmount: BigNumber,
@@ -999,12 +990,11 @@ export const executeL2BridgeBondWithdrawalAndDistribute = async (
     await transfer.recipient.getAddress()
   )
 
-  const expectedAmountsRecipientBridge: BigNumber[] = await l2_uniswapRouter.getAmountsOut(
-    actualTransferAmount.sub(transfer.bonderFee),
-    [l2_hopBridgeToken.address, l2_canonicalToken.address]
+  const expectedRecipientAmountAfterSlippage: BigNumber = await l2_swap.calculateSwap(
+    '0',
+    '1',
+    actualTransferAmount.sub(transfer.bonderFee)
   )
-  const expectedRecipientAmountAfterSlippage: BigNumber =
-    expectedAmountsRecipientBridge[1]
 
   // Perform transaction
   await l2_bridge
@@ -1086,13 +1076,13 @@ export const getSetL1MessengerWrapperAddressMessage = (
   ])
 }
 
-export const getSetUniswapWrapperAddressMessage = (
-  l2_uniswapWrapper: Contract | string
+export const getSetAmmWrapperAddressMessage = (
+  l2_ammWrapper: Contract | string
 ) => {
-  const address = getAddressFromContractOrString(l2_uniswapWrapper)
-  const ABI = ['function setUniswapWrapper(address _uniswapWrapper)']
+  const address = getAddressFromContractOrString(l2_ammWrapper)
+  const ABI = ['function setAmmWrapper(address _ammWrapper)']
   const ethersInterface = new ethersUtils.Interface(ABI)
-  return ethersInterface.encodeFunctionData('setUniswapWrapper', [address])
+  return ethersInterface.encodeFunctionData('setAmmWrapper', [address])
 }
 
 export const getSetMessengerGasLimitMessage = (

@@ -50,7 +50,7 @@ export const USER_INITIAL_BALANCE: BigNumber = BigNumber.from(parseEther('10'))
 export const LIQUIDITY_PROVIDER_INITIAL_BALANCE: BigNumber = BigNumber.from(
   parseEther('1000')
 )
-export const LIQUIDITY_PROVIDER_UNISWAP_AMOUNT: BigNumber = LIQUIDITY_PROVIDER_INITIAL_BALANCE.div(
+export const LIQUIDITY_PROVIDER_AMM_AMOUNT: BigNumber = LIQUIDITY_PROVIDER_INITIAL_BALANCE.div(
   2
 )
 export const BONDER_INITIAL_BALANCE: BigNumber = BigNumber.from(
@@ -65,7 +65,7 @@ export const TRANSFER_AMOUNT: BigNumber = BigNumber.from(parseEther('5'))
 export const DEFAULT_BONDER_FEE: BigNumber = BigNumber.from(parseEther('1'))
 export const DEFAULT_RELAYER_FEE: BigNumber = BigNumber.from(parseEther('0'))
 
-export const UNISWAP_LP_MINIMUM_LIQUIDITY: BigNumber = BigNumber.from('1000')
+export const AMM_LP_MINIMUM_LIQUIDITY: BigNumber = BigNumber.from('1000')
 
 export const DEFAULT_H_BRIDGE_TOKEN_NAME = 'DAI Hop Token'
 export const DEFAULT_H_BRIDGE_TOKEN_SYMBOL = 'hDAI'
