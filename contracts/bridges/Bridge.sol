@@ -36,10 +36,7 @@ abstract contract Bridge is Accounting {
 
     event WithdrawalBonded(
         bytes32 indexed transferId,
-        address indexed recipient,
-        uint256 amount,
-        bytes32 transferNonce,
-        uint256 bonderFee
+        uint256 amount
     );
 
     event WithdrawalBondSettled(
@@ -235,8 +232,6 @@ abstract contract Bridge is Accounting {
 
         _bondWithdrawal(transferId, amount);
         _fulfillWithdraw(transferId, recipient, amount, bonderFee);
-
-        emit WithdrawalBonded(transferId, recipient, amount, transferNonce, bonderFee);
     }
 
     /**
@@ -351,6 +346,8 @@ abstract contract Bridge is Accounting {
         require(_bondedWithdrawalAmounts[msg.sender][transferId] == 0, "BRG: Withdrawal has already been bonded");
         _addDebit(msg.sender, amount);
         _bondedWithdrawalAmounts[msg.sender][transferId] = amount;
+
+        emit WithdrawalBonded(transferId, amount);
     }
 
     /* ========== Private Functions ========== */
