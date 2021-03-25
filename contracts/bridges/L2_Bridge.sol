@@ -223,8 +223,6 @@ abstract contract L2_Bridge is Bridge {
         _bondWithdrawal(transferId, amount);
         _markTransferSpent(transferId);
         _distribute(recipient, amount, amountOutMin, deadline, bonderFee);
-
-        emit WithdrawalBonded(transferId, recipient, amount, transferNonce, bonderFee);
     }
 
     /**
