@@ -17,8 +17,7 @@ contract Mock_L2_XDaiBridge is L2_XDaiBridge {
         address l1BridgeAddress,
         uint256[] memory supportedChainIds,
         address[] memory bonders,
-        uint256 l1ChainId,
-        address ambBridge
+        uint256 l1ChainId
     )
         public
         L2_XDaiBridge(
@@ -29,8 +28,7 @@ contract Mock_L2_XDaiBridge is L2_XDaiBridge {
             l1BridgeAddress,
             supportedChainIds,
             bonders,
-            l1ChainId,
-            ambBridge
+            l1ChainId
         )
     {
         chainId = _chainId;

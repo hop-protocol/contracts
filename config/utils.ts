@@ -67,9 +67,7 @@ export const getL2BridgeDefaults = (
     const defaultGasLimit = DEFAULT_MESSENGER_WRAPPER_GAS_LIMIT
     additionalData.push(defaultGasLimit)
   } else if (isChainIdXDai(chainId)) {
-    const isAmbL1: boolean = false
-    const ambAddress: string = getXDaiAmbAddresses(isAmbL1)
-    additionalData.push(l1ChainId, ambAddress)
+    additionalData.push(l1ChainId)
   }
 
   defaults.push(
