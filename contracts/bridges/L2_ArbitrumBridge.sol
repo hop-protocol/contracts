@@ -46,4 +46,12 @@ contract L2_ArbitrumBridge is L2_Bridge {
         // ToDo: verify sender with Arbitrum L2 messenger
         // sender should be l1BridgeAddress
     }
+
+    /**
+     * @dev Allows the L1 Bridge to set the messenger
+     * @param _messenger The new messenger address
+     */
+    function setMessenger(IArbSys _messenger) external onlyL1Bridge {
+        messenger = _messenger;
+    }
 }

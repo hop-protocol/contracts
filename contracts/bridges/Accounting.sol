@@ -127,10 +127,10 @@ abstract contract Accounting {
     }
 
     /**
-     * @dev Allows the bonder to withdraw any available balance and add to its debit balance
+     * @dev Allows the caller to withdraw any available balance and add to their debit balance
      * @param amount The amount being staked
      */
-    function unstake(uint256 amount) external requirePositiveBalance onlyBonder {
+    function unstake(uint256 amount) external requirePositiveBalance {
         _addDebit(msg.sender, amount);
         _transferFromBridge(msg.sender, amount);
     }

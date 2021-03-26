@@ -39,8 +39,7 @@ abstract contract L1_Bridge is Bridge {
     uint256 public timeSlotSize = 3 hours;
     uint256 public challengePeriod = 1 days;
     uint256 public challengeResolutionPeriod = 10 days;
-
-    uint256 constant MIN_TRANSFER_ROOT_BOND_DELAY = 15 minutes;
+    uint256 public minTransferRootBondDelay = 15 minutes;
 
     /* ========== Events ========== */
 
@@ -297,7 +296,7 @@ abstract contract L1_Bridge is Bridge {
                 // that Bonders are not punished if a TransferRoot is bonded too soon in error.
 
                 // Return the challenger's stake
-                _transferFromBridge(transferBond.challenger, challengeStakeAmount);
+                _addCredit(transferBond.challenger, challengeStakeAmount);
                 // Credit the bonder back with the bond amount
                 _addCredit(transferBond.bonder, getBondForTransferAmount(originalAmount));
             }
@@ -306,7 +305,7 @@ abstract contract L1_Bridge is Bridge {
             // Burn 25% of the challengers stake
             _transferFromBridge(address(0xdead), challengeStakeAmount.mul(1).div(4));
             // Reward challenger with the remaining 75% of their stake plus 100% of the Bonder's stake
-            _transferFromBridge(transferBond.challenger, challengeStakeAmount.mul(7).div(4));
+            _addCredit(transferBond.challenger, challengeStakeAmount.mul(7).div(4));
         }
 
         emit ChallengeResolved(transferRootId, rootHash, originalAmount);
@@ -361,6 +360,10 @@ abstract contract L1_Bridge is Bridge {
 
     function setChallengeResolutionPeriod(uint256 _challengeResolutionPeriod) external onlyGovernance {
         challengeResolutionPeriod = _challengeResolutionPeriod;
+    }
+
+    function setMinTransferRootBondDelay(uint256 _minTransferRootBondDelay) external onlyGovernance {
+        minTransferRootBondDelay = _minTransferRootBondDelay;
     }
 
     /* ========== Public Getters ========== */

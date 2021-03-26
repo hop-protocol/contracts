@@ -51,4 +51,20 @@ contract L2_OptimismBridge is L2_Bridge {
         // Verify that cross-domain sender is expectedSender
         require(messenger.xDomainMessageSender() == expectedSender, "L2_OVM_BRG: Invalid cross-domain sender");
     }
+
+    /**
+     * @dev Allows the L1 Bridge to set the messenger
+     * @param _messenger The new messenger address
+     */
+    function setMessenger(iOVM_L2CrossDomainMessenger _messenger) external onlyL1Bridge {
+        messenger = _messenger;
+    }
+
+    /**
+     * @dev Allows the L1 Bridge to set the default gas limit
+     * @param _defaultGasLimit The new default gas limit
+     */
+    function setDefaultGasLimit(uint32 _defaultGasLimit) external onlyL1Bridge {
+        defaultGasLimit = _defaultGasLimit;
+    }
 }

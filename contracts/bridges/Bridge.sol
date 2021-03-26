@@ -256,8 +256,9 @@ abstract contract Bridge is Accounting {
         bytes32 transferRootId = getTransferRootId(rootHash, transferRootTotalAmount);
 
         uint256 amount = _bondedWithdrawalAmounts[bonder][transferId];
-        _bondedWithdrawalAmounts[bonder][transferId] = 0;
+        require(amount > 0, "L2_BRG: transferId has no bond");
 
+        _bondedWithdrawalAmounts[bonder][transferId] = 0;
         _addToAmountWithdrawn(transferRootId, amount);
         _addCredit(bonder, amount);
 
@@ -277,14 +278,22 @@ abstract contract Bridge is Accounting {
     )
         external
     {
-        bytes32 rootHash = MerkleUtils.getMerkleRoot(transferIds);
+        // Make deep copy of transferIds because getMerkleRoot will mutate it
+        bytes32[] memory leaves = new bytes32[](transferIds.length);
+        for (uint256 i = 0; i < transferIds.length; i++) {
+            leaves[i] = transferIds[i];
+        }
+
+        bytes32 rootHash = MerkleUtils.getMerkleRoot(leaves);
         bytes32 transferRootId = getTransferRootId(rootHash, totalAmount);
 
         uint256 totalBondsSettled = 0;
         for(uint256 i = 0; i < transferIds.length; i++) {
             uint256 transferBondAmount = _bondedWithdrawalAmounts[bonder][transferIds[i]];
-            totalBondsSettled = totalBondsSettled.add(transferBondAmount);
-            _bondedWithdrawalAmounts[bonder][transferIds[i]] = 0;
+            if (transferBondAmount > 0) {
+                totalBondsSettled = totalBondsSettled.add(transferBondAmount);
+                _bondedWithdrawalAmounts[bonder][transferIds[i]] = 0;
+            }
         }
 
         _addToAmountWithdrawn(transferRootId, totalBondsSettled);

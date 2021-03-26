@@ -217,16 +217,6 @@ describe('Accounting', () => {
     ).to.be.revertedWith(expectedErrorMsg)
   })
 
-  it('Should not allow someone outside of the bonder to unstake', async () => {
-    const expectedErrorMsg: string = 'ACT: Caller is not bonder'
-    const stakeAmount: BigNumber = BigNumber.from(10)
-
-    await mockAccounting.stake(await bonder.getAddress(), stakeAmount)
-    await expect(mockAccounting.unstake(stakeAmount)).to.be.revertedWith(
-      expectedErrorMsg
-    )
-  })
-
   it('Should not allow someone to stake on a non-bonder address', async () => {
     const expectedErrorMsg: string =
       'VM Exception while processing transaction: revert ACT: Address is not bonder'

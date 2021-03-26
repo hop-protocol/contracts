@@ -659,6 +659,8 @@ export const executeL1BridgeResolveChallenge = async (
     let expectedCredit: BigNumber = creditBefore.add(bondAmount)
     if (didBonderWaitMinTransferRootTime) {
       expectedCredit = expectedCredit.add(challengeAmount)
+    } else {
+      await l1_bridge.connect(challenger).unstake(challengeAmount)
     }
     expect(creditAfter).to.eq(expectedCredit)
   } else {
@@ -677,11 +679,12 @@ export const executeL1BridgeResolveChallenge = async (
         .toString()
     )
 
+    const expectedChallengerBalance = challengeAmount.mul(7).div(4)
+    await l1_bridge.connect(challenger).unstake(expectedChallengerBalance)
+
     // Challenger should have tokens
     // NOTE: the challenge amount is subtracted to mimic the amount sent to the contract during the challenge
-    const expectedChallengerTokenAmount: BigNumber = challengerBalanceBefore.add(
-      challengeAmount.mul(7).div(4)
-    )
+    const expectedChallengerTokenAmount: BigNumber = challengerBalanceBefore.add(expectedChallengerBalance)
     await expectBalanceOf(
       l1_canonicalToken,
       challenger,
