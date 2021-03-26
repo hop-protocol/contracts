@@ -181,7 +181,7 @@ abstract contract Bridge is Accounting {
         uint256 deadline,
         bytes32 rootHash,
         uint256 transferRootTotalAmount,
-        bytes32[] memory proof
+        bytes32[] calldata proof
     )
         external
     {
@@ -248,7 +248,7 @@ abstract contract Bridge is Accounting {
         bytes32 transferId,
         bytes32 rootHash,
         uint256 transferRootTotalAmount,
-        bytes32[] memory proof
+        bytes32[] calldata proof
     )
         external
     {
