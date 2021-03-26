@@ -256,8 +256,9 @@ abstract contract Bridge is Accounting {
         bytes32 transferRootId = getTransferRootId(rootHash, transferRootTotalAmount);
 
         uint256 amount = _bondedWithdrawalAmounts[bonder][transferId];
-        _bondedWithdrawalAmounts[bonder][transferId] = 0;
+        require(amount > 0, "L2_BRG: transferId has no bond");
 
+        _bondedWithdrawalAmounts[bonder][transferId] = 0;
         _addToAmountWithdrawn(transferRootId, amount);
         _addCredit(bonder, amount);
 
@@ -289,8 +290,10 @@ abstract contract Bridge is Accounting {
         uint256 totalBondsSettled = 0;
         for(uint256 i = 0; i < transferIds.length; i++) {
             uint256 transferBondAmount = _bondedWithdrawalAmounts[bonder][transferIds[i]];
-            totalBondsSettled = totalBondsSettled.add(transferBondAmount);
-            _bondedWithdrawalAmounts[bonder][transferIds[i]] = 0;
+            if (transferBondAmount > 0) {
+                totalBondsSettled = totalBondsSettled.add(transferBondAmount);
+                _bondedWithdrawalAmounts[bonder][transferIds[i]] = 0;
+            }
         }
 
         _addToAmountWithdrawn(transferRootId, totalBondsSettled);
