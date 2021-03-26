@@ -524,6 +524,18 @@ describe('L1_Bridge', () => {
       expect(challengeResolutionPeriod).to.eq(expectedChallengeResolutionPeriod)
     })
 
+    it('Should set a new min TransferRoot bond delay', async () => {
+      const expectedMinTransferRootBondDelay: BigNumber = BigNumber.from(
+        '13371337'
+      )
+      await l1_bridge.setMinTransferRootBondDelay(
+        expectedMinTransferRootBondDelay
+      )
+
+      const minTransferRootBondDelay: BigNumber = await l1_bridge.minTransferRootBondDelay()
+      expect(minTransferRootBondDelay).to.eq(expectedMinTransferRootBondDelay)
+    })
+
     it('Should get the bond for a transfer amount', async () => {
       let expectedBond: BigNumber = BigNumber.from('135')
       let transferAmount: BigNumber = BigNumber.from('123')
@@ -1428,7 +1440,7 @@ describe('L1_Bridge', () => {
       )
     })
 
-    it('Should send a transaction from L2 to L2, commit the bond, wait the min time then bond, challenge the transfer bond, and resolve unsuccessfully', async () => {
+    it.skip('Should send a transaction from L2 to L2, commit the bond, wait the min time then bond, challenge the transfer bond, and resolve unsuccessfully', async () => {
       await executeL1BridgeSendToL2(
         l1_canonicalToken,
         l1_bridge,
@@ -2116,6 +2128,58 @@ describe('L1_Bridge', () => {
       ).to.be.revertedWith(expectedErrorMsg)
     })
 
+    it('Should settle a bonded withdrawal with an arbitrary bonder address but not update any relevant state. Should then let the actual bonder settle.', async () => {
+      const expectedErrorMsg: string = 'L2_BRG: transferId has no bond'
+
+      await executeL1BridgeSendToL2(
+        l1_canonicalToken,
+        l1_bridge,
+        l2_hopBridgeToken,
+        l2_canonicalToken,
+        l2_messenger,
+        l2_swap,
+        transfer.sender,
+        transfer.recipient,
+        relayer,
+        transfer.amount,
+        transfer.amountOutMin,
+        transfer.deadline,
+        defaultRelayerFee,
+        l2ChainId
+      )
+
+      await executeL2BridgeSend(l2_hopBridgeToken, l2_bridge, transfer)
+
+      await executeBridgeBondWithdrawal(
+        l1_canonicalToken,
+        l1_bridge,
+        l2_bridge,
+        transfer,
+        bonder
+      )
+
+      await executeL2BridgeCommitTransfers(l2_bridge, [transfer], bonder)
+
+      await l1_messenger.relayNextMessage()
+
+      const transferNonce = await getTransferNonceFromEvent(l2_bridge)
+      const transferId: Buffer = await transfer.getTransferId(transferNonce)
+      const { rootHash } = getRootHashFromTransferId(transferId)
+      const tree: MerkleTree = new MerkleTree([transferId])
+      const proof: Buffer[] = tree.getProof(transferId)
+
+      await expect(
+        l1_bridge
+          .connect(bonder)
+          .settleBondedWithdrawal(
+            await otherUser.getAddress(),
+            transferId,
+            rootHash,
+            transfer.amount,
+            proof
+          )
+      ).to.be.revertedWith(expectedErrorMsg)
+    })
   })
 
   describe('settleBondedWithdrawals', async () => {
@@ -3353,79 +3417,7 @@ describe('L1_Bridge', () => {
       expect(timeSlot).to.eq(expectedTimeSlot)
     })
 
-    it('Should settle a bonded withdrawal with an arbitrary bonder address but not update any relevant state. Should then let the actual bonder settle.', async () => {
-      await executeL1BridgeSendToL2(
-        l1_canonicalToken,
-        l1_bridge,
-        l2_hopBridgeToken,
-        l2_canonicalToken,
-        l2_messenger,
-        l2_swap,
-        transfer.sender,
-        transfer.recipient,
-        relayer,
-        transfer.amount,
-        transfer.amountOutMin,
-        transfer.deadline,
-        defaultRelayerFee,
-        l2ChainId
-      )
-
-      await executeL2BridgeSend(l2_hopBridgeToken, l2_bridge, transfer)
-
-      await executeBridgeBondWithdrawal(
-        l1_canonicalToken,
-        l1_bridge,
-        l2_bridge,
-        transfer,
-        bonder
-      )
-
-      await executeL2BridgeCommitTransfers(l2_bridge, [transfer], bonder)
-
-      await l1_messenger.relayNextMessage()
-
-      const transferNonce = await getTransferNonceFromEvent(l2_bridge)
-      const transferId: Buffer = await transfer.getTransferId(transferNonce)
-      const { rootHash } = getRootHashFromTransferId(transferId)
-      const tree: MerkleTree = new MerkleTree([transferId])
-      const proof: Buffer[] = tree.getProof(transferId)
-
-      const bonderCreditBefore = await l1_bridge.getCredit(await bonder.getAddress())
-
-      // Send tx with arbitrary bonder address
-      await l1_bridge
-        .connect(bonder)
-        .settleBondedWithdrawal(
-          await otherUser.getAddress(),
-          transferId,
-          rootHash,
-          transfer.amount,
-          proof
-        )
-
-      const currentTime: number = Math.floor(Date.now() / 1000)
-      const transferRoot: number = await l1_bridge.getTransferRoot(
-        rootHash,
-        transfer.amount
-      )
-      const credit = await l1_bridge.getCredit(await bonder.getAddress())
-      expect(transferRoot[0]).to.eq(transfer.amount)
-      expect(transferRoot[1]).to.eq(BigNumber.from('0'))
-      expect(transferRoot[2].toNumber()).to.be.closeTo(
-        currentTime,
-        TIMESTAMP_VARIANCE
-      )
-      expect(credit).to.eq(bonderCreditBefore)
-
-      // Send expected tx
-      await executeBridgeSettleBondedWithdrawal(
-        l1_bridge,
-        l2_bridge,
-        transfer,
-        bonder
-      )
-    })
+    // TODO: 3 other cases
 
     it.skip('Should settle bonded withdrawals with an arbitrary bonder address  but not update any relevant state. Should then let the actual bonder settle.', async () => {
       await executeL1BridgeSendToL2(
