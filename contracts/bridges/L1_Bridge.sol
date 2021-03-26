@@ -286,7 +286,7 @@ abstract contract L1_Bridge is Bridge {
         if (transferRootCommittedAt[transferRootId] > 0) {
             // Invalid challenge
 
-            if (transferBond.createdAt > transferRootCommittedAt[transferRootId].add(MIN_TRANSFER_ROOT_BOND_DELAY)) {
+            if (transferBond.createdAt > transferRootCommittedAt[transferRootId].add(minTransferRootBondDelay)) {
                 // Credit the bonder back with the bond amount plus the challenger's stake
                 _addCredit(transferBond.bonder, getBondForTransferAmount(originalAmount).add(challengeStakeAmount));
             } else {
