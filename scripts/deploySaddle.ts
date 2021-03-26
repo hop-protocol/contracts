@@ -15,7 +15,7 @@ async function main() {
     "SwapUtils",
     {
       libraries: {
-        'MathUtils.ovm': mathUtils.address
+        'MathUtils-ovm': mathUtils.address
       }
     }
   )
@@ -29,7 +29,7 @@ async function main() {
     "Swap",
     {
       libraries: {
-        'SwapUtils.ovm': swapUtils.address
+        'SwapUtils-ovm': swapUtils.address
       }
     }
   )
