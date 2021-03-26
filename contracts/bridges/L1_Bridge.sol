@@ -39,8 +39,7 @@ abstract contract L1_Bridge is Bridge {
     uint256 public timeSlotSize = 3 hours;
     uint256 public challengePeriod = 1 days;
     uint256 public challengeResolutionPeriod = 10 days;
-
-    uint256 constant MIN_TRANSFER_ROOT_BOND_DELAY = 15 minutes;
+    uint256 public minTransferRootBondDelay = 15 minutes;
 
     /* ========== Events ========== */
 
@@ -361,6 +360,10 @@ abstract contract L1_Bridge is Bridge {
 
     function setChallengeResolutionPeriod(uint256 _challengeResolutionPeriod) external onlyGovernance {
         challengeResolutionPeriod = _challengeResolutionPeriod;
+    }
+
+    function setMinTransferRootBondDelay(uint256 _minTransferRootBondDelay) external onlyGovernance {
+        minTransferRootBondDelay = _minTransferRootBondDelay;
     }
 
     /* ========== Public Getters ========== */
