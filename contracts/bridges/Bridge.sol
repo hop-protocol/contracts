@@ -273,18 +273,13 @@ abstract contract Bridge is Accounting {
      */
     function settleBondedWithdrawals(
         address bonder,
-        bytes32[] memory transferIds,
+        // transferIds _must_ be calldata or it will be mutated by MerkleUtils.getMerkleRoot
+        bytes32[] calldata transferIds,
         uint256 totalAmount
     )
         external
     {
-        // Make deep copy of transferIds because getMerkleRoot will mutate it
-        bytes32[] memory leaves = new bytes32[](transferIds.length);
-        for (uint256 i = 0; i < transferIds.length; i++) {
-            leaves[i] = transferIds[i];
-        }
-
-        bytes32 rootHash = MerkleUtils.getMerkleRoot(leaves);
+        bytes32 rootHash = MerkleUtils.getMerkleRoot(transferIds);
         bytes32 transferRootId = getTransferRootId(rootHash, totalAmount);
 
         uint256 totalBondsSettled = 0;
