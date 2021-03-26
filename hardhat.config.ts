@@ -53,6 +53,9 @@ export default {
       chainId: CHAIN_IDS.XDAI.SOKOL.toNumber()
     }
   },
+  ovm: {
+    solcVersion: '0.6.12'
+  },
   solidity: {
     compilers: [
       {

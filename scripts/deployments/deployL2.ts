@@ -193,7 +193,7 @@ const deployAmm = async (
   l2_chainId: BigNumber,
   l2_canonicalToken: Contract,
   l2_hopBridgeToken: Contract,
-  L2_Swap: ContractFactory,
+  L2_Swap: ContractFactory
 ) => {
 
   let decimalParams: any[] = []
