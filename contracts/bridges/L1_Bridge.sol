@@ -297,7 +297,7 @@ abstract contract L1_Bridge is Bridge {
                 // that Bonders are not punished if a TransferRoot is bonded too soon in error.
 
                 // Return the challenger's stake
-                _transferFromBridge(transferBond.challenger, challengeStakeAmount);
+                _addCredit(transferBond.challenger, challengeStakeAmount);
                 // Credit the bonder back with the bond amount
                 _addCredit(transferBond.bonder, getBondForTransferAmount(originalAmount));
             }
@@ -306,7 +306,7 @@ abstract contract L1_Bridge is Bridge {
             // Burn 25% of the challengers stake
             _transferFromBridge(address(0xdead), challengeStakeAmount.mul(1).div(4));
             // Reward challenger with the remaining 75% of their stake plus 100% of the Bonder's stake
-            _transferFromBridge(transferBond.challenger, challengeStakeAmount.mul(7).div(4));
+            _addCredit(transferBond.challenger, challengeStakeAmount.mul(7).div(4));
         }
 
         emit ChallengeResolved(transferRootId, rootHash, originalAmount);
