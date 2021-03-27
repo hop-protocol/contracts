@@ -543,12 +543,16 @@ describe('L2_Bridge', () => {
         expectedTransferIndex
       )
 
-      await executeL2BridgeCommitTransfers(l2_bridge, [customTransfer], bonder)
+      await executeL2BridgeCommitTransfers(
+        l2_bridge,
+        [customTransfer],
+        bonder
+      )
 
       await executeL2BridgeCommitTransfers(
         l2_bridge,
         [customL2Transfer],
-        bonder,
+        bonder
       )
     })
   })

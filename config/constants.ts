@@ -81,3 +81,6 @@ export const TIMESTAMP_VARIANCE: number = 1000000
 export const DEFAULT_ETHERS_OVERRIDES = {
   gasLimit: 2500000
 }
+
+export const H_TO_C_SWAP_INDICES: string[] = ['0', '1']
+export const C_TO_H_SWAP_INDICES: string[] = ['1', '0']

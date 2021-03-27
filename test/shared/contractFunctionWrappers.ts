@@ -20,7 +20,9 @@ import {
 import {
   CHAIN_IDS,
   TIMESTAMP_VARIANCE,
-  DEAD_ADDRESS
+  DEAD_ADDRESS,
+  H_TO_C_SWAP_INDICES,
+  C_TO_H_SWAP_INDICES
 } from '../../config/constants'
 
 /**
@@ -101,7 +103,7 @@ export const executeL1BridgeSendToL2 = async (
   // The test suite setup might not have defined the Amm Router yet
   let expectedAmountAfterSlippage: BigNumber
   if (!amountOutMin.eq(0) || !deadline.eq(0)) {
-    expectedAmountAfterSlippage = await l2_swap.calculateSwap('0', '1', amount)
+    expectedAmountAfterSlippage = await l2_swap.calculateSwap(...H_TO_C_SWAP_INDICES, amount)
   }
 
   const senderL1CanonicalTokenBalanceBefore: BigNumber = await l1_canonicalToken.balanceOf(
@@ -994,15 +996,13 @@ export const executeL2BridgeBondWithdrawalAndDistribute = async (
     await transfer.recipient.getAddress()
   )
 
-  
   const swapAmount: BigNumber = actualTransferAmount.sub(transfer.bonderFee)
   let expectedRecipientAmountAfterSlippage: BigNumber
   if (swapAmount.eq(0)) {
     expectedRecipientAmountAfterSlippage = BigNumber.from('0')
   } else {
     expectedRecipientAmountAfterSlippage = await l2_swap.calculateSwap(
-      '0',
-      '1',
+      ...C_TO_H_SWAP_INDICES,
       swapAmount
     )
   }
