@@ -9,6 +9,7 @@ import {
   setUpDefaults,
   expectBalanceOf,
   getRootHashFromTransferId,
+  getTransferNonce,
   getTransferNonceFromEvent,
   increaseTime,
   revertSnapshot,
@@ -2128,7 +2129,7 @@ describe('L1_Bridge', () => {
       ).to.be.revertedWith(expectedErrorMsg)
     })
 
-    it('Should settle a bonded withdrawal with an arbitrary bonder address but not update any relevant state. Should then let the actual bonder settle.', async () => {
+    it('Should not let an arbitrary bonder settle a bonded withdrawal', async () => {
       const expectedErrorMsg: string = 'L2_BRG: transferId has no bond'
 
       await executeL1BridgeSendToL2(
@@ -2199,6 +2200,86 @@ describe('L1_Bridge', () => {
       ).to.be.revertedWith(expectedErrorMsg)
     })
   })
+
+  describe('withdraw', async () => {
+    it('Should a withdraw with a bad proof', async () => {
+      const invalidProof: string[] = [ARBITRARY_TRANSFER_NONCE]
+      await l1_bridge
+        .connect(bonder)
+        .withdraw(
+          await transfer.recipient.getAddress(),
+          transfer.amount,
+          ARBITRARY_TRANSFER_NONCE,
+          transfer.bonderFee,
+          transfer.amountOutMin,
+          transfer.deadline,
+          ARBITRARY_ROOT_HASH,
+          transfer.amount,
+          invalidProof
+        )
+    })
+
+    it('Should not allow a user to withdraw if the withdrawal exceeds the TransferRoot total', async () => {
+      const expectedErrorMsg: string = 'BRG: Withdrawal exceeds TransferRoot total'
+      await executeL1BridgeSendToL2(
+        l1_canonicalToken,
+        l1_bridge,
+        l2_hopBridgeToken,
+        l2_canonicalToken,
+        l2_messenger,
+        l2_swap,
+        transfer.sender,
+        transfer.recipient,
+        relayer,
+        transfer.amount,
+        transfer.amountOutMin,
+        transfer.deadline,
+        defaultRelayerFee,
+        l2ChainId
+      )
+
+      await executeL2BridgeSend(l2_hopBridgeToken, l2_bridge, transfer)
+      await l2_bridge.connect(bonder).commitTransfers(transfer.chainId)
+
+      // Get the rootHash from the event
+      const transfersCommittedEvent = await l2_bridge.queryFilter(
+        l2_bridge.filters.TransfersCommitted()
+      )
+      const rootHash: string = transfersCommittedEvent[0].args[0]
+
+      // Bond with the same root hash but a lower amount
+      await l1_bridge
+        .connect(bonder)
+        .bondTransferRoot(rootHash, transfer.chainId, transfer.amount.div(2))
+
+      const transferNonce: string = await getTransferNonceFromEvent(l2_bridge)
+      const transferId: Buffer = await transfer.getTransferId(transferNonce)
+      const tree: MerkleTree = new MerkleTree([transferId])
+      const transferRootHash: Buffer = tree.getRoot()
+      const proof: Buffer[] = tree.getProof(transferId)
+
+      const timeToWait: number = 11 * SECONDS_IN_A_DAY
+      await increaseTime(timeToWait)
+      await l1_messenger.relayNextMessage()
+
+      await expect(
+        l1_bridge
+          .connect(bonder)
+          .withdraw(
+            await transfer.recipient.getAddress(),
+            transfer.amount,
+            transferNonce,
+            transfer.bonderFee,
+            transfer.amountOutMin,
+            transfer.deadline,
+            transferRootHash,
+            transfer.amount.div(2),
+            proof
+          )
+      ).to.be.revertedWith(expectedErrorMsg)
+    })
+  })
+
 
   describe('confirmTransferRoot', async () => {
     it.skip('Should not allow a transfer root to be confirmed by anybody except the L2_Bridge', async () => {
@@ -3572,6 +3653,260 @@ describe('L1_Bridge', () => {
         transfer,
         bonder
       )
+    })
+
+    it('Should successfully challenge a bonder that bonds a correct rootHash but incorrect amount', async () => {
+      await executeL1BridgeSendToL2(
+        l1_canonicalToken,
+        l1_bridge,
+        l2_hopBridgeToken,
+        l2_canonicalToken,
+        l2_messenger,
+        l2_swap,
+        transfer.sender,
+        transfer.recipient,
+        relayer,
+        transfer.amount,
+        transfer.amountOutMin,
+        transfer.deadline,
+        defaultRelayerFee,
+        l2ChainId
+      )
+
+      await executeL2BridgeSend(l2_hopBridgeToken, l2_bridge, transfer)
+      await l2_bridge.connect(bonder).commitTransfers(transfer.chainId)
+
+      // Get the rootHash from the event
+      const transfersCommittedEvent = await l2_bridge.queryFilter(
+        l2_bridge.filters.TransfersCommitted()
+      )
+      const rootHash: string = transfersCommittedEvent[0].args[0]
+
+      // Bond with the same root hash but a lower amount
+      const customTransfer: Transfer = new Transfer(transfer)
+      customTransfer.amount = transfer.amount.div(2)
+      await l1_bridge
+        .connect(bonder)
+        .bondTransferRoot(rootHash, transfer.chainId, customTransfer.amount)
+
+      const challengeAmount: BigNumber = await l1_bridge.getChallengeAmountForTransferAmount(
+        customTransfer.amount
+      )
+      await l1_canonicalToken
+        .connect(challenger)
+        .approve(l1_bridge.address, challengeAmount)
+      await l1_bridge.connect(challenger).challengeTransferBond(rootHash, customTransfer.amount)
+
+      // Message is relayed and proves the bonder wrong
+      const timeToWait: number = 11 * SECONDS_IN_A_DAY
+      await increaseTime(timeToWait)
+      await l1_messenger.relayNextMessage()
+
+      await l1_bridge.resolveChallenge(rootHash, customTransfer.amount)
+
+      // DEAD address should have tokens because of successful challenge
+      const balanceAfter: BigNumber = await l1_canonicalToken.balanceOf(
+        DEAD_ADDRESS
+      )
+      expect(balanceAfter.toString()).to.eq(
+        BigNumber.from(challengeAmount)
+          .div(4)
+          .toString()
+      )
+    })
+
+    it('Should allow a user to withdraw a transfer if the bonder bonded the transfer with an incorrect totalAmount', async () => {
+      await executeL1BridgeSendToL2(
+        l1_canonicalToken,
+        l1_bridge,
+        l2_hopBridgeToken,
+        l2_canonicalToken,
+        l2_messenger,
+        l2_swap,
+        transfer.sender,
+        transfer.recipient,
+        relayer,
+        transfer.amount,
+        transfer.amountOutMin,
+        transfer.deadline,
+        defaultRelayerFee,
+        l2ChainId
+      )
+
+      await executeL2BridgeSend(l2_hopBridgeToken, l2_bridge, transfer)
+      await l2_bridge.connect(bonder).commitTransfers(transfer.chainId)
+
+      // Get the rootHash from the event
+      const transfersCommittedEvent = await l2_bridge.queryFilter(
+        l2_bridge.filters.TransfersCommitted()
+      )
+      const rootHash: string = transfersCommittedEvent[0].args[0]
+
+      // Bond with the same root hash but a lower amount
+      const customTransfer: Transfer = new Transfer(transfer)
+      customTransfer.amount = transfer.amount.div(2)
+      await l1_bridge
+        .connect(bonder)
+        .bondTransferRoot(rootHash, transfer.chainId, customTransfer.amount)
+
+      const challengeAmount: BigNumber = await l1_bridge.getChallengeAmountForTransferAmount(
+        customTransfer.amount
+      )
+      await l1_canonicalToken
+        .connect(challenger)
+        .approve(l1_bridge.address, challengeAmount)
+      await l1_bridge.connect(challenger).challengeTransferBond(rootHash, customTransfer.amount)
+
+      // Message is relayed and proves the bonder wrong
+      const timeToWait: number = 11 * SECONDS_IN_A_DAY
+      await increaseTime(timeToWait)
+      await l1_messenger.relayNextMessage()
+
+      await l1_bridge.resolveChallenge(rootHash, customTransfer.amount)
+
+      // DEAD address should have tokens because of successful challenge
+      const balanceAfter: BigNumber = await l1_canonicalToken.balanceOf(
+        DEAD_ADDRESS
+      )
+      expect(balanceAfter.toString()).to.eq(
+        BigNumber.from(challengeAmount)
+          .div(4)
+          .toString()
+      )
+
+      await executeBridgeWithdraw(
+        l1_canonicalToken,
+        l1_bridge,
+        l2_bridge,
+        transfer,
+        bonder
+      )
+    })
+
+    it('Should allow a malicious bonder to withdraw as much as they want because nobody challenges them', async () => {
+      // Create a fraudulent transfer
+      const transferNonce: string = await l2_bridge.getNextTransferNonce()
+      const transferId: Buffer = await transfer.getTransferId(transferNonce)
+      const { rootHash } = getRootHashFromTransferId(transferId)
+
+      const tree: MerkleTree = new MerkleTree([transferId])
+      const transferRootHash: Buffer = tree.getRoot()
+      const proof: Buffer[] = tree.getProof(transferId)
+
+      await l1_bridge
+        .connect(bonder)
+        .bondTransferRoot(rootHash, transfer.chainId, transfer.amount)
+
+      const timeToWait: number = 11 * SECONDS_IN_A_DAY
+      await increaseTime(timeToWait)
+      await l1_messenger.relayNextMessage()
+
+
+      // const transferNonce: string = await getTransferNonceFromEvent(l2_bridge)
+      // const transferId: Buffer = await transfer.getTransferId(transferNonce)
+
+      // const { rootHash } = getRootHashFromTransferId(transferId)
+
+      const recipientCanonicalTokenBalanceBefore: BigNumber = await l1_canonicalToken.balanceOf(
+        await transfer.recipient.getAddress()
+      )
+      const bonderBalanceBefore: BigNumber = await l1_canonicalToken.balanceOf(
+        await bonder.getAddress()
+      )
+      const transferRootAmountWithdrawnBefore: BigNumber = (
+        await l1_bridge.getTransferRoot(rootHash, transfer.amount)
+      )[1]
+
+      // Perform transaction
+      await l1_bridge
+        .connect(bonder)
+        .withdraw(
+          await transfer.recipient.getAddress(),
+          transfer.amount,
+          transferNonce,
+          transfer.bonderFee,
+          transfer.amountOutMin,
+          transfer.deadline,
+          transferRootHash,
+          transfer.amount,
+          proof
+        )
+
+      // Validate state after transaction
+      const transferRootAmountWithdrawnAfter: BigNumber = (
+        await l1_bridge.getTransferRoot(rootHash, transfer.amount)
+      )[1]
+
+      // NOTE: Unbonded withdrawals do not pay the bonder
+      await expectBalanceOf(
+        l1_canonicalToken,
+        transfer.recipient,
+        recipientCanonicalTokenBalanceBefore.add(transfer.amount)
+      )
+
+      await expectBalanceOf(l1_canonicalToken, bonder, bonderBalanceBefore)
+
+      expect(transferRootAmountWithdrawnAfter).to.eq(
+        transferRootAmountWithdrawnBefore.add(transfer.amount)
+      )
+      const isTransferIdSpent = await l1_bridge.isTransferIdSpent(transferId)
+      expect(isTransferIdSpent).to.eq(true)
+    })
+
+    it.only('Should send a transaction from L1 to L2, bond it, and settle the bonded withdrawal, then call it again with another bonder (but not update state)', async () => {
+      await executeL1BridgeSendToL2(
+        l1_canonicalToken,
+        l1_bridge,
+        l2_hopBridgeToken,
+        l2_canonicalToken,
+        l2_messenger,
+        l2_swap,
+        transfer.sender,
+        transfer.recipient,
+        relayer,
+        transfer.amount,
+        transfer.amountOutMin,
+        transfer.deadline,
+        defaultRelayerFee,
+        l2ChainId
+      )
+
+      await executeL2BridgeSend(l2_hopBridgeToken, l2_bridge, transfer)
+
+      await executeBridgeBondWithdrawal(
+        l1_canonicalToken,
+        l1_bridge,
+        l2_bridge,
+        transfer,
+        bonder
+      )
+
+      await executeL2BridgeCommitTransfers(l2_bridge, [transfer], bonder)
+
+      await l1_messenger.relayNextMessage()
+
+      await executeBridgeSettleBondedWithdrawals(
+        l1_bridge,
+        l2_bridge,
+        [transfer],
+        bonder
+      )
+
+      await l1_bridge.connect(user).addBonder(await otherUser.getAddress())
+
+      const transferNonce: string = await getTransferNonceFromEvent(l2_bridge)
+      const transferId: Buffer = await transfer.getTransferId(transferNonce)
+      const totalTransferAmount: BigNumber = transfer.amount
+      await l1_bridge
+        .connect(bonder)
+        .settleBondedWithdrawals(
+          await bonder.getAddress(),
+          [transferId],
+          totalTransferAmount
+        )
+
+        const credit = await l1_bridge.getCredit(await otherUser.getAddress())
+        expect(credit).to.eq(BigNumber.from('0'))
     })
   })
 })
