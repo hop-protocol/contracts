@@ -2202,21 +2202,24 @@ describe('L1_Bridge', () => {
   })
 
   describe('withdraw', async () => {
-    it('Should a withdraw with a bad proof', async () => {
+    it('Should not be able to withdraw with a bad proof', async () => {
+      const expectedErrorMsg: string = 'BRG: Invalid transfer proof'
       const invalidProof: string[] = [ARBITRARY_TRANSFER_NONCE]
-      await l1_bridge
-        .connect(bonder)
-        .withdraw(
-          await transfer.recipient.getAddress(),
-          transfer.amount,
-          ARBITRARY_TRANSFER_NONCE,
-          transfer.bonderFee,
-          transfer.amountOutMin,
-          transfer.deadline,
-          ARBITRARY_ROOT_HASH,
-          transfer.amount,
-          invalidProof
-        )
+      await expect(
+        l1_bridge
+          .connect(bonder)
+          .withdraw(
+            await transfer.recipient.getAddress(),
+            transfer.amount,
+            ARBITRARY_TRANSFER_NONCE,
+            transfer.bonderFee,
+            transfer.amountOutMin,
+            transfer.deadline,
+            ARBITRARY_ROOT_HASH,
+            transfer.amount,
+            invalidProof
+          )
+      ).to.be.revertedWith(expectedErrorMsg)
     })
 
     it('Should not allow a user to withdraw if the withdrawal exceeds the TransferRoot total', async () => {
@@ -3853,7 +3856,7 @@ describe('L1_Bridge', () => {
       expect(isTransferIdSpent).to.eq(true)
     })
 
-    it.only('Should send a transaction from L1 to L2, bond it, and settle the bonded withdrawal, then call it again with another bonder (but not update state)', async () => {
+    it('Should send a transaction from L1 to L2, bond it, and settle the bonded withdrawal, then call it again with another bonder (but not update state)', async () => {
       await executeL1BridgeSendToL2(
         l1_canonicalToken,
         l1_bridge,
