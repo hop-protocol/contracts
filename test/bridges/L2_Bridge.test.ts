@@ -505,7 +505,7 @@ describe('L2_Bridge', () => {
       await executeL2BridgeCommitTransfers(l2_bridge, [transfer], bonder)
     })
 
-    it.skip('Should commit a transfer with two sends -- to L1 and to L2', async () => {
+    it('Should commit a transfer with two sends -- to L1 and to L2', async () => {
       const customTransfer: Transfer = new Transfer(transfer)
       const customL2Transfer: Transfer = new Transfer(l2Transfer)
       customTransfer.amount = transfer.amount.div(4)
@@ -549,10 +549,12 @@ describe('L2_Bridge', () => {
         bonder
       )
 
+      const startingIndex: BigNumber = BigNumber.from('1')
       await executeL2BridgeCommitTransfers(
         l2_bridge,
         [customL2Transfer],
-        bonder
+        bonder,
+        startingIndex
       )
     })
   })

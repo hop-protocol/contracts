@@ -886,7 +886,8 @@ export const executeL2BridgeSwapAndSend = async (
 export const executeL2BridgeCommitTransfers = async (
   l2_bridge: Contract,
   transfers: Transfer[],
-  bonder: Signer
+  bonder: Signer,
+  startingIndex: BigNumber = BigNumber.from('0')
 ) => {
   // Get state before transaction
   const destinationChainId: BigNumber = transfers[0].chainId
@@ -899,7 +900,7 @@ export const executeL2BridgeCommitTransfers = async (
 
     const transferNonce = await getTransferNonceFromEvent(
       l2_bridge,
-      BigNumber.from(i)
+      BigNumber.from(i).add(startingIndex)
     )
 
     const pendingTransferIdsForChainId: string = await l2_bridge.pendingTransferIdsForChainId(
@@ -957,7 +958,7 @@ export const executeL2BridgeCommitTransfers = async (
   for (let i = 0; i < numTransfers.toNumber(); i++) {
     const transferNonce = await getTransferNonceFromEvent(
       l2_bridge,
-      BigNumber.from(i)
+      BigNumber.from(i).add(startingIndex)
     )
     transferIds.push(await transfers[i].getTransferId(transferNonce))
   }
@@ -966,8 +967,7 @@ export const executeL2BridgeCommitTransfers = async (
   // There should only be a single TransfersCommitted event
   const transfersCommittedEvent = (
     await l2_bridge.queryFilter(l2_bridge.filters.TransfersCommitted())
-  )[0]
-  const transfersCommittedArgs = transfersCommittedEvent.args
+  )[startingIndex.toNumber()]
   expect(transfersCommittedArgs[0]).to.eq(expectedMerkleTree.getHexRoot())
   const pendingChainAmounts = transfersCommittedArgs[1]
   expect(pendingChainAmounts).to.eq(expectedPendingAmountForChainId)

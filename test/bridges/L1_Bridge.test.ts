@@ -853,7 +853,7 @@ describe('L1_Bridge', () => {
       )
     })
 
-    it.skip('Should send two transactions from L2 to L2, bond it, and settle the bonded withdrawals', async () => {
+    it('Should send two transactions from L2 to L2, bond it, and settle the bonded withdrawals', async () => {
       const amountToSend: BigNumber = transfer.amount.mul(2)
       await executeL1BridgeSendToL2(
         l1_canonicalToken,
@@ -1441,7 +1441,7 @@ describe('L1_Bridge', () => {
       )
     })
 
-    it.skip('Should send a transaction from L2 to L2, commit the bond, wait the min time then bond, challenge the transfer bond, and resolve unsuccessfully', async () => {
+    it('Should send a transaction from L2 to L2, commit the bond, wait the min time then bond, challenge the transfer bond, and resolve unsuccessfully', async () => {
       await executeL1BridgeSendToL2(
         l1_canonicalToken,
         l1_bridge,
@@ -2285,9 +2285,8 @@ describe('L1_Bridge', () => {
 
 
   describe('confirmTransferRoot', async () => {
-    it.skip('Should not allow a transfer root to be confirmed by anybody except the L2_Bridge', async () => {
-      // TODO: Introduce this when `messengerWrapper.verifySender()` has been implemented
-      const expectedErrorMsg: string = 'TODO'
+    it('Should not allow a transfer root to be confirmed by anybody except the L2_Bridge', async () => {
+      const expectedErrorMsg: string = 'OVM_MSG_WPR: Caller is not l1MessengerAddress'
       await executeL1BridgeSendToL2(
         l1_canonicalToken,
         l1_bridge,
@@ -2327,6 +2326,9 @@ describe('L1_Bridge', () => {
       const mimicTotalAmount: BigNumber = await l2_bridge.pendingAmountForChainId(
         transfer.chainId
       )
+      const mimicTransferRootCommittedAt: BigNumber = await l1_bridge.transferRootCommittedAt(
+        transferId
+      )
 
       await expect(
         l1_bridge
@@ -2335,7 +2337,8 @@ describe('L1_Bridge', () => {
             mimicChainId,
             mimicRootHash,
             mimicDestinationChainId,
-            mimicTotalAmount
+            mimicTotalAmount,
+            mimicTransferRootCommittedAt
           )
       ).to.be.revertedWith(expectedErrorMsg)
     })
