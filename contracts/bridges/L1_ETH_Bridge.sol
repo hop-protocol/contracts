@@ -8,7 +8,7 @@ import "./L1_Bridge.sol";
  */
 
 contract L1_ETH_Bridge is L1_Bridge {
-    constructor (address[] memory bonders) public L1_Bridge(bonders) {}
+    constructor (address[] memory bonders, address _governance) public L1_Bridge(bonders, _governance) {}
 
     /* ========== Override Functions ========== */
 

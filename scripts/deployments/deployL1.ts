@@ -33,6 +33,7 @@ export async function deployL1 (config: Config) {
   const accounts: Signer[] = await ethers.getSigners()
   const owner: Signer = accounts[0]
   const bonder: Signer = accounts[1]
+  const governance: Signer = accounts[4]
 
   logger.log('owner:', await owner.getAddress())
   logger.log('bonder:', await bonder.getAddress())
@@ -50,9 +51,13 @@ export async function deployL1 (config: Config) {
    */
 
   logger.log('deploying L1 bridge')
-  l1_bridge = await L1_Bridge.connect(owner).deploy(l1_canonicalTokenAddress, [
-    await bonder.getAddress()
-  ])
+  l1_bridge = await L1_Bridge
+    .connect(owner)
+    .deploy(
+      l1_canonicalTokenAddress,
+      [await bonder.getAddress()],
+      await governance.getAddress()
+      )
   await waitAfterTransaction(l1_bridge)
 
   const l1_bridgeAddress = l1_bridge.address

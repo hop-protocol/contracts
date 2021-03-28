@@ -75,8 +75,8 @@ abstract contract L1_Bridge is Bridge {
         _;
     }
 
-    constructor (address[] memory bonders) public Bridge(bonders) {
-        governance = msg.sender;
+    constructor (address[] memory bonders, address _governance) public Bridge(bonders) {
+        governance = _governance;
     }
 
     /* ========== Send Functions ========== */

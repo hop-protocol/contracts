@@ -442,16 +442,16 @@ describe('L1_Bridge', () => {
     it('Should set a new governance address', async () => {
       const expectedGovernance: string = ONE_ADDRESS
 
-      await l1_bridge.setGovernance(ONE_ADDRESS)
+      await l1_bridge.connect(governance).setGovernance(ONE_ADDRESS)
 
-      const governance: string = await l1_bridge.governance()
-      expect(governance).to.eq(expectedGovernance)
+      const actualGovernance: string = await l1_bridge.governance()
+      expect(actualGovernance).to.eq(expectedGovernance)
     })
 
     it('Should set a new crossDomainMessengerWrapper address', async () => {
       const expectedCrossDomainMessengerWrapper: string = ONE_ADDRESS
 
-      await l1_bridge.setCrossDomainMessengerWrapper(
+      await l1_bridge.connect(governance).setCrossDomainMessengerWrapper(
         transfer.chainId,
         ONE_ADDRESS
       )
@@ -465,12 +465,12 @@ describe('L1_Bridge', () => {
     })
 
     it('Should pause and unpause a chain ID', async () => {
-      await l1_bridge.setChainIdDepositsPaused(transfer.chainId, false)
+      await l1_bridge.connect(governance).setChainIdDepositsPaused(transfer.chainId, false)
 
       let isPaused: boolean = await l1_bridge.isChainIdPaused(transfer.chainId)
       expect(isPaused).to.eq(false)
 
-      await l1_bridge.setChainIdDepositsPaused(transfer.chainId, true)
+      await l1_bridge.connect(governance).setChainIdDepositsPaused(transfer.chainId, true)
 
       isPaused = await l1_bridge.isChainIdPaused(transfer.chainId)
       expect(isPaused).to.eq(true)
@@ -480,7 +480,7 @@ describe('L1_Bridge', () => {
       const expectedChallengeAmountMultiplier: BigNumber = BigNumber.from(
         '13371337'
       )
-      await l1_bridge.setChallengeAmountMultiplier(
+      await l1_bridge.connect(governance).setChallengeAmountMultiplier(
         expectedChallengeAmountMultiplier
       )
 
@@ -492,7 +492,7 @@ describe('L1_Bridge', () => {
       const expectedChallengeAmountDivisor: BigNumber = BigNumber.from(
         '13371337'
       )
-      await l1_bridge.setChallengeAmountDivisor(expectedChallengeAmountDivisor)
+      await l1_bridge.connect(governance).setChallengeAmountDivisor(expectedChallengeAmountDivisor)
 
       const challengeAmountDivisor: BigNumber = await l1_bridge.challengeAmountDivisor()
       expect(challengeAmountDivisor).to.eq(expectedChallengeAmountDivisor)
@@ -502,7 +502,7 @@ describe('L1_Bridge', () => {
       const expectedChallengePeriod: BigNumber = BigNumber.from('100')
       const expectedTimeSlotSize: BigNumber = BigNumber.from('5')
 
-      await l1_bridge.setChallengePeriodAndTimeSlotSize(
+      await l1_bridge.connect(governance).setChallengePeriodAndTimeSlotSize(
         expectedChallengePeriod,
         expectedTimeSlotSize
       )
@@ -517,7 +517,7 @@ describe('L1_Bridge', () => {
       const expectedChallengeResolutionPeriod: BigNumber = BigNumber.from(
         '13371337'
       )
-      await l1_bridge.setChallengeResolutionPeriod(
+      await l1_bridge.connect(governance).setChallengeResolutionPeriod(
         expectedChallengeResolutionPeriod
       )
 
@@ -529,7 +529,7 @@ describe('L1_Bridge', () => {
       const expectedMinTransferRootBondDelay: BigNumber = BigNumber.from(
         '13371337'
       )
-      await l1_bridge.setMinTransferRootBondDelay(
+      await l1_bridge.connect(governance).setMinTransferRootBondDelay(
         expectedMinTransferRootBondDelay
       )
 
@@ -1697,7 +1697,7 @@ describe('L1_Bridge', () => {
       const expectedTimeSlotSize: BigNumber = BigNumber.from('99')
 
       await expect(
-        l1_bridge.setChallengePeriodAndTimeSlotSize(
+        l1_bridge.connect(governance).setChallengePeriodAndTimeSlotSize(
           expectedChallengePeriod,
           expectedTimeSlotSize
         )
@@ -1760,7 +1760,7 @@ describe('L1_Bridge', () => {
         'L1_BRG: Sends to this chainId are paused'
 
       const isPaused: boolean = true
-      await l1_bridge.setChainIdDepositsPaused(l2ChainId, isPaused)
+      await l1_bridge.connect(governance).setChainIdDepositsPaused(l2ChainId, isPaused)
 
       await expect(
         executeL1BridgeSendToL2(
@@ -2092,7 +2092,7 @@ describe('L1_Bridge', () => {
         bonder
       )
 
-      await l1_bridge.setCrossDomainMessengerWrapper(
+      await l1_bridge.connect(governance).setCrossDomainMessengerWrapper(
         l2Transfer.chainId,
         ZERO_ADDRESS
       )
@@ -2427,7 +2427,7 @@ describe('L1_Bridge', () => {
       await executeL2BridgeCommitTransfers(l2_bridge, [l2Transfer], bonder)
 
       // Unset the supported chainId for this test
-      await l1_bridge.setCrossDomainMessengerWrapper(
+      await l1_bridge.connect(governance).setCrossDomainMessengerWrapper(
         l2Transfer.chainId,
         ZERO_ADDRESS
       )
@@ -3201,7 +3201,7 @@ describe('L1_Bridge', () => {
       const timeToWait: number = 9 * SECONDS_IN_A_WEEK
       await increaseTime(timeToWait)
 
-      await l1_bridge.setGovernance(ONE_ADDRESS)
+      await l1_bridge.connect(governance).setGovernance(ONE_ADDRESS)
 
       await expect(
         executeBridgeRescueTransferRoot(
@@ -3503,8 +3503,6 @@ describe('L1_Bridge', () => {
       const timeSlot: BigNumber = await l1_bridge.getTimeSlot(time)
       expect(timeSlot).to.eq(expectedTimeSlot)
     })
-
-    // TODO: 3 other cases
 
     it.skip('Should settle bonded withdrawals with an arbitrary bonder address  but not update any relevant state. Should then let the actual bonder settle.', async () => {
       await executeL1BridgeSendToL2(
@@ -3898,7 +3896,7 @@ describe('L1_Bridge', () => {
         bonder
       )
 
-      await l1_bridge.connect(user).addBonder(await otherUser.getAddress())
+      await l1_bridge.connect(governance).addBonder(await otherUser.getAddress())
 
       const transferNonce: string = await getTransferNonceFromEvent(l2_bridge)
       const transferId: Buffer = await transfer.getTransferId(transferNonce)
