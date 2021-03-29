@@ -80,7 +80,7 @@ async function main () {
 function getKovanParams (): KovanParams {
   return {
     l1_chainId: CHAIN_IDS.ETHEREUM.KOVAN.toString(),
-    l1_canonicalTokenAddress: '0x7d669A64deb8a4A51eEa755bb0E19FD39CE25Ae9',
+    l1_canonicalTokenAddress: '0x943599d17FE82Bb4563b1823500f3267f91Acd2e',
   }
 }
 

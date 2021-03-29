@@ -30,10 +30,8 @@ export const getContractFactories = async (
   let L2_MockERC20: ContractFactory
   let L2_HopBridgeToken: ContractFactory
   let L2_Bridge: ContractFactory
-  let L2_UniswapFactory: ContractFactory
-  let L2_UniswapRouter: ContractFactory
-  let L2_UniswapPair: ContractFactory
-  let L2_UniswapWrapper: ContractFactory
+  let L2_Swap: ContractFactory
+  let L2_AmmWrapper: ContractFactory
   ;({
     L1_TokenBridge,
     L1_Messenger,
@@ -41,10 +39,8 @@ export const getContractFactories = async (
     L2_MockERC20,
     L2_HopBridgeToken,
     L2_Bridge,
-    L2_UniswapFactory,
-    L2_UniswapRouter,
-    L2_UniswapPair,
-    L2_UniswapWrapper
+    L2_Swap,
+    L2_AmmWrapper
   } = await getNetworkSpecificFactories(chainId, signer, ethers, ovmEthers))
 
   return {
@@ -56,10 +52,8 @@ export const getContractFactories = async (
     L2_MockERC20,
     L2_HopBridgeToken,
     L2_Bridge,
-    L2_UniswapFactory,
-    L2_UniswapRouter,
-    L2_UniswapPair,
-    L2_UniswapWrapper
+    L2_Swap,
+    L2_AmmWrapper
   }
 }
 
@@ -83,10 +77,8 @@ const getNetworkSpecificFactories = async (
       L2_MockERC20: null,
       L2_HopBridgeToken: null,
       L2_Bridge: null,
-      L2_UniswapFactory: null,
-      L2_UniswapRouter: null,
-      L2_UniswapPair: null,
-      L2_UniswapWrapper: null
+      L2_Swap: null,
+      L2_AmmWrapper: null
     }
   }
 }
@@ -120,22 +112,32 @@ const getOptimismContractFactories = async (
     'contracts/bridges/L2_OptimismBridge.sol:L2_OptimismBridge',
     { signer }
   )
-  const L2_UniswapFactory: ContractFactory = await ovmEthers.getContractFactory(
-    'contracts/uniswap/optimism/OptimismUniswapFactory.sol:OptimismUniswapFactory',
-    { signer }
+
+  const L2_MathUtils: ContractFactory = await ovmEthers.getContractFactory('MathUtils')
+  const l2_mathUtils = await L2_MathUtils.deploy()
+  await l2_mathUtils.deployed()
+
+  const L2_SwapUtils = await ovmEthers.getContractFactory(
+    'SwapUtils',
+    {
+      libraries: {
+        'MathUtils.ovm': l2_mathUtils.address
+      }
+    }
   )
-  const L2_UniswapRouter: ContractFactory = await ovmEthers.getContractFactory(
-    'contracts/uniswap/optimism/OptimismUniswapRouter.sol:OptimismUniswapRouter',
-    { signer }
+  const l2_swapUtils = await L2_SwapUtils.deploy()
+  await l2_swapUtils.deployed()
+
+  const L2_Swap = await ovmEthers.getContractFactory(
+    'Swap',
+    {
+      libraries: {
+        'SwapUtils.ovm': l2_swapUtils.address
+      }
+    }
   )
-  const L2_UniswapPair: ContractFactory = await ovmEthers.getContractFactory(
-    'contracts/uniswap/optimism/OptimismUniswapPair.sol:OptimismUniswapPair',
-    { signer }
-  )
-  const L2_UniswapWrapper: ContractFactory = await ovmEthers.getContractFactory(
-    'contracts/bridges/L2_UniswapWrapper.sol:L2_UniswapWrapper',
-    { signer }
-  )
+
+  const L2_AmmWrapper: ContractFactory = await ovmEthers.getContractFactory('L2_AmmWrapper', { signer })
 
   return {
     L1_TokenBridge,
@@ -144,10 +146,8 @@ const getOptimismContractFactories = async (
     L2_MockERC20,
     L2_HopBridgeToken,
     L2_Bridge,
-    L2_UniswapFactory,
-    L2_UniswapRouter,
-    L2_UniswapPair,
-    L2_UniswapWrapper
+    L2_Swap,
+    L2_AmmWrapper
   }
 }
 
@@ -176,18 +176,31 @@ const getArbitrumContractFactories = async (signer: Signer, ethers: any) => {
     'contracts/bridges/L2_ArbitrumBridge.sol:L2_ArbitrumBridge',
     { signer }
   )
-  const L2_UniswapFactory: ContractFactory = await ethers.getContractFactory(
-    'contracts/uniswap/arbitrum/ArbitrumUniswapFactory.sol:ArbitrumUniswapFactory',
-    { signer }
+  const L2_MathUtils: ContractFactory = await ethers.getContractFactory('MathUtils', { signer })
+  const l2_mathUtils = await L2_MathUtils.deploy()
+  await waitAfterTransaction(l2_mathUtils, ethers)
+
+  const L2_SwapUtils = await ethers.getContractFactory(
+    'SwapUtils',
+    {
+      libraries: {
+        'MathUtils': l2_mathUtils.address
+      }
+    }
   )
-  const L2_UniswapRouter: ContractFactory = await ethers.getContractFactory(
-    'contracts/uniswap/arbitrum/ArbitrumUniswapRouter.sol:ArbitrumUniswapRouter',
-    { signer }
+  const l2_swapUtils = await L2_SwapUtils.deploy()
+  await waitAfterTransaction(l2_swapUtils, ethers)
+
+  const L2_Swap = await ethers.getContractFactory(
+    'Swap',
+    {
+      libraries: {
+        'SwapUtils': l2_swapUtils.address
+      }
+    }
   )
-  const L2_UniswapWrapper: ContractFactory = await ethers.getContractFactory(
-    'contracts/bridges/L2_UniswapWrapper.sol:L2_UniswapWrapper',
-    { signer }
-  )
+
+  const L2_AmmWrapper: ContractFactory = await ethers.getContractFactory('L2_AmmWrapper', { signer })
 
   return {
     L1_TokenBridge,
@@ -196,10 +209,8 @@ const getArbitrumContractFactories = async (signer: Signer, ethers: any) => {
     L2_MockERC20,
     L2_HopBridgeToken,
     L2_Bridge,
-    L2_UniswapFactory,
-    L2_UniswapRouter,
-    L2_UniswapPair: null,
-    L2_UniswapWrapper
+    L2_Swap,
+    L2_AmmWrapper
   }
 }
 
@@ -228,18 +239,31 @@ const getXDaiContractFactories = async (signer: Signer, ethers: any) => {
     'contracts/bridges/L2_XDaiBridge.sol:L2_XDaiBridge',
     { signer }
   )
-  const L2_UniswapFactory: ContractFactory = await ethers.getContractFactory(
-    'contracts/uniswap/xdai/XDaiUniswapFactory.sol:XDaiUniswapFactory',
-    { signer }
+  const L2_MathUtils: ContractFactory = await ethers.getContractFactory('MathUtils', { signer })
+  const l2_mathUtils = await L2_MathUtils.deploy()
+  await l2_mathUtils.deployed()
+
+  const L2_SwapUtils = await ethers.getContractFactory(
+    'SwapUtils',
+    {
+      libraries: {
+        'MathUtils': l2_mathUtils.address
+      }
+    }
   )
-  const L2_UniswapRouter: ContractFactory = await ethers.getContractFactory(
-    'contracts/uniswap/xdai/XDaiUniswapRouter.sol:XDaiUniswapRouter',
-    { signer }
+  const l2_swapUtils = await L2_SwapUtils.deploy()
+  await l2_swapUtils.deployed()
+
+  const L2_Swap = await ethers.getContractFactory(
+    'Swap',
+    {
+      libraries: {
+        'SwapUtils': l2_swapUtils.address
+      }
+    }
   )
-  const L2_UniswapWrapper: ContractFactory = await ethers.getContractFactory(
-    'contracts/bridges/L2_UniswapWrapper.sol:L2_UniswapWrapper',
-    { signer }
-  )
+
+  const L2_AmmWrapper: ContractFactory = await ethers.getContractFactory('L2_AmmWrapper', { signer })
 
   return {
     L1_TokenBridge,
@@ -248,10 +272,8 @@ const getXDaiContractFactories = async (signer: Signer, ethers: any) => {
     L2_MockERC20,
     L2_HopBridgeToken,
     L2_Bridge,
-    L2_UniswapFactory,
-    L2_UniswapRouter,
-    L2_UniswapPair: null,
-    L2_UniswapWrapper
+    L2_Swap,
+    L2_AmmWrapper
   }
 }
 
@@ -317,9 +339,8 @@ export const readConfigFile = () => {
     l2_canonicalTokenAddress: '',
     l2_hopBridgeTokenAddress: '',
     l2_messengerAddress: '',
-    l2_uniswapFactoryAddress: '',
-    l2_uniswapRouterAddress: '',
-    l2_uniswapWrapperAddress: ''
+    l2_swapAddress: '',
+    l2_ammWrapperAddress: ''
   }
   if (fs.existsSync(configFilepath)) {
     data = JSON.parse(fs.readFileSync(configFilepath, 'utf8'))

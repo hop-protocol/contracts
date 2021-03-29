@@ -22,7 +22,7 @@ import {
   getSetL1MessengerWrapperAddressMessage,
   executeCanonicalMessengerSendMessage,
   getAddSupportedChainIdsMessage,
-  getSetUniswapWrapperAddressMessage
+  getSetAmmWrapperAddressMessage
 } from '../../test/shared/contractFunctionWrappers'
 
 const logger = Logger('setupL1')
@@ -36,7 +36,7 @@ interface Config {
   l1_bridgeAddress: string
   l2_canonicalTokenAddress: string
   l2_bridgeAddress: string
-  l2_uniswapWrapperAddress: string
+  l2_ammWrapperAddress: string
 }
 
 export async function setupL1 (config: Config) {
@@ -51,7 +51,7 @@ export async function setupL1 (config: Config) {
     l1_bridgeAddress,
     l2_canonicalTokenAddress,
     l2_bridgeAddress,
-    l2_uniswapWrapperAddress
+    l2_ammWrapperAddress
   } = config
 
   logger.log(`config:
@@ -63,7 +63,7 @@ export async function setupL1 (config: Config) {
             l1_bridgeAddress: ${l1_bridgeAddress}
             l2_canonicalTokenAddress: ${l2_canonicalTokenAddress}
             l2_bridgeAddress: ${l2_bridgeAddress}
-            l2_uniswapWrapperAddress: ${l2_uniswapWrapperAddress}`)
+            l2_ammWrapperAddress: ${l2_ammWrapperAddress}`)
 
   l1_chainId = BigNumber.from(l1_chainId)
   l2_chainId = BigNumber.from(l2_chainId)
@@ -186,9 +186,9 @@ export async function setupL1 (config: Config) {
   )
   await waitAfterTransaction()
 
-  message = getSetUniswapWrapperAddressMessage(l2_uniswapWrapperAddress)
+  message = getSetAmmWrapperAddressMessage(l2_ammWrapperAddress)
 
-  logger.log('setting uniswap wrapper address on L2 bridge')
+  logger.log('setting amm wrapper address on L2 bridge')
   await executeCanonicalMessengerSendMessage(
     l1_messenger,
     l2_bridge,
@@ -279,7 +279,7 @@ if (require.main === module) {
     l1_bridgeAddress,
     l2_canonicalTokenAddress,
     l2_bridgeAddress,
-    l2_uniswapWrapperAddress
+    l2_ammWrapperAddress
   } = readConfigFile()
   setupL1({
     l1_chainId,
@@ -290,7 +290,7 @@ if (require.main === module) {
     l2_canonicalTokenAddress,
     l1_bridgeAddress,
     l2_bridgeAddress,
-    l2_uniswapWrapperAddress
+    l2_ammWrapperAddress
   })
     .then(() => {
       process.exit(0)
