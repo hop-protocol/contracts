@@ -8,7 +8,7 @@ import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 
 import "./Bridge.sol";
 import "./HopBridgeToken.sol";
-import "../libraries/MerkleUtils.sol";
+import "../libraries/Lib_MerkleTree.sol";
 import "./L2_AmmWrapper.sol";
 
 /**
@@ -240,7 +240,7 @@ abstract contract L2_Bridge is Bridge {
         bytes32[] storage pendingTransfers = pendingTransferIdsForChainId[destinationChainId];
         require(pendingTransfers.length > 0, "L2_BRG: Must commit at least 1 Transfer");
 
-        bytes32 rootHash = MerkleUtils.getMerkleRoot(pendingTransfers);
+        bytes32 rootHash = Lib_MerkleTree.getMerkleRoot(pendingTransfers);
         uint256 totalAmount = pendingAmountForChainId[destinationChainId];
         uint256 rootCommittedAt = block.timestamp;
 
