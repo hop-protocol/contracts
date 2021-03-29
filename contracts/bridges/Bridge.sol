@@ -6,7 +6,7 @@ pragma experimental ABIEncoderV2;
 import "@openzeppelin/contracts/cryptography/MerkleProof.sol";
 
 import "./Accounting.sol";
-import "../libraries/MerkleUtils.sol";
+import "../libraries/Lib_MerkleTree.sol";
 
 /**
  * @dev Bridge extends the accounting system and encapsulates the logic that is shared by both the
@@ -273,13 +273,13 @@ abstract contract Bridge is Accounting {
      */
     function settleBondedWithdrawals(
         address bonder,
-        // transferIds _must_ be calldata or it will be mutated by MerkleUtils.getMerkleRoot
+        // transferIds _must_ be calldata or it will be mutated by Lib_MerkleTree.getMerkleRoot
         bytes32[] calldata transferIds,
         uint256 totalAmount
     )
         external
     {
-        bytes32 rootHash = MerkleUtils.getMerkleRoot(transferIds);
+        bytes32 rootHash = Lib_MerkleTree.getMerkleRoot(transferIds);
         bytes32 transferRootId = getTransferRootId(rootHash, totalAmount);
 
         uint256 totalBondsSettled = 0;
