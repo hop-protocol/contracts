@@ -134,9 +134,7 @@ export async function fixture (
   if (l1AlreadySetOpts?.l1BridgeAddress) {
     l1_bridge = L1_Bridge.attach(l1AlreadySetOpts.l1BridgeAddress)
   } else {
-    l1_bridge = await L1_Bridge.deploy(l1_canonicalToken.address, [
-      await bonder.getAddress()
-    ])
+    l1_bridge = await L1_Bridge.deploy(l1_canonicalToken.address, [await bonder.getAddress()], await governance.getAddress())
   }
 
   // Deploy Hop bridge token

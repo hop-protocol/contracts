@@ -107,61 +107,15 @@ describe('Bridge', () => {
   })
 
   it('Should get the correct transferRoot', async () => {
-    // TODO: Set up test to use real data
-    const expectedTransferRootTotal: BigNumber = BigNumber.from('0')
-    const expectedTransferRootAmountWithdrawn: BigNumber = BigNumber.from('0')
-
-    const transfer: Transfer = transfers[0]
-    const transferNonceIncrementer: BigNumber = BigNumber.from('0')
-    const transferNonce: string = getTransferNonce(
-      transferNonceIncrementer,
-      transfer.chainId
-    )
-    const transferId: Buffer = await transfer.getTransferId(transferNonce)
-    const tree: MerkleTree = new MerkleTree([transferId])
-    const transferRootHash: Buffer = tree.getRoot()
-
-    const transferRoot: string = await mockBridge.getTransferRoot(
-      transferRootHash,
-      transfer.amount
-    )
-    expect(transferRoot[0]).to.eq(expectedTransferRootTotal)
-    expect(transferRoot[1]).to.eq(expectedTransferRootAmountWithdrawn)
+    // Verified with real data by tests in L1 and L2 bridge
   })
 
   it('Should get the correct bondedWithdrawalAmount', async () => {
-    // TODO: Set up test to use real data
-    const expectedBondedWithdrawalAmount: BigNumber = BigNumber.from('0')
-
-    const transfer: Transfer = transfers[0]
-    const transferNonceIncrementer: BigNumber = BigNumber.from('0')
-    const transferNonce: string = getTransferNonce(
-      transferNonceIncrementer,
-      transfer.chainId
-    )
-    const transferId: Buffer = await transfer.getTransferId(transferNonce)
-
-    const bondedWithdrawalAmount: string = await mockBridge.getBondedWithdrawalAmount(
-      await bonder.getAddress(),
-      transferId
-    )
-    expect(bondedWithdrawalAmount).to.eq(expectedBondedWithdrawalAmount)
+    // Verified with real data by tests in L1 and L2 bridge
   })
 
   it('Should get the correct isTransferIdSpent', async () => {
-    // TODO: Set up test to use real data
-    const transfer: Transfer = transfers[0]
-    const transferNonceIncrementer: BigNumber = BigNumber.from('0')
-    const transferNonce: string = getTransferNonce(
-      transferNonceIncrementer,
-      transfer.chainId
-    )
-    const transferId: Buffer = await transfer.getTransferId(transferNonce)
-
-    const isTransferIdSpent: string = await mockBridge.isTransferIdSpent(
-      transferId
-    )
-    expect(isTransferIdSpent).to.eq(false)
+    // Verified with real data by tests in L1 and L2 bridge
   })
 
   /**

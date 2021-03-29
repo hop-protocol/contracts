@@ -17,8 +17,7 @@ import {
   INITIAL_BONDED_AMOUNT,
   DEFAULT_DEADLINE,
   CHALLENGER_INITIAL_BALANCE,
-  DEFAULT_RELAYER_FEE,
-  AMM_LP_MINIMUM_LIQUIDITY
+  DEFAULT_RELAYER_FEE
 } from '../../config/constants'
 
 import {
@@ -111,7 +110,7 @@ export const setUpL1AndL2Bridges = async (fixture: IFixture, opts: any) => {
   const { messengerWrapperChainId } = opts
 
   // Set up L1
-  await l1_bridge.setCrossDomainMessengerWrapper(
+  await l1_bridge.connect(governance).setCrossDomainMessengerWrapper(
     messengerWrapperChainId,
     l1_messengerWrapper.address
   )

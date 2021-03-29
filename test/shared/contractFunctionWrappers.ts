@@ -241,12 +241,12 @@ export const executeL1BridgeSendToL2 = async (
 export const executeBridgeWithdraw = async (
   destinationCanonicalToken: Contract,
   destinationBridge: Contract,
-  originBridge: Contract,
+  sourceBridge: Contract,
   transfer: Transfer,
   bonder: Signer,
   destinationHopToken: Contract = null
 ) => {
-  const transferNonce: string = await getTransferNonceFromEvent(originBridge)
+  const transferNonce: string = await getTransferNonceFromEvent(sourceBridge)
   const transferId: Buffer = await transfer.getTransferId(transferNonce)
   const tree: MerkleTree = new MerkleTree([transferId])
   const transferRootHash: Buffer = tree.getRoot()
@@ -320,16 +320,17 @@ export const executeBridgeWithdraw = async (
   isTransferIdSpent = await destinationBridge.isTransferIdSpent(transferId)
   expect(isTransferIdSpent).to.eq(true)
 }
+
 export const executeBridgeBondWithdrawal = async (
   destinationReceiptToken: Contract,
   destinationBridge: Contract,
-  originBridge: Contract,
+  sourceBridge: Contract,
   transfer: Transfer,
   bonder: Signer,
   transferIndex: BigNumber = BigNumber.from('0')
 ) => {
   // Get state before transaction
-  const transferNonce = await getTransferNonceFromEvent(originBridge, transferIndex)
+  const transferNonce = await getTransferNonceFromEvent(sourceBridge, transferIndex)
   const senderBalanceBefore: BigNumber = await destinationReceiptToken.balanceOf(
     await transfer.sender.getAddress()
   )
@@ -417,6 +418,8 @@ export const executeL1BridgeBondTransferRoot = async (
     transfer.amount
   )
 
+  // NOTE: This is going to fail sometimes, as `currentTime` will be different from the expected time, causing a 
+  // timeSlot mismatch
   expect(timeSlotToAmountBonded).to.eq(bondAmount)
   expect(transferBond).to.eq(bondAmount)
   if (transfer.chainId === CHAIN_IDS.ETHEREUM.MAINNET) {
@@ -431,11 +434,11 @@ export const executeL1BridgeBondTransferRoot = async (
 
 export const executeBridgeSettleBondedWithdrawal = async (
   destinationBridge: Contract,
-  originBridge: Contract,
+  sourceBridge: Contract,
   transfer: Transfer,
   bonder: Signer
 ) => {
-  const transferNonce = await getTransferNonceFromEvent(originBridge)
+  const transferNonce = await getTransferNonceFromEvent(sourceBridge)
   const transferId: Buffer = await transfer.getTransferId(transferNonce)
   const { rootHash } = getRootHashFromTransferId(transferId)
   const tree: MerkleTree = new MerkleTree([transferId])
@@ -475,8 +478,8 @@ export const executeBridgeSettleBondedWithdrawal = async (
 }
 
 export const executeBridgeSettleBondedWithdrawals = async (
-  l1_bridge: Contract,
-  l2_bridge: Contract,
+  sourceBridge: Contract,
+  destinationBridge: Contract,
   transfers: Transfer[],
   bonder: Signer
 ) => {
@@ -487,18 +490,18 @@ export const executeBridgeSettleBondedWithdrawals = async (
   let transferNonces: string[] = []
   let transferIds: Buffer[] = []
   for (let i = 0; i < numTransfers.toNumber(); i++) {
-    transferNonces.push(await getTransferNonceFromEvent(l2_bridge, BigNumber.from(i)))
+    transferNonces.push(await getTransferNonceFromEvent(destinationBridge, BigNumber.from(i)))
     transferIds.push(await transfers[i].getTransferId(transferNonces[i]))
     totalTransferAmount = totalTransferAmount.add(transfers[i].amount)
   }
 
   // Get state before transaction
-  const bondedAmountBefore: BigNumber = await l1_bridge.getCredit(
+  const bondedAmountBefore: BigNumber = await sourceBridge.getCredit(
     await bonder.getAddress()
   )
 
   // Perform transaction
-  await l1_bridge
+  await sourceBridge
     .connect(bonder)
     .settleBondedWithdrawals(
       await bonder.getAddress(),
@@ -511,17 +514,17 @@ export const executeBridgeSettleBondedWithdrawals = async (
   let calculatedTransferIds: Buffer[] = []
   for (let i = 0; i < numTransfers.toNumber(); i++) {
     const transferNonce = await getTransferNonceFromEvent(
-      l2_bridge,
+      destinationBridge,
       BigNumber.from(i)
     )
     calculatedTransferIds.push(await transfers[i].getTransferId(transferNonce))
   }
   const expectedMerkleTree = new MerkleTree(calculatedTransferIds)
-  const transferRoot: number = await l1_bridge.getTransferRoot(
+  const transferRoot: number = await sourceBridge.getTransferRoot(
     expectedMerkleTree.getHexRoot(),
     totalTransferAmount
   )
-  const credit = await l1_bridge.getCredit(await bonder.getAddress())
+  const credit = await sourceBridge.getCredit(await bonder.getAddress())
   const expectedCredit: BigNumber = bondedAmountBefore.add(totalTransferAmount)
   expect(transferRoot[0]).to.eq(totalTransferAmount)
   expect(transferRoot[1]).to.eq(totalTransferAmount)
@@ -697,7 +700,7 @@ export const executeL1BridgeResolveChallenge = async (
 
 export const executeBridgeRescueTransferRoot = async (
   destinationPayoutToken: Contract,
-  originBridge: Contract,
+  sourceBridge: Contract,
   receivingBridge: Contract,
   amount: BigNumber,
   governance: Signer,
@@ -708,7 +711,7 @@ export const executeBridgeRescueTransferRoot = async (
   if (customTransferNonce) {
     transferNonce = customTransferNonce
   } else {
-    transferNonce = await getTransferNonceFromEvent(originBridge)
+    transferNonce = await getTransferNonceFromEvent(sourceBridge)
   }
   const transferId: Buffer = await transfer.getTransferId(transferNonce)
   const { rootHash } = getRootHashFromTransferId(transferId)
@@ -722,12 +725,13 @@ export const executeBridgeRescueTransferRoot = async (
   )[1]
 
   // Perform transaction
-  // TODO: Technically we should explicitly send from Governance. Need to rework some other setup to do so properly
-  await receivingBridge.rescueTransferRoot(
-    rootHash,
-    amount,
-    await governance.getAddress()
-  )
+  await receivingBridge
+    .connect(governance)
+    .rescueTransferRoot(
+      rootHash,
+      amount,
+      await governance.getAddress()
+    )
 
   // Validate state after transaction
   const transferRootAmountWithdrawnAfter: BigNumber = (
@@ -749,22 +753,22 @@ export const executeBridgeRescueTransferRoot = async (
  */
 
 export const executeL2BridgeSend = async (
-  l2_hopBridgeToken: Contract,
-  l2_bridge: Contract,
+  sourceHopBridgeToken: Contract,
+  sourceBridge: Contract,
   transfer: Transfer,
   expectedTransferIndex: BigNumber = BigNumber.from('0')
 ) => {
   // Get state before transaction
-  const bridgeTotalSupplyBefore: BigNumber = await l2_hopBridgeToken.totalSupply()
-  const senderBalanceBefore: BigNumber = await l2_hopBridgeToken.balanceOf(
+  const bridgeTotalSupplyBefore: BigNumber = await sourceHopBridgeToken.totalSupply()
+  const senderBalanceBefore: BigNumber = await sourceHopBridgeToken.balanceOf(
     await transfer.sender.getAddress()
   )
-  const pendingAmountBefore: BigNumber = await l2_bridge.pendingAmountForChainId(
+  const pendingAmountBefore: BigNumber = await sourceBridge.pendingAmountForChainId(
     transfer.chainId
   )
 
   // Perform transaction
-  await l2_bridge
+  await sourceBridge
     .connect(transfer.sender)
     .send(
       transfer.chainId,
@@ -777,26 +781,26 @@ export const executeL2BridgeSend = async (
 
   // Perform transaction
   // Validate state after transaction
-  const bridgeTotalSupplyAfter: BigNumber = await l2_hopBridgeToken.totalSupply()
+  const bridgeTotalSupplyAfter: BigNumber = await sourceHopBridgeToken.totalSupply()
   expect(bridgeTotalSupplyAfter).to.eq(
     bridgeTotalSupplyBefore.sub(transfer.amount)
   )
   await expectBalanceOf(
-    l2_hopBridgeToken,
+    sourceHopBridgeToken,
     transfer.sender,
     senderBalanceBefore.sub(transfer.amount)
   )
 
   // Verify state
   const transferNonce = await getTransferNonceFromEvent(
-    l2_bridge,
+    sourceBridge,
     expectedTransferIndex
   )
   const expectedPendingTransferHash: Buffer = await transfer.getTransferId(
     transferNonce
   )
 
-  const pendingAmount: BigNumber = await l2_bridge.pendingAmountForChainId(
+  const pendingAmount: BigNumber = await sourceBridge.pendingAmountForChainId(
     transfer.chainId
   )
   const expectedPendingAmount: BigNumber = pendingAmountBefore.add(
@@ -805,7 +809,7 @@ export const executeL2BridgeSend = async (
   expect(pendingAmount).to.eq(expectedPendingAmount)
 
   const transfersSentEvent = (
-    await l2_bridge.queryFilter(l2_bridge.filters.TransferSent())
+    await sourceBridge.queryFilter(sourceBridge.filters.TransferSent())
   )[expectedTransferIndex.toNumber()]
   const transferSentArgs = transfersSentEvent.args
   expect(transferSentArgs[0]).to.eq(
@@ -818,21 +822,20 @@ export const executeL2BridgeSend = async (
 }
 
 export const executeL2BridgeSwapAndSend = async (
-  l2_bridge: Contract,
-  l2_canonicalToken: Contract,
-  l2_hopBridgeToken: Contract,
-  l2_swap: Contract,
+  sourceBridge: Contract,
+  sourceCanonicalToken: Contract,
+  sourceSwap: Contract,
   l2_ammWrapper: Contract,
   transfer: Transfer
 ) => {
   // Get state before transaction
-  const senderBalanceBefore: BigNumber = await l2_canonicalToken.balanceOf(
+  const senderBalanceBefore: BigNumber = await sourceCanonicalToken.balanceOf(
     await transfer.sender.getAddress()
   )
-  const expectedAmountAfterSlippage: BigNumber = await l2_swap.calculateSwap('0', '1', transfer.amount)
+  const expectedAmountAfterSlippage: BigNumber = await sourceSwap.calculateSwap('0', '1', transfer.amount)
 
   // Perform transaction
-  await l2_canonicalToken
+  await sourceCanonicalToken
     .connect(transfer.sender)
     .approve(l2_ammWrapper.address, transfer.amount)
   await l2_ammWrapper
@@ -850,12 +853,12 @@ export const executeL2BridgeSwapAndSend = async (
 
   // Validate state after transaction
   await expectBalanceOf(
-    l2_canonicalToken,
+    sourceCanonicalToken,
     transfer.sender,
     senderBalanceBefore.sub(transfer.amount)
   )
 
-  const transferNonce = await getTransferNonceFromEvent(l2_bridge)
+  const transferNonce = await getTransferNonceFromEvent(sourceBridge)
   const transferAfterSlippage: Transfer = Object.assign(transfer, {
     amount: expectedAmountAfterSlippage
   })
@@ -865,13 +868,13 @@ export const executeL2BridgeSwapAndSend = async (
     isSwapAndSend
   )
 
-  const pendingAmount = await l2_bridge.pendingAmountForChainId(
+  const pendingAmount = await sourceBridge.pendingAmountForChainId(
     transfer.chainId
   )
   const expectedPendingAmount = transfer.amount
   expect(pendingAmount).to.eq(expectedPendingAmount)
   const transfersSentEvent = (
-    await l2_bridge.queryFilter(l2_bridge.filters.TransferSent())
+    await sourceBridge.queryFilter(sourceBridge.filters.TransferSent())
   )[0]
   const transferSentArgs = transfersSentEvent.args
   expect(transferSentArgs[0]).to.eq(
@@ -968,13 +971,15 @@ export const executeL2BridgeCommitTransfers = async (
   const transfersCommittedEvent = (
     await l2_bridge.queryFilter(l2_bridge.filters.TransfersCommitted())
   )[startingIndex.toNumber()]
+
+  const transfersCommittedArgs = transfersCommittedEvent.args
   expect(transfersCommittedArgs[0]).to.eq(expectedMerkleTree.getHexRoot())
   const pendingChainAmounts = transfersCommittedArgs[1]
   expect(pendingChainAmounts).to.eq(expectedPendingAmountForChainId)
 }
 
 export const executeL2BridgeBondWithdrawalAndDistribute = async (
-  l2_bridgeOrigin: Contract,
+  sourceBridge: Contract,
   l2_hopBridgeToken: Contract,
   l2_bridge: Contract,
   l2_canonicalToken: Contract,
@@ -986,7 +991,7 @@ export const executeL2BridgeBondWithdrawalAndDistribute = async (
 ) => {
   // Get state before transaction
   const transferNonce = await getTransferNonceFromEvent(
-    l2_bridgeOrigin,
+    sourceBridge,
     expectedTransferIndex
   )
   const bonderBalanceBefore: BigNumber = await l2_hopBridgeToken.balanceOf(
@@ -1020,12 +1025,7 @@ export const executeL2BridgeBondWithdrawalAndDistribute = async (
     )
   
   // Validate state after transaction
-  const isSwap = !(transfer.destinationAmountOutMin.eq(0) && transfer.destinationDeadline.eq(0))
-  if (isSwap) {
-    // TODO: Handle a swap
-  } else {
-    await expectBalanceOf(l2_hopBridgeToken, transfer.recipient, 0)
-  }
+  await expectBalanceOf(l2_hopBridgeToken, transfer.recipient, 0)
 
   await expectBalanceOf(
     l2_hopBridgeToken,

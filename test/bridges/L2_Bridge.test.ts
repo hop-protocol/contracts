@@ -446,7 +446,6 @@ describe('L2_Bridge', () => {
       await executeL2BridgeSwapAndSend(
         l2_bridge,
         l2_canonicalToken,
-        l2_hopBridgeToken,
         l2_swap,
         l2_ammWrapper,
         l2Transfer

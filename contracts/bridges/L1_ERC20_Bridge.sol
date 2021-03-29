@@ -14,7 +14,7 @@ contract L1_ERC20_Bridge is L1_Bridge {
 
     IERC20 public l1CanonicalToken;
 
-    constructor (IERC20 _l1CanonicalToken, address[] memory bonders) public L1_Bridge(bonders) {
+    constructor (IERC20 _l1CanonicalToken, address[] memory bonders, address _governance) public L1_Bridge(bonders, _governance) {
         l1CanonicalToken = _l1CanonicalToken;
     }
 
