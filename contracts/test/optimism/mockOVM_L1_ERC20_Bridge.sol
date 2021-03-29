@@ -2,16 +2,16 @@
 pragma solidity >0.6.0 <0.8.0;
 
 import { MockERC20 } from "../MockERC20.sol";
-import { iAbs_BaseCrossDomainMessenger } from "@eth-optimism/contracts/build/contracts/iOVM/bridge/messaging/iAbs_BaseCrossDomainMessenger.sol";
+import { iOVM_BaseCrossDomainMessenger } from "@eth-optimism/contracts/build/contracts/iOVM/bridge/iOVM_BaseCrossDomainMessenger.sol";
 
 contract OVM_L1_ERC20_Bridge {
-    iAbs_BaseCrossDomainMessenger public messenger;
+    iOVM_BaseCrossDomainMessenger public messenger;
     event Deposit(address indexed _sender, uint256 _amount);
 
     constructor (
         address _messenger
     ) public {
-        messenger = iAbs_BaseCrossDomainMessenger(_messenger);
+        messenger = iOVM_BaseCrossDomainMessenger(_messenger);
     }
 
     function deposit(
