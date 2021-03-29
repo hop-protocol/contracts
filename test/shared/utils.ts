@@ -2,13 +2,13 @@ import { ethers } from 'hardhat'
 import {
   BigNumber,
   BigNumberish,
-  BytesLike,
   Contract,
   Signer,
   utils as ethersUtils
 } from 'ethers'
 import { expect } from 'chai'
-import MerkleTree from '../../lib/MerkleTree'
+import { keccak256 } from 'ethers/lib/utils'
+import { MerkleTree } from 'merkletreejs'
 import {
   USER_INITIAL_BALANCE,
   LIQUIDITY_PROVIDER_INITIAL_BALANCE,
@@ -344,7 +344,7 @@ export const getL2SpecificArtifact = (chainId: BigNumber) => {
 }
 
 export const getRootHashFromTransferId = (transferId: Buffer) => {
-  const tree: MerkleTree = new MerkleTree([transferId])
+  const tree: MerkleTree = new MerkleTree([transferId], merkleHash)
   const rootHash: Buffer = tree.getRoot()
   const rootHashHex: string = tree.getHexRoot()
 
@@ -386,6 +386,10 @@ export const getNonceDomainSeparator = (): string => {
   // keccak256(abi.encodePacked("L2_Bridge v1.0"));
   const domainSeparatorString: string = 'L2_Bridge v1.0'
   return ethers.utils.solidityKeccak256(['string'], [domainSeparatorString])
+}
+
+export const merkleHash = (el: Buffer | string): Buffer => {
+  return Buffer.from(keccak256(el).slice(2), 'hex')
 }
 
 /**

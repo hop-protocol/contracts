@@ -1,7 +1,7 @@
 import '@nomiclabs/hardhat-waffle'
 import { expect } from 'chai'
 import { Contract, BigNumber, Signer } from 'ethers'
-import MerkleTree from '../../lib/MerkleTree'
+import { MerkleTree } from 'merkletreejs'
 import Transfer from '../../lib/Transfer'
 
 import { fixture } from '../shared/fixtures'
@@ -9,7 +9,8 @@ import {
   getTransferNonce,
   setUpDefaults,
   revertSnapshot,
-  takeSnapshot
+  takeSnapshot,
+  merkleHash
 } from '../shared/utils'
 import { IFixture } from '../shared/interfaces'
 
@@ -96,7 +97,7 @@ describe('Bridge', () => {
       transfer.chainId
     )
     const transferId: Buffer = await transfer.getTransferId(transferNonce)
-    const tree: MerkleTree = new MerkleTree([transferId])
+    const tree: MerkleTree = new MerkleTree([transferId], merkleHash)
     const transferRootHash: Buffer = tree.getRoot()
 
     const transferRootId: string = await mockBridge.getTransferRootId(
@@ -157,7 +158,7 @@ describe('Bridge', () => {
       transfer.chainId
     )
     const transferId: Buffer = await transfer.getTransferId(transferNonce)
-    const tree: MerkleTree = new MerkleTree([transferId])
+    const tree: MerkleTree = new MerkleTree([transferId], merkleHash)
     const transferRootHash: Buffer = tree.getRoot()
     const proof: Buffer[] = tree.getProof(transferId)
 

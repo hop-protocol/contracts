@@ -5,12 +5,13 @@ import {
   utils as ethersUtils
 } from 'ethers'
 import Transfer from '../../lib/Transfer'
-import MerkleTree from '../../lib/MerkleTree'
+import { MerkleTree } from 'merkletreejs'
 import { expect } from 'chai'
 import {
   expectBalanceOf,
   getRootHashFromTransferId,
-  getTransferNonceFromEvent
+  getTransferNonceFromEvent,
+  merkleHash
 } from './utils'
 import {
   isChainIdOptimism,
@@ -248,7 +249,7 @@ export const executeBridgeWithdraw = async (
 ) => {
   const transferNonce: string = await getTransferNonceFromEvent(sourceBridge)
   const transferId: Buffer = await transfer.getTransferId(transferNonce)
-  const tree: MerkleTree = new MerkleTree([transferId])
+  const tree: MerkleTree = new MerkleTree([transferId], merkleHash)
   const transferRootHash: Buffer = tree.getRoot()
   const proof: Buffer[] = tree.getProof(transferId)
 
@@ -441,7 +442,7 @@ export const executeBridgeSettleBondedWithdrawal = async (
   const transferNonce = await getTransferNonceFromEvent(sourceBridge)
   const transferId: Buffer = await transfer.getTransferId(transferNonce)
   const { rootHash } = getRootHashFromTransferId(transferId)
-  const tree: MerkleTree = new MerkleTree([transferId])
+  const tree: MerkleTree = new MerkleTree([transferId], merkleHash)
   const proof: Buffer[] = tree.getProof(transferId)
 
   // Get state before transaction
@@ -519,7 +520,7 @@ export const executeBridgeSettleBondedWithdrawals = async (
     )
     calculatedTransferIds.push(await transfers[i].getTransferId(transferNonce))
   }
-  const expectedMerkleTree = new MerkleTree(calculatedTransferIds)
+  const expectedMerkleTree = new MerkleTree(calculatedTransferIds, merkleHash)
   const transferRoot: number = await sourceBridge.getTransferRoot(
     expectedMerkleTree.getHexRoot(),
     totalTransferAmount
@@ -965,7 +966,7 @@ export const executeL2BridgeCommitTransfers = async (
     )
     transferIds.push(await transfers[i].getTransferId(transferNonce))
   }
-  const expectedMerkleTree = new MerkleTree(transferIds)
+  const expectedMerkleTree = new MerkleTree(transferIds, merkleHash)
 
   // There should only be a single TransfersCommitted event
   const transfersCommittedEvent = (

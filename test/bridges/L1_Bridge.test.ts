@@ -3,7 +3,7 @@ import { expect } from 'chai'
 import { Signer, Contract, BigNumber, utils } from 'ethers'
 import { parseEther } from 'ethers/lib/utils'
 import Transfer from '../../lib/Transfer'
-import MerkleTree from '../../lib/MerkleTree'
+import { MerkleTree } from 'merkletreejs'
 
 import {
   setUpDefaults,
@@ -13,7 +13,8 @@ import {
   getTransferNonceFromEvent,
   increaseTime,
   revertSnapshot,
-  takeSnapshot
+  takeSnapshot,
+  merkleHash
 } from '../shared/utils'
 import {
   executeBridgeWithdraw,
@@ -2166,7 +2167,7 @@ describe('L1_Bridge', () => {
       const transferNonce = await getTransferNonceFromEvent(l2_bridge)
       const transferId: Buffer = await transfer.getTransferId(transferNonce)
       const { rootHash } = getRootHashFromTransferId(transferId)
-      const tree: MerkleTree = new MerkleTree([transferId])
+      const tree: MerkleTree = new MerkleTree([transferId], merkleHash)
       const proof: Buffer[] = tree.getProof(transferId)
 
       await expect(
@@ -2257,7 +2258,7 @@ describe('L1_Bridge', () => {
 
       const transferNonce: string = await getTransferNonceFromEvent(l2_bridge)
       const transferId: Buffer = await transfer.getTransferId(transferNonce)
-      const tree: MerkleTree = new MerkleTree([transferId])
+      const tree: MerkleTree = new MerkleTree([transferId], merkleHash)
       const transferRootHash: Buffer = tree.getRoot()
       const proof: Buffer[] = tree.getProof(transferId)
 
@@ -3793,7 +3794,7 @@ describe('L1_Bridge', () => {
       const transferId: Buffer = await transfer.getTransferId(transferNonce)
       const { rootHash } = getRootHashFromTransferId(transferId)
 
-      const tree: MerkleTree = new MerkleTree([transferId])
+      const tree: MerkleTree = new MerkleTree([transferId], merkleHash)
       const transferRootHash: Buffer = tree.getRoot()
       const proof: Buffer[] = tree.getProof(transferId)
 
