@@ -41,6 +41,8 @@ abstract contract L1_Bridge is Bridge {
     uint256 public challengeResolutionPeriod = 10 days;
     uint256 public minTransferRootBondDelay = 15 minutes;
 
+    uint256 constant MAX_TIME_SLOTS = 1000;
+
     /* ========== Events ========== */
 
     event TransferRootBonded (
@@ -354,6 +356,7 @@ abstract contract L1_Bridge is Bridge {
 
     function setChallengePeriodAndTimeSlotSize(uint256 _challengePeriod, uint256 _timeSlotSize) external onlyGovernance {
         require(_challengePeriod % _timeSlotSize == 0, "L1_BRG: challengePeriod must be divisible by timeSlotSize");
+        require(_challengePeriod / _timeSlotSize < MAX_TIME_SLOTS, "L1_BRG: Numer of timeslots exceeds max timeslots");
         challengePeriod = _challengePeriod;
         timeSlotSize = _timeSlotSize;
     }
