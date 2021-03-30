@@ -356,7 +356,7 @@ abstract contract L1_Bridge is Bridge {
 
     function setChallengePeriodAndTimeSlotSize(uint256 _challengePeriod, uint256 _timeSlotSize) external onlyGovernance {
         require(_challengePeriod % _timeSlotSize == 0, "L1_BRG: challengePeriod must be divisible by timeSlotSize");
-        require(_challengePeriod / _timeSlotSize < MAX_TIME_SLOTS, "L1_BRG: Numer of timeslots exceeds max timeslots");
+        require(_challengePeriod / _timeSlotSize < MAX_TIME_SLOTS, "L1_BRG: Number of time slots exceeds max timeslots");
         challengePeriod = _challengePeriod;
         timeSlotSize = _timeSlotSize;
     }
