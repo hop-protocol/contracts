@@ -52,7 +52,6 @@ export const getL2BridgeDefaults = (
   l2MessengerAddress: string,
   governanceAddress: string,
   l2HopBridgeTokenAddress: string,
-  l2CanonicalTokenAddress: string,
   l1BridgeAddress: string,
   supportedChainIds: string[],
   bonderAddresses: string[],
@@ -74,7 +73,6 @@ export const getL2BridgeDefaults = (
     l2MessengerAddress,
     governanceAddress,
     l2HopBridgeTokenAddress,
-    l2CanonicalTokenAddress,
     l1BridgeAddress,
     supportedChainIds,
     bonderAddresses

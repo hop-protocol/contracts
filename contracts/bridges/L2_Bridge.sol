@@ -61,11 +61,9 @@ abstract contract L2_Bridge is Bridge {
         _;
     }
 
-    /// @notice When l2CanonicalTokenIsEth is true, l2CanonicalToken should be set to the WETH address
     constructor (
         address _l1Governance,
         HopBridgeToken _hToken,
-        IERC20 _l2CanonicalToken,
         address _l1BridgeAddress,
         uint256[] memory _supportedChainIds,
         address[] memory bonders
@@ -77,7 +75,6 @@ abstract contract L2_Bridge is Bridge {
 
         l1Governance = _l1Governance;
         hToken = _hToken;
-        l2CanonicalToken = _l2CanonicalToken;
         l1BridgeAddress = _l1BridgeAddress;
 
         for (uint256 i = 0; i < _supportedChainIds.length; i++) {

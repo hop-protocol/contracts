@@ -262,7 +262,6 @@ const deployBridge = async (
     l2_messengerAddress,
     await owner.getAddress(),
     l2_hopBridgeToken.address,
-    l2_canonicalToken.address,
     l1_bridge.address,
     [CHAIN_IDS.ETHEREUM.MAINNET.toString()],
     [await bonder.getAddress()],
