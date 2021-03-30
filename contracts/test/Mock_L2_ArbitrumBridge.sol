@@ -13,7 +13,6 @@ contract Mock_L2_ArbitrumBridge is L2_ArbitrumBridge {
         IArbSys messenger,
         address l1Governance,
         HopBridgeToken hToken,
-        IERC20 l2CanonicalToken,
         address l1BridgeAddress,
         uint256[] memory supportedChainIds,
         address[] memory bonders
@@ -23,7 +22,6 @@ contract Mock_L2_ArbitrumBridge is L2_ArbitrumBridge {
             messenger,
             l1Governance,
             hToken,
-            l2CanonicalToken,
             l1BridgeAddress,
             supportedChainIds,
             bonders

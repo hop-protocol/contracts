@@ -158,7 +158,6 @@ export async function fixture (
     l2_messenger.address,
     await governance.getAddress(),
     l2_hopBridgeToken.address,
-    l2_canonicalToken.address,
     l1_bridge.address,
     ALL_SUPPORTED_CHAIN_IDS,
     [await bonder.getAddress()],

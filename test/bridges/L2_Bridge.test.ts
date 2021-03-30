@@ -187,7 +187,6 @@ describe('L2_Bridge', () => {
 
   it('Should set the correct values in the constructor', async () => {
     const expectedL1GovernanceAddress: string = await governance.getAddress()
-    const expectedL2CanonicalTokenAddress: string = l2_canonicalToken.address
     const expectedL1BridgeAddress: string = l1_bridge.address
     const expectedIsChainIdSupported: boolean = true
     const expectedIsBonder: boolean = true
@@ -196,7 +195,6 @@ describe('L2_Bridge', () => {
     const expectedDecimals: number = DEFAULT_H_BRIDGE_TOKEN_DECIMALS
 
     const l1GovernanceAddress = await l2_bridge.l1Governance()
-    const l2CanonicalTokenAddress = await l2_bridge.l2CanonicalToken()
     const l1BridgeAddress = await l2_bridge.l1BridgeAddress()
     const isBonder = await l2_bridge.getIsBonder(await bonder.getAddress())
     const name: string = await l2_hopBridgeToken.name()
@@ -204,7 +202,6 @@ describe('L2_Bridge', () => {
     const decimals: number = await l2_hopBridgeToken.decimals()
 
     expect(expectedL1GovernanceAddress).to.eq(l1GovernanceAddress)
-    expect(expectedL2CanonicalTokenAddress).to.eq(l2CanonicalTokenAddress)
     expect(expectedL1BridgeAddress).to.eq(l1BridgeAddress)
     expect(expectedIsBonder).to.eq(isBonder)
     expect(expectedName).to.eq(name)

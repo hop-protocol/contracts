@@ -17,7 +17,6 @@ contract L2_ArbitrumBridge is L2_Bridge {
         IArbSys _messenger,
         address l1Governance,
         HopBridgeToken hToken,
-        IERC20 l2CanonicalToken,
         address l1BridgeAddress,
         uint256[] memory supportedChainIds,
         address[] memory bonders
@@ -26,7 +25,6 @@ contract L2_ArbitrumBridge is L2_Bridge {
         L2_Bridge(
             l1Governance,
             hToken,
-            l2CanonicalToken,
             l1BridgeAddress,
             supportedChainIds,
             bonders
