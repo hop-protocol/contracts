@@ -22,7 +22,15 @@ import {
   ALL_SUPPORTED_CHAIN_IDS,
   DEFAULT_H_BRIDGE_TOKEN_NAME,
   DEFAULT_H_BRIDGE_TOKEN_SYMBOL,
-  DEFAULT_H_BRIDGE_TOKEN_DECIMALS
+  DEFAULT_H_BRIDGE_TOKEN_DECIMALS,
+  DEFAULT_SWAP_DECIMALS,
+  DEFAULT_SWAP_LP_TOKEN_NAME,
+  DEFAULT_SWAP_LP_TOKEN_SYMBOL,
+  DEFAULT_SWAP_A,
+  DEFAULT_SWAP_FEE,
+  DEFAULT_SWAP_ADMIN_FEE,
+  DEFAULT_SWAP_WITHDRAWAL_FEE
+
 } from '../../config/constants'
 
 export async function fixture (
@@ -174,13 +182,13 @@ export async function fixture (
   const l2_swap = await L2_Swap.deploy()
   await l2_swap.initialize(
     [l2_canonicalToken.address, l2_hopBridgeToken.address],
-    ['18', '18'],
-    'Hop DAI LP Token',
-    'HOP-LP-DAI',
-    '200',
-    '4000000',
-    '0',
-    '0'
+    DEFAULT_SWAP_DECIMALS,
+    DEFAULT_SWAP_LP_TOKEN_NAME,
+    DEFAULT_SWAP_LP_TOKEN_SYMBOL,
+    DEFAULT_SWAP_A,
+    DEFAULT_SWAP_FEE,
+    DEFAULT_SWAP_ADMIN_FEE,
+    DEFAULT_SWAP_WITHDRAWAL_FEE
   )
 
   const l2CanonicalTokenName = await l2_canonicalToken.symbol()

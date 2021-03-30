@@ -20,7 +20,11 @@ import {
 import {
   ZERO_ADDRESS,
   CHAIN_IDS,
-  DEFAULT_ETHERS_OVERRIDES as overrides
+  DEFAULT_ETHERS_OVERRIDES as overrides,
+  DEFAULT_SWAP_A,
+  DEFAULT_SWAP_FEE,
+  DEFAULT_SWAP_ADMIN_FEE,
+  DEFAULT_SWAP_WITHDRAWAL_FEE
 } from '../../config/constants'
 
 const logger = Logger('deployL2')
@@ -34,6 +38,8 @@ interface Config {
   l2_hBridgeTokenName: string
   l2_hBridgeTokenSymbol: string
   l2_hBridgeTokenDecimals: number
+  l2_swapLpTokenName: string
+  l2_swapLpTokenSymbol: string
 }
 
 export async function deployL2 (config: Config) {
@@ -47,7 +53,9 @@ export async function deployL2 (config: Config) {
     l2_messengerAddress,
     l2_hBridgeTokenName,
     l2_hBridgeTokenSymbol,
-    l2_hBridgeTokenDecimals
+    l2_hBridgeTokenDecimals,
+    l2_swapLpTokenName,
+    l2_swapLpTokenSymbol
   } = config
 
   logger.log(`config:
@@ -67,6 +75,7 @@ export async function deployL2 (config: Config) {
   let accounts: Signer[]
   let owner: Signer
   let bonder: Signer
+  let governance: Signer
 
   // Factories
   let L1_Bridge: ContractFactory
@@ -88,6 +97,7 @@ export async function deployL2 (config: Config) {
   accounts = await ethers.getSigners()
   owner = accounts[0]
   bonder = accounts[1]
+  governance = accounts[4]
 
   logger.log('owner:', await owner.getAddress())
   logger.log('bonder:', await bonder.getAddress())
@@ -129,7 +139,9 @@ export async function deployL2 (config: Config) {
     l2_chainId,
     l2_canonicalToken,
     l2_hopBridgeToken,
-    L2_Swap
+    L2_Swap,
+    l2_swapLpTokenName,
+    l2_swapLpTokenSymbol
   ))
 
   logger.log('deploying L2 bridge and L2 amm wrapper')
@@ -139,6 +151,7 @@ export async function deployL2 (config: Config) {
     ethers,
     owner,
     bonder,
+    governance,
     L2_Bridge,
     L2_AmmWrapper,
     l1_bridge,
@@ -194,6 +207,8 @@ const deployAmm = async (
   l2_canonicalToken: Contract,
   l2_hopBridgeToken: Contract,
   L2_Swap: ContractFactory,
+  l2_swapLpTokenName: string,
+  l2_swapLpTokenSymbol: string
 ) => {
 
   let decimalParams: any[] = []
@@ -210,29 +225,24 @@ const deployAmm = async (
   const l2_swap = await L2_Swap.deploy()
   await waitAfterTransaction(l2_swap, ethers)
 
-  console.log('### deployed')
-
   let initializeParams: any[] = [
     [l2_canonicalToken.address, l2_hopBridgeToken.address],
     [l2_canonicalTokenDecimals, l2_hopBridgeTokenDecimals],
-    'Hop DAI LP Token',
-    'HOP-LP-DAI',
-    '200',
-    '4000000',
-    '0',
-    '0'
+    l2_swapLpTokenName,
+    l2_swapLpTokenSymbol,
+    DEFAULT_SWAP_A,
+    DEFAULT_SWAP_FEE,
+    DEFAULT_SWAP_ADMIN_FEE,
+    DEFAULT_SWAP_WITHDRAWAL_FEE
   ]
 
   if (isChainIdXDai(l2_chainId)) {
     initializeParams.push(overrides)
   }
 
-  // ToDo: Pass in true token name and symbol
   const tx = await l2_swap.initialize(...initializeParams)
   await tx.wait()
   await waitAfterTransaction()
-
-  console.log('### initialized')
 
   return {
     l2_swap
@@ -245,6 +255,7 @@ const deployBridge = async (
   ethers: any,
   owner: Signer,
   bonder: Signer,
+  governance: Signer,
   L2_Bridge: ContractFactory,
   L2_AmmWrapper: ContractFactory,
   l1_bridge: Contract,
@@ -260,7 +271,7 @@ const deployBridge = async (
   const l2BridgeDeploymentParams = getL2BridgeDefaults(
     chainId,
     l2_messengerAddress,
-    await owner.getAddress(),
+    await governance.getAddress(),
     l2_hopBridgeToken.address,
     l2_canonicalToken.address,
     l1_bridge.address,
@@ -298,7 +309,9 @@ if (require.main === module) {
     l2_messengerAddress,
     l2_hBridgeTokenName,
     l2_hBridgeTokenSymbol,
-    l2_hBridgeTokenDecimals
+    l2_hBridgeTokenDecimals,
+    l2_swapLpTokenName,
+    l2_swapLpTokenSymbol
   } = readConfigFile()
   deployL2({
     l1_chainId,
@@ -308,7 +321,9 @@ if (require.main === module) {
     l2_messengerAddress,
     l2_hBridgeTokenName,
     l2_hBridgeTokenSymbol,
-    l2_hBridgeTokenDecimals
+    l2_hBridgeTokenDecimals,
+    l2_swapLpTokenName,
+    l2_swapLpTokenSymbol
   })
     .then(() => {
       process.exit(0)

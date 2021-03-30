@@ -148,7 +148,6 @@ export async function setupL2 (config: Config) {
   }
 
   logger.log('adding liquidity to L2 amm')
-  logger.log('token amounts:', LIQUIDITY_PROVIDER_AMM_AMOUNT.toString())
   tx = await l2_swap
     .connect(liquidityProvider)
     .addLiquidity(...addLiquidityParams)

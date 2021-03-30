@@ -340,7 +340,9 @@ export const readConfigFile = () => {
     l2_hopBridgeTokenAddress: '',
     l2_messengerAddress: '',
     l2_swapAddress: '',
-    l2_ammWrapperAddress: ''
+    l2_ammWrapperAddress: '',
+    l2_swapLpTokenName: '',
+    l2_swapLpTokenSymbol: ''
   }
   if (fs.existsSync(configFilepath)) {
     data = JSON.parse(fs.readFileSync(configFilepath, 'utf8'))

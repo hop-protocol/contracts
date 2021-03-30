@@ -9,14 +9,14 @@ async function main () {
   const signer = (await ethers.getSigners())[0]
   console.log('signer:', await signer.getAddress())
 
-  const L1ERC20Bridge = await ethers.getContractFactory('Arbitrum_L1_ERC20_Bridge', {
-  // const L1ERC20Bridge = await ethers.getContractFactory('OVM_L1_ERC20_Bridge', {
+  // const L1ERC20Bridge = await ethers.getContractFactory('Arbitrum_L1_ERC20_Bridge', {
+  const L1ERC20Bridge = await ethers.getContractFactory('OVM_L1_ERC20_Bridge', {
     signer: (await ethers.getSigners())[0]
   })
 
   const l1_messenger = {
-    address: '0x97884F2B6A2AF19C38AA0a15716CF2aC931A3c73' // Arbitrum
-    // address: '0xb89065D5eB05Cac554FDB11fC764C679b4202322' // Optimism
+    // address: '0x97884F2B6A2AF19C38AA0a15716CF2aC931A3c73' // Arbitrum
+    address: '0xb89065D5eB05Cac554FDB11fC764C679b4202322' // Optimism
   }
 
   const l1_erc20Bridge = await L1ERC20Bridge.deploy(

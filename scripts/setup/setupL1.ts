@@ -95,7 +95,7 @@ export async function setupL1 (config: Config) {
   accounts = await ethers.getSigners()
   owner = accounts[0]
   liquidityProvider = accounts[2]
-  governance = owner
+  governance = accounts[4]
 
   logger.log('owner:', await owner.getAddress())
   logger.log('liquidity provider:', await liquidityProvider.getAddress())
@@ -144,7 +144,7 @@ export async function setupL1 (config: Config) {
 
   logger.log('setting cross domain messenger wrapper on L1 bridge')
   // Set up the L1 bridge
-  tx = await l1_bridge.setCrossDomainMessengerWrapper(
+  tx = await l1_bridge.connect(governance).setCrossDomainMessengerWrapper(
     l2_chainId,
     l1_messengerWrapper.address
   )
