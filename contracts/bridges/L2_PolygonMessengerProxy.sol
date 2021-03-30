@@ -25,6 +25,8 @@ contract L2_PolygonMessengerProxy is IStateReceiver, ReentrancyGuard {
     }
 
     function onStateReceive(uint256 /*stateId*/, bytes calldata data) external override nonReentrant {
+        require(msg.sender == polygonMessenger, "L2_PLGN_MSG: Caller is not polygon messenger");
+
         (address sender, bytes memory message) = abi.decode(data, (address, bytes));
         xDomainMessageSender = sender;
         (bool success,) = address(l2Bridge).call(message);
