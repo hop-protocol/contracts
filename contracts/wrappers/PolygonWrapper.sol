@@ -13,33 +13,30 @@ import "./MessengerWrapper.sol";
 
 contract PolygonMessengerWrapper is MessengerWrapper {
 
+    address l2MessengerProxy;
     IStateSender public l1MessengerAddress;
     address public predicate;
 
     constructor(
-        address _l1BridgeAddress,
-        address _l2BridgeAddress,
-        uint256 _defaultGasLimit,
+        address _l2MessengerProxy,
         IStateSender _l1MessengerAddress,
         address _predicate
     )
         public
     {
-        l1BridgeAddress = _l1BridgeAddress;
-        l2BridgeAddress = _l2BridgeAddress;
-        defaultGasLimit = _defaultGasLimit;
+        l2MessengerProxy = _l2MessengerProxy;
         l1MessengerAddress = _l1MessengerAddress;
         predicate = _predicate;
     }
 
     /** 
-     * @dev Sends a message to the l2BridgeAddress from layer-1
-     * @param _calldata The data that l2BridgeAddress will be called with
+     * @dev Sends a message to the l2MessengerProxy from layer-1
+     * @param _calldata The data that l2MessengerProxy will be called with
      * @notice The msg.sender is sent to the L2_PolygonMessengerProxy and checked there.
      */
     function sendCrossDomainMessage(bytes memory _calldata) public override {
         l1MessengerAddress.syncState(
-            l2BridgeAddress,
+            l2MessengerProxy,
             abi.encode(msg.sender, _calldata)
         );
     }
