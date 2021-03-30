@@ -3505,7 +3505,7 @@ describe('L1_Bridge', () => {
       expect(timeSlot).to.eq(expectedTimeSlot)
     })
 
-    it.skip('Should settle bonded withdrawals with an arbitrary bonder address  but not update any relevant state. Should then let the actual bonder settle.', async () => {
+    it('Should settle bonded withdrawals with an arbitrary bonder address but not update any relevant state. Should then let the actual bonder settle.', async () => {
       await executeL1BridgeSendToL2(
         l1_canonicalToken,
         l1_bridge,
@@ -3550,13 +3550,15 @@ describe('L1_Bridge', () => {
       await l1_messenger.relayNextMessage()
 
       const numTransfers: BigNumber = BigNumber.from('2')
+      let totalTransferAmount: BigNumber = BigNumber.from('0')
       let transferIds: Buffer[] = []
-      let totalTransferAmount: BigNumber
       for (let i = 0; i < numTransfers.toNumber(); i++) {
-        const transferNonces: string = await getTransferNonceFromEvent(l2_bridge, BigNumber.from(i))
-        transferIds.push(await transfers[i].getTransferId(transferNonces[i]))
+        const transferNonce: string = await getTransferNonceFromEvent(l2_bridge, BigNumber.from(i))
+        transferIds.push(await transfer.getTransferId(transferNonce))
         totalTransferAmount = totalTransferAmount.add(transfers[i].amount)
       }
+
+      const creditBefore = await l1_bridge.getCredit(await bonder.getAddress())
       // Send tx with arbitrary bonder address
       await l1_bridge
         .connect(bonder)
@@ -3574,21 +3576,21 @@ describe('L1_Bridge', () => {
           l2_bridge,
           BigNumber.from(i)
         )
-        calculatedTransferIds.push(await transfers[i].getTransferId(transferNonce))
+        calculatedTransferIds.push(await transfer.getTransferId(transferNonce))
       }
-      const expectedMerkleTree = new MerkleTree(calculatedTransferIds)
+      const expectedMerkleTree = new MerkleTree(calculatedTransferIds, merkleHash)
       const transferRoot: number = await l1_bridge.getTransferRoot(
         expectedMerkleTree.getHexRoot(),
         totalTransferAmount
       )
-      const credit = await l1_bridge.getCredit(await bonder.getAddress())
+      const creditAfter = await l1_bridge.getCredit(await bonder.getAddress())
       expect(transferRoot[0]).to.eq(totalTransferAmount)
       expect(transferRoot[1]).to.eq(BigNumber.from('0'))
       expect(transferRoot[2].toNumber()).to.be.closeTo(
         currentTime,
         TIMESTAMP_VARIANCE
       )
-      expect(credit).to.eq(BigNumber.from('0'))
+      expect(creditBefore.sub(creditAfter)).to.eq(BigNumber.from('0'))
 
       // Send expected tx
       await executeBridgeSettleBondedWithdrawals(
@@ -3599,7 +3601,8 @@ describe('L1_Bridge', () => {
       )
     })
 
-    it.skip('Should settle bonded withdrawals and update state. Should then try to settle a single withdrawal and fail.', async () => {
+    it('Should settle bonded withdrawals and update state. Should then try to settle a single withdrawal and fail.', async () => {
+      const expectedErrorMsg: string = 'L2_BRG: transferId has no bond'
       await executeL1BridgeSendToL2(
         l1_canonicalToken,
         l1_bridge,
@@ -3651,13 +3654,14 @@ describe('L1_Bridge', () => {
         bonder
       )
 
-      // Send expected tx
-      await executeBridgeSettleBondedWithdrawal(
-        l1_bridge,
-        l2_bridge,
-        transfer,
-        bonder
-      )
+      await expect(
+        executeBridgeSettleBondedWithdrawal(
+          l1_bridge,
+          l2_bridge,
+          transfer,
+          bonder
+        )
+      ).to.be.revertedWith(expectedErrorMsg)
     })
 
     it('Should successfully challenge a bonder that bonds a correct rootHash but incorrect amount', async () => {
