@@ -10,6 +10,7 @@ import {
   waitAfterTransaction
 } from '../shared/utils'
 
+// Send a token over the Omni Bridge. Useful for creating a first-time token on xDai
 // Example usage:
 // $ npx hardhat run scripts/other/sendOverOmniBridge.ts --network kovan
 async function main () {

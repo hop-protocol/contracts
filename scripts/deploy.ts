@@ -16,11 +16,6 @@ import {
 
 const logger = Logger('deploy')
 
-interface KovanParams {
-  l1_chainId: string
-  l1_canonicalTokenAddress: string
-}
-
 interface IGeneralData {
   l2_networkName: string
   l1_chainId: string
@@ -42,7 +37,7 @@ interface ISpecificData {
   l2_swapLpTokenSymbol: string
 }
 
-interface IGetNetworkParamsResponse extends IGeneralData, ISpecificData {
+interface INetworkParams extends IGeneralData, ISpecificData {
   l1_bridgeAddress: string
 }
 
@@ -63,20 +58,15 @@ async function main () {
     throw new Error('token symbol not specified')
   }
 
+  setNetworkParams(networkName, tokenSymbol)
   const scripts: string[] = []
   if (networkName === 'kovan') {
-    const networkParams: KovanParams = getKovanParams()
-    updateConfigFile(networkParams)
-
     scripts.push(`npm run deploy:l1-kovan`)
   } else {
     if (networkName === 'xdai') {
       showL2CanonicalTokenWarning()
     }
-    const networkParams: IGetNetworkParamsResponse = getNetworkParams(networkName, tokenSymbol)
-    updateConfigFile(networkParams)
 
-    validateInputs(networkParams)
     scripts.push(
       `npm run deploy:l2-${networkName}`,
       `npm run setup:l1-kovan`,
@@ -93,21 +83,20 @@ async function main () {
   logger.log('complete')
 }
 
-function getKovanParams (): KovanParams {
-  return {
-    l1_chainId: CHAIN_IDS.ETHEREUM.KOVAN.toString(),
-    l1_canonicalTokenAddress: '0xbc8D4E413cA4fF57DdB080B489dc2ED77b74aF8B',
-  }
-}
-
-function getNetworkParams (networkName: string, tokenSymbol: string): IGetNetworkParamsResponse {
+function setNetworkParams (networkName: string, tokenSymbol: string) {
   const { l1_bridgeAddress } = readConfigFile()
   
   let generalData: IGeneralData
   let specificData: ISpecificData
 
   console.log(networkName, tokenSymbol)
-  if (networkName === 'optimism') {
+  if (networkName === 'kovan') {
+    updateConfigFile({
+      l1_chainId: CHAIN_IDS.ETHEREUM.KOVAN.toString(),
+      l1_canonicalTokenAddress: '0x436e3FfB93A4763575E5C0F6b3c97D5489E050da',
+    })
+    return
+  } else if (networkName === 'optimism') {
     generalData = {
       l2_networkName: networkName,
       l1_chainId: CHAIN_IDS.ETHEREUM.KOVAN.toString(),
@@ -120,8 +109,8 @@ function getNetworkParams (networkName: string, tokenSymbol: string): IGetNetwor
 
     if (tokenSymbol === COMMON_SYMBOLS.DAI) {
       specificData = {
-        l1_canonicalTokenAddress: '0xbc8D4E413cA4fF57DdB080B489dc2ED77b74aF8B',
-        l2_canonicalTokenAddress: '0xbCF7737c84f3905F31110151286c17E9B989075f',
+        l1_canonicalTokenAddress: '0x436e3FfB93A4763575E5C0F6b3c97D5489E050da',
+        l2_canonicalTokenAddress: '0x3D1d74D898e29957aDc29Fb3861489899faFAFfd',
         l2_hBridgeTokenName: DEFAULT_H_BRIDGE_TOKEN_NAME,
         l2_hBridgeTokenSymbol: DEFAULT_H_BRIDGE_TOKEN_SYMBOL,
         l2_hBridgeTokenDecimals: DEFAULT_H_BRIDGE_TOKEN_DECIMALS,
@@ -214,8 +203,8 @@ function getNetworkParams (networkName: string, tokenSymbol: string): IGetNetwor
 
     if (tokenSymbol === COMMON_SYMBOLS.DAI) {
       specificData = {
-        l1_canonicalTokenAddress: '0xbc8D4E413cA4fF57DdB080B489dc2ED77b74aF8B',
-        l2_canonicalTokenAddress: '0x1A973A08f393eA245139c7044E7Be3fDf7aF9933',
+        l1_canonicalTokenAddress: '0x436e3FfB93A4763575E5C0F6b3c97D5489E050da',
+        l2_canonicalTokenAddress: '0x6D2d8B29d92cab87a273e872FcC4650A64116283',
         l2_hBridgeTokenName: DEFAULT_H_BRIDGE_TOKEN_NAME,
         l2_hBridgeTokenSymbol: DEFAULT_H_BRIDGE_TOKEN_SYMBOL,
         l2_hBridgeTokenDecimals: DEFAULT_H_BRIDGE_TOKEN_DECIMALS,
@@ -275,31 +264,12 @@ function getNetworkParams (networkName: string, tokenSymbol: string): IGetNetwor
     }
   }
 
-  return {
+  const data: INetworkParams = {
     l1_bridgeAddress,
     ...generalData,
     ...specificData
   }
-}
-
-function validateInputs (inputs: any) {
-  if (
-    !inputs.l2_networkName ||
-    !inputs.l1_chainId ||
-    !inputs.l2_chainId ||
-    !inputs.l1_bridgeAddress ||
-    !inputs.l1_canonicalTokenAddress ||
-    !inputs.l1_messengerAddress ||
-    !inputs.l2_canonicalTokenAddress ||
-    !inputs.l2_messengerAddress ||
-    !inputs.l2_hBridgeTokenName ||
-    !inputs.l2_hBridgeTokenSymbol ||
-    !inputs.l2_hBridgeTokenDecimals ||
-    !inputs.l2_swapLpTokenName ||
-    !inputs.l2_swapLpTokenSymbol
-  ) {
-    throw new Error('Inputs must be defined')
-  }
+  updateConfigFile(data)
 }
 
 function showL2CanonicalTokenWarning() {
