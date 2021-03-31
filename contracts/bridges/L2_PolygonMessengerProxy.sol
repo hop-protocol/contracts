@@ -3,11 +3,11 @@
 pragma solidity 0.6.12;
 pragma experimental ABIEncoderV2;
 
-import "./L2_PolygonBridge.sol";
-import "../interfaces/polygon/IStateReceiver.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import "@maticnetwork/pos-portal/contracts/tunnel/BaseChildTunnel.sol";
+import "./L2_PolygonBridge.sol";
 
-contract L2_PolygonMessengerProxy is IStateReceiver, ReentrancyGuard {
+contract L2_PolygonMessengerProxy is BaseChildTunnel, ReentrancyGuard {
 
     L2_PolygonBridge public l2Bridge;
     address public polygonMessenger;
@@ -24,9 +24,11 @@ contract L2_PolygonMessengerProxy is IStateReceiver, ReentrancyGuard {
         xDomainMessageSender = DEAD_ADDRESS;
     }
 
-    function onStateReceive(uint256 /*stateId*/, bytes calldata data) external override nonReentrant {
-        require(msg.sender == polygonMessenger, "L2_PLGN_MSG: Caller is not polygon messenger");
+    function sendCrossDomainMessage(bytes memory message) internal override onlyL2Bridge {
+        _sendMessageToRoot(message);
+    }
 
+    function _processMessageFromRoot(bytes memory message) internal override nonReentrant {
         (address sender, bytes memory message) = abi.decode(data, (address, bytes));
         xDomainMessageSender = sender;
         (bool success,) = address(l2Bridge).call(message);

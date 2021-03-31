@@ -3,30 +3,30 @@
 pragma solidity 0.6.12;
 pragma experimental ABIEncoderV2;
 
-import "../interfaces/polygon/IStateSender.sol";
+import "@maticnetwork/pos-portal/contracts/tunnel/BaseRootTunnel.sol";
 import "./MessengerWrapper.sol";
+import "../bridges/L1_Bridge.sol";
 
 /**
  * @dev A MessengerWrapper for Polygon - https://docs.matic.network/docs
  * @notice Deployed on layer-1
  */
 
-contract PolygonMessengerWrapper is MessengerWrapper {
+contract PolygonMessengerWrapper is BaseRootTunnel, MessengerWrapper {
 
-    address l2MessengerProxy;
+    address public l2MessengerProxy;
     IStateSender public l1MessengerAddress;
-    address public predicate;
+    L1_Bridge public l1Bridge;
 
     constructor(
         address _l2MessengerProxy,
         IStateSender _l1MessengerAddress,
-        address _predicate
+        L1_Bridge _l1Bridge
     )
         public
     {
         l2MessengerProxy = _l2MessengerProxy;
         l1MessengerAddress = _l1MessengerAddress;
-        predicate = _predicate;
     }
 
     /** 
@@ -35,13 +35,17 @@ contract PolygonMessengerWrapper is MessengerWrapper {
      * @notice The msg.sender is sent to the L2_PolygonMessengerProxy and checked there.
      */
     function sendCrossDomainMessage(bytes memory _calldata) public override {
-        l1MessengerAddress.syncState(
-            l2MessengerProxy,
+        _sendMessageToRoot(
             abi.encode(msg.sender, _calldata)
         );
     }
 
     function verifySender(address l1BridgeCaller, bytes memory /*_data*/) public override {
-        require(l1BridgeCaller == predicate, "L2_PLGN_WPR: Caller must be predicate contract");
+        require(l1BridgeCaller == address(this), "L1_PLGN_WPR: Caller must be this contract");
+    }
+
+    function _processMessageFromRoot(bytes memory message) internal override {
+        (bool success,) = l1Bridge.call(message);
+        require(success, "L1_PLGN_WPR: Call to L1 Bridge failed");
     }
 }

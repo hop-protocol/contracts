@@ -51,7 +51,9 @@
     "typescript": "^4.0.3"
   },
   "dependencies": {
+    "@eth-optimism/contracts": "^0.1.11",
     "@eth-optimism/plugins": "0.0.4",
+    "@maticnetwork/pos-portal": "^1.5.0",
     "@openzeppelin/contracts": "^3.2.0",
     "@openzeppelin/contracts-upgradeable": "^3.4.1",
     "@uniswap/v2-core": "^1.0.1",

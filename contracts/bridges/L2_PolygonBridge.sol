@@ -3,7 +3,6 @@
 pragma solidity 0.6.12;
 pragma experimental ABIEncoderV2;
 
-import "../interfaces/polygon/IStateReceiver.sol";
 import "./L2_Bridge.sol";
 import "./L2_PolygonMessengerProxy.sol";
 
