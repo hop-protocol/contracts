@@ -2,17 +2,17 @@
 pragma solidity >0.6.0 <0.8.0;
 
 import { MockERC20 } from "../MockERC20.sol";
-import { iOVM_BaseCrossDomainMessenger } from "@eth-optimism/contracts/build/contracts/iOVM/bridge/iOVM_BaseCrossDomainMessenger.sol";
+import { iAbs_BaseCrossDomainMessenger } from "@eth-optimism/contracts/build/contracts/iOVM/bridge/messaging/iAbs_BaseCrossDomainMessenger.sol";
 
 contract OVM_L2_ERC20_Bridge {
     address public l1ERC20BridgeAddress;
-    iOVM_BaseCrossDomainMessenger public l2Messenger;
+    iAbs_BaseCrossDomainMessenger public l2Messenger;
 
     constructor (
         address _l2Messenger,
         address _l1ERC20BridgeAddress
     ) public {
-        l2Messenger = iOVM_BaseCrossDomainMessenger(_l2Messenger);
+        l2Messenger = iAbs_BaseCrossDomainMessenger(_l2Messenger);
         l1ERC20BridgeAddress = _l1ERC20BridgeAddress;
     }
 
