@@ -36,7 +36,7 @@ contract L2_PolygonBridge is L2_Bridge {
     }
 
     function _sendCrossDomainMessage(bytes memory message) internal override {
-        emit L1_BridgeMessage(message);
+        messengerProxy.sendCrossDomainMessage(message);
     }
 
     function _verifySender(address expectedSender) internal override {
