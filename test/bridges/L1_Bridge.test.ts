@@ -3336,6 +3336,48 @@ describe('L1_Bridge', () => {
   })
 
   describe('Edge cases', async () => {
+    it.skip('Should allow a user to sendToL2 with an unusual relayer fee (1 wei)', async () => {
+      const relayerFee: BigNumber = BigNumber.from('1')
+
+      await executeL1BridgeSendToL2(
+        l1_canonicalToken,
+        l1_bridge,
+        l2_hopBridgeToken,
+        l2_canonicalToken,
+        l2_messenger,
+        l2_swap,
+        transfer.sender,
+        transfer.recipient,
+        relayer,
+        transfer.amount,
+        transfer.amountOutMin,
+        transfer.deadline,
+        relayerFee,
+        l2ChainId
+      )
+    })
+
+    it.skip('Should allow a user to sendToL2 with an unusual relayer fee (full account balance)', async () => {
+      const relayerFee: BigNumber = await l1_canonicalToken.balanceOf(await user.getAddress())
+
+      await executeL1BridgeSendToL2(
+        l1_canonicalToken,
+        l1_bridge,
+        l2_hopBridgeToken,
+        l2_canonicalToken,
+        l2_messenger,
+        l2_swap,
+        transfer.sender,
+        transfer.recipient,
+        relayer,
+        transfer.amount,
+        transfer.amountOutMin,
+        transfer.deadline,
+        relayerFee,
+        l2ChainId
+      )
+    })
+
     it('Should allow a user to sendToL2 with an amountOutMin that is greater than expected', async () => {
       const largeValue: BigNumber = BigNumber.from(
         '999999999999999999999999999'
@@ -3919,7 +3961,7 @@ describe('L1_Bridge', () => {
         expect(credit).to.eq(BigNumber.from('0'))
     })
 
-    it.only('Should settle bonded withdrawals and update state with 3, 5, 7, 11, 12, and 15 transfers.', async () => {
+    it('Should settle bonded withdrawals and update state with 3, 5, 7, 11, 12, and 15 transfers.', async () => {
       await l1_canonicalToken.mint(await user.getAddress(), USER_INITIAL_BALANCE.mul(50))
       await executeL1BridgeSendToL2(
         l1_canonicalToken,
@@ -3986,9 +4028,7 @@ describe('L1_Bridge', () => {
       transferIndex = transferIndex.add('1')
       }
 
-      console.log('eee')
       await executeL2BridgeCommitTransfers(l2_bridge, expectedTransfers, bonder)
-      console.log('fff')
 
       await l1_messenger.relayNextMessage()
 

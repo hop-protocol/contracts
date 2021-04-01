@@ -204,6 +204,13 @@ describe('Accounting', () => {
     expect(debit).to.eq(stakeAmount.mul(3))
   })
 
+  it('Should allow anyone to unstake', async () => {
+    const stakeAmount: BigNumber = BigNumber.from(0)
+
+    await mockAccounting.connect(otherUser).unstake(stakeAmount)
+  })
+
+
   /**
    * Non-Happy Path
    */
