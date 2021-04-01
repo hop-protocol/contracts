@@ -768,6 +768,12 @@ export const executeL2BridgeSend = async (
   const pendingAmountBefore: BigNumber = await sourceBridge.pendingAmountForChainId(
     transfer.chainId
   )
+  const maxPendingTransfers = await sourceBridge.maxPendingTransfers()
+  let transferWillCommitTransfers = false
+  try {
+    await sourceBridge.pendingTransferIdsForChainId(transfer.chainId, maxPendingTransfers.sub(1))
+    transferWillCommitTransfers = true
+  } catch (e) {}
 
   // Perform transaction
   await sourceBridge
@@ -805,9 +811,14 @@ export const executeL2BridgeSend = async (
   const pendingAmount: BigNumber = await sourceBridge.pendingAmountForChainId(
     transfer.chainId
   )
-  const expectedPendingAmount: BigNumber = pendingAmountBefore.add(
-    transfer.amount
-  )
+  let expectedPendingAmount: BigNumber
+  if(transferWillCommitTransfers) {
+    expectedPendingAmount = transfer.amount
+  } else {
+    expectedPendingAmount = pendingAmountBefore.add(
+      transfer.amount
+    )
+  }
   expect(pendingAmount).to.eq(expectedPendingAmount)
 
   const transfersSentEvent = (
@@ -957,7 +968,7 @@ export const executeL2BridgeCommitTransfers = async (
   pendingAmountForChainId = await l2_bridge.pendingAmountForChainId(
     destinationChainId  
   )
-  expect(pendingAmountForChainId).to.eq(expectedPendingAmountForChainId)
+  expect(pendingAmountForChainId).to.eq('0')
 
   let transferIds: Buffer[] = []
   for (let i = 0; i < numTransfers.toNumber(); i++) {

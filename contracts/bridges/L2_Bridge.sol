@@ -255,6 +255,7 @@ abstract contract L2_Bridge is Bridge, ReentrancyGuard {
             rootCommittedAt
         );
 
+        pendingAmountForChainId[destinationChainId] = 0;
         delete pendingTransferIdsForChainId[destinationChainId];
 
         _sendCrossDomainMessage(confirmTransferRootMessage);
