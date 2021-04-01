@@ -60,6 +60,9 @@ export const INITIAL_BONDED_AMOUNT: BigNumber = BONDER_INITIAL_BALANCE.div(5)
 export const CHALLENGER_INITIAL_BALANCE: BigNumber = BigNumber.from(
   parseEther('1')
 )
+export const RELAYER_INITIAL_BALANCE: BigNumber = BigNumber.from(
+  parseEther('10')
+)
 
 export const TRANSFER_AMOUNT: BigNumber = BigNumber.from(parseEther('5'))
 export const DEFAULT_BONDER_FEE: BigNumber = BigNumber.from(parseEther('1'))

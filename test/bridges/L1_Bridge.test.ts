@@ -3337,7 +3337,7 @@ describe('L1_Bridge', () => {
   })
 
   describe('Edge cases', async () => {
-    it.skip('Should allow a user to sendToL2 with an unusual relayer fee (1 wei)', async () => {
+    it('Should allow a user to sendToL2 with an unusual relayer fee (1 wei)', async () => {
       const relayerFee: BigNumber = BigNumber.from('1')
 
       await executeL1BridgeSendToL2(
@@ -3358,8 +3358,8 @@ describe('L1_Bridge', () => {
       )
     })
 
-    it.skip('Should allow a user to sendToL2 with an unusual relayer fee (full account balance)', async () => {
-      const relayerFee: BigNumber = await l1_canonicalToken.balanceOf(await user.getAddress())
+    it('Should allow a user to sendToL2 with an unusual relayer fee (full transfer amount)', async () => {
+      const relayerFee: BigNumber = transfer.amount
 
       await executeL1BridgeSendToL2(
         l1_canonicalToken,
@@ -3962,8 +3962,8 @@ describe('L1_Bridge', () => {
         expect(credit).to.eq(BigNumber.from('0'))
     })
 
-    it.skip('Should settle bonded withdrawals and update state with 3, 5, 7, 11, 12, and 15 transfers.', async () => {
-      await l1_canonicalToken.mint(await user.getAddress(), USER_INITIAL_BALANCE.mul(50))
+    it('Should settle bonded withdrawals and update state with 3, 5, 7, 11, 12, and 15 transfers.', async () => {
+      await l1_canonicalToken.mint(await user.getAddress(), USER_INITIAL_BALANCE.mul(100))
       await executeL1BridgeSendToL2(
         l1_canonicalToken,
         l1_bridge,
@@ -3974,7 +3974,7 @@ describe('L1_Bridge', () => {
         transfer.sender,
         transfer.recipient,
         relayer,
-        transfer.amount.mul(50),
+        transfer.amount.mul(100),
         transfer.amountOutMin,
         transfer.deadline,
         defaultRelayerFee,
@@ -3997,7 +3997,7 @@ describe('L1_Bridge', () => {
           transferIndex
         )
 
-      transferIndex = transferIndex.add('1')
+        transferIndex = transferIndex.add('1')
       }
 
       await executeL2BridgeCommitTransfers(l2_bridge, expectedTransfers, bonder, startingTransferIndex)
@@ -4012,7 +4012,7 @@ describe('L1_Bridge', () => {
       )
 
       // 5 transfers
-      startingTransferIndex = BigNumber.from(expectedTransfers.length)
+      startingTransferIndex = startingTransferIndex.add(expectedTransfers.length)
       transferIndex = startingTransferIndex
       expectedTransfers = [transfer, transfer, transfer, transfer, transfer]
       expect(expectedTransfers.length).to.eq(5)
@@ -4028,7 +4028,7 @@ describe('L1_Bridge', () => {
           transferIndex
         )
 
-      transferIndex = transferIndex.add('1')
+        transferIndex = transferIndex.add('1')
       }
 
       await executeL2BridgeCommitTransfers(l2_bridge, expectedTransfers, bonder, startingTransferIndex)
@@ -4039,11 +4039,12 @@ describe('L1_Bridge', () => {
         l1_bridge,
         l2_bridge,
         expectedTransfers,
-        bonder
+        bonder,
+        startingTransferIndex
       )
 
       // 7 transfers
-      startingTransferIndex = BigNumber.from(expectedTransfers.length)
+      startingTransferIndex = startingTransferIndex.add(expectedTransfers.length)
       transferIndex = startingTransferIndex
       expectedTransfers = [
         transfer,
@@ -4055,7 +4056,6 @@ describe('L1_Bridge', () => {
         transfer
       ]
       expect(expectedTransfers.length).to.eq(7)
-      transferIndex = BigNumber.from('0')
       for (let i = 0; i < expectedTransfers.length; i++) {
         await executeL2BridgeSend(l2_hopBridgeToken, l2_bridge, transfer, transferIndex)
 
@@ -4068,7 +4068,7 @@ describe('L1_Bridge', () => {
           transferIndex
         )
 
-      transferIndex = transferIndex.add('1')
+        transferIndex = transferIndex.add('1')
       }
 
       await executeL2BridgeCommitTransfers(l2_bridge, expectedTransfers, bonder, startingTransferIndex)
@@ -4079,11 +4079,12 @@ describe('L1_Bridge', () => {
         l1_bridge,
         l2_bridge,
         expectedTransfers,
-        bonder
+        bonder,
+        startingTransferIndex
       )
 
       // 11 transfers
-      startingTransferIndex = BigNumber.from(expectedTransfers.length)
+      startingTransferIndex = startingTransferIndex.add(expectedTransfers.length)
       transferIndex = startingTransferIndex
       expectedTransfers = [
         transfer,
@@ -4099,7 +4100,6 @@ describe('L1_Bridge', () => {
         transfer
       ]
       expect(expectedTransfers.length).to.eq(11)
-      transferIndex = BigNumber.from('0')
       for (let i = 0; i < expectedTransfers.length; i++) {
         await executeL2BridgeSend(l2_hopBridgeToken, l2_bridge, transfer, transferIndex)
 
@@ -4112,7 +4112,7 @@ describe('L1_Bridge', () => {
           transferIndex
         )
 
-      transferIndex = transferIndex.add('1')
+        transferIndex = transferIndex.add('1')
       }
 
       await executeL2BridgeCommitTransfers(l2_bridge, expectedTransfers, bonder, startingTransferIndex)
@@ -4123,11 +4123,12 @@ describe('L1_Bridge', () => {
         l1_bridge,
         l2_bridge,
         expectedTransfers,
-        bonder
+        bonder,
+        startingTransferIndex
       )
 
       // 12 transfers
-      startingTransferIndex = BigNumber.from(expectedTransfers.length)
+      startingTransferIndex = startingTransferIndex.add(expectedTransfers.length)
       transferIndex = startingTransferIndex
       expectedTransfers = [
         transfer,
@@ -4144,7 +4145,6 @@ describe('L1_Bridge', () => {
         transfer
       ]
       expect(expectedTransfers.length).to.eq(12)
-      transferIndex = BigNumber.from('0')
       for (let i = 0; i < expectedTransfers.length; i++) {
         await executeL2BridgeSend(l2_hopBridgeToken, l2_bridge, transfer, transferIndex)
 
@@ -4157,7 +4157,7 @@ describe('L1_Bridge', () => {
           transferIndex
         )
 
-      transferIndex = transferIndex.add('1')
+        transferIndex = transferIndex.add('1')
       }
 
       await executeL2BridgeCommitTransfers(l2_bridge, expectedTransfers, bonder, startingTransferIndex)
@@ -4168,11 +4168,12 @@ describe('L1_Bridge', () => {
         l1_bridge,
         l2_bridge,
         expectedTransfers,
-        bonder
+        bonder,
+        startingTransferIndex
       )
 
       // 15 transfers
-      startingTransferIndex = BigNumber.from(expectedTransfers.length)
+      startingTransferIndex = startingTransferIndex.add(expectedTransfers.length)
       transferIndex = startingTransferIndex
       expectedTransfers = [
         transfer,
@@ -4192,7 +4193,6 @@ describe('L1_Bridge', () => {
         transfer
       ]
       expect(expectedTransfers.length).to.eq(15)
-      transferIndex = BigNumber.from('0')
       for (let i = 0; i < expectedTransfers.length; i++) {
         await executeL2BridgeSend(l2_hopBridgeToken, l2_bridge, transfer, transferIndex)
 
@@ -4205,7 +4205,7 @@ describe('L1_Bridge', () => {
           transferIndex
         )
 
-      transferIndex = transferIndex.add('1')
+        transferIndex = transferIndex.add('1')
       }
 
       await executeL2BridgeCommitTransfers(l2_bridge, expectedTransfers, bonder, startingTransferIndex)
@@ -4216,7 +4216,8 @@ describe('L1_Bridge', () => {
         l1_bridge,
         l2_bridge,
         expectedTransfers,
-        bonder
+        bonder,
+        startingTransferIndex
       )
     })
   })

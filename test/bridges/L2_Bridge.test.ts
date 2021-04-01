@@ -1515,7 +1515,7 @@ describe('L2_Bridge', () => {
     )
   })
 
-  it('Should send a transfer from one L2 to another L2 via bondWithdrawalAndDistribute with an unusual bonder fee (full amount)', async () => {
+  it('Should send a transfer from one L2 to another L2 via bondWithdrawalAndDistribute with an unusual bonder fee (full transfer amount)', async () => {
     const minBonderBps: BigNumber = BigNumber.from('0')
     const minBonderFeeAbsolute: BigNumber = transfer.amount
 

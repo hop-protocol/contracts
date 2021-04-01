@@ -17,6 +17,7 @@ import {
   INITIAL_BONDED_AMOUNT,
   DEFAULT_DEADLINE,
   CHALLENGER_INITIAL_BALANCE,
+  RELAYER_INITIAL_BALANCE,
   DEFAULT_RELAYER_FEE
 } from '../../config/constants'
 
@@ -53,7 +54,8 @@ export const setUpDefaults = async (
     userInitialBalance: USER_INITIAL_BALANCE,
     liquidityProviderInitialBalance: LIQUIDITY_PROVIDER_INITIAL_BALANCE,
     bonderInitialBalance: BONDER_INITIAL_BALANCE,
-    challengerInitialBalance: CHALLENGER_INITIAL_BALANCE
+    challengerInitialBalance: CHALLENGER_INITIAL_BALANCE,
+    relayerInitialBalance: RELAYER_INITIAL_BALANCE
   }
 
   const setUpBonderStakeOpts = {
@@ -153,14 +155,16 @@ export const distributeCanonicalTokens = async (
     user,
     liquidityProvider,
     bonder,
-    challenger
+    challenger,
+    relayer
   } = fixture
 
   const {
     userInitialBalance,
     liquidityProviderInitialBalance,
     bonderInitialBalance,
-    challengerInitialBalance
+    challengerInitialBalance,
+    relayerInitialBalance
   } = opts
 
   await l1_canonicalToken.mint(await user.getAddress(), userInitialBalance)
@@ -173,6 +177,7 @@ export const distributeCanonicalTokens = async (
     await challenger.getAddress(),
     challengerInitialBalance
   )
+  await l1_canonicalToken.mint(await relayer.getAddress(), relayerInitialBalance)
 }
 
 export const setUpBonderStake = async (fixture: IFixture, opts: any) => {

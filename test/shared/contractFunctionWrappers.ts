@@ -130,7 +130,7 @@ export const executeL1BridgeSendToL2 = async (
       amount,
       amountOutMin,
       deadline,
-      await sender.getAddress(),
+      await relayer.getAddress(),
       relayerFee
     )
   await l2_messenger.connect(relayer).relayNextMessage()
@@ -483,7 +483,8 @@ export const executeBridgeSettleBondedWithdrawals = async (
   sourceBridge: Contract,
   destinationBridge: Contract,
   transfers: Transfer[],
-  bonder: Signer
+  bonder: Signer,
+  startingIndex: BigNumber = BigNumber.from('0')
 ) => {
   // Get state before transaction
   const numTransfers: BigNumber = BigNumber.from(transfers.length)
@@ -492,7 +493,10 @@ export const executeBridgeSettleBondedWithdrawals = async (
   let transferNonces: string[] = []
   let transferIds: Buffer[] = []
   for (let i = 0; i < numTransfers.toNumber(); i++) {
-    transferNonces.push(await getTransferNonceFromEvent(destinationBridge, BigNumber.from(i)))
+    transferNonces.push(await getTransferNonceFromEvent(
+      destinationBridge,
+      BigNumber.from(i).add(startingIndex)
+    ))
     transferIds.push(await transfers[i].getTransferId(transferNonces[i]))
     totalTransferAmount = totalTransferAmount.add(transfers[i].amount)
   }
@@ -517,7 +521,7 @@ export const executeBridgeSettleBondedWithdrawals = async (
   for (let i = 0; i < numTransfers.toNumber(); i++) {
     const transferNonce = await getTransferNonceFromEvent(
       destinationBridge,
-      BigNumber.from(i)
+      BigNumber.from(i).add(startingIndex)
     )
     calculatedTransferIds.push(await transfers[i].getTransferId(transferNonce))
   }
@@ -983,12 +987,12 @@ export const executeL2BridgeCommitTransfers = async (
   // There should only be a single TransfersCommitted event
   const transfersCommittedEvent = (
     await l2_bridge.queryFilter(l2_bridge.filters.TransfersCommitted())
-  )[startingIndex.toNumber()]
+  )
 
-  const transfersCommittedArgs = transfersCommittedEvent.args
+  const transfersCommittedArgs = transfersCommittedEvent[transfersCommittedEvent.length - 1].args
   expect(transfersCommittedArgs[0]).to.eq(expectedMerkleTree.getHexRoot())
   const pendingChainAmounts = transfersCommittedArgs[1]
-  // expect(pendingChainAmounts).to.eq(expectedPendingAmountForChainId)
+  expect(pendingChainAmounts).to.eq(expectedPendingAmountForChainId)
 }
 
 export const executeL2BridgeBondWithdrawalAndDistribute = async (

@@ -93,6 +93,7 @@ abstract contract L1_Bridge is Bridge {
      * Uniswap market. 0 if no swap is intended.
      * @param deadline The deadline for swapping in the destination Uniswap market. 0 if no
      * swap is intended.
+     * @param relayer The address of the at the destination.
      * @param relayerFee The amount distributed to the relayer at the destination. This is subtracted from the `amount`.
      */
     function sendToL2(
