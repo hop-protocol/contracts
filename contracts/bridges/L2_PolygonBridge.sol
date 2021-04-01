@@ -3,7 +3,6 @@
 pragma solidity 0.6.12;
 pragma experimental ABIEncoderV2;
 
-import "../interfaces/polygon/IStateReceiver.sol";
 import "./L2_Bridge.sol";
 import "./L2_PolygonMessengerProxy.sol";
 
@@ -37,7 +36,7 @@ contract L2_PolygonBridge is L2_Bridge {
     }
 
     function _sendCrossDomainMessage(bytes memory message) internal override {
-        emit L1_BridgeMessage(message);
+        messengerProxy.sendCrossDomainMessage(message);
     }
 
     function _verifySender(address expectedSender) internal override {
