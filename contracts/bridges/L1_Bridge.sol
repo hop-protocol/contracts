@@ -101,7 +101,7 @@ abstract contract L1_Bridge is Bridge {
         uint256 amount,
         uint256 amountOutMin,
         uint256 deadline,
-        uint256 relayer,
+        address relayer,
         uint256 relayerFee
     )
         external
