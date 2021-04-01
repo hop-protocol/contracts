@@ -176,13 +176,14 @@ abstract contract L2_Bridge is Bridge, ReentrancyGuard {
         uint256 amount,
         uint256 amountOutMin,
         uint256 deadline,
+        address relayer,
         uint256 relayerFee
     )
         external
         onlyL1Bridge
         nonReentrant
     {
-        _distribute(recipient, amount, amountOutMin, deadline, relayerFee);
+        _distribute(recipient, amount, amountOutMin, deadline, relayer, relayerFee);
     }
 
     /**
@@ -221,7 +222,7 @@ abstract contract L2_Bridge is Bridge, ReentrancyGuard {
 
         _bondWithdrawal(transferId, amount);
         _markTransferSpent(transferId);
-        _distribute(recipient, amount, amountOutMin, deadline, bonderFee);
+        _distribute(recipient, amount, amountOutMin, deadline, msg.sender, bonderFee);
     }
 
     /**
@@ -259,9 +260,18 @@ abstract contract L2_Bridge is Bridge, ReentrancyGuard {
         _sendCrossDomainMessage(confirmTransferRootMessage);
     }
 
-    function _distribute(address recipient, uint256 amount, uint256 amountOutMin, uint256 deadline, uint256 fee) internal {
+    function _distribute(
+        address recipient,
+        uint256 amount,
+        uint256 amountOutMin,
+        uint256 deadline,
+        address feeRecipient,
+        uint256 fee
+    )
+        internal
+    {
         if (fee > 0) {
-            hToken.mint(msg.sender, fee);
+            hToken.mint(feeRecipient, fee);
         }
         uint256 amountAfterFee = amount.sub(fee);
 

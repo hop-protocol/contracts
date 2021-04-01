@@ -101,6 +101,7 @@ abstract contract L1_Bridge is Bridge {
         uint256 amount,
         uint256 amountOutMin,
         uint256 deadline,
+        uint256 relayer,
         uint256 relayerFee
     )
         external
@@ -115,11 +116,12 @@ abstract contract L1_Bridge is Bridge {
         _transferToBridge(msg.sender, amount);
 
         bytes memory message = abi.encodeWithSignature(
-            "distribute(address,uint256,uint256,uint256,uint256)",
+            "distribute(address,uint256,uint256,uint256,address,uint256)",
             recipient,
             amount,
             amountOutMin,
             deadline,
+            relayer,
             relayerFee
         );
 
