@@ -388,8 +388,14 @@ export const getNonceDomainSeparator = (): string => {
   return ethers.utils.solidityKeccak256(['string'], [domainSeparatorString])
 }
 
-export const merkleHash = (el: Buffer | string): Buffer => {
+const merkleHash = (el: Buffer | string): Buffer => {
   return Buffer.from(keccak256(el).slice(2), 'hex')
+}
+
+export const getNewMerkleTree = (transferIds: Buffer[]): MerkleTree => {
+  return new MerkleTree(transferIds, merkleHash, {
+    fillDefaultHash: () => ethersUtils.keccak256(Buffer.alloc(32))
+  })
 }
 
 /**

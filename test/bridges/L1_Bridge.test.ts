@@ -14,7 +14,7 @@ import {
   increaseTime,
   revertSnapshot,
   takeSnapshot,
-  merkleHash
+  getNewMerkleTree
 } from '../shared/utils'
 import {
   executeBridgeWithdraw,
@@ -2168,7 +2168,7 @@ describe('L1_Bridge', () => {
       const transferNonce = await getTransferNonceFromEvent(l2_bridge)
       const transferId: Buffer = await transfer.getTransferId(transferNonce)
       const { rootHash } = getRootHashFromTransferId(transferId)
-      const tree: MerkleTree = new MerkleTree([transferId], merkleHash)
+      const tree: MerkleTree = getNewMerkleTree([transferId])
       const proof: Buffer[] = tree.getProof(transferId)
 
       await expect(
@@ -2259,7 +2259,7 @@ describe('L1_Bridge', () => {
 
       const transferNonce: string = await getTransferNonceFromEvent(l2_bridge)
       const transferId: Buffer = await transfer.getTransferId(transferNonce)
-      const tree: MerkleTree = new MerkleTree([transferId], merkleHash)
+      const tree: MerkleTree = getNewMerkleTree([transferId])
       const transferRootHash: Buffer = tree.getRoot()
       const proof: Buffer[] = tree.getProof(transferId)
 
@@ -3579,7 +3579,7 @@ describe('L1_Bridge', () => {
         )
         calculatedTransferIds.push(await transfer.getTransferId(transferNonce))
       }
-      const expectedMerkleTree = new MerkleTree(calculatedTransferIds, merkleHash)
+      const expectedMerkleTree: MerkleTree = getNewMerkleTree(calculatedTransferIds)
       const transferRoot: number = await l1_bridge.getTransferRoot(
         expectedMerkleTree.getHexRoot(),
         totalTransferAmount
@@ -3799,7 +3799,7 @@ describe('L1_Bridge', () => {
       const transferId: Buffer = await transfer.getTransferId(transferNonce)
       const { rootHash } = getRootHashFromTransferId(transferId)
 
-      const tree: MerkleTree = new MerkleTree([transferId], merkleHash)
+      const tree: MerkleTree = getNewMerkleTree([transferId])
       const transferRootHash: Buffer = tree.getRoot()
       const proof: Buffer[] = tree.getProof(transferId)
 
@@ -3986,7 +3986,9 @@ describe('L1_Bridge', () => {
       transferIndex = transferIndex.add('1')
       }
 
+      console.log('eee')
       await executeL2BridgeCommitTransfers(l2_bridge, expectedTransfers, bonder)
+      console.log('fff')
 
       await l1_messenger.relayNextMessage()
 
