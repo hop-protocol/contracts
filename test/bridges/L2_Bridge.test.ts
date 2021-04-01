@@ -976,6 +976,7 @@ describe('L2_Bridge', () => {
             transfer.amount,
             transfer.amountOutMin,
             transfer.deadline,
+            await transfer.recipient.getAddress(),
             transfer.bonderFee
           )
       ).to.be.revertedWith(expectedErrorMsg)
