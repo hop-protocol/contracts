@@ -1568,4 +1568,162 @@ describe('L2_Bridge', () => {
     )
   })
 
+  it('Should send a transfer from one L2 to another L2 via bondWithdrawalAndDistribute with an unusual bonder fee (0 wei)', async () => {
+    const minBonderBps: BigNumber = BigNumber.from('0')
+    const minBonderFeeAbsolute: BigNumber = BigNumber.from('0')
+
+    const message: string = getSetMinimumBonderFeeRequirementsMessage(
+      minBonderBps,
+      minBonderFeeAbsolute 
+    )
+
+    await executeCanonicalMessengerSendMessage(
+      l1_messenger,
+      l2_bridge,
+      l2_messenger,
+      governance,
+      message
+    )
+
+    const customTransfer: Transfer = new Transfer(l2Transfer)
+    customTransfer.bonderFee = BigNumber.from('0')
+
+    await executeL1BridgeSendToL2(
+      l1_canonicalToken,
+      l1_bridge,
+      l2_hopBridgeToken,
+      l2_canonicalToken,
+      l2_messenger,
+      l2_swap,
+      transfer.sender,
+      transfer.recipient,
+      relayer,
+      transfer.amount,
+      transfer.amountOutMin,
+      transfer.deadline,
+      defaultRelayerFee,
+      l2ChainId
+    )
+
+    await executeL2BridgeSend(l2_hopBridgeToken, l2_bridge, customTransfer)
+
+    // Bond withdrawal on other L2
+    const actualTransferAmount: BigNumber = customTransfer.amount
+    await executeL2BridgeBondWithdrawalAndDistribute(
+      l2_bridge,
+      l22_hopBridgeToken,
+      l22_bridge,
+      l22_canonicalToken,
+      l22_swap,
+      customTransfer,
+      bonder,
+      actualTransferAmount
+    )
+  })
+
+  it('Should send a transfer from one L2 to another L2 via bondWithdrawalAndDistribute with an unusual bonder fee (1 wei)', async () => {
+    const minBonderBps: BigNumber = BigNumber.from('0')
+    const minBonderFeeAbsolute: BigNumber = BigNumber.from('1')
+
+    const message: string = getSetMinimumBonderFeeRequirementsMessage(
+      minBonderBps,
+      minBonderFeeAbsolute 
+    )
+
+    await executeCanonicalMessengerSendMessage(
+      l1_messenger,
+      l2_bridge,
+      l2_messenger,
+      governance,
+      message
+    )
+
+    const customTransfer: Transfer = new Transfer(l2Transfer)
+    customTransfer.bonderFee = BigNumber.from('1')
+
+    await executeL1BridgeSendToL2(
+      l1_canonicalToken,
+      l1_bridge,
+      l2_hopBridgeToken,
+      l2_canonicalToken,
+      l2_messenger,
+      l2_swap,
+      transfer.sender,
+      transfer.recipient,
+      relayer,
+      transfer.amount,
+      transfer.amountOutMin,
+      transfer.deadline,
+      defaultRelayerFee,
+      l2ChainId
+    )
+
+    await executeL2BridgeSend(l2_hopBridgeToken, l2_bridge, customTransfer)
+
+    // Bond withdrawal on other L2
+    const actualTransferAmount: BigNumber = customTransfer.amount
+    await executeL2BridgeBondWithdrawalAndDistribute(
+      l2_bridge,
+      l22_hopBridgeToken,
+      l22_bridge,
+      l22_canonicalToken,
+      l22_swap,
+      customTransfer,
+      bonder,
+      actualTransferAmount
+    )
+  })
+
+  it('Should send a transfer from one L2 to another L2 via bondWithdrawalAndDistribute with an unusual bonder fee (full amount)', async () => {
+    const minBonderBps: BigNumber = BigNumber.from('0')
+    const minBonderFeeAbsolute: BigNumber = l2Transfer.amount
+
+    const message: string = getSetMinimumBonderFeeRequirementsMessage(
+      minBonderBps,
+      minBonderFeeAbsolute 
+    )
+
+    await executeCanonicalMessengerSendMessage(
+      l1_messenger,
+      l2_bridge,
+      l2_messenger,
+      governance,
+      message
+    )
+
+    const customTransfer: Transfer = new Transfer(l2Transfer)
+    customTransfer.bonderFee = l2Transfer.amount
+
+    await executeL1BridgeSendToL2(
+      l1_canonicalToken,
+      l1_bridge,
+      l2_hopBridgeToken,
+      l2_canonicalToken,
+      l2_messenger,
+      l2_swap,
+      transfer.sender,
+      transfer.recipient,
+      relayer,
+      transfer.amount,
+      transfer.amountOutMin,
+      transfer.deadline,
+      defaultRelayerFee,
+      l2ChainId
+    )
+
+    await executeL2BridgeSend(l2_hopBridgeToken, l2_bridge, customTransfer)
+
+    // Bond withdrawal on other L2
+    const actualTransferAmount: BigNumber = customTransfer.amount
+    await executeL2BridgeBondWithdrawalAndDistribute(
+      l2_bridge,
+      l22_hopBridgeToken,
+      l22_bridge,
+      l22_canonicalToken,
+      l22_swap,
+      customTransfer,
+      bonder,
+      actualTransferAmount
+    )
+  })
 })

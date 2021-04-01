@@ -814,7 +814,7 @@ describe('L1_Bridge', () => {
   })
 
   describe('settleBondedWithdrawals', async () => {
-    it('Should send two transactions from L1 to L2, bond it, and settle the bonded withdrawals', async () => {
+    it('Should send two transactions from L2 to L1, bond them, and settle the bonded withdrawals', async () => {
       await executeL1BridgeSendToL2(
         l1_canonicalToken,
         l1_bridge,
@@ -825,7 +825,7 @@ describe('L1_Bridge', () => {
         transfer.sender,
         transfer.recipient,
         relayer,
-        transfer.amount,
+        transfer.amount.mul(2),
         transfer.amountOutMin,
         transfer.deadline,
         defaultRelayerFee,
@@ -842,15 +842,26 @@ describe('L1_Bridge', () => {
         bonder
       )
 
-      await executeL2BridgeCommitTransfers(l2_bridge, [transfer], bonder)
+      const expectedTransferIndex: BigNumber = BigNumber.from('1')
+      await executeL2BridgeSend(l2_hopBridgeToken, l2_bridge, transfer, expectedTransferIndex)
+
+      await executeBridgeBondWithdrawal(
+        l1_canonicalToken,
+        l1_bridge,
+        l2_bridge,
+        transfer,
+        bonder,
+        expectedTransferIndex
+      )
+
+      await executeL2BridgeCommitTransfers(l2_bridge, [transfer, transfer], bonder)
 
       await l1_messenger.relayNextMessage()
 
-      // TODO: I believe this needs to handle both transfers
       await executeBridgeSettleBondedWithdrawals(
         l1_bridge,
         l2_bridge,
-        [transfer],
+        [transfer, transfer],
         bonder
       )
     })

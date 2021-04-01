@@ -762,7 +762,7 @@ export const executeL2BridgeSend = async (
   sourceHopBridgeToken: Contract,
   sourceBridge: Contract,
   transfer: Transfer,
-  expectedTransferIndex: BigNumber = BigNumber.from('0')
+  transferIndex: BigNumber = BigNumber.from('0')
 ) => {
   // Get state before transaction
   const bridgeTotalSupplyBefore: BigNumber = await sourceHopBridgeToken.totalSupply()
@@ -806,7 +806,7 @@ export const executeL2BridgeSend = async (
   // Verify state
   const transferNonce = await getTransferNonceFromEvent(
     sourceBridge,
-    expectedTransferIndex
+    transferIndex
   )
   const expectedPendingTransferHash: Buffer = await transfer.getTransferId(
     transferNonce
@@ -827,7 +827,7 @@ export const executeL2BridgeSend = async (
 
   const transfersSentEvent = (
     await sourceBridge.queryFilter(sourceBridge.filters.TransferSent())
-  )[expectedTransferIndex.toNumber()]
+  )[transferIndex.toNumber()]
   const transferSentArgs = transfersSentEvent.args
   expect(transferSentArgs[0]).to.eq(
     '0x' + expectedPendingTransferHash.toString('hex')
@@ -1004,12 +1004,12 @@ export const executeL2BridgeBondWithdrawalAndDistribute = async (
   transfer: Transfer,
   bonder: Signer,
   actualTransferAmount: BigNumber,
-  expectedTransferIndex: BigNumber = BigNumber.from('0')
+  transferIndex: BigNumber = BigNumber.from('0')
 ) => {
   // Get state before transaction
   const transferNonce = await getTransferNonceFromEvent(
     sourceBridge,
-    expectedTransferIndex
+    transferIndex
   )
   const bonderBalanceBefore: BigNumber = await l2_hopBridgeToken.balanceOf(
     await bonder.getAddress()

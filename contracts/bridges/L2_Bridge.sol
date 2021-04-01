@@ -262,9 +262,6 @@ abstract contract L2_Bridge is Bridge, ReentrancyGuard {
         _sendCrossDomainMessage(confirmTransferRootMessage);
     }
 
-    uint256 public aaa;
-    uint256 public bbb;
-    address public ccc;
     function _distribute(
         address recipient,
         uint256 amount,
@@ -276,9 +273,6 @@ abstract contract L2_Bridge is Bridge, ReentrancyGuard {
         internal
     {
         if (fee > 0) {
-            aaa = 1;
-            bbb =fee;
-                ccc = feeRecipient;
             hToken.mint(feeRecipient, fee);
         }
         uint256 amountAfterFee = amount.sub(fee);
