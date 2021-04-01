@@ -1825,6 +1825,7 @@ describe('L1_Bridge', () => {
             tokenAmount,
             transfer.amountOutMin,
             transfer.deadline,
+            await relayer.getAddress(),
             defaultRelayerFee
           )
       ).to.be.revertedWith(expectedErrorMsg)
