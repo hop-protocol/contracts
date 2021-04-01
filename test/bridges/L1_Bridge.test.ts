@@ -50,7 +50,8 @@ import {
   DEFAULT_TIME_TO_WAIT,
   DEFAULT_RELAYER_FEE,
   ONE_ADDRESS,
-  ARBITRARY_TRANSFER_NONCE
+  ARBITRARY_TRANSFER_NONCE,
+  USER_INITIAL_BALANCE
 } from '../../config/constants'
 
 describe('L1_Bridge', () => {
@@ -3916,6 +3917,254 @@ describe('L1_Bridge', () => {
 
         const credit = await l1_bridge.getCredit(await otherUser.getAddress())
         expect(credit).to.eq(BigNumber.from('0'))
+    })
+
+    it.only('Should settle bonded withdrawals and update state with 3, 5, 7, 11, 12, and 15 transfers.', async () => {
+      await l1_canonicalToken.mint(await user.getAddress(), USER_INITIAL_BALANCE.mul(50))
+      await executeL1BridgeSendToL2(
+        l1_canonicalToken,
+        l1_bridge,
+        l2_hopBridgeToken,
+        l2_canonicalToken,
+        l2_messenger,
+        l2_swap,
+        transfer.sender,
+        transfer.recipient,
+        relayer,
+        transfer.amount.mul(50),
+        transfer.amountOutMin,
+        transfer.deadline,
+        defaultRelayerFee,
+        l2ChainId
+      )
+
+      let expectedTransfers: Transfer[] = [transfer, transfer, transfer]
+      let transferIndex: BigNumber = BigNumber.from('0')
+      expect(expectedTransfers.length).to.eq(3)
+      for (let i = 0; i < expectedTransfers.length; i++) {
+        await executeL2BridgeSend(l2_hopBridgeToken, l2_bridge, transfer, transferIndex)
+
+        await executeBridgeBondWithdrawal(
+          l1_canonicalToken,
+          l1_bridge,
+          l2_bridge,
+          transfer,
+          bonder,
+          transferIndex
+        )
+
+      transferIndex = transferIndex.add('1')
+      }
+
+      await executeL2BridgeCommitTransfers(l2_bridge, expectedTransfers, bonder)
+
+      await l1_messenger.relayNextMessage()
+
+      await executeBridgeSettleBondedWithdrawals(
+        l1_bridge,
+        l2_bridge,
+        expectedTransfers,
+        bonder
+      )
+
+      // 5 transfers
+      expectedTransfers = [transfer, transfer, transfer, transfer, transfer]
+      expect(expectedTransfers.length).to.eq(5)
+      transferIndex = BigNumber.from('0')
+      for (let i = 0; i < expectedTransfers.length; i++) {
+        await executeL2BridgeSend(l2_hopBridgeToken, l2_bridge, transfer, transferIndex)
+
+        await executeBridgeBondWithdrawal(
+          l1_canonicalToken,
+          l1_bridge,
+          l2_bridge,
+          transfer,
+          bonder,
+          transferIndex
+        )
+
+      transferIndex = transferIndex.add('1')
+      }
+
+      await executeL2BridgeCommitTransfers(l2_bridge, expectedTransfers, bonder)
+
+      await l1_messenger.relayNextMessage()
+
+      await executeBridgeSettleBondedWithdrawals(
+        l1_bridge,
+        l2_bridge,
+        expectedTransfers,
+        bonder
+      )
+
+      // 7 transfers
+      expectedTransfers = [
+        transfer,
+        transfer,
+        transfer,
+        transfer,
+        transfer,
+        transfer,
+        transfer
+      ]
+      expect(expectedTransfers.length).to.eq(7)
+      transferIndex = BigNumber.from('0')
+      for (let i = 0; i < expectedTransfers.length; i++) {
+        await executeL2BridgeSend(l2_hopBridgeToken, l2_bridge, transfer, transferIndex)
+
+        await executeBridgeBondWithdrawal(
+          l1_canonicalToken,
+          l1_bridge,
+          l2_bridge,
+          transfer,
+          bonder,
+          transferIndex
+        )
+
+      transferIndex = transferIndex.add('1')
+      }
+
+      await executeL2BridgeCommitTransfers(l2_bridge, expectedTransfers, bonder)
+
+      await l1_messenger.relayNextMessage()
+
+      await executeBridgeSettleBondedWithdrawals(
+        l1_bridge,
+        l2_bridge,
+        expectedTransfers,
+        bonder
+      )
+
+      // 11 transfers
+      expectedTransfers = [
+        transfer,
+        transfer,
+        transfer,
+        transfer,
+        transfer,
+        transfer,
+        transfer,
+        transfer,
+        transfer,
+        transfer,
+        transfer
+      ]
+      expect(expectedTransfers.length).to.eq(11)
+      transferIndex = BigNumber.from('0')
+      for (let i = 0; i < expectedTransfers.length; i++) {
+        await executeL2BridgeSend(l2_hopBridgeToken, l2_bridge, transfer, transferIndex)
+
+        await executeBridgeBondWithdrawal(
+          l1_canonicalToken,
+          l1_bridge,
+          l2_bridge,
+          transfer,
+          bonder,
+          transferIndex
+        )
+
+      transferIndex = transferIndex.add('1')
+      }
+
+      await executeL2BridgeCommitTransfers(l2_bridge, expectedTransfers, bonder)
+
+      await l1_messenger.relayNextMessage()
+
+      await executeBridgeSettleBondedWithdrawals(
+        l1_bridge,
+        l2_bridge,
+        expectedTransfers,
+        bonder
+      )
+
+      // 12 transfers
+      expectedTransfers = [
+        transfer,
+        transfer,
+        transfer,
+        transfer,
+        transfer,
+        transfer,
+        transfer,
+        transfer,
+        transfer,
+        transfer,
+        transfer,
+        transfer
+      ]
+      expect(expectedTransfers.length).to.eq(12)
+      transferIndex = BigNumber.from('0')
+      for (let i = 0; i < expectedTransfers.length; i++) {
+        await executeL2BridgeSend(l2_hopBridgeToken, l2_bridge, transfer, transferIndex)
+
+        await executeBridgeBondWithdrawal(
+          l1_canonicalToken,
+          l1_bridge,
+          l2_bridge,
+          transfer,
+          bonder,
+          transferIndex
+        )
+
+      transferIndex = transferIndex.add('1')
+      }
+
+      await executeL2BridgeCommitTransfers(l2_bridge, expectedTransfers, bonder)
+
+      await l1_messenger.relayNextMessage()
+
+      await executeBridgeSettleBondedWithdrawals(
+        l1_bridge,
+        l2_bridge,
+        expectedTransfers,
+        bonder
+      )
+
+      // 15 transfers
+      expectedTransfers = [
+        transfer,
+        transfer,
+        transfer,
+        transfer,
+        transfer,
+        transfer,
+        transfer,
+        transfer,
+        transfer,
+        transfer,
+        transfer,
+        transfer,
+        transfer,
+        transfer,
+        transfer
+      ]
+      expect(expectedTransfers.length).to.eq(15)
+      transferIndex = BigNumber.from('0')
+      for (let i = 0; i < expectedTransfers.length; i++) {
+        await executeL2BridgeSend(l2_hopBridgeToken, l2_bridge, transfer, transferIndex)
+
+        await executeBridgeBondWithdrawal(
+          l1_canonicalToken,
+          l1_bridge,
+          l2_bridge,
+          transfer,
+          bonder,
+          transferIndex
+        )
+
+      transferIndex = transferIndex.add('1')
+      }
+
+      await executeL2BridgeCommitTransfers(l2_bridge, expectedTransfers, bonder)
+
+      await l1_messenger.relayNextMessage()
+
+      await executeBridgeSettleBondedWithdrawals(
+        l1_bridge,
+        l2_bridge,
+        expectedTransfers,
+        bonder
+      )
     })
   })
 })
