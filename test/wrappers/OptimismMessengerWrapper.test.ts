@@ -36,7 +36,7 @@ describe('Optimism Messenger Wrapper', () => {
    * Happy Path
    */
 
-  it('Should set the correct values in the constructor (Optimism)', async () => {
+  it('Should set the correct values in the constructor ', async () => {
     const expectedL1BridgeAddress: string = l1_bridge.address
     const expectedL2BridgeAddress: string = l2_bridge.address
     const expectedDefaultGasLimit: number = DEFAULT_MESSENGER_WRAPPER_GAS_LIMIT

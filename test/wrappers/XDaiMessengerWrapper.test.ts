@@ -16,7 +16,7 @@ import {
 
 export const MAX_NUM_SENDS_BEFORE_COMMIT = 10
 
-describe('Arbitrum Messenger Wrapper', () => {
+describe('XDai Messenger Wrapper', () => {
   let _fixture: IFixture
 
   let l1ChainId: BigNumber
@@ -29,7 +29,7 @@ describe('Arbitrum Messenger Wrapper', () => {
 
   beforeEach(async () => {
     l1ChainId = CHAIN_IDS.ETHEREUM.KOVAN
-    l2ChainId = CHAIN_IDS.ARBITRUM.TESTNET_4
+    l2ChainId = CHAIN_IDS.XDAI.SOKOL
 
     _fixture = await fixture(l1ChainId, l2ChainId)
     await setUpDefaults(_fixture, l2ChainId)
@@ -41,6 +41,7 @@ describe('Arbitrum Messenger Wrapper', () => {
    */
 
   it('Should set the correct values in the constructor', async () => {
+    // TODO
     const expectedL1BridgeAddress: string = l1_bridge.address
     const expectedL2BridgeAddress: string = l2_bridge.address
     const expectedDefaultGasLimit: number = DEFAULT_MESSENGER_WRAPPER_GAS_LIMIT
