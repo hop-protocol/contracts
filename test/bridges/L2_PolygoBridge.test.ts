@@ -16,6 +16,7 @@ import {
 } from '../shared/utils'
 import {
   executeCanonicalBridgeSendTokens,
+  getSetMessengerProxyMessage,
   getAddBonderMessage,
   executeL1BridgeSendToL2,
   executeBridgeBondWithdrawal,
@@ -193,5 +194,59 @@ describe('L2_Polygon_Bridge', () => {
       )
       expect(isChainIdSupported).to.eq(true)
     }
+  })
+
+  /**
+   * Happy Path
+   */
+
+  it('Should set an arbitrary messenger proxy', async () => {
+    const expectedMessengerProxyAddress: string = ONE_ADDRESS
+
+    const message: string = getSetMessengerProxyMessage(
+      expectedMessengerProxyAddress
+    )
+    await executeCanonicalMessengerSendMessage(
+      l1_messenger,
+      l2_bridge,
+      l2_messenger,
+      governance,
+      message
+    )
+
+    const messengerProxyAddress: string = await l2_bridge.messengerProxy()
+    expect(messengerProxyAddress).to.eq(expectedMessengerProxyAddress)
+  })
+
+
+  /**
+   * Non-Happy Path
+   */
+
+  it('Should not set an arbitrary messenger proxy because the transaction was on L2 directly', async () => {
+    const expectedErrorMsg: string = 'TODO'
+
+    const expectedMessengerProxyAddress: string = ONE_ADDRESS
+    await expect(l2_bridge.setMessengerProxy(expectedMessengerProxyAddress)).to.be.revertedWith(expectedErrorMsg)
+  })
+
+  it('Should not set an arbitrary messenger proxy because the transaction was not sent by governance', async () => {
+    const expectedErrorMsg: string = 'TODO'
+
+    const expectedMessengerProxyAddress: string = ONE_ADDRESS
+
+    const message: string = getSetMessengerProxyMessage(
+      expectedMessengerProxyAddress
+    )
+
+    await expect(
+      executeCanonicalMessengerSendMessage(
+        l1_messenger,
+        l2_bridge,
+        l2_messenger,
+        user,
+        message
+      )
+    ).to.be.revertedWith(expectedErrorMsg)
   })
 })

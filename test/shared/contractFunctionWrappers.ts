@@ -1181,6 +1181,32 @@ export const getSetMinimumBonderFeeRequirementsMessage = (
   ])
 }
 
+export const getSetMessengerMessage = (
+  messenger: Contract | string
+) => {
+  const address = getAddressFromContractOrString(messenger)
+  const ABI = ['function setMessenger(address _messenger)']
+  const ethersInterface = new ethersUtils.Interface(ABI)
+  return ethersInterface.encodeFunctionData('setMessenger', [address])
+}
+
+export const getSetDefaultGasLimitMessage = (
+  defaultGasLimit: BigNumber
+) => {
+  const ABI = ['function setDefaultGasLimit(address _defaultGasLimit)']
+  const ethersInterface = new ethersUtils.Interface(ABI)
+  return ethersInterface.encodeFunctionData('setDefaultGasLimit', [defaultGasLimit])
+}
+
+export const getSetMessengerProxyMessage = (
+  messengerProxy: Contract | string
+) => {
+  const address = getAddressFromContractOrString(messengerProxy)
+  const ABI = ['function setMessengerProxy(address _messengerProxy)']
+  const ethersInterface = new ethersUtils.Interface(ABI)
+  return ethersInterface.encodeFunctionData('setMessengerProxy', [address])
+}
+
 const getAddressFromContractOrString = (input: Contract | string): string => {
   if (typeof input === 'string') {
     return input

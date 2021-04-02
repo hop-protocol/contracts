@@ -49,7 +49,7 @@ contract L2_PolygonBridge is L2_Bridge {
      * @dev Allows the L1 Bridge to set the messengerProxy proxy
      * @param _messengerProxy The new messengerProxy address
      */
-    function setMessenger(L2_PolygonMessengerProxy _messengerProxy) external onlyL1Bridge {
+    function setMessengerProxy(L2_PolygonMessengerProxy _messengerProxy) external onlyL1Bridge {
         messengerProxy = _messengerProxy;
     }
 }

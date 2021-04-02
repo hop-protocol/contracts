@@ -16,6 +16,7 @@ import {
 } from '../shared/utils'
 import {
   executeCanonicalBridgeSendTokens,
+  getSetMessengerMessage,
   getAddBonderMessage,
   executeL1BridgeSendToL2,
   executeBridgeBondWithdrawal,
@@ -192,5 +193,58 @@ describe('L2_Arbitrum_Bridge', () => {
       )
       expect(isChainIdSupported).to.eq(true)
     }
+  })
+
+  /**
+   * Happy Path
+   */
+
+  it('Should set an arbitrary messenger', async () => {
+    const expectedMessengerAddress: string = ONE_ADDRESS
+
+    const message: string = getSetMessengerMessage(
+      expectedMessengerAddress
+    )
+    await executeCanonicalMessengerSendMessage(
+      l1_messenger,
+      l2_bridge,
+      l2_messenger,
+      governance,
+      message
+    )
+
+    const messengerAddress: string = await l2_bridge.messenger()
+    expect(messengerAddress).to.eq(expectedMessengerAddress)
+  })
+
+  /**
+   * Non-Happy Path
+   */
+
+  it('Should not set an arbitrary messenger because the transaction was on L2 directly', async () => {
+    const expectedErrorMsg: string = 'TODO'
+
+    const expectedMessengerAddress: string = ONE_ADDRESS
+    await expect(l2_bridge.setMessenger(expectedMessengerAddress)).to.be.revertedWith(expectedErrorMsg)
+  })
+
+  it('Should not set an arbitrary messenger because the transaction was not sent by governance', async () => {
+    const expectedErrorMsg: string = 'TODO'
+
+    const expectedMessengerAddress: string = ONE_ADDRESS
+
+    const message: string = getSetMessengerMessage(
+      expectedMessengerAddress
+    )
+
+    await expect(
+      executeCanonicalMessengerSendMessage(
+        l1_messenger,
+        l2_bridge,
+        l2_messenger,
+        user,
+        message
+      )
+    ).to.be.revertedWith(expectedErrorMsg)
   })
 })
