@@ -102,17 +102,17 @@ function setNetworkParams (networkName: string, tokenSymbol: string) {
   if (networkName === 'kovan') {
     let l1_canonicalTokenAddress: string = ''
     if (tokenSymbol === COMMON_SYMBOLS.DAI) {
-      l1_canonicalTokenAddress = COMMON_SYMBOLS.DAI
+      l1_canonicalTokenAddress = l1CanonicalTokenAddresses.DAI
     } else if (tokenSymbol === COMMON_SYMBOLS.sETH) {
-      l1_canonicalTokenAddress = COMMON_SYMBOLS.sETH
+      l1_canonicalTokenAddress = l1CanonicalTokenAddresses.sETH
     } else if (tokenSymbol === COMMON_SYMBOLS.sBTC) {
-      l1_canonicalTokenAddress = COMMON_SYMBOLS.sBTC
+      l1_canonicalTokenAddress = l1CanonicalTokenAddresses.sBTC
     } else if (tokenSymbol === COMMON_SYMBOLS.USDC) {
-      l1_canonicalTokenAddress = COMMON_SYMBOLS.USDC
+      l1_canonicalTokenAddress = l1CanonicalTokenAddresses.USDC
     } else if (tokenSymbol === COMMON_SYMBOLS.WBTC) {
-      l1_canonicalTokenAddress = COMMON_SYMBOLS.WBTC
+      l1_canonicalTokenAddress = l1CanonicalTokenAddresses.WBTC
     } else if (tokenSymbol === COMMON_SYMBOLS.TST) {
-      l1_canonicalTokenAddress = COMMON_SYMBOLS.TST
+      l1_canonicalTokenAddress = l1CanonicalTokenAddresses.TST
     }
 
     updateConfigFile({
