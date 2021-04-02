@@ -89,11 +89,35 @@ function setNetworkParams (networkName: string, tokenSymbol: string) {
   let generalData: IGeneralData
   let specificData: ISpecificData
 
+  const l1CanonicalTokenAddresses = {
+    'DAI': '0x436e3FfB93A4763575E5C0F6b3c97D5489E050da',
+    'sETH': '0x7EE6109672c07Dcf97435C8238835EFF5D6E89FD',
+    'sBTC': '0x7a4f56B0Dd21d730604A266245a0067b97605DAE',
+    'USDC': '0x7326510Cf9Ae0397dbBaF37FABba54f0A7b8D100',
+    'WBTC': '0x1E1a556D2166A006e662864D376e8DD249087150',
+    'TST': '0x943599d17FE82Bb4563b1823500f3267f91Acd2e'
+  }
+
   console.log(networkName, tokenSymbol)
   if (networkName === 'kovan') {
+    let l1_canonicalTokenAddress: string = ''
+    if (tokenSymbol === COMMON_SYMBOLS.DAI) {
+      l1_canonicalTokenAddress = COMMON_SYMBOLS.DAI
+    } else if (tokenSymbol === COMMON_SYMBOLS.sETH) {
+      l1_canonicalTokenAddress = COMMON_SYMBOLS.sETH
+    } else if (tokenSymbol === COMMON_SYMBOLS.sBTC) {
+      l1_canonicalTokenAddress = COMMON_SYMBOLS.sBTC
+    } else if (tokenSymbol === COMMON_SYMBOLS.USDC) {
+      l1_canonicalTokenAddress = COMMON_SYMBOLS.USDC
+    } else if (tokenSymbol === COMMON_SYMBOLS.WBTC) {
+      l1_canonicalTokenAddress = COMMON_SYMBOLS.WBTC
+    } else if (tokenSymbol === COMMON_SYMBOLS.TST) {
+      l1_canonicalTokenAddress = COMMON_SYMBOLS.TST
+    }
+
     updateConfigFile({
       l1_chainId: CHAIN_IDS.ETHEREUM.KOVAN.toString(),
-      l1_canonicalTokenAddress: '0x436e3FfB93A4763575E5C0F6b3c97D5489E050da',
+      l1_canonicalTokenAddress
     })
     return
   } else if (networkName === 'optimism') {
@@ -109,7 +133,7 @@ function setNetworkParams (networkName: string, tokenSymbol: string) {
 
     if (tokenSymbol === COMMON_SYMBOLS.DAI) {
       specificData = {
-        l1_canonicalTokenAddress: '0x436e3FfB93A4763575E5C0F6b3c97D5489E050da',
+        l1_canonicalTokenAddress: l1CanonicalTokenAddresses.DAI,
         l2_canonicalTokenAddress: '0x3D1d74D898e29957aDc29Fb3861489899faFAFfd',
         l2_hBridgeTokenName: DEFAULT_H_BRIDGE_TOKEN_NAME,
         l2_hBridgeTokenSymbol: DEFAULT_H_BRIDGE_TOKEN_SYMBOL,
@@ -119,7 +143,7 @@ function setNetworkParams (networkName: string, tokenSymbol: string) {
       }
     } else if (tokenSymbol === COMMON_SYMBOLS.sETH) {
       specificData = {
-        l1_canonicalTokenAddress: '0x7EE6109672c07Dcf97435C8238835EFF5D6E89FD',
+        l1_canonicalTokenAddress: l1CanonicalTokenAddresses.sETH,
         l2_canonicalTokenAddress: '0x5C18Cd9D59ca1B587db57838cf9ca8a21e3714AF',
         l2_hBridgeTokenName: 'Synth sETH Hop Token',
         l2_hBridgeTokenSymbol: 'hsETH',
@@ -129,7 +153,7 @@ function setNetworkParams (networkName: string, tokenSymbol: string) {
       }
     } else if (tokenSymbol === COMMON_SYMBOLS.sBTC) {
       specificData = {
-        l1_canonicalTokenAddress: '0x7a4f56B0Dd21d730604A266245a0067b97605DAE',
+        l1_canonicalTokenAddress: l1CanonicalTokenAddresses.sBTC,
         l2_canonicalTokenAddress: '0x4beAFb9DfA4842Cf81A26b4e49E3f322616c4Ca5',
         l2_hBridgeTokenName: 'Synth sBTC Hop Token',
         l2_hBridgeTokenSymbol: 'hsBTC',
@@ -139,7 +163,7 @@ function setNetworkParams (networkName: string, tokenSymbol: string) {
       }
     } else if (tokenSymbol === COMMON_SYMBOLS.USDC) {
       specificData = {
-        l1_canonicalTokenAddress: '0x7326510Cf9Ae0397dbBaF37FABba54f0A7b8D100',
+        l1_canonicalTokenAddress: l1CanonicalTokenAddresses.USDC,
         l2_canonicalTokenAddress: '0x56836Eec6d4EfCcFBc162C0851007D9F72aD202B',
         l2_hBridgeTokenName: 'USD Coin Hop Token',
         l2_hBridgeTokenSymbol: 'hUSDC',
@@ -149,7 +173,7 @@ function setNetworkParams (networkName: string, tokenSymbol: string) {
       }
     } else if (tokenSymbol === COMMON_SYMBOLS.WBTC) {
       specificData = {
-        l1_canonicalTokenAddress: '0x1E1a556D2166A006e662864D376e8DD249087150',
+        l1_canonicalTokenAddress: l1CanonicalTokenAddresses.WBTC,
         l2_canonicalTokenAddress: '0x067ca83e321979E31b06250E05d18a12e4f6A8f1',
         l2_hBridgeTokenName: 'Wrapped BTC Hop Token',
         l2_hBridgeTokenSymbol: 'hWBTC',
@@ -159,7 +183,7 @@ function setNetworkParams (networkName: string, tokenSymbol: string) {
       }
     } else if (tokenSymbol === COMMON_SYMBOLS.TST) {
       specificData = {
-        l1_canonicalTokenAddress: '0x943599d17FE82Bb4563b1823500f3267f91Acd2e',
+        l1_canonicalTokenAddress: l1CanonicalTokenAddresses.TST,
         l2_canonicalTokenAddress: '0x943599d17FE82Bb4563b1823500f3267f91Acd2e',
         l2_hBridgeTokenName: 'Test Coin Hop Token',
         l2_hBridgeTokenSymbol: 'TST',
@@ -181,7 +205,7 @@ function setNetworkParams (networkName: string, tokenSymbol: string) {
 
     if (tokenSymbol === COMMON_SYMBOLS.DAI) {
       specificData = {
-        l1_canonicalTokenAddress: '0x7d669A64deb8a4A51eEa755bb0E19FD39CE25Ae9',
+        l1_canonicalTokenAddress: l1CanonicalTokenAddresses.DAI,
         l2_canonicalTokenAddress: '0xD98Ba848F10697A914a8c007dBCD05fCe2A0b84f',
         l2_hBridgeTokenName: DEFAULT_H_BRIDGE_TOKEN_NAME,
         l2_hBridgeTokenSymbol: DEFAULT_H_BRIDGE_TOKEN_SYMBOL,
@@ -203,7 +227,7 @@ function setNetworkParams (networkName: string, tokenSymbol: string) {
 
     if (tokenSymbol === COMMON_SYMBOLS.DAI) {
       specificData = {
-        l1_canonicalTokenAddress: '0x436e3FfB93A4763575E5C0F6b3c97D5489E050da',
+        l1_canonicalTokenAddress: l1CanonicalTokenAddresses.DAI,
         l2_canonicalTokenAddress: '0x6D2d8B29d92cab87a273e872FcC4650A64116283',
         l2_hBridgeTokenName: DEFAULT_H_BRIDGE_TOKEN_NAME,
         l2_hBridgeTokenSymbol: DEFAULT_H_BRIDGE_TOKEN_SYMBOL,
@@ -213,7 +237,7 @@ function setNetworkParams (networkName: string, tokenSymbol: string) {
       }
     } else if (COMMON_SYMBOLS.sETH) {
       specificData = {
-        l1_canonicalTokenAddress: '0x7EE6109672c07Dcf97435C8238835EFF5D6E89FD',
+        l1_canonicalTokenAddress: l1CanonicalTokenAddresses.sETH,
         l2_canonicalTokenAddress: '0xeC3B005D2BF47f505F1A0cD68eEb7Ea439D6daF6',
         l2_hBridgeTokenName: 'Synth sETH Hop Token',
         l2_hBridgeTokenSymbol: 'hsETH',
@@ -223,7 +247,7 @@ function setNetworkParams (networkName: string, tokenSymbol: string) {
       }
     } else if (COMMON_SYMBOLS.sBTC) {
       specificData = {
-        l1_canonicalTokenAddress: '0x7a4f56B0Dd21d730604A266245a0067b97605DAE',
+        l1_canonicalTokenAddress: l1CanonicalTokenAddresses.sBTC,
         l2_canonicalTokenAddress: '0x696ED254EC9bD27328d5ef81905042913260eccd',
         l2_hBridgeTokenName: 'Synth sBTC Hop Token',
         l2_hBridgeTokenSymbol: 'hsBTC',
@@ -233,7 +257,7 @@ function setNetworkParams (networkName: string, tokenSymbol: string) {
       }
     } else if (COMMON_SYMBOLS.USDC) {
       specificData = {
-        l1_canonicalTokenAddress: '0x7326510Cf9Ae0397dbBaF37FABba54f0A7b8D100',
+        l1_canonicalTokenAddress: l1CanonicalTokenAddresses.USDC,
         l2_canonicalTokenAddress: '0x452AED3fdB2E83A1352624321629180aB1489Dd0',
         l2_hBridgeTokenName: 'USD Coin Hop Token',
         l2_hBridgeTokenSymbol: 'hUSDC',
@@ -243,7 +267,7 @@ function setNetworkParams (networkName: string, tokenSymbol: string) {
       }
     } else if (COMMON_SYMBOLS.WBTC) {
       specificData = {
-        l1_canonicalTokenAddress: '0x1E1a556D2166A006e662864D376e8DD249087150',
+        l1_canonicalTokenAddress: l1CanonicalTokenAddresses.WBTC,
         l2_canonicalTokenAddress: '0x94490EF228D4aBD189694f86D1684D972431380b',
         l2_hBridgeTokenName: 'Wrapped BTC Hop Token',
         l2_hBridgeTokenSymbol: 'hWBTC',
@@ -253,7 +277,7 @@ function setNetworkParams (networkName: string, tokenSymbol: string) {
       }
     } else if (COMMON_SYMBOLS.TST) {
       specificData = {
-        l1_canonicalTokenAddress: '0x943599d17FE82Bb4563b1823500f3267f91Acd2e',
+        l1_canonicalTokenAddress: l1CanonicalTokenAddresses.TST,
         l2_canonicalTokenAddress: '0x1a844c99766d67E6031c337E28233Fe2BF773603',
         l2_hBridgeTokenName: 'Test Coin Hop Token',
         l2_hBridgeTokenSymbol: 'TST',
