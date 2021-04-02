@@ -37,7 +37,8 @@ export const MAX_APPROVAL: BigNumber = BigNumber.from(
   '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff'
 )
 
-export const DEFAULT_MESSENGER_WRAPPER_GAS_LIMIT: number = 8000000
+export const DEFAULT_L2_BRIDGE_GAS_LIMIT: number = 8000000
+export const DEFAULT_MESSENGER_WRAPPER_GAS_LIMIT: number = DEFAULT_L2_BRIDGE_GAS_LIMIT
 export const DEFAULT_MESSENGER_WRAPPER_GAS_PRICE: number = 0
 export const DEFAULT_MESSENGER_WRAPPER_GAS_CALL_VALUE: number = 0
 

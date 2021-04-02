@@ -47,16 +47,16 @@ contract L2_AmmWrapper {
         public
         payable
     {
-        require(amount >= bonderFee, "L2_BRG: Bonder fee cannot exceed amount");
+        require(amount >= bonderFee, "L2_AMM_W: Bonder fee cannot exceed amount");
 
         if (l2CanonicalTokenIsEth) {
-            require(msg.value == amount, "L2_BRG: Value does not match amount");
+            require(msg.value == amount, "L2_AMM_W: Value does not match amount");
             IWETH(address(l2CanonicalToken)).deposit{value: amount}();
         } else {
-            require(l2CanonicalToken.transferFrom(msg.sender, address(this), amount), "L2_UW: TransferFrom failed");
+            require(l2CanonicalToken.transferFrom(msg.sender, address(this), amount), "L2_AMM_W: TransferFrom failed");
         }
 
-        require(l2CanonicalToken.approve(address(exchangeAddress), amount), "L2_UW: Approve failed");
+        require(l2CanonicalToken.approve(address(exchangeAddress), amount), "L2_AMM_W: Approve failed");
         uint256 swapAmount = Swap(exchangeAddress).swap(
             0,
             1,
@@ -69,8 +69,8 @@ contract L2_AmmWrapper {
     }
 
     function attemptSwap(address recipient, uint256 amount, uint256 amountOutMin, uint256 deadline) external {
-        require(hToken.transferFrom(msg.sender, address(this), amount), "L2_UW: TransferFrom failed");
-        require(hToken.approve(address(exchangeAddress), amount), "L2_UW: Approve failed");
+        require(hToken.transferFrom(msg.sender, address(this), amount), "L2_AMM_W: TransferFrom failed");
+        require(hToken.approve(address(exchangeAddress), amount), "L2_AMM_W: Approve failed");
 
         uint256 amountOut = 0;
         try Swap(exchangeAddress).swap(
@@ -85,16 +85,16 @@ contract L2_AmmWrapper {
 
         if (amountOut == 0) {
             // Transfer hToken to recipient if swap fails
-            require(hToken.transfer(recipient, amount), "L2_UW: Transfer failed");
+            require(hToken.transfer(recipient, amount), "L2_AMM_W: Transfer failed");
             return;
         }
 
         if (l2CanonicalTokenIsEth) {
             IWETH(address(l2CanonicalToken)).withdraw(amountOut);
             (bool success, ) = recipient.call{value: amountOut}(new bytes(0));
-            require(success, 'L2_UW: ETH transfer failed');
+            require(success, 'L2_AMM_W: ETH transfer failed');
         } else {
-            require(l2CanonicalToken.transfer(recipient, amountOut), "L2_UW: Transfer failed");
+            require(l2CanonicalToken.transfer(recipient, amountOut), "L2_AMM_W: Transfer failed");
         }
     }
 }
