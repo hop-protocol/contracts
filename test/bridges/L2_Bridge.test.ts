@@ -16,6 +16,7 @@ import {
 } from '../shared/utils'
 import {
   executeCanonicalBridgeSendTokens,
+  getSetL1GovernanceMessage,
   getAddBonderMessage,
   executeL1BridgeSendToL2,
   executeBridgeBondWithdrawal,
@@ -218,6 +219,24 @@ describe('L2_Bridge', () => {
   })
 
   describe('setters and getters', async () => {
+    it('Should set the l1 governance address arbitrarily', async () => {
+      const expectedGovernanceAddress: string = ONE_ADDRESS
+
+      const message: string = getSetL1GovernanceMessage(
+        expectedGovernanceAddress
+      )
+      await executeCanonicalMessengerSendMessage(
+        l1_messenger,
+        l2_bridge,
+        l2_messenger,
+        governance,
+        message
+      )
+
+      const governanceAddress: string = await l2_bridge.l1Governance()
+      expect(governanceAddress).to.eq(expectedGovernanceAddress)
+    })
+
     it('Should set the amm wrapper address arbitrarily', async () => {
       const expectedAmmWrapperAddress: string = ONE_ADDRESS
 
@@ -664,6 +683,24 @@ describe('L2_Bridge', () => {
    */
 
   describe('setters', async () => {
+    it('Should not allow an arbitrary address to set the amm wrapper address arbitrarily', async () => {
+      const expectedErrorMsg: string = 'L2_OVM_BRG: Invalid cross-domain sender'
+      const expectedL1GovernanceAddress: string = ONE_ADDRESS
+
+      const message: string = getSetL1GovernanceMessage(
+        expectedL1GovernanceAddress
+      )
+      await expect(
+        executeCanonicalMessengerSendMessage(
+          l1_messenger,
+          l2_bridge,
+          l2_messenger,
+          user,
+          message
+        )
+      ).to.be.revertedWith(expectedErrorMsg)
+    })
+
     it('Should not allow an arbitrary address to set the amm wrapper address arbitrarily', async () => {
       const expectedErrorMsg: string = 'L2_OVM_BRG: Invalid cross-domain sender'
       const expectedAmmWrapperAddress: string = ONE_ADDRESS
