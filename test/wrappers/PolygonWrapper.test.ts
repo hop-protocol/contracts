@@ -16,7 +16,7 @@ import {
 
 export const MAX_NUM_SENDS_BEFORE_COMMIT = 10
 
-describe('Polygon Wrapper', () => {
+describe.skip('Polygon Wrapper', () => {
   let _fixture: IFixture
 
   let l1ChainId: BigNumber

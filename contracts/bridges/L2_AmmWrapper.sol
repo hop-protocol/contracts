@@ -68,7 +68,14 @@ contract L2_AmmWrapper {
         bridge.send(chainId, recipient, swapAmount, bonderFee, destinationAmountOutMin, destinationDeadline);
     }
 
-    function attemptSwap(address recipient, uint256 amount, uint256 amountOutMin, uint256 deadline) external {
+    function attemptSwap(
+        address recipient,
+        uint256 amount,
+        uint256 amountOutMin,
+        uint256 deadline
+    )
+        external
+    {
         require(hToken.transferFrom(msg.sender, address(this), amount), "L2_AMM_W: TransferFrom failed");
         require(hToken.approve(address(exchangeAddress), amount), "L2_AMM_W: Approve failed");
 

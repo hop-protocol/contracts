@@ -838,7 +838,7 @@ export const executeL2BridgeSend = async (
   expect(transferSentArgs[4]).to.eq(transfer.bonderFee)
 }
 
-export const executeL2BridgeSwapAndSend = async (
+export const executeL2AmmWrapperSwapAndSend = async (
   sourceBridge: Contract,
   sourceCanonicalToken: Contract,
   sourceSwap: Contract,
@@ -901,6 +901,65 @@ export const executeL2BridgeSwapAndSend = async (
   expect(transferSentArgs[2]).to.eq(transferAfterSlippage.amount)
   expect(transferSentArgs[3]).to.eq(transferNonce)
   expect(transferSentArgs[4]).to.eq(transfer.bonderFee)
+}
+
+export const executeL2AmmWrapperAttemptSwap = async (
+  l2_swap: Contract,
+  l2_ammWrapper: Contract,
+  l2_canonicalToken: Contract,
+  l2_hopBridgeToken: Contract,
+  sender: Signer,
+  recipient: Signer,
+  amount: BigNumber,
+  amountOutMin: BigNumber,
+  deadline: BigNumber,
+  shouldSwapSuccessfully: boolean = true
+) => {
+  // Get state before transaction
+  const senderHopTokenBalanceBefore: BigNumber = await l2_hopBridgeToken.balanceOf(
+    await sender.getAddress()
+  )
+  const recipientHopTokenBalanceBefore: BigNumber = await l2_hopBridgeToken.balanceOf(
+    await recipient.getAddress()
+  )
+  const recipientCanonicalTokenBalanceBefore: BigNumber = await l2_canonicalToken.balanceOf(
+    await recipient.getAddress()
+  )
+  const expectedAmountAfterSlippage: BigNumber = await l2_swap.calculateSwap('0', '1', amount)
+
+  // Perform transaction
+  await l2_hopBridgeToken
+    .connect(sender)
+    .approve(l2_ammWrapper.address, amount)
+  await l2_ammWrapper
+    .connect(sender)
+    .attemptSwap(
+      await recipient.getAddress(),
+      amount,
+      amountOutMin,
+      deadline
+    )
+
+  // Validate state after transaction
+  await expectBalanceOf(
+    l2_hopBridgeToken,
+    sender,
+    senderHopTokenBalanceBefore.sub(amount)
+  )
+
+  if (shouldSwapSuccessfully) {
+    await expectBalanceOf(
+      l2_canonicalToken,
+      recipient,
+      recipientCanonicalTokenBalanceBefore.add(expectedAmountAfterSlippage)
+    )
+  } else {
+    await expectBalanceOf(
+      l2_hopBridgeToken,
+      recipient,
+      recipientHopTokenBalanceBefore.add(amount)
+    )
+  }
 }
 
 export const executeL2BridgeCommitTransfers = async (
