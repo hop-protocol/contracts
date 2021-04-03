@@ -1,7 +1,8 @@
 require('dotenv').config()
 
-import { ethers, l2ethers as ovmEthers } from 'hardhat'
+import { ethers } from 'hardhat'
 import { BigNumber, ContractFactory, Contract, Signer, providers } from 'ethers'
+const ovmEthers = ethers
 
 import {
   getContractFactories,

@@ -1,7 +1,8 @@
 require('dotenv').config()
 
-import { ethers, l2ethers as ovmEthers } from 'hardhat'
+import { ethers } from 'hardhat'
 import { BigNumber, ContractFactory, Signer, Contract, providers } from 'ethers'
+const ovmEthers = ethers
 
 import {
   getContractFactories,
@@ -261,7 +262,9 @@ export async function setupL1 (config: Config) {
       LIQUIDITY_PROVIDER_INITIAL_BALANCE,
       amountOutMin,
       deadline,
-      relayerFee
+      ZERO_ADDRESS,
+      relayerFee,
+      { gasLimit: 500000 }
     )
   await tx.wait()
   await waitAfterTransaction()

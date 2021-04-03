@@ -1,0 +1,6216 @@
+{
+  "_format": "hh-sol-cache-2",
+  "files": {
+    "/Users/chris/Hop/contracts/node_modules/hardhat/console.sol": {
+      "lastModificationDate": 1617154098042,
+      "contentHash": "cc4777addd464ea56fa35b1c45df0591",
+      "sourceName": "hardhat/console.sol",
+      "solcConfig": {
+        "version": "0.7.0",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        ">=0.4.22 <0.9.0"
+      ],
+      "artifacts": [
+        "console"
+      ]
+    },
+    "/Users/chris/Hop/contracts/node_modules/@openzeppelin/contracts/utils/Pausable.sol": {
+      "lastModificationDate": 1617154099166,
+      "contentHash": "6960b40911542e6004ab95031ef9c3b9",
+      "sourceName": "@openzeppelin/contracts/utils/Pausable.sol",
+      "solcConfig": {
+        "version": "0.7.0",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./Context.sol"
+      ],
+      "versionPragmas": [
+        ">=0.6.0 <0.8.0"
+      ],
+      "artifacts": [
+        "Pausable"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/saddle/SwapConstants.sol": {
+      "lastModificationDate": 1617318288385,
+      "contentHash": "d41d8cd98f00b204e9800998ecf8427e",
+      "sourceName": "contracts/saddle/SwapConstants.sol",
+      "solcConfig": {
+        "version": "0.7.0",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [],
+      "artifacts": []
+    },
+    "/Users/chris/Hop/contracts/node_modules/@openzeppelin/contracts/GSN/Context.sol": {
+      "lastModificationDate": 1617342496557,
+      "contentHash": "a02aa4ae53018d92603a3ead2c365958",
+      "sourceName": "@openzeppelin/contracts/GSN/Context.sol",
+      "solcConfig": {
+        "version": "0.7.0",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../utils/Context.sol"
+      ],
+      "versionPragmas": [
+        ">=0.6.0 <0.8.0"
+      ],
+      "artifacts": []
+    },
+    "/Users/chris/Hop/contracts/contracts/bridges/Accounting.sol": {
+      "lastModificationDate": 1617319495676,
+      "contentHash": "4b00e17fcecd1511508f9af7fb77d21f",
+      "sourceName": "contracts/bridges/Accounting.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/math/SafeMath.sol"
+      ],
+      "versionPragmas": [
+        "0.6.12"
+      ],
+      "artifacts": [
+        "Accounting"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/test/Mock_Accounting.sol": {
+      "lastModificationDate": 1617319477570,
+      "contentHash": "762eb2027b8c5ac4e57591fcef97fc7a",
+      "sourceName": "contracts/test/Mock_Accounting.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../bridges/Accounting.sol"
+      ],
+      "versionPragmas": [
+        "0.6.12"
+      ],
+      "artifacts": [
+        "Mock_Accounting"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/bridges/Bridge.sol": {
+      "lastModificationDate": 1617319495677,
+      "contentHash": "b2715293c0a93886771762d8774e7450",
+      "sourceName": "contracts/bridges/Bridge.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/cryptography/MerkleProof.sol",
+        "./Accounting.sol",
+        "../libraries/Lib_MerkleTree.sol"
+      ],
+      "versionPragmas": [
+        "0.6.12"
+      ],
+      "artifacts": [
+        "Bridge"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/test/Mock_Bridge.sol": {
+      "lastModificationDate": 1617319477570,
+      "contentHash": "1615aecca900f20571adb45fac4d0103",
+      "sourceName": "contracts/test/Mock_Bridge.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../bridges/Bridge.sol"
+      ],
+      "versionPragmas": [
+        "0.6.12"
+      ],
+      "artifacts": [
+        "Mock_Bridge"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/bridges/L2_Bridge.sol": {
+      "lastModificationDate": 1617319865298,
+      "contentHash": "1f47520b5cd530b5733eb981ce01bf72",
+      "sourceName": "contracts/bridges/L2_Bridge.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/token/ERC20/IERC20.sol",
+        "@openzeppelin/contracts/token/ERC20/SafeERC20.sol",
+        "@openzeppelin/contracts/utils/ReentrancyGuard.sol",
+        "./Bridge.sol",
+        "./HopBridgeToken.sol",
+        "../libraries/Lib_MerkleTree.sol",
+        "./L2_AmmWrapper.sol"
+      ],
+      "versionPragmas": [
+        "0.6.12"
+      ],
+      "artifacts": [
+        "L2_Bridge"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/bridges/HopBridgeToken.sol": {
+      "lastModificationDate": 1617319495677,
+      "contentHash": "a27b7b418ee1287217c5f8210fc881c4",
+      "sourceName": "contracts/bridges/HopBridgeToken.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/token/ERC20/ERC20.sol",
+        "@openzeppelin/contracts/access/Ownable.sol"
+      ],
+      "versionPragmas": [
+        "0.6.12"
+      ],
+      "artifacts": [
+        "HopBridgeToken"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/bridges/L2_AmmWrapper.sol": {
+      "lastModificationDate": 1617319495678,
+      "contentHash": "1bf610e6ccd9a3f111fe25150c8f136b",
+      "sourceName": "contracts/bridges/L2_AmmWrapper.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/token/ERC20/IERC20.sol",
+        "../saddle/Swap.sol",
+        "./L2_Bridge.sol",
+        "../interfaces/IWETH.sol"
+      ],
+      "versionPragmas": [
+        "0.6.12"
+      ],
+      "artifacts": [
+        "L2_AmmWrapper"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/saddle/Swap.sol": {
+      "lastModificationDate": 1617341216843,
+      "contentHash": "926a94e5131c51b220172d4763a679ac",
+      "sourceName": "contracts/saddle/Swap.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/math/SafeMath.sol",
+        "@openzeppelin/contracts/token/ERC20/SafeERC20.sol",
+        "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol",
+        "./SwapUtils.sol",
+        "./MathUtils.sol"
+      ],
+      "versionPragmas": [
+        "0.6.12"
+      ],
+      "artifacts": [
+        "Swap"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/interfaces/IWETH.sol": {
+      "lastModificationDate": 1617319523224,
+      "contentHash": "007a2df1688fc59631e57a5f43ca32b8",
+      "sourceName": "contracts/interfaces/IWETH.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "0.6.12"
+      ],
+      "artifacts": [
+        "IWETH"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/saddle/SwapUtils.sol": {
+      "lastModificationDate": 1617341216843,
+      "contentHash": "f11dc2e6d508029a351356e6d9ad78af",
+      "sourceName": "contracts/saddle/SwapUtils.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/math/SafeMath.sol",
+        "@openzeppelin/contracts/token/ERC20/SafeERC20.sol",
+        "./LPToken.sol",
+        "./MathUtils.sol"
+      ],
+      "versionPragmas": [
+        "0.6.12"
+      ],
+      "artifacts": [
+        "SwapUtils"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/saddle/MathUtils.sol": {
+      "lastModificationDate": 1616994902562,
+      "contentHash": "f148dd3a15a3fad3448d8cc972709d9c",
+      "sourceName": "contracts/saddle/MathUtils.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "0.6.12"
+      ],
+      "artifacts": [
+        "MathUtils"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/saddle/LPToken.sol": {
+      "lastModificationDate": 1616994902562,
+      "contentHash": "14510f9aff635081454ca0162ca237f8",
+      "sourceName": "contracts/saddle/LPToken.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/token/ERC20/ERC20Burnable.sol",
+        "@openzeppelin/contracts/access/Ownable.sol",
+        "@openzeppelin/contracts/math/SafeMath.sol",
+        "./interfaces/ISwap.sol"
+      ],
+      "versionPragmas": [
+        "0.6.12"
+      ],
+      "artifacts": [
+        "LPToken"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/saddle/interfaces/ISwap.sol": {
+      "lastModificationDate": 1616994902575,
+      "contentHash": "a96824ebe47b201a5f2ae4d693444264",
+      "sourceName": "contracts/saddle/interfaces/ISwap.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/token/ERC20/ERC20.sol",
+        "./IAllowlist.sol"
+      ],
+      "versionPragmas": [
+        "0.6.12"
+      ],
+      "artifacts": [
+        "ISwap"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/saddle/interfaces/IAllowlist.sol": {
+      "lastModificationDate": 1616994902574,
+      "contentHash": "b281d63e18f2817ad013fce5b8deb593",
+      "sourceName": "contracts/saddle/interfaces/IAllowlist.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "0.6.12"
+      ],
+      "artifacts": [
+        "IAllowlist"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/bridges/L2_XDaiBridge.sol": {
+      "lastModificationDate": 1617319495680,
+      "contentHash": "5be38c4a62c95f25a2e14f177369d11d",
+      "sourceName": "contracts/bridges/L2_XDaiBridge.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../interfaces/xDai/messengers/iArbitraryMessageBridge.sol",
+        "./L2_Bridge.sol"
+      ],
+      "versionPragmas": [
+        "0.6.12"
+      ],
+      "artifacts": [
+        "L2_XDaiBridge"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/interfaces/xDai/messengers/iArbitraryMessageBridge.sol": {
+      "lastModificationDate": 1617319523226,
+      "contentHash": "b3c67d44955943744f7a37b0a1f7d518",
+      "sourceName": "contracts/interfaces/xDai/messengers/iArbitraryMessageBridge.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "0.6.12"
+      ],
+      "artifacts": [
+        "iArbitraryMessageBridge"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/test/Mock_L2_XDaiBridge.sol": {
+      "lastModificationDate": 1617319477572,
+      "contentHash": "5ff3ea3ea32e936da48442ffefcb5396",
+      "sourceName": "contracts/test/Mock_L2_XDaiBridge.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../bridges/L2_XDaiBridge.sol"
+      ],
+      "versionPragmas": [
+        "0.6.12"
+      ],
+      "artifacts": [
+        "Mock_L2_XDaiBridge"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/wrappers/XDaiMessengerWrapper.sol": {
+      "lastModificationDate": 1617319501847,
+      "contentHash": "4f89a77b86b7016e8ac0a0d4d43aa599",
+      "sourceName": "contracts/wrappers/XDaiMessengerWrapper.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../interfaces/xDai/messengers/iArbitraryMessageBridge.sol",
+        "./MessengerWrapper.sol"
+      ],
+      "versionPragmas": [
+        "0.6.12"
+      ],
+      "artifacts": [
+        "XDaiMessengerWrapper"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/wrappers/MessengerWrapper.sol": {
+      "lastModificationDate": 1617319501846,
+      "contentHash": "a240a81b68a836244dd4869c83136abd",
+      "sourceName": "contracts/wrappers/MessengerWrapper.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../interfaces/IMessengerWrapper.sol"
+      ],
+      "versionPragmas": [
+        "0.6.12"
+      ],
+      "artifacts": [
+        "MessengerWrapper"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/interfaces/IMessengerWrapper.sol": {
+      "lastModificationDate": 1617319523223,
+      "contentHash": "2baf611b528adfd6b974b055afc503ec",
+      "sourceName": "contracts/interfaces/IMessengerWrapper.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "0.6.12"
+      ],
+      "artifacts": [
+        "IMessengerWrapper"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/wrappers/PolygonWrapper.sol": {
+      "lastModificationDate": 1617319865331,
+      "contentHash": "3ad0a08131fb5d1c3a4f1437455fe0d7",
+      "sourceName": "contracts/wrappers/PolygonWrapper.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../polygon/tunnel/BaseRootTunnel.sol",
+        "./MessengerWrapper.sol",
+        "../bridges/L1_Bridge.sol"
+      ],
+      "versionPragmas": [
+        "0.6.12"
+      ],
+      "artifacts": [
+        "PolygonMessengerWrapper"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/polygon/tunnel/BaseRootTunnel.sol": {
+      "lastModificationDate": 1617319865319,
+      "contentHash": "26f5671c4d8e4dc0a69f3b014775f788",
+      "sourceName": "contracts/polygon/tunnel/BaseRootTunnel.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/math/SafeMath.sol",
+        "../common/AccessControlMixin.sol",
+        "../root/StateSender/IStateSender.sol",
+        "../lib/RLPReader.sol",
+        "../lib/MerklePatriciaProof.sol",
+        "../root/ICheckpointManager.sol",
+        "../lib/RLPReader.sol",
+        "../lib/Merkle.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.6"
+      ],
+      "artifacts": [
+        "BaseRootTunnel"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/bridges/L1_Bridge.sol": {
+      "lastModificationDate": 1617319865297,
+      "contentHash": "44eeb42118b485023c604e7dd65934e8",
+      "sourceName": "contracts/bridges/L1_Bridge.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./Bridge.sol",
+        "../interfaces/IMessengerWrapper.sol"
+      ],
+      "versionPragmas": [
+        "0.6.12"
+      ],
+      "artifacts": [
+        "L1_Bridge"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/polygon/common/AccessControlMixin.sol": {
+      "lastModificationDate": 1617319865303,
+      "contentHash": "8dde86bbfc1e5c4317ab0eb71c6a420f",
+      "sourceName": "contracts/polygon/common/AccessControlMixin.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/access/AccessControl.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.6"
+      ],
+      "artifacts": [
+        "AccessControlMixin"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/polygon/root/StateSender/IStateSender.sol": {
+      "lastModificationDate": 1617319865312,
+      "contentHash": "9121413e21ae98075697e14b78e436aa",
+      "sourceName": "contracts/polygon/root/StateSender/IStateSender.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.6.6"
+      ],
+      "artifacts": [
+        "IStateSender"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/polygon/lib/RLPReader.sol": {
+      "lastModificationDate": 1617319865306,
+      "contentHash": "03c5b82582fc927e6772669fd1b298df",
+      "sourceName": "contracts/polygon/lib/RLPReader.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.6.6"
+      ],
+      "artifacts": [
+        "RLPReader"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/polygon/lib/MerklePatriciaProof.sol": {
+      "lastModificationDate": 1617319865306,
+      "contentHash": "7a89b8b49f2513640b540085560b5701",
+      "sourceName": "contracts/polygon/lib/MerklePatriciaProof.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./RLPReader.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.6"
+      ],
+      "artifacts": [
+        "MerklePatriciaProof"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/polygon/root/ICheckpointManager.sol": {
+      "lastModificationDate": 1617319865306,
+      "contentHash": "952277b52c8e9dfd02015706e27a73c6",
+      "sourceName": "contracts/polygon/root/ICheckpointManager.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.6.6"
+      ],
+      "artifacts": [
+        "ICheckpointManager"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/polygon/lib/Merkle.sol": {
+      "lastModificationDate": 1617319865305,
+      "contentHash": "e6fb70dad0750e5be868267b57f074a5",
+      "sourceName": "contracts/polygon/lib/Merkle.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.6.6"
+      ],
+      "artifacts": [
+        "Merkle"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/bridges/L1_ETH_Bridge.sol": {
+      "lastModificationDate": 1617319495678,
+      "contentHash": "c6663c15015496f0260893a9d45f6cae",
+      "sourceName": "contracts/bridges/L1_ETH_Bridge.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./L1_Bridge.sol"
+      ],
+      "versionPragmas": [
+        "0.6.12"
+      ],
+      "artifacts": [
+        "L1_ETH_Bridge"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/test/Mock_L1_ETH_Bridge.sol": {
+      "lastModificationDate": 1617319477571,
+      "contentHash": "d8fa30db6a18b1ac8beb09ffd6842c5c",
+      "sourceName": "contracts/test/Mock_L1_ETH_Bridge.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../bridges/L1_ETH_Bridge.sol"
+      ],
+      "versionPragmas": [
+        "0.6.12"
+      ],
+      "artifacts": [
+        "Mock_L1_ETH_Bridge"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/bridges/L1_ERC20_Bridge.sol": {
+      "lastModificationDate": 1617319495678,
+      "contentHash": "6c90c770e9e9ba854045e8a095d68eed",
+      "sourceName": "contracts/bridges/L1_ERC20_Bridge.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/token/ERC20/IERC20.sol",
+        "@openzeppelin/contracts/token/ERC20/SafeERC20.sol",
+        "./L1_Bridge.sol"
+      ],
+      "versionPragmas": [
+        "0.6.12"
+      ],
+      "artifacts": [
+        "L1_ERC20_Bridge"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/test/Mock_L1_ERC20_Bridge.sol": {
+      "lastModificationDate": 1617319477570,
+      "contentHash": "5bdd06e8520037d9f162e042a707e4ca",
+      "sourceName": "contracts/test/Mock_L1_ERC20_Bridge.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../bridges/L1_ERC20_Bridge.sol"
+      ],
+      "versionPragmas": [
+        "0.6.12"
+      ],
+      "artifacts": [
+        "Mock_L1_ERC20_Bridge"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/test/MockMessenger.sol": {
+      "lastModificationDate": 1617319477570,
+      "contentHash": "6f544a0b4bdc8c9ce4db19c8427c7027",
+      "sourceName": "contracts/test/MockMessenger.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/token/ERC20/IERC20.sol",
+        "@openzeppelin/contracts/token/ERC20/SafeERC20.sol",
+        "./BytesLib.sol"
+      ],
+      "versionPragmas": [
+        "0.6.12"
+      ],
+      "artifacts": [
+        "MockMessenger"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/test/BytesLib.sol": {
+      "lastModificationDate": 1617319477569,
+      "contentHash": "5fc4a9a87a7f28c2145db0dd49377a2f",
+      "sourceName": "contracts/test/BytesLib.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        ">=0.5.0 <0.7.0"
+      ],
+      "artifacts": [
+        "BytesLib"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/test/Mock_L2_Messenger.sol": {
+      "lastModificationDate": 1617319477571,
+      "contentHash": "f086415275ce28d29821902904023771",
+      "sourceName": "contracts/test/Mock_L2_Messenger.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./MockMessenger.sol",
+        "./Mock_L1_Messenger.sol"
+      ],
+      "versionPragmas": [
+        "0.6.12"
+      ],
+      "artifacts": [
+        "Mock_L2_Messenger"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/test/Mock_L1_Messenger.sol": {
+      "lastModificationDate": 1617319477571,
+      "contentHash": "4e6a19c56c681de0ca3276c08ad5f154",
+      "sourceName": "contracts/test/Mock_L1_Messenger.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./MockMessenger.sol",
+        "./Mock_L2_Messenger.sol"
+      ],
+      "versionPragmas": [
+        "0.6.12"
+      ],
+      "artifacts": [
+        "Mock_L1_Messenger"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/test/Mock_L1_CanonicalBridge.sol": {
+      "lastModificationDate": 1617319477570,
+      "contentHash": "8cec923756849d27cd74419a8dfbddb3",
+      "sourceName": "contracts/test/Mock_L1_CanonicalBridge.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/token/ERC20/IERC20.sol",
+        "@openzeppelin/contracts/token/ERC20/SafeERC20.sol",
+        "./Mock_L1_Messenger.sol"
+      ],
+      "versionPragmas": [
+        "0.6.12"
+      ],
+      "artifacts": [
+        "Mock_L1_CanonicalBridge"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/polygon/root/TokenPredicates/ERC20Predicate.sol": {
+      "lastModificationDate": 1617319865313,
+      "contentHash": "7393d29c76907d03b60bca34f6a8f04b",
+      "sourceName": "contracts/polygon/root/TokenPredicates/ERC20Predicate.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/token/ERC20/IERC20.sol",
+        "@openzeppelin/contracts/token/ERC20/SafeERC20.sol",
+        "../../common/AccessControlMixin.sol",
+        "../../lib/RLPReader.sol",
+        "./ITokenPredicate.sol",
+        "../../common/Initializable.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.6"
+      ],
+      "artifacts": [
+        "ERC20Predicate"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/polygon/root/TokenPredicates/ITokenPredicate.sol": {
+      "lastModificationDate": 1617319865315,
+      "contentHash": "51ba776e137b3de9b308def0cf01f26f",
+      "sourceName": "contracts/polygon/root/TokenPredicates/ITokenPredicate.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../../lib/RLPReader.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.6"
+      ],
+      "artifacts": [
+        "ITokenPredicate"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/polygon/common/Initializable.sol": {
+      "lastModificationDate": 1617319865304,
+      "contentHash": "12d4c616379dd5f2e5c1737b4178b420",
+      "sourceName": "contracts/polygon/common/Initializable.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.6.6"
+      ],
+      "artifacts": [
+        "Initializable"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/polygon/root/TokenPredicates/MintableERC721Predicate.sol": {
+      "lastModificationDate": 1617319865318,
+      "contentHash": "686fa75fb6821b7d29aa8bb917176968",
+      "sourceName": "contracts/polygon/root/TokenPredicates/MintableERC721Predicate.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol",
+        "../../common/AccessControlMixin.sol",
+        "../../lib/RLPReader.sol",
+        "../RootToken/IMintableERC721.sol",
+        "./ITokenPredicate.sol",
+        "../../common/Initializable.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.6"
+      ],
+      "artifacts": [
+        "MintableERC721Predicate"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/polygon/root/RootToken/IMintableERC721.sol": {
+      "lastModificationDate": 1617319865311,
+      "contentHash": "b1fe501da14ae8a1d1dd863dc6489110",
+      "sourceName": "contracts/polygon/root/RootToken/IMintableERC721.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/token/ERC721/IERC721.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.6"
+      ],
+      "artifacts": [
+        "IMintableERC721"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/polygon/root/TokenPredicates/MintableERC20Predicate.sol": {
+      "lastModificationDate": 1617319865317,
+      "contentHash": "8890e7bab117c292beaf7b5f18c3ed8b",
+      "sourceName": "contracts/polygon/root/TokenPredicates/MintableERC20Predicate.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../RootToken/IMintableERC20.sol",
+        "../../common/AccessControlMixin.sol",
+        "../../lib/RLPReader.sol",
+        "./ITokenPredicate.sol",
+        "../../common/Initializable.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.6"
+      ],
+      "artifacts": [
+        "MintableERC20Predicate"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/polygon/root/RootToken/IMintableERC20.sol": {
+      "lastModificationDate": 1617319865311,
+      "contentHash": "4129a6203d7227353b0cf680e42764db",
+      "sourceName": "contracts/polygon/root/RootToken/IMintableERC20.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/token/ERC20/IERC20.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.6"
+      ],
+      "artifacts": [
+        "IMintableERC20"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/polygon/tunnel/RootTunnel.sol": {
+      "lastModificationDate": 1617319865320,
+      "contentHash": "b423053aa755cb09276e78e41d550fbe",
+      "sourceName": "contracts/polygon/tunnel/RootTunnel.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./BaseRootTunnel.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.6"
+      ],
+      "artifacts": [
+        "RootTunnel"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/polygon/root/RootChainManager/RootChainManager.sol": {
+      "lastModificationDate": 1617319865307,
+      "contentHash": "5a6c2f2310d4317f83a643a2cff47b79",
+      "sourceName": "contracts/polygon/root/RootChainManager/RootChainManager.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/math/SafeMath.sol",
+        "./IRootChainManager.sol",
+        "./RootChainManagerStorage.sol",
+        "../StateSender/IStateSender.sol",
+        "../ICheckpointManager.sol",
+        "../../lib/RLPReader.sol",
+        "../../lib/MerklePatriciaProof.sol",
+        "../../lib/Merkle.sol",
+        "../TokenPredicates/ITokenPredicate.sol",
+        "../../common/Initializable.sol",
+        "../../common/NativeMetaTransaction.sol",
+        "@openzeppelin/contracts/access/AccessControl.sol",
+        "../../common/AccessControlMixin.sol",
+        "../../common/ContextMixin.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.6"
+      ],
+      "artifacts": [
+        "RootChainManager"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/polygon/root/RootChainManager/IRootChainManager.sol": {
+      "lastModificationDate": 1617319865307,
+      "contentHash": "adeea81b07187d4beb71da1b9b25dce8",
+      "sourceName": "contracts/polygon/root/RootChainManager/IRootChainManager.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.6.6"
+      ],
+      "artifacts": [
+        "IRootChainManager"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/polygon/root/RootChainManager/RootChainManagerStorage.sol": {
+      "lastModificationDate": 1617319865308,
+      "contentHash": "4130f2b7ff0af37001141e92f9e23f97",
+      "sourceName": "contracts/polygon/root/RootChainManager/RootChainManagerStorage.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../StateSender/IStateSender.sol",
+        "../ICheckpointManager.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.6"
+      ],
+      "artifacts": [
+        "RootChainManagerStorage"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/polygon/common/NativeMetaTransaction.sol": {
+      "lastModificationDate": 1617319865304,
+      "contentHash": "478c75a9fb2e6ceaa8d170a74e20757e",
+      "sourceName": "contracts/polygon/common/NativeMetaTransaction.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/math/SafeMath.sol",
+        "./EIP712Base.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.6"
+      ],
+      "artifacts": [
+        "NativeMetaTransaction"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/polygon/common/ContextMixin.sol": {
+      "lastModificationDate": 1617319865304,
+      "contentHash": "54765838f849dedaab308fb476787b71",
+      "sourceName": "contracts/polygon/common/ContextMixin.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.6.6"
+      ],
+      "artifacts": [
+        "ContextMixin"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/polygon/common/EIP712Base.sol": {
+      "lastModificationDate": 1617319865304,
+      "contentHash": "690483154a8937276ff83f89ff9a64ae",
+      "sourceName": "contracts/polygon/common/EIP712Base.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./Initializable.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.6"
+      ],
+      "artifacts": [
+        "EIP712Base"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/polygon/root/RootToken/DummyMintableERC721.sol": {
+      "lastModificationDate": 1617319865310,
+      "contentHash": "0d56aa07f596ba92d7ecaf02f216aa66",
+      "sourceName": "contracts/polygon/root/RootToken/DummyMintableERC721.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/token/ERC721/ERC721.sol",
+        "../../common/AccessControlMixin.sol",
+        "../../common/NativeMetaTransaction.sol",
+        "./IMintableERC721.sol",
+        "../../common/ContextMixin.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.6"
+      ],
+      "artifacts": [
+        "DummyMintableERC721"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/polygon/root/RootToken/IRootERC721.sol": {
+      "lastModificationDate": 1617319865311,
+      "contentHash": "22a95da50ed8d413fee70169115db535",
+      "sourceName": "contracts/polygon/root/RootToken/IRootERC721.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/token/ERC721/IERC721.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.6"
+      ],
+      "artifacts": [
+        "IRootERC721"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/polygon/root/TokenPredicates/ERC721Predicate.sol": {
+      "lastModificationDate": 1617319865314,
+      "contentHash": "e230a7361f47228edd78c16642eb0c6d",
+      "sourceName": "contracts/polygon/root/TokenPredicates/ERC721Predicate.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../RootToken/IRootERC721.sol",
+        "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol",
+        "../../lib/RLPReader.sol",
+        "./ITokenPredicate.sol",
+        "../../common/Initializable.sol",
+        "../../common/AccessControlMixin.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.6"
+      ],
+      "artifacts": [
+        "ERC721Predicate"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/polygon/root/TokenPredicates/MintableERC1155Predicate.sol": {
+      "lastModificationDate": 1617319865316,
+      "contentHash": "3479c410eaaf677d0f758edadc793c71",
+      "sourceName": "contracts/polygon/root/TokenPredicates/MintableERC1155Predicate.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../RootToken/IMintableERC1155.sol",
+        "@openzeppelin/contracts/token/ERC1155/ERC1155Receiver.sol",
+        "../../common/AccessControlMixin.sol",
+        "../../lib/RLPReader.sol",
+        "./ITokenPredicate.sol",
+        "../../common/Initializable.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.6"
+      ],
+      "artifacts": [
+        "MintableERC1155Predicate"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/polygon/root/RootToken/IMintableERC1155.sol": {
+      "lastModificationDate": 1617319865310,
+      "contentHash": "a050f160ffd65f1e7e78a72f614ac4fd",
+      "sourceName": "contracts/polygon/root/RootToken/IMintableERC1155.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/token/ERC1155/IERC1155.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.6"
+      ],
+      "artifacts": [
+        "IMintableERC1155"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/polygon/root/RootToken/DummyERC721.sol": {
+      "lastModificationDate": 1617319865309,
+      "contentHash": "c365e270f3c6c3a10d6f58072ed7a8b2",
+      "sourceName": "contracts/polygon/root/RootToken/DummyERC721.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/token/ERC721/ERC721.sol",
+        "../../common/NativeMetaTransaction.sol",
+        "./IRootERC721.sol",
+        "../../common/ContextMixin.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.6"
+      ],
+      "artifacts": [
+        "DummyERC721"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/polygon/root/RootToken/DummyMintableERC20.sol": {
+      "lastModificationDate": 1617319865310,
+      "contentHash": "5186ad48e794f55a57bb25ff0dacaad4",
+      "sourceName": "contracts/polygon/root/RootToken/DummyMintableERC20.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/token/ERC20/ERC20.sol",
+        "./IMintableERC20.sol",
+        "../../common/NativeMetaTransaction.sol",
+        "../../common/ContextMixin.sol",
+        "../../common/AccessControlMixin.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.6"
+      ],
+      "artifacts": [
+        "DummyMintableERC20"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/test/MockERC20.sol": {
+      "lastModificationDate": 1617319477569,
+      "contentHash": "598452256ae6cda515a4bdbd21f3d8a5",
+      "sourceName": "contracts/test/MockERC20.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/token/ERC20/ERC20.sol"
+      ],
+      "versionPragmas": [
+        "0.6.12"
+      ],
+      "artifacts": [
+        "MockERC20"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/test/optimism/mockOVM_L2_ERC20_Bridge.sol": {
+      "lastModificationDate": 1617319742054,
+      "contentHash": "4ddcac5ae78a6beb21dcc416276a64ad",
+      "sourceName": "contracts/test/optimism/mockOVM_L2_ERC20_Bridge.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../MockERC20.sol",
+        "@eth-optimism/contracts/build/contracts/iOVM/bridge/messaging/iAbs_BaseCrossDomainMessenger.sol"
+      ],
+      "versionPragmas": [
+        ">0.6.0 <0.8.0"
+      ],
+      "artifacts": [
+        "OVM_L2_ERC20_Bridge"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/test/optimism/mockOVM_L1_ERC20_Bridge.sol": {
+      "lastModificationDate": 1617319742054,
+      "contentHash": "089905d2efd6c471881ed3a593f7669f",
+      "sourceName": "contracts/test/optimism/mockOVM_L1_ERC20_Bridge.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../MockERC20.sol",
+        "@eth-optimism/contracts/build/contracts/iOVM/bridge/messaging/iAbs_BaseCrossDomainMessenger.sol"
+      ],
+      "versionPragmas": [
+        ">0.6.0 <0.8.0"
+      ],
+      "artifacts": [
+        "OVM_L1_ERC20_Bridge"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/test/arbitrum/mockArbitrum_L2_ERC20_Bridge.sol": {
+      "lastModificationDate": 1617319477573,
+      "contentHash": "9296bd386625c53d39ba7894fbceb251",
+      "sourceName": "contracts/test/arbitrum/mockArbitrum_L2_ERC20_Bridge.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../MockERC20.sol",
+        "./IArbSys.sol"
+      ],
+      "versionPragmas": [
+        ">0.6.0 <0.8.0"
+      ],
+      "artifacts": [
+        "Arbitrum_L2_ERC20_Bridge"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/test/arbitrum/IArbSys.sol": {
+      "lastModificationDate": 1617319477572,
+      "contentHash": "e057fd324b5c270a787521276ff9db51",
+      "sourceName": "contracts/test/arbitrum/IArbSys.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        ">=0.4.21 <0.7.0"
+      ],
+      "artifacts": [
+        "IArbSys"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/test/arbitrum/mockArbitrum_L1_ERC20_Bridge.sol": {
+      "lastModificationDate": 1617319477573,
+      "contentHash": "4756e3a73e7022e0f440dbf8646e4dde",
+      "sourceName": "contracts/test/arbitrum/mockArbitrum_L1_ERC20_Bridge.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../MockERC20.sol",
+        "./IInbox.sol"
+      ],
+      "versionPragmas": [
+        ">0.6.0 <0.8.0"
+      ],
+      "artifacts": [
+        "Arbitrum_L1_ERC20_Bridge"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/test/arbitrum/IInbox.sol": {
+      "lastModificationDate": 1617319477572,
+      "contentHash": "6a0cd63663f012313376128a8032c8fc",
+      "sourceName": "contracts/test/arbitrum/IInbox.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.6.11"
+      ],
+      "artifacts": [
+        "IInbox"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/saddle/interfaces/ISwapGuarded.sol": {
+      "lastModificationDate": 1616994902576,
+      "contentHash": "23bdd5c65708e05d488f10d976f80c16",
+      "sourceName": "contracts/saddle/interfaces/ISwapGuarded.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/token/ERC20/ERC20.sol",
+        "./IAllowlist.sol"
+      ],
+      "versionPragmas": [
+        "0.6.12"
+      ],
+      "artifacts": [
+        "ISwapGuarded"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/saddle/SwapDeployer.sol": {
+      "lastModificationDate": 1616994902565,
+      "contentHash": "ac7cfe909a5770dc1b8cb1dfa76608e7",
+      "sourceName": "contracts/saddle/SwapDeployer.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/access/Ownable.sol",
+        "@openzeppelin/contracts/proxy/Clones.sol",
+        "./interfaces/ISwap.sol"
+      ],
+      "versionPragmas": [
+        "0.6.12"
+      ],
+      "artifacts": [
+        "SwapDeployer"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/saddle/StakeableTokenWrapper.sol": {
+      "lastModificationDate": 1616994902564,
+      "contentHash": "52b2c24b44d4af31ab4f1ccd70004fd9",
+      "sourceName": "contracts/saddle/StakeableTokenWrapper.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/math/SafeMath.sol",
+        "@openzeppelin/contracts/token/ERC20/SafeERC20.sol"
+      ],
+      "versionPragmas": [
+        "0.6.12"
+      ],
+      "artifacts": [
+        "StakeableTokenWrapper"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/polygon/root/MockCheckpointManager.sol": {
+      "lastModificationDate": 1617319865307,
+      "contentHash": "4347d93a25ae08eda9d2a558a88045ef",
+      "sourceName": "contracts/polygon/root/MockCheckpointManager.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/math/SafeMath.sol",
+        "./ICheckpointManager.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.6"
+      ],
+      "artifacts": [
+        "MockCheckpointManager"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/polygon/root/StateSender/DummyStateSender.sol": {
+      "lastModificationDate": 1617319865312,
+      "contentHash": "030d62fc98886f6779867b82d9331b53",
+      "sourceName": "contracts/polygon/root/StateSender/DummyStateSender.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../StateSender/IStateSender.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.6"
+      ],
+      "artifacts": [
+        "DummyStateSender"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/polygon/child/ChildToken/UpgradeableChildERC20/ERC20.sol": {
+      "lastModificationDate": 1617319865303,
+      "contentHash": "8e3c81408061ab978fda767845b36e76",
+      "sourceName": "contracts/polygon/child/ChildToken/UpgradeableChildERC20/ERC20.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/GSN/Context.sol",
+        "@openzeppelin/contracts/token/ERC20/IERC20.sol",
+        "@openzeppelin/contracts/math/SafeMath.sol",
+        "@openzeppelin/contracts/utils/Address.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.0"
+      ],
+      "artifacts": [
+        "ERC20"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/polygon/root/RootToken/DummyMintableERC1155.sol": {
+      "lastModificationDate": 1617319865309,
+      "contentHash": "b31ea6dc0b86dc8f5ec5aaf116ab18c5",
+      "sourceName": "contracts/polygon/root/RootToken/DummyMintableERC1155.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/token/ERC1155/ERC1155.sol",
+        "./IMintableERC1155.sol",
+        "../../common/NativeMetaTransaction.sol",
+        "../../common/ContextMixin.sol",
+        "../../common/AccessControlMixin.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.6"
+      ],
+      "artifacts": [
+        "DummyMintableERC1155"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/polygon/root/TokenPredicates/ERC1155Predicate.sol": {
+      "lastModificationDate": 1617319865313,
+      "contentHash": "2fe23f3f68a8028cdd487d571bb81a43",
+      "sourceName": "contracts/polygon/root/TokenPredicates/ERC1155Predicate.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/token/ERC1155/IERC1155.sol",
+        "@openzeppelin/contracts/token/ERC1155/ERC1155Receiver.sol",
+        "../../common/AccessControlMixin.sol",
+        "../../lib/RLPReader.sol",
+        "./ITokenPredicate.sol",
+        "../../common/Initializable.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.6"
+      ],
+      "artifacts": [
+        "ERC1155Predicate"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/polygon/root/RootToken/DummyERC1155.sol": {
+      "lastModificationDate": 1617319865308,
+      "contentHash": "d0144a11e43c9401ae149bc390aa0409",
+      "sourceName": "contracts/polygon/root/RootToken/DummyERC1155.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/token/ERC1155/ERC1155.sol",
+        "../../common/NativeMetaTransaction.sol",
+        "../../common/ContextMixin.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.6"
+      ],
+      "artifacts": [
+        "DummyERC1155"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/polygon/child/ChildToken/ChildMintableERC1155.sol": {
+      "lastModificationDate": 1617319865300,
+      "contentHash": "d8244b0f299ae91b3cd105a2d582dd71",
+      "sourceName": "contracts/polygon/child/ChildToken/ChildMintableERC1155.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/token/ERC1155/ERC1155.sol",
+        "../../common/AccessControlMixin.sol",
+        "./IChildToken.sol",
+        "../../common/NativeMetaTransaction.sol",
+        "../../common/ContextMixin.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.6"
+      ],
+      "artifacts": [
+        "ChildMintableERC1155"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/polygon/child/ChildToken/IChildToken.sol": {
+      "lastModificationDate": 1617319865302,
+      "contentHash": "2709ebe7f59856f54b734ceb8c8a04f3",
+      "sourceName": "contracts/polygon/child/ChildToken/IChildToken.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.6.6"
+      ],
+      "artifacts": [
+        "IChildToken"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/polygon/child/ChildToken/UpgradeableChildERC20/UChildERC20.sol": {
+      "lastModificationDate": 1617319865303,
+      "contentHash": "f7b8fcda68ca5a113fb91540afd80c1b",
+      "sourceName": "contracts/polygon/child/ChildToken/UpgradeableChildERC20/UChildERC20.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./ERC20.sol",
+        "../../../common/AccessControlMixin.sol",
+        "../IChildToken.sol",
+        "../../../common/NativeMetaTransaction.sol",
+        "../../../common/ContextMixin.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.6"
+      ],
+      "artifacts": [
+        "UChildERC20"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/polygon/child/ChildToken/DappTokens/UChildDAI.sol": {
+      "lastModificationDate": 1617319865302,
+      "contentHash": "4c40d267ac751022eca4c6bfa5473078",
+      "sourceName": "contracts/polygon/child/ChildToken/DappTokens/UChildDAI.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../UpgradeableChildERC20/UChildERC20.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.6"
+      ],
+      "artifacts": [
+        "UChildDAI"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/polygon/child/ChildToken/ChildMintableERC721.sol": {
+      "lastModificationDate": 1617319865301,
+      "contentHash": "05e44ce3c666b13bfad0a4423c43f913",
+      "sourceName": "contracts/polygon/child/ChildToken/ChildMintableERC721.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/token/ERC721/ERC721.sol",
+        "../../common/AccessControlMixin.sol",
+        "./IChildToken.sol",
+        "../../common/NativeMetaTransaction.sol",
+        "../../common/ContextMixin.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.6"
+      ],
+      "artifacts": [
+        "ChildMintableERC721"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/polygon/child/ChildToken/ChildMintableERC20.sol": {
+      "lastModificationDate": 1617319865301,
+      "contentHash": "f345ac16890c0bbc6ae01fe28cdb4467",
+      "sourceName": "contracts/polygon/child/ChildToken/ChildMintableERC20.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/token/ERC20/ERC20.sol",
+        "../../common/AccessControlMixin.sol",
+        "./IChildToken.sol",
+        "../../common/NativeMetaTransaction.sol",
+        "../../common/ContextMixin.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.6"
+      ],
+      "artifacts": [
+        "ChildMintableERC20"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/polygon/child/ChildToken/ChildERC721.sol": {
+      "lastModificationDate": 1617319865300,
+      "contentHash": "b56142564e982d73c06b50c116bce0e5",
+      "sourceName": "contracts/polygon/child/ChildToken/ChildERC721.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/token/ERC721/ERC721.sol",
+        "../../common/AccessControlMixin.sol",
+        "./IChildToken.sol",
+        "../../common/NativeMetaTransaction.sol",
+        "../../common/ContextMixin.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.6"
+      ],
+      "artifacts": [
+        "ChildERC721"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/polygon/child/ChildToken/ChildERC20.sol": {
+      "lastModificationDate": 1617319865300,
+      "contentHash": "5f12d7c080344f47e849a5b7a4580b16",
+      "sourceName": "contracts/polygon/child/ChildToken/ChildERC20.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/token/ERC20/ERC20.sol",
+        "../../common/AccessControlMixin.sol",
+        "./IChildToken.sol",
+        "../../common/NativeMetaTransaction.sol",
+        "../../common/ContextMixin.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.6"
+      ],
+      "artifacts": [
+        "ChildERC20"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/polygon/child/ChildToken/MaticWETH.sol": {
+      "lastModificationDate": 1617319865302,
+      "contentHash": "28b11dd95ac7f51b80d09aaeb912ca1a",
+      "sourceName": "contracts/polygon/child/ChildToken/MaticWETH.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./ChildERC20.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.6"
+      ],
+      "artifacts": [
+        "MaticWETH"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/polygon/child/ChildToken/ChildERC1155.sol": {
+      "lastModificationDate": 1617319865300,
+      "contentHash": "790cd4c33484baed71561bf8946896c4",
+      "sourceName": "contracts/polygon/child/ChildToken/ChildERC1155.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/token/ERC1155/ERC1155.sol",
+        "../../common/AccessControlMixin.sol",
+        "./IChildToken.sol",
+        "../../common/NativeMetaTransaction.sol",
+        "../../common/ContextMixin.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.6"
+      ],
+      "artifacts": [
+        "ChildERC1155"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/polygon/child/ChildChainManager/ChildChainManager.sol": {
+      "lastModificationDate": 1617319865299,
+      "contentHash": "9c27f7fef422b24034a2139fe4737116",
+      "sourceName": "contracts/polygon/child/ChildChainManager/ChildChainManager.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/token/ERC20/IERC20.sol",
+        "./IChildChainManager.sol",
+        "../ChildToken/IChildToken.sol",
+        "../../common/Initializable.sol",
+        "../../common/AccessControlMixin.sol",
+        "../IStateReceiver.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.6"
+      ],
+      "artifacts": [
+        "ChildChainManager"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/polygon/child/ChildChainManager/IChildChainManager.sol": {
+      "lastModificationDate": 1617319865299,
+      "contentHash": "cba994a05222c052df8dc246cc1598c9",
+      "sourceName": "contracts/polygon/child/ChildChainManager/IChildChainManager.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.6.6"
+      ],
+      "artifacts": [
+        "IChildChainManager"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/polygon/child/IStateReceiver.sol": {
+      "lastModificationDate": 1617319865303,
+      "contentHash": "36c68ffbeb93822e155321b0a9f6fd1b",
+      "sourceName": "contracts/polygon/child/IStateReceiver.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.6.6"
+      ],
+      "artifacts": [
+        "IStateReceiver"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/saddle/OwnerPausableUpgradeable.sol": {
+      "lastModificationDate": 1616994902563,
+      "contentHash": "976925fbd8d0125af93a3647540771b7",
+      "sourceName": "contracts/saddle/OwnerPausableUpgradeable.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol",
+        "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol"
+      ],
+      "versionPragmas": [
+        "0.6.12"
+      ],
+      "artifacts": [
+        "OwnerPausableUpgradeable"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/saddle/interfaces/ISwapFlashLoan.sol": {
+      "lastModificationDate": 1616994902575,
+      "contentHash": "5caad58fe99940e88808a2c3de34e584",
+      "sourceName": "contracts/saddle/interfaces/ISwapFlashLoan.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./ISwap.sol"
+      ],
+      "versionPragmas": [
+        "0.6.12"
+      ],
+      "artifacts": [
+        "ISwapFlashLoan"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/polygon/root/RootToken/DummyERC20.sol": {
+      "lastModificationDate": 1617319865308,
+      "contentHash": "186f3c748a99d4c0d663dbe7654cb61b",
+      "sourceName": "contracts/polygon/root/RootToken/DummyERC20.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/token/ERC20/ERC20.sol",
+        "../../common/NativeMetaTransaction.sol",
+        "../../common/ContextMixin.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.6"
+      ],
+      "artifacts": [
+        "DummyERC20"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/polygon/root/TokenPredicates/EtherPredicate.sol": {
+      "lastModificationDate": 1617319865314,
+      "contentHash": "0b4913eccb38907a7ae28fa7d9f6e5e3",
+      "sourceName": "contracts/polygon/root/TokenPredicates/EtherPredicate.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../../common/AccessControlMixin.sol",
+        "../../lib/RLPReader.sol",
+        "./ITokenPredicate.sol",
+        "../../common/Initializable.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.6"
+      ],
+      "artifacts": [
+        "EtherPredicate"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/polygon/tunnel/BaseChildTunnel.sol": {
+      "lastModificationDate": 1617319865319,
+      "contentHash": "444d51effb99c64911282cb592ba061b",
+      "sourceName": "contracts/polygon/tunnel/BaseChildTunnel.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../common/AccessControlMixin.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.6"
+      ],
+      "artifacts": [
+        "BaseChildTunnel"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/polygon/tunnel/ChildTunnel.sol": {
+      "lastModificationDate": 1617319865320,
+      "contentHash": "d322673b0ee00146c5de82a8bac70a49",
+      "sourceName": "contracts/polygon/tunnel/ChildTunnel.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./BaseChildTunnel.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.6"
+      ],
+      "artifacts": [
+        "ChildTunnel"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/bridges/L2_PolygonMessengerProxy.sol": {
+      "lastModificationDate": 1617319865298,
+      "contentHash": "6e41d6e7113296c57c44a605c768f06d",
+      "sourceName": "contracts/bridges/L2_PolygonMessengerProxy.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "@openzeppelin/contracts/utils/ReentrancyGuard.sol",
+        "../polygon/tunnel/BaseChildTunnel.sol",
+        "./L2_PolygonBridge.sol"
+      ],
+      "versionPragmas": [
+        "0.6.12"
+      ],
+      "artifacts": [
+        "L2_PolygonMessengerProxy"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/bridges/L2_PolygonBridge.sol": {
+      "lastModificationDate": 1617319865298,
+      "contentHash": "cd0dfb7affa7d40bec220110cd2cc865",
+      "sourceName": "contracts/bridges/L2_PolygonBridge.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./L2_Bridge.sol",
+        "./L2_PolygonMessengerProxy.sol"
+      ],
+      "versionPragmas": [
+        "0.6.12"
+      ],
+      "artifacts": [
+        "L2_PolygonBridge"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/wrappers/OptimismMessengerWrapper.sol": {
+      "lastModificationDate": 1617319501847,
+      "contentHash": "72285f9ce4f0d2203d09590576d29660",
+      "sourceName": "contracts/wrappers/OptimismMessengerWrapper.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../interfaces/optimism/messengers/iOVM_L1CrossDomainMessenger.sol",
+        "./MessengerWrapper.sol"
+      ],
+      "versionPragmas": [
+        "0.6.12"
+      ],
+      "artifacts": [
+        "OptimismMessengerWrapper"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/bridges/L2_OptimismBridge.sol": {
+      "lastModificationDate": 1617319495679,
+      "contentHash": "c1d888a424178a4e1718fbf841cb0c97",
+      "sourceName": "contracts/bridges/L2_OptimismBridge.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../interfaces/optimism/messengers/iOVM_L2CrossDomainMessenger.sol",
+        "./L2_Bridge.sol"
+      ],
+      "versionPragmas": [
+        "0.6.12"
+      ],
+      "artifacts": [
+        "L2_OptimismBridge"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/test/Mock_L2_OptimismBridge.sol": {
+      "lastModificationDate": 1617319477572,
+      "contentHash": "8b987a8a5c0404441f4ebd5d6e777737",
+      "sourceName": "contracts/test/Mock_L2_OptimismBridge.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../bridges/L2_OptimismBridge.sol"
+      ],
+      "versionPragmas": [
+        "0.6.12"
+      ],
+      "artifacts": [
+        "Mock_L2_OptimismBridge"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/wrappers/ArbitrumMessengerWrapper.sol": {
+      "lastModificationDate": 1617319501846,
+      "contentHash": "dcb990039e3f7262754ca548d3eba5dc",
+      "sourceName": "contracts/wrappers/ArbitrumMessengerWrapper.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../interfaces/arbitrum/messengers/IInbox.sol",
+        "../interfaces/arbitrum/messengers/IBridge.sol",
+        "../interfaces/arbitrum/messengers/IOutbox.sol",
+        "./MessengerWrapper.sol"
+      ],
+      "versionPragmas": [
+        "0.6.12"
+      ],
+      "artifacts": [
+        "ArbitrumMessengerWrapper"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/interfaces/arbitrum/messengers/IInbox.sol": {
+      "lastModificationDate": 1617319523225,
+      "contentHash": "4273507f14614ae56302afd4495c597e",
+      "sourceName": "contracts/interfaces/arbitrum/messengers/IInbox.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./IBridge.sol",
+        "./IMessageProvider.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.11"
+      ],
+      "artifacts": [
+        "IInbox"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/interfaces/arbitrum/messengers/IBridge.sol": {
+      "lastModificationDate": 1617319523224,
+      "contentHash": "df4e19f1c96d37c14024730d9d55387d",
+      "sourceName": "contracts/interfaces/arbitrum/messengers/IBridge.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.6.11"
+      ],
+      "artifacts": [
+        "IBridge"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/interfaces/arbitrum/messengers/IOutbox.sol": {
+      "lastModificationDate": 1617319523225,
+      "contentHash": "c2aa201854ac75e4bd69bd749d243f5b",
+      "sourceName": "contracts/interfaces/arbitrum/messengers/IOutbox.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.6.11"
+      ],
+      "artifacts": [
+        "IOutbox"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/interfaces/arbitrum/messengers/IMessageProvider.sol": {
+      "lastModificationDate": 1617319523225,
+      "contentHash": "2ecfc753c733e8001fef071049e2d13c",
+      "sourceName": "contracts/interfaces/arbitrum/messengers/IMessageProvider.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.6.11"
+      ],
+      "artifacts": [
+        "IMessageProvider"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/bridges/L2_ArbitrumBridge.sol": {
+      "lastModificationDate": 1617319495678,
+      "contentHash": "e15bd1bc1e725702185fb1a3b7e087a1",
+      "sourceName": "contracts/bridges/L2_ArbitrumBridge.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../interfaces/arbitrum/messengers/IArbSys.sol",
+        "./L2_Bridge.sol"
+      ],
+      "versionPragmas": [
+        "0.6.12"
+      ],
+      "artifacts": [
+        "L2_ArbitrumBridge"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/interfaces/arbitrum/messengers/IArbSys.sol": {
+      "lastModificationDate": 1617319523224,
+      "contentHash": "20e77be1482fe17ed689e6eae059ee0b",
+      "sourceName": "contracts/interfaces/arbitrum/messengers/IArbSys.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        ">=0.4.21 <0.7.0"
+      ],
+      "artifacts": [
+        "IArbSys"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/test/Mock_L2_ArbitrumBridge.sol": {
+      "lastModificationDate": 1617319477571,
+      "contentHash": "0a10aeca81acce903235646a1788893e",
+      "sourceName": "contracts/test/Mock_L2_ArbitrumBridge.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../bridges/L2_ArbitrumBridge.sol"
+      ],
+      "versionPragmas": [
+        "0.6.12"
+      ],
+      "artifacts": [
+        "Mock_L2_ArbitrumBridge"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/interfaces/arbitrum/messengers/IGlobalInbox.sol": {
+      "lastModificationDate": 1617319523225,
+      "contentHash": "f6c9ceee213417568b53aa6123855238",
+      "sourceName": "contracts/interfaces/arbitrum/messengers/IGlobalInbox.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "0.6.12"
+      ],
+      "artifacts": [
+        "IGlobalInbox"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/polygon/child/ChildChainManager/ChildChainManagerProxy.sol": {
+      "lastModificationDate": 1617319865299,
+      "contentHash": "75595ac8ddf05a04b0d5288a743ea179",
+      "sourceName": "contracts/polygon/child/ChildChainManager/ChildChainManagerProxy.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../../common/Proxy/UpgradableProxy.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.6"
+      ],
+      "artifacts": [
+        "ChildChainManagerProxy"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/polygon/common/Proxy/UpgradableProxy.sol": {
+      "lastModificationDate": 1617319865305,
+      "contentHash": "67117da80d1377fc19040db1a6e316e7",
+      "sourceName": "contracts/polygon/common/Proxy/UpgradableProxy.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./Proxy.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.6"
+      ],
+      "artifacts": [
+        "UpgradableProxy"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/polygon/common/Proxy/Proxy.sol": {
+      "lastModificationDate": 1617319865305,
+      "contentHash": "162caf4aa1af283f3e561cdffd1db2eb",
+      "sourceName": "contracts/polygon/common/Proxy/Proxy.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./IERCProxy.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.6"
+      ],
+      "artifacts": [
+        "Proxy"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/polygon/common/Proxy/IERCProxy.sol": {
+      "lastModificationDate": 1617319865305,
+      "contentHash": "74475e3e84ccf73ae9663afd22a72223",
+      "sourceName": "contracts/polygon/common/Proxy/IERCProxy.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.6.6"
+      ],
+      "artifacts": [
+        "IERCProxy"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/polygon/root/TokenPredicates/MintableERC721PredicateProxy.sol": {
+      "lastModificationDate": 1617319865318,
+      "contentHash": "e52e79e26691f36c60e146adcf27231e",
+      "sourceName": "contracts/polygon/root/TokenPredicates/MintableERC721PredicateProxy.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../../common/Proxy/UpgradableProxy.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.6"
+      ],
+      "artifacts": [
+        "MintableERC721PredicateProxy"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/polygon/root/TokenPredicates/MintableERC20PredicateProxy.sol": {
+      "lastModificationDate": 1617319865317,
+      "contentHash": "37f84b5815c45281f889fd250e1911bd",
+      "sourceName": "contracts/polygon/root/TokenPredicates/MintableERC20PredicateProxy.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../../common/Proxy/UpgradableProxy.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.6"
+      ],
+      "artifacts": [
+        "MintableERC20PredicateProxy"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/polygon/root/TokenPredicates/MintableERC1155PredicateProxy.sol": {
+      "lastModificationDate": 1617319865316,
+      "contentHash": "df808422525c9932b6164c43598820f6",
+      "sourceName": "contracts/polygon/root/TokenPredicates/MintableERC1155PredicateProxy.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../../common/Proxy/UpgradableProxy.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.6"
+      ],
+      "artifacts": [
+        "MintableERC1155PredicateProxy"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/polygon/root/TokenPredicates/EtherPredicateProxy.sol": {
+      "lastModificationDate": 1617319865315,
+      "contentHash": "9db33f9849208b839a8aef04185607ff",
+      "sourceName": "contracts/polygon/root/TokenPredicates/EtherPredicateProxy.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../../common/Proxy/UpgradableProxy.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.6"
+      ],
+      "artifacts": [
+        "EtherPredicateProxy"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/polygon/root/TokenPredicates/ERC721PredicateProxy.sol": {
+      "lastModificationDate": 1617319865314,
+      "contentHash": "87ed8616953a339ba353159e160295b1",
+      "sourceName": "contracts/polygon/root/TokenPredicates/ERC721PredicateProxy.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../../common/Proxy/UpgradableProxy.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.6"
+      ],
+      "artifacts": [
+        "ERC721PredicateProxy"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/polygon/root/TokenPredicates/ERC20PredicateProxy.sol": {
+      "lastModificationDate": 1617319865313,
+      "contentHash": "6bcfbb77c75d7abb9350c22510bbc8d2",
+      "sourceName": "contracts/polygon/root/TokenPredicates/ERC20PredicateProxy.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../../common/Proxy/UpgradableProxy.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.6"
+      ],
+      "artifacts": [
+        "ERC20PredicateProxy"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/polygon/root/TokenPredicates/ERC1155PredicateProxy.sol": {
+      "lastModificationDate": 1617319865313,
+      "contentHash": "213719c2c94664006dbab9f323d3e76d",
+      "sourceName": "contracts/polygon/root/TokenPredicates/ERC1155PredicateProxy.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../../common/Proxy/UpgradableProxy.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.6"
+      ],
+      "artifacts": [
+        "ERC1155PredicateProxy"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/polygon/root/RootChainManager/RootChainManagerProxy.sol": {
+      "lastModificationDate": 1617319865308,
+      "contentHash": "01756015be234c6030be088c78788830",
+      "sourceName": "contracts/polygon/root/RootChainManager/RootChainManagerProxy.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../../common/Proxy/UpgradableProxy.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.6"
+      ],
+      "artifacts": [
+        "RootChainManagerProxy"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/polygon/child/ChildToken/UpgradeableChildERC20/UChildERC20Proxy.sol": {
+      "lastModificationDate": 1617319865303,
+      "contentHash": "543cfaf7c78bf1f55031dccb113e1b75",
+      "sourceName": "contracts/polygon/child/ChildToken/UpgradeableChildERC20/UChildERC20Proxy.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../../../common/Proxy/UpgradableProxy.sol"
+      ],
+      "versionPragmas": [
+        "^0.6.6"
+      ],
+      "artifacts": [
+        "UChildERC20Proxy"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/polygon/Migrations.sol": {
+      "lastModificationDate": 1617319865299,
+      "contentHash": "2163b5e46783801c9ea8f9ac44cf178e",
+      "sourceName": "contracts/polygon/Migrations.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "^0.6.6"
+      ],
+      "artifacts": [
+        "Migrations"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/saddle/interfaces/IFlashLoanReceiver.sol": {
+      "lastModificationDate": 1616994902574,
+      "contentHash": "869b46ab0b6d86429bf6bfebdd2525b9",
+      "sourceName": "contracts/saddle/interfaces/IFlashLoanReceiver.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "0.6.12"
+      ],
+      "artifacts": [
+        "IFlashLoanReceiver"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/test/arbitrum/inbox/GlobalInbox.sol": {
+      "lastModificationDate": 1617319477573,
+      "contentHash": "516f36c5e56dc3f245bcca0b841065ba",
+      "sourceName": "contracts/test/arbitrum/inbox/GlobalInbox.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "0.6.12"
+      ],
+      "artifacts": [
+        "GlobalInbox"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/test/optimism/mockOVM_CrossDomainMessenger.sol": {
+      "lastModificationDate": 1617319477574,
+      "contentHash": "2121f2877c64203eec221f83945a26ad",
+      "sourceName": "contracts/test/optimism/mockOVM_CrossDomainMessenger.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./OVM_BaseCrossDomainMessenger.sol"
+      ],
+      "versionPragmas": [
+        "0.6.12"
+      ],
+      "artifacts": [
+        "mockOVM_CrossDomainMessenger"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/test/optimism/OVM_BaseCrossDomainMessenger.sol": {
+      "lastModificationDate": 1617319477573,
+      "contentHash": "45302f84090f452ab7b477bc68629afd",
+      "sourceName": "contracts/test/optimism/OVM_BaseCrossDomainMessenger.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "0.6.12"
+      ],
+      "artifacts": [
+        "OVM_BaseCrossDomainMessenger"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/test/xDai/ArbitraryMessageBridge.sol": {
+      "lastModificationDate": 1617319477574,
+      "contentHash": "8f1c7d1cb62aec5ee5a1d7f3ac260d62",
+      "sourceName": "contracts/test/xDai/ArbitraryMessageBridge.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "0.6.12"
+      ],
+      "artifacts": [
+        "ArbitraryMessageBridge"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/test/xDai/IForeignOmniBridge.sol": {
+      "lastModificationDate": 1617319477574,
+      "contentHash": "e5d9b85981c51a9bbf56cd83b2962c11",
+      "sourceName": "contracts/test/xDai/IForeignOmniBridge.sol",
+      "solcConfig": {
+        "version": "0.6.12",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        "0.6.12"
+      ],
+      "artifacts": [
+        "IForeignOmniBridge"
+      ]
+    },
+    "/Users/chris/Hop/contracts/node_modules/@openzeppelin/contracts/token/ERC20/SafeERC20.sol": {
+      "lastModificationDate": 1617342496572,
+      "contentHash": "33e22842646d746e5c4124c2fdc051aa",
+      "sourceName": "@openzeppelin/contracts/token/ERC20/SafeERC20.sol",
+      "solcConfig": {
+        "version": "0.7.0",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./IERC20.sol",
+        "../../math/SafeMath.sol",
+        "../../utils/Address.sol"
+      ],
+      "versionPragmas": [
+        ">=0.6.0 <0.8.0"
+      ],
+      "artifacts": [
+        "SafeERC20"
+      ]
+    },
+    "/Users/chris/Hop/contracts/node_modules/@openzeppelin/contracts/token/ERC20/IERC20.sol": {
+      "lastModificationDate": 1617342496569,
+      "contentHash": "e0a41531d159d3a32f84b7a3ecf9fabb",
+      "sourceName": "@openzeppelin/contracts/token/ERC20/IERC20.sol",
+      "solcConfig": {
+        "version": "0.7.0",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        ">=0.6.0 <0.8.0"
+      ],
+      "artifacts": [
+        "IERC20"
+      ]
+    },
+    "/Users/chris/Hop/contracts/node_modules/@openzeppelin/contracts/math/SafeMath.sol": {
+      "lastModificationDate": 1617342496572,
+      "contentHash": "e03e12206057e809eb76c5f681170c32",
+      "sourceName": "@openzeppelin/contracts/math/SafeMath.sol",
+      "solcConfig": {
+        "version": "0.7.0",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        ">=0.6.0 <0.8.0"
+      ],
+      "artifacts": [
+        "SafeMath"
+      ]
+    },
+    "/Users/chris/Hop/contracts/node_modules/@openzeppelin/contracts/utils/Address.sol": {
+      "lastModificationDate": 1617342496866,
+      "contentHash": "f1711f11fb9daf722426d10d36edb6e8",
+      "sourceName": "@openzeppelin/contracts/utils/Address.sol",
+      "solcConfig": {
+        "version": "0.7.0",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../token/ERC20/IERC20.sol"
+      ],
+      "versionPragmas": [
+        ">=0.6.2 <0.8.0"
+      ],
+      "artifacts": [
+        "Address"
+      ]
+    },
+    "/Users/chris/Hop/contracts/node_modules/@openzeppelin/contracts/token/ERC721/IERC721.sol": {
+      "lastModificationDate": 1617342496569,
+      "contentHash": "e82621b83943f11c44988c60e83d6ebc",
+      "sourceName": "@openzeppelin/contracts/token/ERC721/IERC721.sol",
+      "solcConfig": {
+        "version": "0.7.0",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../../introspection/IERC165.sol"
+      ],
+      "versionPragmas": [
+        ">=0.6.2 <0.8.0"
+      ],
+      "artifacts": [
+        "IERC721"
+      ]
+    },
+    "/Users/chris/Hop/contracts/node_modules/@openzeppelin/contracts/introspection/IERC165.sol": {
+      "lastModificationDate": 1617342496568,
+      "contentHash": "0d62a8380952235f135dae91590f90a3",
+      "sourceName": "@openzeppelin/contracts/introspection/IERC165.sol",
+      "solcConfig": {
+        "version": "0.7.0",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        ">=0.6.0 <0.8.0"
+      ],
+      "artifacts": [
+        "IERC165"
+      ]
+    },
+    "/Users/chris/Hop/contracts/node_modules/@openzeppelin/contracts/token/ERC1155/ERC1155Receiver.sol": {
+      "lastModificationDate": 1617342496559,
+      "contentHash": "69c3911c0b2e8ed32652765179023865",
+      "sourceName": "@openzeppelin/contracts/token/ERC1155/ERC1155Receiver.sol",
+      "solcConfig": {
+        "version": "0.7.0",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./IERC1155Receiver.sol",
+        "../../introspection/ERC165.sol"
+      ],
+      "versionPragmas": [
+        ">=0.6.0 <0.8.0"
+      ],
+      "artifacts": [
+        "ERC1155Receiver"
+      ]
+    },
+    "/Users/chris/Hop/contracts/node_modules/@openzeppelin/contracts/token/ERC1155/IERC1155Receiver.sol": {
+      "lastModificationDate": 1617342496568,
+      "contentHash": "27af002e8fc1118d099c99fc8852bb73",
+      "sourceName": "@openzeppelin/contracts/token/ERC1155/IERC1155Receiver.sol",
+      "solcConfig": {
+        "version": "0.7.0",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../../introspection/IERC165.sol"
+      ],
+      "versionPragmas": [
+        ">=0.6.0 <0.8.0"
+      ],
+      "artifacts": [
+        "IERC1155Receiver"
+      ]
+    },
+    "/Users/chris/Hop/contracts/node_modules/@openzeppelin/contracts/introspection/ERC165.sol": {
+      "lastModificationDate": 1617342496559,
+      "contentHash": "08f854e2dd3c262845bba38c9b48e4e0",
+      "sourceName": "@openzeppelin/contracts/introspection/ERC165.sol",
+      "solcConfig": {
+        "version": "0.7.0",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./IERC165.sol"
+      ],
+      "versionPragmas": [
+        ">=0.6.0 <0.8.0"
+      ],
+      "artifacts": [
+        "ERC165"
+      ]
+    },
+    "/Users/chris/Hop/contracts/node_modules/@openzeppelin/contracts/token/ERC721/ERC721.sol": {
+      "lastModificationDate": 1617342496563,
+      "contentHash": "2d9804eb2b6f41ea0a65115e154d90eb",
+      "sourceName": "@openzeppelin/contracts/token/ERC721/ERC721.sol",
+      "solcConfig": {
+        "version": "0.7.0",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../../utils/Context.sol",
+        "./IERC721.sol",
+        "./IERC721Metadata.sol",
+        "./IERC721Enumerable.sol",
+        "./IERC721Receiver.sol",
+        "../../introspection/ERC165.sol",
+        "../../math/SafeMath.sol",
+        "../../utils/Address.sol",
+        "../../utils/EnumerableSet.sol",
+        "../../utils/EnumerableMap.sol",
+        "../../utils/Strings.sol"
+      ],
+      "versionPragmas": [
+        ">=0.6.0 <0.8.0"
+      ],
+      "artifacts": [
+        "ERC721"
+      ]
+    },
+    "/Users/chris/Hop/contracts/node_modules/@openzeppelin/contracts/utils/Context.sol": {
+      "lastModificationDate": 1617342496557,
+      "contentHash": "2adbd82f6d055a4751566d4671512b03",
+      "sourceName": "@openzeppelin/contracts/utils/Context.sol",
+      "solcConfig": {
+        "version": "0.7.0",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        ">=0.6.0 <0.8.0"
+      ],
+      "artifacts": [
+        "Context"
+      ]
+    },
+    "/Users/chris/Hop/contracts/node_modules/@openzeppelin/contracts/token/ERC721/IERC721Metadata.sol": {
+      "lastModificationDate": 1617342496569,
+      "contentHash": "370e7a48f316401b5063bcb604843e1b",
+      "sourceName": "@openzeppelin/contracts/token/ERC721/IERC721Metadata.sol",
+      "solcConfig": {
+        "version": "0.7.0",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./IERC721.sol"
+      ],
+      "versionPragmas": [
+        ">=0.6.2 <0.8.0"
+      ],
+      "artifacts": [
+        "IERC721Metadata"
+      ]
+    },
+    "/Users/chris/Hop/contracts/node_modules/@openzeppelin/contracts/token/ERC721/IERC721Enumerable.sol": {
+      "lastModificationDate": 1617342496569,
+      "contentHash": "eaebc3874248c26f6ea0b13b9a140a94",
+      "sourceName": "@openzeppelin/contracts/token/ERC721/IERC721Enumerable.sol",
+      "solcConfig": {
+        "version": "0.7.0",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./IERC721.sol"
+      ],
+      "versionPragmas": [
+        ">=0.6.2 <0.8.0"
+      ],
+      "artifacts": [
+        "IERC721Enumerable"
+      ]
+    },
+    "/Users/chris/Hop/contracts/node_modules/@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol": {
+      "lastModificationDate": 1617342496569,
+      "contentHash": "fad0b3f4424bdbb4b35467b29ea8d334",
+      "sourceName": "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol",
+      "solcConfig": {
+        "version": "0.7.0",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        ">=0.6.0 <0.8.0"
+      ],
+      "artifacts": [
+        "IERC721Receiver"
+      ]
+    },
+    "/Users/chris/Hop/contracts/node_modules/@openzeppelin/contracts/utils/EnumerableSet.sol": {
+      "lastModificationDate": 1617342496558,
+      "contentHash": "db7b1afdb2c204e1e52100b79f0c847e",
+      "sourceName": "@openzeppelin/contracts/utils/EnumerableSet.sol",
+      "solcConfig": {
+        "version": "0.7.0",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        ">=0.6.0 <0.8.0"
+      ],
+      "artifacts": [
+        "EnumerableSet"
+      ]
+    },
+    "/Users/chris/Hop/contracts/node_modules/@openzeppelin/contracts/utils/EnumerableMap.sol": {
+      "lastModificationDate": 1617342496558,
+      "contentHash": "b1bb8570824c668943149211d74d6c51",
+      "sourceName": "@openzeppelin/contracts/utils/EnumerableMap.sol",
+      "solcConfig": {
+        "version": "0.7.0",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        ">=0.6.0 <0.8.0"
+      ],
+      "artifacts": [
+        "EnumerableMap"
+      ]
+    },
+    "/Users/chris/Hop/contracts/node_modules/@openzeppelin/contracts/utils/Strings.sol": {
+      "lastModificationDate": 1617342496572,
+      "contentHash": "c86a31bacf868d392eda08a0eccc4735",
+      "sourceName": "@openzeppelin/contracts/utils/Strings.sol",
+      "solcConfig": {
+        "version": "0.7.0",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        ">=0.6.0 <0.8.0"
+      ],
+      "artifacts": [
+        "Strings"
+      ]
+    },
+    "/Users/chris/Hop/contracts/node_modules/@openzeppelin/contracts/token/ERC20/ERC20.sol": {
+      "lastModificationDate": 1617342496560,
+      "contentHash": "8065b340476f61365c076897199425f1",
+      "sourceName": "@openzeppelin/contracts/token/ERC20/ERC20.sol",
+      "solcConfig": {
+        "version": "0.7.0",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../../utils/Context.sol",
+        "./IERC20.sol",
+        "../../math/SafeMath.sol"
+      ],
+      "versionPragmas": [
+        ">=0.6.0 <0.8.0"
+      ],
+      "artifacts": [
+        "ERC20"
+      ]
+    },
+    "/Users/chris/Hop/contracts/node_modules/@eth-optimism/contracts/build/contracts/iOVM/bridge/messaging/iAbs_BaseCrossDomainMessenger.sol": {
+      "lastModificationDate": 1617341471584,
+      "contentHash": "20040560f1576b8e63be50562ea5b1d0",
+      "sourceName": "@eth-optimism/contracts/build/contracts/iOVM/bridge/messaging/iAbs_BaseCrossDomainMessenger.sol",
+      "solcConfig": {
+        "version": "0.7.0",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        ">0.5.0 <0.8.0"
+      ],
+      "artifacts": [
+        "iAbs_BaseCrossDomainMessenger"
+      ]
+    },
+    "/Users/chris/Hop/contracts/node_modules/@openzeppelin/contracts/proxy/Clones.sol": {
+      "lastModificationDate": 1617342496557,
+      "contentHash": "fc407ad42a493624854f6b33c44e9b00",
+      "sourceName": "@openzeppelin/contracts/proxy/Clones.sol",
+      "solcConfig": {
+        "version": "0.7.0",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        ">=0.6.0 <0.8.0"
+      ],
+      "artifacts": [
+        "Clones"
+      ]
+    },
+    "/Users/chris/Hop/contracts/node_modules/@openzeppelin/contracts/access/Ownable.sol": {
+      "lastModificationDate": 1617342496570,
+      "contentHash": "6748815a5b45c4aeeda56819f41190e0",
+      "sourceName": "@openzeppelin/contracts/access/Ownable.sol",
+      "solcConfig": {
+        "version": "0.7.0",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../utils/Context.sol"
+      ],
+      "versionPragmas": [
+        ">=0.6.0 <0.8.0"
+      ],
+      "artifacts": [
+        "Ownable"
+      ]
+    },
+    "/Users/chris/Hop/contracts/node_modules/@openzeppelin/contracts/token/ERC1155/ERC1155.sol": {
+      "lastModificationDate": 1617342496558,
+      "contentHash": "33407bb7ff4811650cd1c328e646e55d",
+      "sourceName": "@openzeppelin/contracts/token/ERC1155/ERC1155.sol",
+      "solcConfig": {
+        "version": "0.7.0",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./IERC1155.sol",
+        "./IERC1155MetadataURI.sol",
+        "./IERC1155Receiver.sol",
+        "../../utils/Context.sol",
+        "../../introspection/ERC165.sol",
+        "../../math/SafeMath.sol",
+        "../../utils/Address.sol"
+      ],
+      "versionPragmas": [
+        ">=0.6.0 <0.8.0"
+      ],
+      "artifacts": [
+        "ERC1155"
+      ]
+    },
+    "/Users/chris/Hop/contracts/node_modules/@openzeppelin/contracts/token/ERC1155/IERC1155.sol": {
+      "lastModificationDate": 1617342496568,
+      "contentHash": "cb9dc62067a205eeab4f390c72c7fe14",
+      "sourceName": "@openzeppelin/contracts/token/ERC1155/IERC1155.sol",
+      "solcConfig": {
+        "version": "0.7.0",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../../introspection/IERC165.sol"
+      ],
+      "versionPragmas": [
+        ">=0.6.2 <0.8.0"
+      ],
+      "artifacts": [
+        "IERC1155"
+      ]
+    },
+    "/Users/chris/Hop/contracts/node_modules/@openzeppelin/contracts/token/ERC1155/IERC1155MetadataURI.sol": {
+      "lastModificationDate": 1617342496568,
+      "contentHash": "9a313e25e2a837a50f7ae87017539457",
+      "sourceName": "@openzeppelin/contracts/token/ERC1155/IERC1155MetadataURI.sol",
+      "solcConfig": {
+        "version": "0.7.0",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./IERC1155.sol"
+      ],
+      "versionPragmas": [
+        ">=0.6.2 <0.8.0"
+      ],
+      "artifacts": [
+        "IERC1155MetadataURI"
+      ]
+    },
+    "/Users/chris/Hop/contracts/node_modules/@openzeppelin/contracts/access/AccessControl.sol": {
+      "lastModificationDate": 1617342496556,
+      "contentHash": "54eb0b53c109558e8312811342e95bf0",
+      "sourceName": "@openzeppelin/contracts/access/AccessControl.sol",
+      "solcConfig": {
+        "version": "0.7.0",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../utils/EnumerableSet.sol",
+        "../utils/Address.sol",
+        "../utils/Context.sol"
+      ],
+      "versionPragmas": [
+        ">=0.6.0 <0.8.0"
+      ],
+      "artifacts": [
+        "AccessControl"
+      ]
+    },
+    "/Users/chris/Hop/contracts/node_modules/@openzeppelin/contracts/token/ERC20/ERC20Burnable.sol": {
+      "lastModificationDate": 1617342496560,
+      "contentHash": "1603b7aab78c87467dde869fd19ec86b",
+      "sourceName": "@openzeppelin/contracts/token/ERC20/ERC20Burnable.sol",
+      "solcConfig": {
+        "version": "0.7.0",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../../utils/Context.sol",
+        "./ERC20.sol"
+      ],
+      "versionPragmas": [
+        ">=0.6.0 <0.8.0"
+      ],
+      "artifacts": [
+        "ERC20Burnable"
+      ]
+    },
+    "/Users/chris/Hop/contracts/node_modules/@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol": {
+      "lastModificationDate": 1617342496569,
+      "contentHash": "008d2d730bc1f24f3c0fafa29b7a0bd2",
+      "sourceName": "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol",
+      "solcConfig": {
+        "version": "0.7.0",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../proxy/Initializable.sol"
+      ],
+      "versionPragmas": [
+        ">=0.6.0 <0.8.0"
+      ],
+      "artifacts": [
+        "ReentrancyGuardUpgradeable"
+      ]
+    },
+    "/Users/chris/Hop/contracts/node_modules/@openzeppelin/contracts-upgradeable/proxy/Initializable.sol": {
+      "lastModificationDate": 1617342496567,
+      "contentHash": "71b3ac8d4da61bb6c6708c12f56e3c1f",
+      "sourceName": "@openzeppelin/contracts-upgradeable/proxy/Initializable.sol",
+      "solcConfig": {
+        "version": "0.7.0",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../utils/AddressUpgradeable.sol"
+      ],
+      "versionPragmas": [
+        ">=0.4.24 <0.8.0"
+      ],
+      "artifacts": [
+        "Initializable"
+      ]
+    },
+    "/Users/chris/Hop/contracts/node_modules/@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol": {
+      "lastModificationDate": 1617342496554,
+      "contentHash": "aa72beb3bf14f8394b4a8a292d66589c",
+      "sourceName": "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol",
+      "solcConfig": {
+        "version": "0.7.0",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        ">=0.6.2 <0.8.0"
+      ],
+      "artifacts": [
+        "AddressUpgradeable"
+      ]
+    },
+    "/Users/chris/Hop/contracts/node_modules/@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol": {
+      "lastModificationDate": 1617342496568,
+      "contentHash": "a98b8522414f12c1b8fc7b2685278399",
+      "sourceName": "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol",
+      "solcConfig": {
+        "version": "0.7.0",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./ContextUpgradeable.sol",
+        "../proxy/Initializable.sol"
+      ],
+      "versionPragmas": [
+        ">=0.6.0 <0.8.0"
+      ],
+      "artifacts": [
+        "PausableUpgradeable"
+      ]
+    },
+    "/Users/chris/Hop/contracts/node_modules/@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol": {
+      "lastModificationDate": 1617342496554,
+      "contentHash": "9f901c17a18eadc08042b6a510da3b7d",
+      "sourceName": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol",
+      "solcConfig": {
+        "version": "0.7.0",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../proxy/Initializable.sol"
+      ],
+      "versionPragmas": [
+        ">=0.6.0 <0.8.0"
+      ],
+      "artifacts": [
+        "ContextUpgradeable"
+      ]
+    },
+    "/Users/chris/Hop/contracts/node_modules/@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol": {
+      "lastModificationDate": 1617342496568,
+      "contentHash": "91a7735bfcbb48c7482f10f1083a8ed8",
+      "sourceName": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol",
+      "solcConfig": {
+        "version": "0.7.0",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../utils/ContextUpgradeable.sol",
+        "../proxy/Initializable.sol"
+      ],
+      "versionPragmas": [
+        ">=0.6.0 <0.8.0"
+      ],
+      "artifacts": [
+        "OwnableUpgradeable"
+      ]
+    },
+    "/Users/chris/Hop/contracts/node_modules/@openzeppelin/contracts/utils/ReentrancyGuard.sol": {
+      "lastModificationDate": 1617342496571,
+      "contentHash": "1c60f58cee45c61469e1aea31e4dd879",
+      "sourceName": "@openzeppelin/contracts/utils/ReentrancyGuard.sol",
+      "solcConfig": {
+        "version": "0.7.0",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        ">=0.6.0 <0.8.0"
+      ],
+      "artifacts": [
+        "ReentrancyGuard"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/interfaces/optimism/messengers/iOVM_L1CrossDomainMessenger.sol": {
+      "lastModificationDate": 1617319523226,
+      "contentHash": "4686c10faf8542e174eef2315ba8b721",
+      "sourceName": "contracts/interfaces/optimism/messengers/iOVM_L1CrossDomainMessenger.sol",
+      "solcConfig": {
+        "version": "0.7.0",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./iOVM_BaseCrossDomainMessenger.sol"
+      ],
+      "versionPragmas": [
+        ">0.5.0 <0.8.0"
+      ],
+      "artifacts": [
+        "iOVM_L1CrossDomainMessenger"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/interfaces/optimism/messengers/iOVM_BaseCrossDomainMessenger.sol": {
+      "lastModificationDate": 1617319523225,
+      "contentHash": "b0007b4b24d929626c4ac62d8f567a19",
+      "sourceName": "contracts/interfaces/optimism/messengers/iOVM_BaseCrossDomainMessenger.sol",
+      "solcConfig": {
+        "version": "0.7.0",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        ">0.5.0 <0.8.0"
+      ],
+      "artifacts": [
+        "iOVM_BaseCrossDomainMessenger"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/interfaces/optimism/messengers/iOVM_L2CrossDomainMessenger.sol": {
+      "lastModificationDate": 1617319523226,
+      "contentHash": "cbbbbd215a367fe2f90e9d441efdc8d8",
+      "sourceName": "contracts/interfaces/optimism/messengers/iOVM_L2CrossDomainMessenger.sol",
+      "solcConfig": {
+        "version": "0.7.0",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "./iOVM_BaseCrossDomainMessenger.sol"
+      ],
+      "versionPragmas": [
+        ">0.5.0 <0.8.0"
+      ],
+      "artifacts": [
+        "iOVM_L2CrossDomainMessenger"
+      ]
+    },
+    "/Users/chris/Hop/contracts/contracts/libraries/Lib_MerkleTree.sol": {
+      "lastModificationDate": 1617319545835,
+      "contentHash": "22d3d064f966919e0341ca13e329c092",
+      "sourceName": "contracts/libraries/Lib_MerkleTree.sol",
+      "solcConfig": {
+        "version": "0.7.0",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        ">0.5.0 <0.8.0"
+      ],
+      "artifacts": [
+        "Lib_MerkleTree"
+      ]
+    },
+    "/Users/chris/Hop/contracts/node_modules/@openzeppelin/contracts/cryptography/MerkleProof.sol": {
+      "lastModificationDate": 1617342496570,
+      "contentHash": "44bd823687d58263d3b1da555235f93e",
+      "sourceName": "@openzeppelin/contracts/cryptography/MerkleProof.sol",
+      "solcConfig": {
+        "version": "0.7.0",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [],
+      "versionPragmas": [
+        ">=0.6.0 <0.8.0"
+      ],
+      "artifacts": [
+        "MerkleProof"
+      ]
+    }
+  }
+}

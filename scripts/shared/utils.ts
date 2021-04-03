@@ -121,7 +121,7 @@ const getOptimismContractFactories = async (
     'SwapUtils',
     {
       libraries: {
-        'MathUtils.ovm': l2_mathUtils.address
+        'MathUtils': l2_mathUtils.address
       }
     }
   )
@@ -132,7 +132,7 @@ const getOptimismContractFactories = async (
     'Swap',
     {
       libraries: {
-        'SwapUtils.ovm': l2_swapUtils.address
+        'SwapUtils': l2_swapUtils.address
       }
     }
   )

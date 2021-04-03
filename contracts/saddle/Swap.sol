@@ -5,7 +5,7 @@ pragma solidity 0.6.12;
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol";
-import "./OwnerPausableUpgradeable.sol";
+// import "./OwnerPausableUpgradeable.sol";
 import "./SwapUtils.sol";
 import "./MathUtils.sol";
 
@@ -26,7 +26,7 @@ import "./MathUtils.sol";
  * @dev Most of the logic is stored as a library `SwapUtils` for the sake of reducing contract's
  * deployment size.
  */
-contract Swap is OwnerPausableUpgradeable, ReentrancyGuardUpgradeable {
+contract Swap is ReentrancyGuardUpgradeable {
     using SafeERC20 for IERC20;
     using SafeMath for uint256;
     using MathUtils for uint256;
@@ -118,7 +118,7 @@ contract Swap is OwnerPausableUpgradeable, ReentrancyGuardUpgradeable {
         uint256 _adminFee,
         uint256 _withdrawFee
     ) public virtual initializer {
-        __OwnerPausable_init();
+        // __OwnerPausable_init();
         __ReentrancyGuard_init();
         // Check _pooledTokens and precisions parameter
         require(_pooledTokens.length > 1, "_pooledTokens.length <= 1");
@@ -388,7 +388,7 @@ contract Swap is OwnerPausableUpgradeable, ReentrancyGuardUpgradeable {
     )
         external
         nonReentrant
-        whenNotPaused
+        // whenNotPaused
         deadlineCheck(deadline)
         returns (uint256)
     {
@@ -410,7 +410,7 @@ contract Swap is OwnerPausableUpgradeable, ReentrancyGuardUpgradeable {
     )
         external
         nonReentrant
-        whenNotPaused
+        // whenNotPaused
         deadlineCheck(deadline)
         returns (uint256)
     {
@@ -452,7 +452,7 @@ contract Swap is OwnerPausableUpgradeable, ReentrancyGuardUpgradeable {
     )
         external
         nonReentrant
-        whenNotPaused
+        // whenNotPaused
         deadlineCheck(deadline)
         returns (uint256)
     {
@@ -481,7 +481,7 @@ contract Swap is OwnerPausableUpgradeable, ReentrancyGuardUpgradeable {
     )
         external
         nonReentrant
-        whenNotPaused
+        // whenNotPaused
         deadlineCheck(deadline)
         returns (uint256)
     {
@@ -508,53 +508,53 @@ contract Swap is OwnerPausableUpgradeable, ReentrancyGuardUpgradeable {
         swapStorage.updateUserWithdrawFee(recipient, transferAmount);
     }
 
-    /**
-     * @notice Withdraw all admin fees to the contract owner
-     */
-    function withdrawAdminFees() external onlyOwner {
-        swapStorage.withdrawAdminFees(owner());
-    }
+    // /**
+    //  * @notice Withdraw all admin fees to the contract owner
+    //  */
+    // function withdrawAdminFees() external onlyOwner {
+    //     swapStorage.withdrawAdminFees(owner());
+    // }
 
-    /**
-     * @notice Update the admin fee. Admin fee takes portion of the swap fee.
-     * @param newAdminFee new admin fee to be applied on future transactions
-     */
-    function setAdminFee(uint256 newAdminFee) external onlyOwner {
-        swapStorage.setAdminFee(newAdminFee);
-    }
+    // /**
+    //  * @notice Update the admin fee. Admin fee takes portion of the swap fee.
+    //  * @param newAdminFee new admin fee to be applied on future transactions
+    //  */
+    // function setAdminFee(uint256 newAdminFee) external onlyOwner {
+    //     swapStorage.setAdminFee(newAdminFee);
+    // }
 
-    /**
-     * @notice Update the swap fee to be applied on swaps
-     * @param newSwapFee new swap fee to be applied on future transactions
-     */
-    function setSwapFee(uint256 newSwapFee) external onlyOwner {
-        swapStorage.setSwapFee(newSwapFee);
-    }
+    // /**
+    //  * @notice Update the swap fee to be applied on swaps
+    //  * @param newSwapFee new swap fee to be applied on future transactions
+    //  */
+    // function setSwapFee(uint256 newSwapFee) external onlyOwner {
+    //     swapStorage.setSwapFee(newSwapFee);
+    // }
 
-    /**
-     * @notice Update the withdraw fee. This fee decays linearly over 4 weeks since
-     * user's last deposit.
-     * @param newWithdrawFee new withdraw fee to be applied on future deposits
-     */
-    function setDefaultWithdrawFee(uint256 newWithdrawFee) external onlyOwner {
-        swapStorage.setDefaultWithdrawFee(newWithdrawFee);
-    }
+    // /**
+    //  * @notice Update the withdraw fee. This fee decays linearly over 4 weeks since
+    //  * user's last deposit.
+    //  * @param newWithdrawFee new withdraw fee to be applied on future deposits
+    //  */
+    // function setDefaultWithdrawFee(uint256 newWithdrawFee) external onlyOwner {
+    //     swapStorage.setDefaultWithdrawFee(newWithdrawFee);
+    // }
 
-    /**
-     * @notice Start ramping up or down A parameter towards given futureA and futureTime
-     * Checks if the change is too rapid, and commits the new A value only when it falls under
-     * the limit range.
-     * @param futureA the new A to ramp towards
-     * @param futureTime timestamp when the new A should be reached
-     */
-    function rampA(uint256 futureA, uint256 futureTime) external onlyOwner {
-        swapStorage.rampA(futureA, futureTime);
-    }
+    // /**
+    //  * @notice Start ramping up or down A parameter towards given futureA and futureTime
+    //  * Checks if the change is too rapid, and commits the new A value only when it falls under
+    //  * the limit range.
+    //  * @param futureA the new A to ramp towards
+    //  * @param futureTime timestamp when the new A should be reached
+    //  */
+    // function rampA(uint256 futureA, uint256 futureTime) external onlyOwner {
+    //     swapStorage.rampA(futureA, futureTime);
+    // }
 
-    /**
-     * @notice Stop ramping A immediately. Reverts if ramp A is already stopped.
-     */
-    function stopRampA() external onlyOwner {
-        swapStorage.stopRampA();
-    }
+    // /**
+    //  * @notice Stop ramping A immediately. Reverts if ramp A is already stopped.
+    //  */
+    // function stopRampA() external onlyOwner {
+    //     swapStorage.stopRampA();
+    // }
 }

@@ -1,7 +1,8 @@
 require('dotenv').config()
 
-import { ethers, l2ethers as ovmEthers } from 'hardhat'
+import { ethers } from 'hardhat'
 import { ContractFactory, Signer, Contract, BigNumber, providers } from 'ethers'
+const ovmEthers = ethers
 
 import {
   getContractFactories,
@@ -217,8 +218,8 @@ const deployAmm = async (
     decimalParams.push(overrides)
   }
 
-  const l2_canonicalTokenDecimals = await l2_canonicalToken.decimals(...decimalParams)
-  const l2_hopBridgeTokenDecimals = await l2_hopBridgeToken.decimals(...decimalParams)
+  const l2_canonicalTokenDecimals = BigNumber.from('18')//await l2_canonicalToken.decimals(...decimalParams)
+  const l2_hopBridgeTokenDecimals = BigNumber.from('18')//await l2_hopBridgeToken.decimals(...decimalParams)
 
   // Deploy AMM contracts
 
@@ -282,8 +283,8 @@ const deployBridge = async (
   l2_bridge = await L2_Bridge.connect(owner).deploy(...l2BridgeDeploymentParams)
   await waitAfterTransaction(l2_bridge, ethers)
 
-  const l2CanonicalTokenName = await l2_canonicalToken.symbol(overrides)
-  const l2CanonicalTokenIsEth: boolean = l2CanonicalTokenName === 'WETH'
+  const l2CanonicalTokenName = 'why'//await l2_canonicalToken.symbol(overrides)
+  const l2CanonicalTokenIsEth: boolean = false//l2CanonicalTokenName === 'WETH'
   l2_ammWrapper = await L2_AmmWrapper.connect(owner).deploy(
     l2_bridge.address,
     l2_canonicalToken.address,
