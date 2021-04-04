@@ -16,6 +16,7 @@ import {
 } from '../shared/utils'
 import {
   executeCanonicalBridgeSendTokens,
+  getSetDefaultGasLimitMessage,
   getSetMessengerMessage,
   getAddBonderMessage,
   executeL1BridgeSendToL2,
@@ -65,7 +66,7 @@ import {
   DEFAULT_RELAYER_FEE
 } from '../../config/constants'
 
-describe.skip('L2_XDai_Bridge', () => {
+describe('L2_XDai_Bridge', () => {
   let _fixture: IFixture
   let l1ChainId: BigNumber
   let l2ChainId: BigNumber
@@ -175,6 +176,7 @@ describe.skip('L2_XDai_Bridge', () => {
     const expectedHopBridgeTokenAddress: string = l2_hopBridgeToken.address
     const expectedL1BridgeAddress: string = l1_bridge.address
     const expectedL1ChainId: BigNumber = l1ChainId
+    const expectedMessengerGasLimit: number = DEFAULT_L2_BRIDGE_GAS_LIMIT
 
     const messengerAddress: string = await l2_bridge.messenger()
     const l1GovernanceAddress: string = await l2_bridge.l1Governance()
@@ -182,6 +184,7 @@ describe.skip('L2_XDai_Bridge', () => {
     const l1BridgeAddress: string = await l2_bridge.l1BridgeAddress()
     const isBonder: string = await l2_bridge.getIsBonder(await bonder.getAddress())
     const actualL1ChainId: BigNumber = await l2_bridge.l1ChainId()
+    const actualMessengerGasLimit: BigNumber = await l2_bridge.messengerGasLimit()
 
     expect(expectedMessengerAddress).to.eq(messengerAddress)
     expect(expectedL1GovernanceAddress).to.eq(l1GovernanceAddress)
@@ -189,6 +192,7 @@ describe.skip('L2_XDai_Bridge', () => {
     expect(expectedL1BridgeAddress).to.eq(l1BridgeAddress)
     expect(isBonder).to.eq(true)
     expect(expectedL1ChainId).to.eq(actualL1ChainId)
+    expect(expectedMessengerGasLimit).to.eq(actualMessengerGasLimit)
 
     for (let i = 0; i < ALL_SUPPORTED_CHAIN_IDS.length; i++) {
       const chainId: string = ALL_SUPPORTED_CHAIN_IDS[i]
@@ -221,6 +225,24 @@ describe.skip('L2_XDai_Bridge', () => {
     expect(messengerAddress).to.eq(expectedMessengerAddress)
   })
 
+  it('Should set a default gas limit', async () => {
+    const expectedDefaultGasLimit: BigNumber = BigNumber.from('13371337')
+
+    const message: string = getSetDefaultGasLimitMessage(
+      expectedDefaultGasLimit
+    )
+    await executeCanonicalMessengerSendMessage(
+      l1_messenger,
+      l2_bridge,
+      l2_messenger,
+      governance,
+      message
+    )
+
+    const defaultGasLimit: string = await l2_bridge.defaultGasLimit()
+    expect(defaultGasLimit).to.eq(expectedDefaultGasLimit)
+  })
+
   /**
    * Non-Happy Path
    */
@@ -241,6 +263,34 @@ describe.skip('L2_XDai_Bridge', () => {
       expectedMessengerAddress
     )
 
+    await expect(
+      executeCanonicalMessengerSendMessage(
+        l1_messenger,
+        l2_bridge,
+        l2_messenger,
+        user,
+        message
+      )
+    ).to.be.revertedWith(expectedErrorMsg)
+  })
+
+  it('Should not set a defaultGasLimit because the transaction was on L2 directly', async () => {
+    const expectedErrorMsg: string = 'TODO'
+
+    const expectedDefaultGasLimit: BigNumber = BigNumber.from('13371337')
+    await expect(
+      l2_bridge.setDefaultGasLimit(expectedDefaultGasLimit)
+    ).to.be.revertedWith(expectedErrorMsg)
+  })
+
+  it('Should not set a defaultGasLimit because the transaction was not sent by governance', async () => {
+    const expectedErrorMsg: string = 'TODO'
+
+    const expectedDefaultGasLimit: BigNumber = BigNumber.from('13371337')
+
+    const message: string = getSetDefaultGasLimitMessage(
+      expectedDefaultGasLimit
+    )
     await expect(
       executeCanonicalMessengerSendMessage(
         l1_messenger,

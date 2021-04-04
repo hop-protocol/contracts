@@ -14,6 +14,7 @@ contract L2_XDaiBridge is L2_Bridge {
     iArbitraryMessageBridge public messenger;
     /// @notice The xDai AMB uses bytes32 for chainId instead of uint256
     bytes32 public l1ChainId;
+    uint256 public messengerGasLimit;
 
     constructor (
         iArbitraryMessageBridge _messenger,
@@ -22,7 +23,8 @@ contract L2_XDaiBridge is L2_Bridge {
         address l1BridgeAddress,
         uint256[] memory supportedChainIds,
         address[] memory bonders,
-        uint256 _l1ChainId
+        uint256 _l1ChainId,
+        uint256 _messengerGasLimit
     )
         public
         L2_Bridge(
@@ -35,6 +37,7 @@ contract L2_XDaiBridge is L2_Bridge {
     {
         messenger = _messenger;
         l1ChainId = bytes32(_l1ChainId);
+        messengerGasLimit = _messengerGasLimit;
     }
 
     function _sendCrossDomainMessage(bytes memory message) internal override {
@@ -60,5 +63,9 @@ contract L2_XDaiBridge is L2_Bridge {
      */
     function setMessenger(iArbitraryMessageBridge _messenger) external onlyL1Bridge {
         messenger = _messenger;
+    }
+
+    function setMessengerGasLimit(uint256 _messengerGasLimit) external onlyGovernance {
+        messengerGasLimit = _messengerGasLimit;
     }
 }

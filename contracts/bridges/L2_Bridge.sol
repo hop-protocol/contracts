@@ -29,7 +29,6 @@ abstract contract L2_Bridge is Bridge, ReentrancyGuard {
     IERC20 public l2CanonicalToken;
     mapping(uint256 => bool) public supportedChainIds;
     uint256 public minimumForceCommitDelay = 4 hours;
-    uint256 public messengerGasLimit = 250000;
     uint256 public maxPendingTransfers = 100;
     uint256 public minBonderBps = 2;
     uint256 public minBonderFeeAbsolute = 0;
@@ -312,10 +311,6 @@ abstract contract L2_Bridge is Bridge, ReentrancyGuard {
 
     function setL1MessengerWrapperAddress(address _l1MessengerWrapperAddress) external onlyGovernance {
         l1MessengerWrapperAddress = _l1MessengerWrapperAddress;
-    }
-
-    function setMessengerGasLimit(uint256 _messengerGasLimit) external onlyGovernance {
-        messengerGasLimit = _messengerGasLimit;
     }
 
     function addSupportedChainIds(uint256[] calldata chainIds) external onlyGovernance {
