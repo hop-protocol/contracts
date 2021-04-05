@@ -44,7 +44,7 @@ contract XDaiMessengerWrapper is MessengerWrapper {
         l1MessengerAddress.requireToPassMessage(
             l2BridgeAddress,
             _calldata,
-            uint32(defaultGasLimit)
+            defaultGasLimit
         );
     }
 
