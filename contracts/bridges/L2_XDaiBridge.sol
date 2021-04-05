@@ -58,7 +58,7 @@ contract L2_XDaiBridge is L2_Bridge {
      * @dev Allows the L1 Bridge to set the messenger
      * @param _messenger The new messenger address
      */
-    function setMessenger(iArbitraryMessageBridge _messenger) external onlyL1Bridge {
+    function setMessenger(iArbitraryMessageBridge _messenger) external onlyGovernance {
         messenger = _messenger;
     }
 }

@@ -49,7 +49,7 @@ contract L2_ArbitrumBridge is L2_Bridge {
      * @dev Allows the L1 Bridge to set the messenger
      * @param _messenger The new messenger address
      */
-    function setMessenger(IArbSys _messenger) external onlyL1Bridge {
+    function setMessenger(IArbSys _messenger) external onlyGovernance {
         messenger = _messenger;
     }
 }
