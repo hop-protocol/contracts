@@ -343,6 +343,7 @@ abstract contract L2_Bridge is Bridge, ReentrancyGuard {
     }
 
     function setMinimumBonderFeeRequirements(uint256 _minBonderBps, uint256 _minBonderFeeAbsolute) external onlyGovernance {
+        require(_minBonderBps <= 10000, "L2_BRG: minBonderBps must not exceed 10000");
         minBonderBps = _minBonderBps;
         minBonderFeeAbsolute = _minBonderFeeAbsolute;
     }
