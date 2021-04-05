@@ -879,7 +879,7 @@ describe('L2_Bridge', () => {
     })
 
     it('Should not allow a send to an unsupported chainId', async () => {
-      const expectedErrorMsg: string = 'L2_BRG: _chainId is not supported'
+      const expectedErrorMsg: string = 'L2_BRG: chainId is not supported'
       const customTransfer: Transfer = new Transfer(transfer)
       customTransfer.chainId = BigNumber.from('1337')
       await expect(
