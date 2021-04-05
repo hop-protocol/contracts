@@ -87,4 +87,27 @@ contract Mock_L1_Messenger is MockMessenger {
             msg.sender
         );
     }
+
+    /* ========== xDai ========== */
+
+    function requireToPassMessage(
+        address _target,
+        bytes calldata _message,
+        uint256 _gasLimit
+    )
+        public
+        returns (bytes32)
+    {
+        targetMessenger.receiveMessage(
+            _target,
+            _message,
+            msg.sender
+        );
+
+        return bytes32('0');
+    }
+
+    /* ========== Polygon ========== */
+
+    // TODO
 }

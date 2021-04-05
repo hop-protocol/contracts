@@ -124,7 +124,8 @@ export const setUpL1AndL2Bridges = async (fixture: IFixture, opts: any) => {
     l2_bridge,
     l2_messenger,
     governance,
-    message
+    message,
+    messengerWrapperChainId
   )
 
   message = getSetL1MessengerWrapperAddressMessage(l1_messengerWrapper)
@@ -133,7 +134,8 @@ export const setUpL1AndL2Bridges = async (fixture: IFixture, opts: any) => {
     l2_bridge,
     l2_messenger,
     governance,
-    message
+    message,
+    messengerWrapperChainId
   )
 
   message = getSetAmmWrapperAddressMessage(l2_ammWrapper)
@@ -142,7 +144,8 @@ export const setUpL1AndL2Bridges = async (fixture: IFixture, opts: any) => {
     l2_bridge,
     l2_messenger,
     governance,
-    message
+    message,
+    messengerWrapperChainId
   )
 }
 

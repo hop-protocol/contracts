@@ -65,7 +65,7 @@ import {
   DEFAULT_RELAYER_FEE
 } from '../../config/constants'
 
-describe.skip('L2_XDai_Bridge', () => {
+describe('L2_XDai_Bridge', () => {
   let _fixture: IFixture
   let l1ChainId: BigNumber
   let l2ChainId: BigNumber
@@ -102,8 +102,7 @@ describe.skip('L2_XDai_Bridge', () => {
     beforeAllSnapshotId = await takeSnapshot()
 
     l1ChainId = CHAIN_IDS.ETHEREUM.KOVAN
-    // TODO: Fix this for XDai
-    // l2ChainId = CHAIN_IDS.XDAI.SOKOL
+    l2ChainId = CHAIN_IDS.XDAI.SOKOL
 
     _fixture = await fixture(l1ChainId, l2ChainId)
     await setUpDefaults(_fixture, l2ChainId)
@@ -226,14 +225,14 @@ describe.skip('L2_XDai_Bridge', () => {
    */
 
   it('Should not set an arbitrary messenger because the transaction was on L2 directly', async () => {
-    const expectedErrorMsg: string = 'TODO'
+    const expectedErrorMsg: string = 'L2_XDAI_BRG: Invalid cross-domain sender'
 
     const expectedMessengerAddress: string = ONE_ADDRESS
     await expect(l2_bridge.setMessenger(expectedMessengerAddress)).to.be.revertedWith(expectedErrorMsg)
   })
 
   it('Should not set an arbitrary messenger because the transaction was not sent by governance', async () => {
-    const expectedErrorMsg: string = 'TODO'
+    const expectedErrorMsg: string = 'L2_XDAI_BRG: Invalid cross-domain sender'
 
     const expectedMessengerAddress: string = ONE_ADDRESS
 

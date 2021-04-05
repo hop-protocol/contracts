@@ -20,14 +20,26 @@ abstract contract MockMessenger {
 
     Message public nextMessage;
     IERC20 public canonicalToken;
+
+    /**
+     * Chain specific params
+     */
+
+    // Optimism
     address public xDomainMessageSender;
+
+    // XDai
+    address public messageSender;
+    bytes32 public messageSourceChainId = 0x000000000000000000000000000000000000000000000000000000000000002a;
 
     constructor(IERC20 _canonicalToken) public {
         canonicalToken = _canonicalToken;
     }
 
     function relayNextMessage() public {
+        messageSender = nextMessage.sender;
         xDomainMessageSender = nextMessage.sender;
+
         (bool success, bytes memory res) = nextMessage.target.call(nextMessage.message);
         require(success, _getRevertMsgFromRes(res));
     }
