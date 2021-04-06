@@ -44,17 +44,17 @@ contract XDaiMessengerWrapper is MessengerWrapper {
         l1MessengerAddress.requireToPassMessage(
             l2BridgeAddress,
             _calldata,
-            uint32(defaultGasLimit)
+            defaultGasLimit
         );
     }
 
     /// @notice message data is not needed for message verification with the xDai AMB
     function verifySender(address l1BridgeCaller, bytes memory) public override {
-        require(l1MessengerAddress.messageSender() == l2BridgeAddress);
-        require(l1BridgeCaller == ambBridge);
+        require(l1MessengerAddress.messageSender() == l2BridgeAddress, "L2_XDAI_BRG: Invalid cross-domain sender");
+        require(l1BridgeCaller == ambBridge, "L2_XDAI_BRG: Caller is not the expected sender");
 
         // With the xDai AMB, it is best practice to also check the source chainId
         // https://docs.tokenbridge.net/amb-bridge/how-to-develop-xchain-apps-by-amb#receive-a-method-call-from-the-amb-bridge
-        require(l1MessengerAddress.messageSourceChainId() == l2ChainId);
+        require(l1MessengerAddress.messageSourceChainId() == l2ChainId, "L2_XDAI_BRG: Invalid source Chain ID");
     }
 }
