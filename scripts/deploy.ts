@@ -47,8 +47,8 @@ interface INetworkParams extends IGeneralData, ISpecificData {
 // $ npm run deploy -- optimism sETH
 async function main () {
   logger.log('deploy script initiated')
-  const networkName: string = process.argv[2]
-  const tokenSymbol: string = process.argv[3]
+  const networkName: string = process.argv[2].toLowerCase()
+  const tokenSymbol: string = process.argv[3].toLowerCase()
 
   if (!networkName) {
     throw new Error('network name not specified')

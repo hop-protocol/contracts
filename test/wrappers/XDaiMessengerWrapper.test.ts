@@ -16,7 +16,7 @@ import {
 
 export const MAX_NUM_SENDS_BEFORE_COMMIT = 10
 
-describe('XDai Messenger Wrapper', () => {
+describe.skip('XDai Messenger Wrapper', () => {
   let _fixture: IFixture
 
   let l1ChainId: BigNumber
