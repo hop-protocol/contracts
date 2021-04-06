@@ -180,6 +180,25 @@ The following steps are to add a new layer-2 (Xyz, for example) to the Hop Syste
 - Config updates
   - Add the L2 and its config to `./hardhat.config.ts`
 
+## Temporary Steps for Deploying on Optimism
+Because Optimism does not support the OpenZeppelin contracts out of the box, these steps must be followed to deploy with patched OpenZeppelin contracts.
+```
+# Deploy L1
+rm package-lock.json && rm -rf node_modules && rm -rf cache && rm -rf artifacts && npm i
+npm run deploy kovan USDC
+
+# Deploy L2
+npm run patch-oz
+[Comment out Setup L1 and Setup L2 scripts in deploy.ts]
+TARGET=ovm npm run deploy optimism USDC
+
+# Setup L1 and setup L2
+rm package-lock.json && rm -rf node_modules && rm -rf cache && rm -rf artifacts && npm i
+[Comment out Deploy L2 script in deploy.ts]
+[Comment in Setup L1 and Setup L2 scripts in deploy.ts]
+npm run deploy optimism USDC
+```
+
 ## FAQ
 
 - How can I verify the contracts on Etherscan?

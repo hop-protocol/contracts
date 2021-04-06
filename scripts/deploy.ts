@@ -293,6 +293,7 @@ function setNetworkParams (networkName: string, tokenSymbol: string) {
     ...generalData,
     ...specificData
   }
+  console.log('data: ', data)
   updateConfigFile(data)
 }
 

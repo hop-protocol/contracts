@@ -1,4 +1,6 @@
 artifacts
+artifacts-ovm
+cache-ovm
 abi
 cache
 build

@@ -1,21 +1,22 @@
-import { ethers, l2ethers as ovmEthers } from 'hardhat'
+import { ethers } from 'hardhat'
 import { Contract, ContractFactory, providers } from 'ethers'
+const ovmEthers = ethers
 
 async function main() {
-  const provider: providers.Provider = ovmEthers.provider
+  const provider: providers.Provider = ethers.provider
 
-  const MathUtils: ContractFactory = await ovmEthers.getContractFactory("MathUtils")
+  const MathUtils: ContractFactory = await ethers.getContractFactory("MathUtils")
   const mathUtils: Contract = await MathUtils.deploy()
   await mathUtils.deployed()
   const mathUtilsCode = await provider.getCode(mathUtils.address)
   console.log('MathUtils: ', mathUtils.address)
   logCode(mathUtilsCode)
 
-  const SwapUtils: ContractFactory = await ovmEthers.getContractFactory(
+  const SwapUtils: ContractFactory = await ethers.getContractFactory(
     "SwapUtils",
     {
       libraries: {
-        'MathUtils.ovm': mathUtils.address
+        'MathUtils': mathUtils.address
       }
     }
   )
@@ -25,11 +26,11 @@ async function main() {
   console.log('SwapUtils: ', swapUtils.address)
   logCode(swapUtilsCode)
 
-  const Swap: ContractFactory = await ovmEthers.getContractFactory(
+  const Swap: ContractFactory = await ethers.getContractFactory(
     "Swap",
     {
       libraries: {
-        'SwapUtils.ovm': swapUtils.address
+        'SwapUtils': swapUtils.address
       }
     }
   )
@@ -38,6 +39,14 @@ async function main() {
   const swapCode = await provider.getCode(swap.address)
   console.log('Swap: ', swap.address)
   logCode(swapCode)
+
+  // const swap: Contract = await Swap.attach('0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0')
+
+  const a = await swap.getA({ gasLimit: 500000 })
+  console.log('a: ', a.toString())
+
+  const token0 = await swap.getToken(0, { gasLimit: 500000 })
+  console.log('token0: ', token0)
 
   function logCode(code: string) {
     let str = ''

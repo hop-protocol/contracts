@@ -1,5 +1,5 @@
 require('dotenv').config()
-import { ethers, l2ethers } from 'hardhat'
+import { ethers } from 'hardhat'
 import { BigNumber, Signer, Contract, ContractFactory } from 'ethers'
 
 import { CHAIN_IDS, ZERO_ADDRESS } from '../../config/constants'
@@ -44,7 +44,7 @@ async function main () {
     L1_Bridge,
     L1_Messenger,
     L2_Bridge
-  } = await getContractFactories(l2_chainId, bonder, ethers, l2ethers))
+  } = await getContractFactories(l2_chainId, bonder, ethers))
 
   console.log('aa')
   // Attach already deployed contracts

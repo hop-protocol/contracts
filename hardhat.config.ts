@@ -1,8 +1,8 @@
 require('dotenv').config()
 
+import '@nomiclabs/hardhat-ethers'
 import '@nomiclabs/hardhat-waffle'
 import '@eth-optimism/plugins/hardhat/compiler'
-import '@eth-optimism/plugins/hardhat/ethers'
 
 import 'hardhat-abi-exporter'
 
@@ -53,6 +53,9 @@ export default {
       gas: 500000,
       chainId: CHAIN_IDS.XDAI.SOKOL.toNumber()
     }
+  },
+  ovm: {
+    solcVersion: '0.6.12'
   },
   solidity: {
     compilers: [

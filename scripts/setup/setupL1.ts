@@ -1,7 +1,8 @@
 require('dotenv').config()
 
-import { ethers, l2ethers as ovmEthers } from 'hardhat'
+import { ethers } from 'hardhat'
 import { BigNumber, ContractFactory, Signer, Contract, providers } from 'ethers'
+const ovmEthers = ethers
 
 import {
   getContractFactories,
@@ -113,7 +114,7 @@ export async function setupL1 (config: Config) {
     L1_Messenger,
     L1_MessengerWrapper,
     L2_Bridge
-  } = await getContractFactories(l2_chainId, owner, ethers, ovmEthers))
+  } = await getContractFactories(l2_chainId, owner, ethers))
 
   logger.log('attaching deployed contracts')
   // Attach already deployed contracts
@@ -261,6 +262,7 @@ export async function setupL1 (config: Config) {
       LIQUIDITY_PROVIDER_INITIAL_BALANCE,
       amountOutMin,
       deadline,
+      ZERO_ADDRESS,
       relayerFee
     )
   await tx.wait()

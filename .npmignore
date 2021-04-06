@@ -3,6 +3,8 @@ node_modules
 
 cache
 !artifacts
+!artifacts-ovm
+!cache-ovm
 
 package-lock.json
 yarn.lock
