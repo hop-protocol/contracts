@@ -1,21 +1,21 @@
-import { ethers, l2ethers as ovmEthers } from 'hardhat'
+import { ethers } from 'hardhat'
 import { Contract, ContractFactory, providers } from 'ethers'
 
 async function main() {
-  const provider: providers.Provider = ovmEthers.provider
+  const provider: providers.Provider = ethers.provider
 
-  const MathUtils: ContractFactory = await ovmEthers.getContractFactory("MathUtils")
+  const MathUtils: ContractFactory = await ethers.getContractFactory("MathUtils")
   const mathUtils: Contract = await MathUtils.deploy()
   await mathUtils.deployed()
   const mathUtilsCode = await provider.getCode(mathUtils.address)
   console.log('MathUtils: ', mathUtils.address)
   logCode(mathUtilsCode)
 
-  const SwapUtils: ContractFactory = await ovmEthers.getContractFactory(
+  const SwapUtils: ContractFactory = await ethers.getContractFactory(
     "SwapUtils",
     {
       libraries: {
-        'MathUtils.ovm': mathUtils.address
+        'MathUtils': mathUtils.address
       }
     }
   )
@@ -25,11 +25,11 @@ async function main() {
   console.log('SwapUtils: ', swapUtils.address)
   logCode(swapUtilsCode)
 
-  const Swap: ContractFactory = await ovmEthers.getContractFactory(
+  const Swap: ContractFactory = await ethers.getContractFactory(
     "Swap",
     {
       libraries: {
-        'SwapUtils.ovm': swapUtils.address
+        'SwapUtils': swapUtils.address
       }
     }
   )

@@ -4,6 +4,7 @@ node_modules
 #Buidler files
 cache
 artifacts
+artifacts-ovm
 
 dist
 
