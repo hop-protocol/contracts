@@ -302,6 +302,10 @@ abstract contract L2_Bridge is Bridge, ReentrancyGuard {
 
     /* ========== External Config Management Functions ========== */
 
+    function setL1Governance(address _l1Governance) external onlyGovernance {
+        l1Governance = _l1Governance;
+    }
+
     function setAmmWrapper(L2_AmmWrapper _ammWrapper) external onlyGovernance {
         ammWrapper = _ammWrapper;
     }

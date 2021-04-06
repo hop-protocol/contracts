@@ -1143,6 +1143,12 @@ export const getRemoveBonderMessage = (
   ])
 }
 
+export const getSetL1GovernanceMessage = (l1_governanceAddress: string) => {
+  const ABI = ['function setL1Governance(address _l1Governance)']
+  const ethersInterface = new ethersUtils.Interface(ABI)
+  return ethersInterface.encodeFunctionData('setL1Governance', [l1_governanceAddress])
+}
+
 export const getSetL1BridgeAddressMessage = (l1_bridge: Contract | string) => {
   const address = getAddressFromContractOrString(l1_bridge)
   const ABI = ['function setL1BridgeAddress(address _l1BridgeAddress)']
