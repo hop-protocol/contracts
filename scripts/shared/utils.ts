@@ -12,8 +12,7 @@ import {
 export const getContractFactories = async (
   chainId: BigNumber,
   signer: Signer,
-  ethers: any,
-  ovmEthers?: any
+  ethers: any
 ) => {
   const L1_MockERC20: ContractFactory = await ethers.getContractFactory(
     'contracts/test/MockERC20.sol:MockERC20',
@@ -41,7 +40,7 @@ export const getContractFactories = async (
     L2_Bridge,
     L2_Swap,
     L2_AmmWrapper
-  } = await getNetworkSpecificFactories(chainId, signer, ethers, ovmEthers))
+  } = await getNetworkSpecificFactories(chainId, signer, ethers))
 
   return {
     L1_MockERC20,
@@ -60,11 +59,10 @@ export const getContractFactories = async (
 const getNetworkSpecificFactories = async (
   chainId: BigNumber,
   signer: Signer,
-  ethers: any,
-  ovmEthers: any
+  ethers: any
 ) => {
   if (isChainIdOptimism(chainId)) {
-    return getOptimismContractFactories(signer, ethers, ovmEthers)
+    return getOptimismContractFactories(signer, ethers)
   } else if (isChainIdArbitrum(chainId)) {
     return getArbitrumContractFactories(signer, ethers)
   } else if (isChainIdXDai(chainId)) {
@@ -85,8 +83,7 @@ const getNetworkSpecificFactories = async (
 
 const getOptimismContractFactories = async (
   signer: Signer,
-  ethers: any,
-  ovmEthers: any
+  ethers: any
 ) => {
   const L1_TokenBridge: ContractFactory = await ethers.getContractFactory(
     'contracts/test/optimism/mockOVM_L1_ERC20_Bridge.sol:OVM_L1_ERC20_Bridge',
@@ -100,24 +97,24 @@ const getOptimismContractFactories = async (
     'contracts/wrappers/OptimismMessengerWrapper.sol:OptimismMessengerWrapper',
     { signer }
   )
-  const L2_MockERC20: ContractFactory = await ovmEthers.getContractFactory(
+  const L2_MockERC20: ContractFactory = await ethers.getContractFactory(
     'contracts/test/MockERC20.sol:MockERC20',
     { signer }
   )
-  const L2_HopBridgeToken: ContractFactory = await ovmEthers.getContractFactory(
+  const L2_HopBridgeToken: ContractFactory = await ethers.getContractFactory(
     'contracts/bridges/HopBridgeToken.sol:HopBridgeToken',
     { signer }
   )
-  const L2_Bridge: ContractFactory = await ovmEthers.getContractFactory(
+  const L2_Bridge: ContractFactory = await ethers.getContractFactory(
     'contracts/bridges/L2_OptimismBridge.sol:L2_OptimismBridge',
     { signer }
   )
 
-  const L2_MathUtils: ContractFactory = await ovmEthers.getContractFactory('MathUtils')
+  const L2_MathUtils: ContractFactory = await ethers.getContractFactory('MathUtils')
   const l2_mathUtils = await L2_MathUtils.deploy()
   await l2_mathUtils.deployed()
 
-  const L2_SwapUtils = await ovmEthers.getContractFactory(
+  const L2_SwapUtils = await ethers.getContractFactory(
     'SwapUtils',
     {
       libraries: {
@@ -128,7 +125,7 @@ const getOptimismContractFactories = async (
   const l2_swapUtils = await L2_SwapUtils.deploy()
   await l2_swapUtils.deployed()
 
-  const L2_Swap = await ovmEthers.getContractFactory(
+  const L2_Swap = await ethers.getContractFactory(
     'Swap',
     {
       libraries: {
@@ -137,7 +134,7 @@ const getOptimismContractFactories = async (
     }
   )
 
-  const L2_AmmWrapper: ContractFactory = await ovmEthers.getContractFactory('L2_AmmWrapper', { signer })
+  const L2_AmmWrapper: ContractFactory = await ethers.getContractFactory('L2_AmmWrapper', { signer })
 
   return {
     L1_TokenBridge,

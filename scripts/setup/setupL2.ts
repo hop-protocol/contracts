@@ -2,7 +2,7 @@ require('dotenv').config()
 
 import { ethers } from 'hardhat'
 import { BigNumber, ContractFactory, Contract, Signer, providers } from 'ethers'
-const ovmEthers = ethers
+const ethers = ethers
 
 import {
   getContractFactories,
@@ -86,7 +86,7 @@ export async function setupL2 (config: Config) {
     L2_HopBridgeToken,
     L2_Bridge,
     L2_Swap
-  } = await getContractFactories(l2_chainId, owner, ethers, ovmEthers))
+  } = await getContractFactories(l2_chainId, owner, ethers))
 
   logger.log('attaching deployed contracts')
   // Attach already deployed contracts

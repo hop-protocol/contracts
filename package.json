@@ -17,7 +17,7 @@
     "publish-module": "npm publish --tag beta --access public",
     "release": "npm run clean && npm run publish-module",
     "clean": "rimraf cache artifacts",
-    "postinstall": "patch-package --patch-dir node_modules/@thesatoshicompany/optimism-openzeppelin-compat/patches",
+    "patch-oz": "patch-package --patch-dir node_modules/@thesatoshicompany/optimism-openzeppelin-compat/patches",
     "generate-abis": "mkdir -p ./data/abi && npm run clean && npm run build",
     "deploy": "ts-node ./scripts/deploy.ts",
     "deploy:l1-kovan": "hardhat run scripts/deployments/deployL1.ts --network kovan",

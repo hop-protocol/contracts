@@ -26,7 +26,7 @@ import {
   executeL1BridgeChallengeTransferBond,
   executeL1BridgeResolveChallenge,
   executeL2BridgeSend,
-  executeL2BridgeSwapAndSend,
+  executeL2AmmWrapperSwapAndSend,
   executeL2BridgeCommitTransfers,
   executeL2BridgeBondWithdrawalAndDistribute,
   executeCanonicalMessengerSendMessage,
@@ -66,7 +66,7 @@ import {
   DEFAULT_RELAYER_FEE
 } from '../../config/constants'
 
-describe('L2_Optimism_Bridge', () => {
+describe.skip('L2_Optimism_Bridge', () => {
   let _fixture: IFixture
   let l1ChainId: BigNumber
   let l2ChainId: BigNumber

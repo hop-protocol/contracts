@@ -24,7 +24,7 @@ import {
   executeL1BridgeChallengeTransferBond,
   executeL1BridgeResolveChallenge,
   executeL2BridgeSend,
-  executeL2BridgeSwapAndSend,
+  executeL2AmmWrapperSwapAndSend,
   executeL2BridgeCommitTransfers,
   executeL2BridgeBondWithdrawalAndDistribute,
   executeCanonicalMessengerSendMessage,
@@ -426,28 +426,6 @@ describe('L2_Bridge', () => {
   describe('send', async () => {
     it('Should send tokens to L1 via send', async () => {
       await executeL2BridgeSend(l2_hopBridgeToken, l2_bridge, transfer)
-    })
-  })
-
-  describe('swapAndSend', async () => {
-    it('Should send tokens to L2 via swapAndSend', async () => {
-      // Add the canonical token to the users' address on L2
-      await executeCanonicalBridgeSendTokens(
-        l1_canonicalToken,
-        l1_canonicalBridge,
-        l2_canonicalToken,
-        l2_messenger,
-        user,
-        transfer.amount
-      )
-
-      await executeL2BridgeSwapAndSend(
-        l2_bridge,
-        l2_canonicalToken,
-        l2_swap,
-        l2_ammWrapper,
-        l2Transfer
-      )
     })
   })
 
@@ -924,108 +902,6 @@ describe('L2_Bridge', () => {
       await l2_hopBridgeToken.connect(transfer.sender).transfer(ONE_ADDRESS, senderBalance)
       await expect(
         executeL2BridgeSend(l2_hopBridgeToken, l2_bridge, transfer)
-      ).to.be.revertedWith(expectedErrorMsg)
-    })
-  })
-
-  describe('swapAndSend', async () => {
-    it('Should not be able to swapAndSend because the bonder fee is greater than the transfer amount', async () => {
-      const expectedErrorMsg: string = 'L2_AMM_W: Bonder fee cannot exceed amount'
-      const customTransfer: Transfer = new Transfer(l2Transfer)
-      customTransfer.bonderFee = customTransfer.amount.add(1)
-
-      await executeCanonicalBridgeSendTokens(
-        l1_canonicalToken,
-        l1_canonicalBridge,
-        l2_canonicalToken,
-        l2_messenger,
-        user,
-        transfer.amount
-      )
-
-      await expect(
-        executeL2BridgeSwapAndSend(
-          l2_bridge,
-          l2_canonicalToken,
-          l2_swap,
-          l2_ammWrapper,
-          customTransfer
-        )
-      ).to.be.revertedWith(expectedErrorMsg)
-    })
-
-    it('Should not be able to swapAndSend because the token is not approved', async () => {
-      const expectedErrorMsg: string =
-        'ERC20: transfer amount exceeds allowance'
-
-      await executeCanonicalBridgeSendTokens(
-        l1_canonicalToken,
-        l1_canonicalBridge,
-        l2_canonicalToken,
-        l2_messenger,
-        user,
-        transfer.amount
-      )
-
-      await expect(
-        l2_ammWrapper
-          .connect(transfer.sender)
-          .swapAndSend(
-            transfer.chainId,
-            await transfer.recipient.getAddress(),
-            transfer.amount,
-            transfer.bonderFee,
-            transfer.amountOutMin,
-            transfer.deadline,
-            transfer.destinationAmountOutMin,
-            transfer.destinationDeadline
-          )
-      ).to.be.revertedWith(expectedErrorMsg)
-    })
-
-    it('Should not be able to swapAndSend because the L2 canonical token approval does not work', async () => {
-      // This would require a non-standard ERC20.
-    })
-
-    it('Should send tokens to L2 via swapAndSend but fail on the SECOND amount vs. bonder fee check', async () => {
-      const expectedErrorMsg: string = 'L2_BRG: Bonder fee cannot exceed amount'
-
-      const minBonderBps: BigNumber = BigNumber.from('0')
-      const minBonderFeeAbsolute: BigNumber = transfer.amount
-
-      const message: string = getSetMinimumBonderFeeRequirementsMessage(
-        minBonderBps,
-        minBonderFeeAbsolute 
-      )
-
-      await executeCanonicalMessengerSendMessage(
-        l1_messenger,
-        l2_bridge,
-        l2_messenger,
-        governance,
-        message
-      )
-
-      const customTransfer: Transfer = new Transfer(l2Transfer)
-      customTransfer.bonderFee = l2Transfer.amount
-
-      await executeCanonicalBridgeSendTokens(
-        l1_canonicalToken,
-        l1_canonicalBridge,
-        l2_canonicalToken,
-        l2_messenger,
-        user,
-        transfer.amount
-      )
-
-      await expect(
-        executeL2BridgeSwapAndSend(
-          l2_bridge,
-          l2_canonicalToken,
-          l2_swap,
-          l2_ammWrapper,
-          customTransfer
-        )
       ).to.be.revertedWith(expectedErrorMsg)
     })
   })
@@ -1826,87 +1702,6 @@ describe('L2_Bridge', () => {
       customTransfer,
       bonder,
       actualTransferAmount
-    )
-  })
-
-  it('Should call swap and send but fail the swap', async () => {
-    // TODO: Swap tests
-  })
-
-  it('Should send tokens to L2 via swapAndSend with an unusual bonder fee (0 wei)', async () => {
-    const minBonderBps: BigNumber = BigNumber.from('0')
-    const minBonderFeeAbsolute: BigNumber = BigNumber.from('0')
-
-    const message: string = getSetMinimumBonderFeeRequirementsMessage(
-      minBonderBps,
-      minBonderFeeAbsolute 
-    )
-
-    await executeCanonicalMessengerSendMessage(
-      l1_messenger,
-      l2_bridge,
-      l2_messenger,
-      governance,
-      message
-    )
-
-    const customTransfer: Transfer = new Transfer(l2Transfer)
-    customTransfer.bonderFee = BigNumber.from('0')
-
-    await executeCanonicalBridgeSendTokens(
-      l1_canonicalToken,
-      l1_canonicalBridge,
-      l2_canonicalToken,
-      l2_messenger,
-      user,
-      transfer.amount
-    )
-
-    await executeL2BridgeSwapAndSend(
-      l2_bridge,
-      l2_canonicalToken,
-      l2_swap,
-      l2_ammWrapper,
-      customTransfer
-    )
-  })
-
-  it('Should send tokens to L2 via swapAndSend with an unusual bonder fee (almost full amount)', async () => {
-    // NOTE: This needs to be slightly less than max because of slippage
-    const minBonderBps: BigNumber = BigNumber.from('0')
-    const minBonderFeeAbsolute: BigNumber = transfer.amount.mul(99).div(100)
-
-    const message: string = getSetMinimumBonderFeeRequirementsMessage(
-      minBonderBps,
-      minBonderFeeAbsolute 
-    )
-
-    await executeCanonicalMessengerSendMessage(
-      l1_messenger,
-      l2_bridge,
-      l2_messenger,
-      governance,
-      message
-    )
-
-    const customTransfer: Transfer = new Transfer(l2Transfer)
-    customTransfer.bonderFee = l2Transfer.amount.mul(99).div(100)
-
-    await executeCanonicalBridgeSendTokens(
-      l1_canonicalToken,
-      l1_canonicalBridge,
-      l2_canonicalToken,
-      l2_messenger,
-      user,
-      transfer.amount
-    )
-
-    await executeL2BridgeSwapAndSend(
-      l2_bridge,
-      l2_canonicalToken,
-      l2_swap,
-      l2_ammWrapper,
-      customTransfer
     )
   })
 })

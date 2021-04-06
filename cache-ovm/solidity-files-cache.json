@@ -1,140 +1,6 @@
 {
   "_format": "hh-sol-cache-2",
   "files": {
-    "/Users/chris/Hop/contracts/node_modules/hardhat/console.sol": {
-      "lastModificationDate": 1617154098042,
-      "contentHash": "cc4777addd464ea56fa35b1c45df0591",
-      "sourceName": "hardhat/console.sol",
-      "solcConfig": {
-        "version": "0.7.0",
-        "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 1
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [],
-      "versionPragmas": [
-        ">=0.4.22 <0.9.0"
-      ],
-      "artifacts": [
-        "console"
-      ]
-    },
-    "/Users/chris/Hop/contracts/node_modules/@openzeppelin/contracts/utils/Pausable.sol": {
-      "lastModificationDate": 1617154099166,
-      "contentHash": "6960b40911542e6004ab95031ef9c3b9",
-      "sourceName": "@openzeppelin/contracts/utils/Pausable.sol",
-      "solcConfig": {
-        "version": "0.7.0",
-        "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 1
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [
-        "./Context.sol"
-      ],
-      "versionPragmas": [
-        ">=0.6.0 <0.8.0"
-      ],
-      "artifacts": [
-        "Pausable"
-      ]
-    },
-    "/Users/chris/Hop/contracts/contracts/saddle/SwapConstants.sol": {
-      "lastModificationDate": 1617318288385,
-      "contentHash": "d41d8cd98f00b204e9800998ecf8427e",
-      "sourceName": "contracts/saddle/SwapConstants.sol",
-      "solcConfig": {
-        "version": "0.7.0",
-        "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 1
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [],
-      "versionPragmas": [],
-      "artifacts": []
-    },
-    "/Users/chris/Hop/contracts/node_modules/@openzeppelin/contracts/GSN/Context.sol": {
-      "lastModificationDate": 1617342496557,
-      "contentHash": "a02aa4ae53018d92603a3ead2c365958",
-      "sourceName": "@openzeppelin/contracts/GSN/Context.sol",
-      "solcConfig": {
-        "version": "0.7.0",
-        "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 1
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [
-        "../utils/Context.sol"
-      ],
-      "versionPragmas": [
-        ">=0.6.0 <0.8.0"
-      ],
-      "artifacts": []
-    },
     "/Users/chris/Hop/contracts/contracts/bridges/Accounting.sol": {
       "lastModificationDate": 1617319495676,
       "contentHash": "4b00e17fcecd1511508f9af7fb77d21f",
@@ -282,8 +148,8 @@
       ]
     },
     "/Users/chris/Hop/contracts/contracts/bridges/L2_Bridge.sol": {
-      "lastModificationDate": 1617319865298,
-      "contentHash": "1f47520b5cd530b5733eb981ce01bf72",
+      "lastModificationDate": 1617415099934,
+      "contentHash": "d4364cd789fc4d1465d02c828caebec4",
       "sourceName": "contracts/bridges/L2_Bridge.sol",
       "solcConfig": {
         "version": "0.6.12",
@@ -361,8 +227,8 @@
       ]
     },
     "/Users/chris/Hop/contracts/contracts/bridges/L2_AmmWrapper.sol": {
-      "lastModificationDate": 1617319495678,
-      "contentHash": "1bf610e6ccd9a3f111fe25150c8f136b",
+      "lastModificationDate": 1617415099934,
+      "contentHash": "21425b46a0f22aa8ca71c68286dc8833",
       "sourceName": "contracts/bridges/L2_AmmWrapper.sol",
       "solcConfig": {
         "version": "0.6.12",
@@ -400,7 +266,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/contracts/saddle/Swap.sol": {
-      "lastModificationDate": 1617341216843,
+      "lastModificationDate": 1617417289999,
       "contentHash": "926a94e5131c51b220172d4763a679ac",
       "sourceName": "contracts/saddle/Swap.sol",
       "solcConfig": {
@@ -474,7 +340,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/contracts/saddle/SwapUtils.sol": {
-      "lastModificationDate": 1617341216843,
+      "lastModificationDate": 1617417289999,
       "contentHash": "f11dc2e6d508029a351356e6d9ad78af",
       "sourceName": "contracts/saddle/SwapUtils.sol",
       "solcConfig": {
@@ -657,7 +523,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/contracts/bridges/L2_XDaiBridge.sol": {
-      "lastModificationDate": 1617319495680,
+      "lastModificationDate": 1617383375555,
       "contentHash": "5be38c4a62c95f25a2e14f177369d11d",
       "sourceName": "contracts/bridges/L2_XDaiBridge.sol",
       "solcConfig": {
@@ -728,7 +594,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/contracts/test/Mock_L2_XDaiBridge.sol": {
-      "lastModificationDate": 1617319477572,
+      "lastModificationDate": 1617383375602,
       "contentHash": "5ff3ea3ea32e936da48442ffefcb5396",
       "sourceName": "contracts/test/Mock_L2_XDaiBridge.sol",
       "solcConfig": {
@@ -871,7 +737,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/contracts/wrappers/PolygonWrapper.sol": {
-      "lastModificationDate": 1617319865331,
+      "lastModificationDate": 1617383375605,
       "contentHash": "3ad0a08131fb5d1c3a4f1437455fe0d7",
       "sourceName": "contracts/wrappers/PolygonWrapper.sol",
       "solcConfig": {
@@ -909,7 +775,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/contracts/polygon/tunnel/BaseRootTunnel.sol": {
-      "lastModificationDate": 1617319865319,
+      "lastModificationDate": 1617383375594,
       "contentHash": "26f5671c4d8e4dc0a69f3b014775f788",
       "sourceName": "contracts/polygon/tunnel/BaseRootTunnel.sol",
       "solcConfig": {
@@ -952,8 +818,8 @@
       ]
     },
     "/Users/chris/Hop/contracts/contracts/bridges/L1_Bridge.sol": {
-      "lastModificationDate": 1617319865297,
-      "contentHash": "44eeb42118b485023c604e7dd65934e8",
+      "lastModificationDate": 1617415099934,
+      "contentHash": "053db1e3f412792c735cc9f9a0177e3e",
       "sourceName": "contracts/bridges/L1_Bridge.sol",
       "solcConfig": {
         "version": "0.6.12",
@@ -989,7 +855,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/contracts/polygon/common/AccessControlMixin.sol": {
-      "lastModificationDate": 1617319865303,
+      "lastModificationDate": 1617383375567,
       "contentHash": "8dde86bbfc1e5c4317ab0eb71c6a420f",
       "sourceName": "contracts/polygon/common/AccessControlMixin.sol",
       "solcConfig": {
@@ -1025,7 +891,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/contracts/polygon/root/StateSender/IStateSender.sol": {
-      "lastModificationDate": 1617319865312,
+      "lastModificationDate": 1617383375585,
       "contentHash": "9121413e21ae98075697e14b78e436aa",
       "sourceName": "contracts/polygon/root/StateSender/IStateSender.sol",
       "solcConfig": {
@@ -1059,7 +925,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/contracts/polygon/lib/RLPReader.sol": {
-      "lastModificationDate": 1617319865306,
+      "lastModificationDate": 1617383375576,
       "contentHash": "03c5b82582fc927e6772669fd1b298df",
       "sourceName": "contracts/polygon/lib/RLPReader.sol",
       "solcConfig": {
@@ -1093,7 +959,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/contracts/polygon/lib/MerklePatriciaProof.sol": {
-      "lastModificationDate": 1617319865306,
+      "lastModificationDate": 1617383375575,
       "contentHash": "7a89b8b49f2513640b540085560b5701",
       "sourceName": "contracts/polygon/lib/MerklePatriciaProof.sol",
       "solcConfig": {
@@ -1129,7 +995,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/contracts/polygon/root/ICheckpointManager.sol": {
-      "lastModificationDate": 1617319865306,
+      "lastModificationDate": 1617383375576,
       "contentHash": "952277b52c8e9dfd02015706e27a73c6",
       "sourceName": "contracts/polygon/root/ICheckpointManager.sol",
       "solcConfig": {
@@ -1163,7 +1029,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/contracts/polygon/lib/Merkle.sol": {
-      "lastModificationDate": 1617319865305,
+      "lastModificationDate": 1617383375574,
       "contentHash": "e6fb70dad0750e5be868267b57f074a5",
       "sourceName": "contracts/polygon/lib/Merkle.sol",
       "solcConfig": {
@@ -1197,7 +1063,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/contracts/bridges/L1_ETH_Bridge.sol": {
-      "lastModificationDate": 1617319495678,
+      "lastModificationDate": 1617383375551,
       "contentHash": "c6663c15015496f0260893a9d45f6cae",
       "sourceName": "contracts/bridges/L1_ETH_Bridge.sol",
       "solcConfig": {
@@ -1527,7 +1393,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/contracts/polygon/root/TokenPredicates/ERC20Predicate.sol": {
-      "lastModificationDate": 1617319865313,
+      "lastModificationDate": 1617383375587,
       "contentHash": "7393d29c76907d03b60bca34f6a8f04b",
       "sourceName": "contracts/polygon/root/TokenPredicates/ERC20Predicate.sol",
       "solcConfig": {
@@ -1568,7 +1434,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/contracts/polygon/root/TokenPredicates/ITokenPredicate.sol": {
-      "lastModificationDate": 1617319865315,
+      "lastModificationDate": 1617383375589,
       "contentHash": "51ba776e137b3de9b308def0cf01f26f",
       "sourceName": "contracts/polygon/root/TokenPredicates/ITokenPredicate.sol",
       "solcConfig": {
@@ -1604,7 +1470,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/contracts/polygon/common/Initializable.sol": {
-      "lastModificationDate": 1617319865304,
+      "lastModificationDate": 1617383375571,
       "contentHash": "12d4c616379dd5f2e5c1737b4178b420",
       "sourceName": "contracts/polygon/common/Initializable.sol",
       "solcConfig": {
@@ -1638,7 +1504,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/contracts/polygon/root/TokenPredicates/MintableERC721Predicate.sol": {
-      "lastModificationDate": 1617319865318,
+      "lastModificationDate": 1617383375592,
       "contentHash": "686fa75fb6821b7d29aa8bb917176968",
       "sourceName": "contracts/polygon/root/TokenPredicates/MintableERC721Predicate.sol",
       "solcConfig": {
@@ -1679,7 +1545,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/contracts/polygon/root/RootToken/IMintableERC721.sol": {
-      "lastModificationDate": 1617319865311,
+      "lastModificationDate": 1617383375583,
       "contentHash": "b1fe501da14ae8a1d1dd863dc6489110",
       "sourceName": "contracts/polygon/root/RootToken/IMintableERC721.sol",
       "solcConfig": {
@@ -1715,7 +1581,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/contracts/polygon/root/TokenPredicates/MintableERC20Predicate.sol": {
-      "lastModificationDate": 1617319865317,
+      "lastModificationDate": 1617383375590,
       "contentHash": "8890e7bab117c292beaf7b5f18c3ed8b",
       "sourceName": "contracts/polygon/root/TokenPredicates/MintableERC20Predicate.sol",
       "solcConfig": {
@@ -1755,7 +1621,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/contracts/polygon/root/RootToken/IMintableERC20.sol": {
-      "lastModificationDate": 1617319865311,
+      "lastModificationDate": 1617383375583,
       "contentHash": "4129a6203d7227353b0cf680e42764db",
       "sourceName": "contracts/polygon/root/RootToken/IMintableERC20.sol",
       "solcConfig": {
@@ -1791,7 +1657,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/contracts/polygon/tunnel/RootTunnel.sol": {
-      "lastModificationDate": 1617319865320,
+      "lastModificationDate": 1617383375595,
       "contentHash": "b423053aa755cb09276e78e41d550fbe",
       "sourceName": "contracts/polygon/tunnel/RootTunnel.sol",
       "solcConfig": {
@@ -1827,7 +1693,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/contracts/polygon/root/RootChainManager/RootChainManager.sol": {
-      "lastModificationDate": 1617319865307,
+      "lastModificationDate": 1617383375578,
       "contentHash": "5a6c2f2310d4317f83a643a2cff47b79",
       "sourceName": "contracts/polygon/root/RootChainManager/RootChainManager.sol",
       "solcConfig": {
@@ -1876,7 +1742,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/contracts/polygon/root/RootChainManager/IRootChainManager.sol": {
-      "lastModificationDate": 1617319865307,
+      "lastModificationDate": 1617383375577,
       "contentHash": "adeea81b07187d4beb71da1b9b25dce8",
       "sourceName": "contracts/polygon/root/RootChainManager/IRootChainManager.sol",
       "solcConfig": {
@@ -1910,7 +1776,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/contracts/polygon/root/RootChainManager/RootChainManagerStorage.sol": {
-      "lastModificationDate": 1617319865308,
+      "lastModificationDate": 1617383375578,
       "contentHash": "4130f2b7ff0af37001141e92f9e23f97",
       "sourceName": "contracts/polygon/root/RootChainManager/RootChainManagerStorage.sol",
       "solcConfig": {
@@ -1947,7 +1813,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/contracts/polygon/common/NativeMetaTransaction.sol": {
-      "lastModificationDate": 1617319865304,
+      "lastModificationDate": 1617383375571,
       "contentHash": "478c75a9fb2e6ceaa8d170a74e20757e",
       "sourceName": "contracts/polygon/common/NativeMetaTransaction.sol",
       "solcConfig": {
@@ -1984,7 +1850,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/contracts/polygon/common/ContextMixin.sol": {
-      "lastModificationDate": 1617319865304,
+      "lastModificationDate": 1617383375569,
       "contentHash": "54765838f849dedaab308fb476787b71",
       "sourceName": "contracts/polygon/common/ContextMixin.sol",
       "solcConfig": {
@@ -2018,7 +1884,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/contracts/polygon/common/EIP712Base.sol": {
-      "lastModificationDate": 1617319865304,
+      "lastModificationDate": 1617383375570,
       "contentHash": "690483154a8937276ff83f89ff9a64ae",
       "sourceName": "contracts/polygon/common/EIP712Base.sol",
       "solcConfig": {
@@ -2054,7 +1920,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/contracts/polygon/root/RootToken/DummyMintableERC721.sol": {
-      "lastModificationDate": 1617319865310,
+      "lastModificationDate": 1617383375582,
       "contentHash": "0d56aa07f596ba92d7ecaf02f216aa66",
       "sourceName": "contracts/polygon/root/RootToken/DummyMintableERC721.sol",
       "solcConfig": {
@@ -2094,7 +1960,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/contracts/polygon/root/RootToken/IRootERC721.sol": {
-      "lastModificationDate": 1617319865311,
+      "lastModificationDate": 1617383375584,
       "contentHash": "22a95da50ed8d413fee70169115db535",
       "sourceName": "contracts/polygon/root/RootToken/IRootERC721.sol",
       "solcConfig": {
@@ -2130,7 +1996,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/contracts/polygon/root/TokenPredicates/ERC721Predicate.sol": {
-      "lastModificationDate": 1617319865314,
+      "lastModificationDate": 1617383375588,
       "contentHash": "e230a7361f47228edd78c16642eb0c6d",
       "sourceName": "contracts/polygon/root/TokenPredicates/ERC721Predicate.sol",
       "solcConfig": {
@@ -2171,7 +2037,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/contracts/polygon/root/TokenPredicates/MintableERC1155Predicate.sol": {
-      "lastModificationDate": 1617319865316,
+      "lastModificationDate": 1617383375589,
       "contentHash": "3479c410eaaf677d0f758edadc793c71",
       "sourceName": "contracts/polygon/root/TokenPredicates/MintableERC1155Predicate.sol",
       "solcConfig": {
@@ -2212,7 +2078,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/contracts/polygon/root/RootToken/IMintableERC1155.sol": {
-      "lastModificationDate": 1617319865310,
+      "lastModificationDate": 1617383375582,
       "contentHash": "a050f160ffd65f1e7e78a72f614ac4fd",
       "sourceName": "contracts/polygon/root/RootToken/IMintableERC1155.sol",
       "solcConfig": {
@@ -2248,7 +2114,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/contracts/polygon/root/RootToken/DummyERC721.sol": {
-      "lastModificationDate": 1617319865309,
+      "lastModificationDate": 1617383375580,
       "contentHash": "c365e270f3c6c3a10d6f58072ed7a8b2",
       "sourceName": "contracts/polygon/root/RootToken/DummyERC721.sol",
       "solcConfig": {
@@ -2287,7 +2153,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/contracts/polygon/root/RootToken/DummyMintableERC20.sol": {
-      "lastModificationDate": 1617319865310,
+      "lastModificationDate": 1617383375581,
       "contentHash": "5186ad48e794f55a57bb25ff0dacaad4",
       "sourceName": "contracts/polygon/root/RootToken/DummyMintableERC20.sol",
       "solcConfig": {
@@ -2363,7 +2229,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/contracts/test/optimism/mockOVM_L2_ERC20_Bridge.sol": {
-      "lastModificationDate": 1617319742054,
+      "lastModificationDate": 1617383375604,
       "contentHash": "4ddcac5ae78a6beb21dcc416276a64ad",
       "sourceName": "contracts/test/optimism/mockOVM_L2_ERC20_Bridge.sol",
       "solcConfig": {
@@ -2400,7 +2266,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/contracts/test/optimism/mockOVM_L1_ERC20_Bridge.sol": {
-      "lastModificationDate": 1617319742054,
+      "lastModificationDate": 1617383375603,
       "contentHash": "089905d2efd6c471881ed3a593f7669f",
       "sourceName": "contracts/test/optimism/mockOVM_L1_ERC20_Bridge.sol",
       "solcConfig": {
@@ -2691,7 +2557,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/contracts/polygon/root/MockCheckpointManager.sol": {
-      "lastModificationDate": 1617319865307,
+      "lastModificationDate": 1617383375576,
       "contentHash": "4347d93a25ae08eda9d2a558a88045ef",
       "sourceName": "contracts/polygon/root/MockCheckpointManager.sol",
       "solcConfig": {
@@ -2728,7 +2594,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/contracts/polygon/root/StateSender/DummyStateSender.sol": {
-      "lastModificationDate": 1617319865312,
+      "lastModificationDate": 1617383375585,
       "contentHash": "030d62fc98886f6779867b82d9331b53",
       "sourceName": "contracts/polygon/root/StateSender/DummyStateSender.sol",
       "solcConfig": {
@@ -2764,7 +2630,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/contracts/polygon/child/ChildToken/UpgradeableChildERC20/ERC20.sol": {
-      "lastModificationDate": 1617319865303,
+      "lastModificationDate": 1617383375564,
       "contentHash": "8e3c81408061ab978fda767845b36e76",
       "sourceName": "contracts/polygon/child/ChildToken/UpgradeableChildERC20/ERC20.sol",
       "solcConfig": {
@@ -2803,7 +2669,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/contracts/polygon/root/RootToken/DummyMintableERC1155.sol": {
-      "lastModificationDate": 1617319865309,
+      "lastModificationDate": 1617383375580,
       "contentHash": "b31ea6dc0b86dc8f5ec5aaf116ab18c5",
       "sourceName": "contracts/polygon/root/RootToken/DummyMintableERC1155.sol",
       "solcConfig": {
@@ -2843,7 +2709,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/contracts/polygon/root/TokenPredicates/ERC1155Predicate.sol": {
-      "lastModificationDate": 1617319865313,
+      "lastModificationDate": 1617383375586,
       "contentHash": "2fe23f3f68a8028cdd487d571bb81a43",
       "sourceName": "contracts/polygon/root/TokenPredicates/ERC1155Predicate.sol",
       "solcConfig": {
@@ -2884,7 +2750,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/contracts/polygon/root/RootToken/DummyERC1155.sol": {
-      "lastModificationDate": 1617319865308,
+      "lastModificationDate": 1617383375579,
       "contentHash": "d0144a11e43c9401ae149bc390aa0409",
       "sourceName": "contracts/polygon/root/RootToken/DummyERC1155.sol",
       "solcConfig": {
@@ -2922,7 +2788,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/contracts/polygon/child/ChildToken/ChildMintableERC1155.sol": {
-      "lastModificationDate": 1617319865300,
+      "lastModificationDate": 1617383375560,
       "contentHash": "d8244b0f299ae91b3cd105a2d582dd71",
       "sourceName": "contracts/polygon/child/ChildToken/ChildMintableERC1155.sol",
       "solcConfig": {
@@ -2962,7 +2828,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/contracts/polygon/child/ChildToken/IChildToken.sol": {
-      "lastModificationDate": 1617319865302,
+      "lastModificationDate": 1617383375562,
       "contentHash": "2709ebe7f59856f54b734ceb8c8a04f3",
       "sourceName": "contracts/polygon/child/ChildToken/IChildToken.sol",
       "solcConfig": {
@@ -2996,7 +2862,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/contracts/polygon/child/ChildToken/UpgradeableChildERC20/UChildERC20.sol": {
-      "lastModificationDate": 1617319865303,
+      "lastModificationDate": 1617383375564,
       "contentHash": "f7b8fcda68ca5a113fb91540afd80c1b",
       "sourceName": "contracts/polygon/child/ChildToken/UpgradeableChildERC20/UChildERC20.sol",
       "solcConfig": {
@@ -3036,7 +2902,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/contracts/polygon/child/ChildToken/DappTokens/UChildDAI.sol": {
-      "lastModificationDate": 1617319865302,
+      "lastModificationDate": 1617383375561,
       "contentHash": "4c40d267ac751022eca4c6bfa5473078",
       "sourceName": "contracts/polygon/child/ChildToken/DappTokens/UChildDAI.sol",
       "solcConfig": {
@@ -3072,7 +2938,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/contracts/polygon/child/ChildToken/ChildMintableERC721.sol": {
-      "lastModificationDate": 1617319865301,
+      "lastModificationDate": 1617383375561,
       "contentHash": "05e44ce3c666b13bfad0a4423c43f913",
       "sourceName": "contracts/polygon/child/ChildToken/ChildMintableERC721.sol",
       "solcConfig": {
@@ -3112,7 +2978,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/contracts/polygon/child/ChildToken/ChildMintableERC20.sol": {
-      "lastModificationDate": 1617319865301,
+      "lastModificationDate": 1617383375560,
       "contentHash": "f345ac16890c0bbc6ae01fe28cdb4467",
       "sourceName": "contracts/polygon/child/ChildToken/ChildMintableERC20.sol",
       "solcConfig": {
@@ -3152,7 +3018,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/contracts/polygon/child/ChildToken/ChildERC721.sol": {
-      "lastModificationDate": 1617319865300,
+      "lastModificationDate": 1617383375560,
       "contentHash": "b56142564e982d73c06b50c116bce0e5",
       "sourceName": "contracts/polygon/child/ChildToken/ChildERC721.sol",
       "solcConfig": {
@@ -3192,7 +3058,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/contracts/polygon/child/ChildToken/ChildERC20.sol": {
-      "lastModificationDate": 1617319865300,
+      "lastModificationDate": 1617383375560,
       "contentHash": "5f12d7c080344f47e849a5b7a4580b16",
       "sourceName": "contracts/polygon/child/ChildToken/ChildERC20.sol",
       "solcConfig": {
@@ -3232,7 +3098,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/contracts/polygon/child/ChildToken/MaticWETH.sol": {
-      "lastModificationDate": 1617319865302,
+      "lastModificationDate": 1617383375563,
       "contentHash": "28b11dd95ac7f51b80d09aaeb912ca1a",
       "sourceName": "contracts/polygon/child/ChildToken/MaticWETH.sol",
       "solcConfig": {
@@ -3268,7 +3134,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/contracts/polygon/child/ChildToken/ChildERC1155.sol": {
-      "lastModificationDate": 1617319865300,
+      "lastModificationDate": 1617383375559,
       "contentHash": "790cd4c33484baed71561bf8946896c4",
       "sourceName": "contracts/polygon/child/ChildToken/ChildERC1155.sol",
       "solcConfig": {
@@ -3308,7 +3174,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/contracts/polygon/child/ChildChainManager/ChildChainManager.sol": {
-      "lastModificationDate": 1617319865299,
+      "lastModificationDate": 1617383375557,
       "contentHash": "9c27f7fef422b24034a2139fe4737116",
       "sourceName": "contracts/polygon/child/ChildChainManager/ChildChainManager.sol",
       "solcConfig": {
@@ -3349,7 +3215,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/contracts/polygon/child/ChildChainManager/IChildChainManager.sol": {
-      "lastModificationDate": 1617319865299,
+      "lastModificationDate": 1617383375559,
       "contentHash": "cba994a05222c052df8dc246cc1598c9",
       "sourceName": "contracts/polygon/child/ChildChainManager/IChildChainManager.sol",
       "solcConfig": {
@@ -3383,7 +3249,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/contracts/polygon/child/IStateReceiver.sol": {
-      "lastModificationDate": 1617319865303,
+      "lastModificationDate": 1617383375566,
       "contentHash": "36c68ffbeb93822e155321b0a9f6fd1b",
       "sourceName": "contracts/polygon/child/IStateReceiver.sol",
       "solcConfig": {
@@ -3490,7 +3356,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/contracts/polygon/root/RootToken/DummyERC20.sol": {
-      "lastModificationDate": 1617319865308,
+      "lastModificationDate": 1617383375579,
       "contentHash": "186f3c748a99d4c0d663dbe7654cb61b",
       "sourceName": "contracts/polygon/root/RootToken/DummyERC20.sol",
       "solcConfig": {
@@ -3528,7 +3394,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/contracts/polygon/root/TokenPredicates/EtherPredicate.sol": {
-      "lastModificationDate": 1617319865314,
+      "lastModificationDate": 1617383375588,
       "contentHash": "0b4913eccb38907a7ae28fa7d9f6e5e3",
       "sourceName": "contracts/polygon/root/TokenPredicates/EtherPredicate.sol",
       "solcConfig": {
@@ -3567,7 +3433,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/contracts/polygon/tunnel/BaseChildTunnel.sol": {
-      "lastModificationDate": 1617319865319,
+      "lastModificationDate": 1617383375593,
       "contentHash": "444d51effb99c64911282cb592ba061b",
       "sourceName": "contracts/polygon/tunnel/BaseChildTunnel.sol",
       "solcConfig": {
@@ -3603,7 +3469,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/contracts/polygon/tunnel/ChildTunnel.sol": {
-      "lastModificationDate": 1617319865320,
+      "lastModificationDate": 1617383375594,
       "contentHash": "d322673b0ee00146c5de82a8bac70a49",
       "sourceName": "contracts/polygon/tunnel/ChildTunnel.sol",
       "solcConfig": {
@@ -3639,7 +3505,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/contracts/bridges/L2_PolygonMessengerProxy.sol": {
-      "lastModificationDate": 1617319865298,
+      "lastModificationDate": 1617383375554,
       "contentHash": "6e41d6e7113296c57c44a605c768f06d",
       "sourceName": "contracts/bridges/L2_PolygonMessengerProxy.sol",
       "solcConfig": {
@@ -3677,8 +3543,8 @@
       ]
     },
     "/Users/chris/Hop/contracts/contracts/bridges/L2_PolygonBridge.sol": {
-      "lastModificationDate": 1617319865298,
-      "contentHash": "cd0dfb7affa7d40bec220110cd2cc865",
+      "lastModificationDate": 1617415099935,
+      "contentHash": "96f5e5ccf19501e5d0fbc811622f4729",
       "sourceName": "contracts/bridges/L2_PolygonBridge.sol",
       "solcConfig": {
         "version": "0.6.12",
@@ -3751,7 +3617,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/contracts/bridges/L2_OptimismBridge.sol": {
-      "lastModificationDate": 1617319495679,
+      "lastModificationDate": 1617383375553,
       "contentHash": "c1d888a424178a4e1718fbf841cb0c97",
       "sourceName": "contracts/bridges/L2_OptimismBridge.sol",
       "solcConfig": {
@@ -3788,7 +3654,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/contracts/test/Mock_L2_OptimismBridge.sol": {
-      "lastModificationDate": 1617319477572,
+      "lastModificationDate": 1617383375601,
       "contentHash": "8b987a8a5c0404441f4ebd5d6e777737",
       "sourceName": "contracts/test/Mock_L2_OptimismBridge.sol",
       "solcConfig": {
@@ -4002,7 +3868,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/contracts/bridges/L2_ArbitrumBridge.sol": {
-      "lastModificationDate": 1617319495678,
+      "lastModificationDate": 1617383375552,
       "contentHash": "e15bd1bc1e725702185fb1a3b7e087a1",
       "sourceName": "contracts/bridges/L2_ArbitrumBridge.sol",
       "solcConfig": {
@@ -4073,7 +3939,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/contracts/test/Mock_L2_ArbitrumBridge.sol": {
-      "lastModificationDate": 1617319477571,
+      "lastModificationDate": 1617383375600,
       "contentHash": "0a10aeca81acce903235646a1788893e",
       "sourceName": "contracts/test/Mock_L2_ArbitrumBridge.sol",
       "solcConfig": {
@@ -4143,7 +4009,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/contracts/polygon/child/ChildChainManager/ChildChainManagerProxy.sol": {
-      "lastModificationDate": 1617319865299,
+      "lastModificationDate": 1617383375558,
       "contentHash": "75595ac8ddf05a04b0d5288a743ea179",
       "sourceName": "contracts/polygon/child/ChildChainManager/ChildChainManagerProxy.sol",
       "solcConfig": {
@@ -4179,7 +4045,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/contracts/polygon/common/Proxy/UpgradableProxy.sol": {
-      "lastModificationDate": 1617319865305,
+      "lastModificationDate": 1617383375573,
       "contentHash": "67117da80d1377fc19040db1a6e316e7",
       "sourceName": "contracts/polygon/common/Proxy/UpgradableProxy.sol",
       "solcConfig": {
@@ -4215,7 +4081,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/contracts/polygon/common/Proxy/Proxy.sol": {
-      "lastModificationDate": 1617319865305,
+      "lastModificationDate": 1617383375572,
       "contentHash": "162caf4aa1af283f3e561cdffd1db2eb",
       "sourceName": "contracts/polygon/common/Proxy/Proxy.sol",
       "solcConfig": {
@@ -4251,7 +4117,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/contracts/polygon/common/Proxy/IERCProxy.sol": {
-      "lastModificationDate": 1617319865305,
+      "lastModificationDate": 1617383375572,
       "contentHash": "74475e3e84ccf73ae9663afd22a72223",
       "sourceName": "contracts/polygon/common/Proxy/IERCProxy.sol",
       "solcConfig": {
@@ -4285,7 +4151,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/contracts/polygon/root/TokenPredicates/MintableERC721PredicateProxy.sol": {
-      "lastModificationDate": 1617319865318,
+      "lastModificationDate": 1617383375592,
       "contentHash": "e52e79e26691f36c60e146adcf27231e",
       "sourceName": "contracts/polygon/root/TokenPredicates/MintableERC721PredicateProxy.sol",
       "solcConfig": {
@@ -4321,7 +4187,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/contracts/polygon/root/TokenPredicates/MintableERC20PredicateProxy.sol": {
-      "lastModificationDate": 1617319865317,
+      "lastModificationDate": 1617383375590,
       "contentHash": "37f84b5815c45281f889fd250e1911bd",
       "sourceName": "contracts/polygon/root/TokenPredicates/MintableERC20PredicateProxy.sol",
       "solcConfig": {
@@ -4357,7 +4223,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/contracts/polygon/root/TokenPredicates/MintableERC1155PredicateProxy.sol": {
-      "lastModificationDate": 1617319865316,
+      "lastModificationDate": 1617383375590,
       "contentHash": "df808422525c9932b6164c43598820f6",
       "sourceName": "contracts/polygon/root/TokenPredicates/MintableERC1155PredicateProxy.sol",
       "solcConfig": {
@@ -4393,7 +4259,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/contracts/polygon/root/TokenPredicates/EtherPredicateProxy.sol": {
-      "lastModificationDate": 1617319865315,
+      "lastModificationDate": 1617383375588,
       "contentHash": "9db33f9849208b839a8aef04185607ff",
       "sourceName": "contracts/polygon/root/TokenPredicates/EtherPredicateProxy.sol",
       "solcConfig": {
@@ -4429,7 +4295,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/contracts/polygon/root/TokenPredicates/ERC721PredicateProxy.sol": {
-      "lastModificationDate": 1617319865314,
+      "lastModificationDate": 1617383375588,
       "contentHash": "87ed8616953a339ba353159e160295b1",
       "sourceName": "contracts/polygon/root/TokenPredicates/ERC721PredicateProxy.sol",
       "solcConfig": {
@@ -4465,7 +4331,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/contracts/polygon/root/TokenPredicates/ERC20PredicateProxy.sol": {
-      "lastModificationDate": 1617319865313,
+      "lastModificationDate": 1617383375587,
       "contentHash": "6bcfbb77c75d7abb9350c22510bbc8d2",
       "sourceName": "contracts/polygon/root/TokenPredicates/ERC20PredicateProxy.sol",
       "solcConfig": {
@@ -4501,7 +4367,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/contracts/polygon/root/TokenPredicates/ERC1155PredicateProxy.sol": {
-      "lastModificationDate": 1617319865313,
+      "lastModificationDate": 1617383375586,
       "contentHash": "213719c2c94664006dbab9f323d3e76d",
       "sourceName": "contracts/polygon/root/TokenPredicates/ERC1155PredicateProxy.sol",
       "solcConfig": {
@@ -4537,7 +4403,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/contracts/polygon/root/RootChainManager/RootChainManagerProxy.sol": {
-      "lastModificationDate": 1617319865308,
+      "lastModificationDate": 1617383375578,
       "contentHash": "01756015be234c6030be088c78788830",
       "sourceName": "contracts/polygon/root/RootChainManager/RootChainManagerProxy.sol",
       "solcConfig": {
@@ -4573,7 +4439,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/contracts/polygon/child/ChildToken/UpgradeableChildERC20/UChildERC20Proxy.sol": {
-      "lastModificationDate": 1617319865303,
+      "lastModificationDate": 1617383375565,
       "contentHash": "543cfaf7c78bf1f55031dccb113e1b75",
       "sourceName": "contracts/polygon/child/ChildToken/UpgradeableChildERC20/UChildERC20Proxy.sol",
       "solcConfig": {
@@ -4609,7 +4475,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/contracts/polygon/Migrations.sol": {
-      "lastModificationDate": 1617319865299,
+      "lastModificationDate": 1617383375556,
       "contentHash": "2163b5e46783801c9ea8f9ac44cf178e",
       "sourceName": "contracts/polygon/Migrations.sol",
       "solcConfig": {
@@ -4849,7 +4715,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/node_modules/@openzeppelin/contracts/token/ERC20/SafeERC20.sol": {
-      "lastModificationDate": 1617342496572,
+      "lastModificationDate": 1617651757463,
       "contentHash": "33e22842646d746e5c4124c2fdc051aa",
       "sourceName": "@openzeppelin/contracts/token/ERC20/SafeERC20.sol",
       "solcConfig": {
@@ -4887,7 +4753,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/node_modules/@openzeppelin/contracts/token/ERC20/IERC20.sol": {
-      "lastModificationDate": 1617342496569,
+      "lastModificationDate": 1617651757372,
       "contentHash": "e0a41531d159d3a32f84b7a3ecf9fabb",
       "sourceName": "@openzeppelin/contracts/token/ERC20/IERC20.sol",
       "solcConfig": {
@@ -4921,7 +4787,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/node_modules/@openzeppelin/contracts/math/SafeMath.sol": {
-      "lastModificationDate": 1617342496572,
+      "lastModificationDate": 1617651757468,
       "contentHash": "e03e12206057e809eb76c5f681170c32",
       "sourceName": "@openzeppelin/contracts/math/SafeMath.sol",
       "solcConfig": {
@@ -4955,7 +4821,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/node_modules/@openzeppelin/contracts/utils/Address.sol": {
-      "lastModificationDate": 1617342496866,
+      "lastModificationDate": 1617651785135,
       "contentHash": "f1711f11fb9daf722426d10d36edb6e8",
       "sourceName": "@openzeppelin/contracts/utils/Address.sol",
       "solcConfig": {
@@ -4991,7 +4857,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/node_modules/@openzeppelin/contracts/token/ERC721/IERC721.sol": {
-      "lastModificationDate": 1617342496569,
+      "lastModificationDate": 1617651757378,
       "contentHash": "e82621b83943f11c44988c60e83d6ebc",
       "sourceName": "@openzeppelin/contracts/token/ERC721/IERC721.sol",
       "solcConfig": {
@@ -5027,7 +4893,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/node_modules/@openzeppelin/contracts/introspection/IERC165.sol": {
-      "lastModificationDate": 1617342496568,
+      "lastModificationDate": 1617651757362,
       "contentHash": "0d62a8380952235f135dae91590f90a3",
       "sourceName": "@openzeppelin/contracts/introspection/IERC165.sol",
       "solcConfig": {
@@ -5061,7 +4927,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/node_modules/@openzeppelin/contracts/token/ERC1155/ERC1155Receiver.sol": {
-      "lastModificationDate": 1617342496559,
+      "lastModificationDate": 1617651757228,
       "contentHash": "69c3911c0b2e8ed32652765179023865",
       "sourceName": "@openzeppelin/contracts/token/ERC1155/ERC1155Receiver.sol",
       "solcConfig": {
@@ -5098,7 +4964,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/node_modules/@openzeppelin/contracts/token/ERC1155/IERC1155Receiver.sol": {
-      "lastModificationDate": 1617342496568,
+      "lastModificationDate": 1617651757355,
       "contentHash": "27af002e8fc1118d099c99fc8852bb73",
       "sourceName": "@openzeppelin/contracts/token/ERC1155/IERC1155Receiver.sol",
       "solcConfig": {
@@ -5134,7 +5000,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/node_modules/@openzeppelin/contracts/introspection/ERC165.sol": {
-      "lastModificationDate": 1617342496559,
+      "lastModificationDate": 1617651757231,
       "contentHash": "08f854e2dd3c262845bba38c9b48e4e0",
       "sourceName": "@openzeppelin/contracts/introspection/ERC165.sol",
       "solcConfig": {
@@ -5170,7 +5036,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/node_modules/@openzeppelin/contracts/token/ERC721/ERC721.sol": {
-      "lastModificationDate": 1617342496563,
+      "lastModificationDate": 1617651757291,
       "contentHash": "2d9804eb2b6f41ea0a65115e154d90eb",
       "sourceName": "@openzeppelin/contracts/token/ERC721/ERC721.sol",
       "solcConfig": {
@@ -5216,7 +5082,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/node_modules/@openzeppelin/contracts/utils/Context.sol": {
-      "lastModificationDate": 1617342496557,
+      "lastModificationDate": 1617651757173,
       "contentHash": "2adbd82f6d055a4751566d4671512b03",
       "sourceName": "@openzeppelin/contracts/utils/Context.sol",
       "solcConfig": {
@@ -5250,7 +5116,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/node_modules/@openzeppelin/contracts/token/ERC721/IERC721Metadata.sol": {
-      "lastModificationDate": 1617342496569,
+      "lastModificationDate": 1617651757384,
       "contentHash": "370e7a48f316401b5063bcb604843e1b",
       "sourceName": "@openzeppelin/contracts/token/ERC721/IERC721Metadata.sol",
       "solcConfig": {
@@ -5286,7 +5152,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/node_modules/@openzeppelin/contracts/token/ERC721/IERC721Enumerable.sol": {
-      "lastModificationDate": 1617342496569,
+      "lastModificationDate": 1617651757381,
       "contentHash": "eaebc3874248c26f6ea0b13b9a140a94",
       "sourceName": "@openzeppelin/contracts/token/ERC721/IERC721Enumerable.sol",
       "solcConfig": {
@@ -5322,7 +5188,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/node_modules/@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol": {
-      "lastModificationDate": 1617342496569,
+      "lastModificationDate": 1617651757386,
       "contentHash": "fad0b3f4424bdbb4b35467b29ea8d334",
       "sourceName": "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol",
       "solcConfig": {
@@ -5356,7 +5222,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/node_modules/@openzeppelin/contracts/utils/EnumerableSet.sol": {
-      "lastModificationDate": 1617342496558,
+      "lastModificationDate": 1617651757197,
       "contentHash": "db7b1afdb2c204e1e52100b79f0c847e",
       "sourceName": "@openzeppelin/contracts/utils/EnumerableSet.sol",
       "solcConfig": {
@@ -5390,7 +5256,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/node_modules/@openzeppelin/contracts/utils/EnumerableMap.sol": {
-      "lastModificationDate": 1617342496558,
+      "lastModificationDate": 1617651757189,
       "contentHash": "b1bb8570824c668943149211d74d6c51",
       "sourceName": "@openzeppelin/contracts/utils/EnumerableMap.sol",
       "solcConfig": {
@@ -5424,7 +5290,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/node_modules/@openzeppelin/contracts/utils/Strings.sol": {
-      "lastModificationDate": 1617342496572,
+      "lastModificationDate": 1617651757480,
       "contentHash": "c86a31bacf868d392eda08a0eccc4735",
       "sourceName": "@openzeppelin/contracts/utils/Strings.sol",
       "solcConfig": {
@@ -5458,7 +5324,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/node_modules/@openzeppelin/contracts/token/ERC20/ERC20.sol": {
-      "lastModificationDate": 1617342496560,
+      "lastModificationDate": 1617651757256,
       "contentHash": "8065b340476f61365c076897199425f1",
       "sourceName": "@openzeppelin/contracts/token/ERC20/ERC20.sol",
       "solcConfig": {
@@ -5496,7 +5362,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/node_modules/@eth-optimism/contracts/build/contracts/iOVM/bridge/messaging/iAbs_BaseCrossDomainMessenger.sol": {
-      "lastModificationDate": 1617341471584,
+      "lastModificationDate": 1617651764408,
       "contentHash": "20040560f1576b8e63be50562ea5b1d0",
       "sourceName": "@eth-optimism/contracts/build/contracts/iOVM/bridge/messaging/iAbs_BaseCrossDomainMessenger.sol",
       "solcConfig": {
@@ -5530,7 +5396,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/node_modules/@openzeppelin/contracts/proxy/Clones.sol": {
-      "lastModificationDate": 1617342496557,
+      "lastModificationDate": 1617651757148,
       "contentHash": "fc407ad42a493624854f6b33c44e9b00",
       "sourceName": "@openzeppelin/contracts/proxy/Clones.sol",
       "solcConfig": {
@@ -5564,7 +5430,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/node_modules/@openzeppelin/contracts/access/Ownable.sol": {
-      "lastModificationDate": 1617342496570,
+      "lastModificationDate": 1617651757421,
       "contentHash": "6748815a5b45c4aeeda56819f41190e0",
       "sourceName": "@openzeppelin/contracts/access/Ownable.sol",
       "solcConfig": {
@@ -5600,7 +5466,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/node_modules/@openzeppelin/contracts/token/ERC1155/ERC1155.sol": {
-      "lastModificationDate": 1617342496558,
+      "lastModificationDate": 1617651757208,
       "contentHash": "33407bb7ff4811650cd1c328e646e55d",
       "sourceName": "@openzeppelin/contracts/token/ERC1155/ERC1155.sol",
       "solcConfig": {
@@ -5642,7 +5508,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/node_modules/@openzeppelin/contracts/token/ERC1155/IERC1155.sol": {
-      "lastModificationDate": 1617342496568,
+      "lastModificationDate": 1617651757347,
       "contentHash": "cb9dc62067a205eeab4f390c72c7fe14",
       "sourceName": "@openzeppelin/contracts/token/ERC1155/IERC1155.sol",
       "solcConfig": {
@@ -5678,7 +5544,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/node_modules/@openzeppelin/contracts/token/ERC1155/IERC1155MetadataURI.sol": {
-      "lastModificationDate": 1617342496568,
+      "lastModificationDate": 1617651757352,
       "contentHash": "9a313e25e2a837a50f7ae87017539457",
       "sourceName": "@openzeppelin/contracts/token/ERC1155/IERC1155MetadataURI.sol",
       "solcConfig": {
@@ -5713,8 +5579,42 @@
         "IERC1155MetadataURI"
       ]
     },
+    "/Users/chris/Hop/contracts/node_modules/@openzeppelin/contracts/GSN/Context.sol": {
+      "lastModificationDate": 1617651757161,
+      "contentHash": "a02aa4ae53018d92603a3ead2c365958",
+      "sourceName": "@openzeppelin/contracts/GSN/Context.sol",
+      "solcConfig": {
+        "version": "0.7.0",
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 1
+          },
+          "outputSelection": {
+            "*": {
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers"
+              ],
+              "": [
+                "ast"
+              ]
+            }
+          }
+        }
+      },
+      "imports": [
+        "../utils/Context.sol"
+      ],
+      "versionPragmas": [
+        ">=0.6.0 <0.8.0"
+      ],
+      "artifacts": []
+    },
     "/Users/chris/Hop/contracts/node_modules/@openzeppelin/contracts/access/AccessControl.sol": {
-      "lastModificationDate": 1617342496556,
+      "lastModificationDate": 1617651757125,
       "contentHash": "54eb0b53c109558e8312811342e95bf0",
       "sourceName": "@openzeppelin/contracts/access/AccessControl.sol",
       "solcConfig": {
@@ -5752,7 +5652,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/node_modules/@openzeppelin/contracts/token/ERC20/ERC20Burnable.sol": {
-      "lastModificationDate": 1617342496560,
+      "lastModificationDate": 1617651757262,
       "contentHash": "1603b7aab78c87467dde869fd19ec86b",
       "sourceName": "@openzeppelin/contracts/token/ERC20/ERC20Burnable.sol",
       "solcConfig": {
@@ -5789,7 +5689,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/node_modules/@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol": {
-      "lastModificationDate": 1617342496569,
+      "lastModificationDate": 1617651757415,
       "contentHash": "008d2d730bc1f24f3c0fafa29b7a0bd2",
       "sourceName": "@openzeppelin/contracts-upgradeable/utils/ReentrancyGuardUpgradeable.sol",
       "solcConfig": {
@@ -5825,7 +5725,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/node_modules/@openzeppelin/contracts-upgradeable/proxy/Initializable.sol": {
-      "lastModificationDate": 1617342496567,
+      "lastModificationDate": 1617651757376,
       "contentHash": "71b3ac8d4da61bb6c6708c12f56e3c1f",
       "sourceName": "@openzeppelin/contracts-upgradeable/proxy/Initializable.sol",
       "solcConfig": {
@@ -5861,7 +5761,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/node_modules/@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol": {
-      "lastModificationDate": 1617342496554,
+      "lastModificationDate": 1617651757114,
       "contentHash": "aa72beb3bf14f8394b4a8a292d66589c",
       "sourceName": "@openzeppelin/contracts-upgradeable/utils/AddressUpgradeable.sol",
       "solcConfig": {
@@ -5895,7 +5795,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/node_modules/@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol": {
-      "lastModificationDate": 1617342496568,
+      "lastModificationDate": 1617651757405,
       "contentHash": "a98b8522414f12c1b8fc7b2685278399",
       "sourceName": "@openzeppelin/contracts-upgradeable/utils/PausableUpgradeable.sol",
       "solcConfig": {
@@ -5932,7 +5832,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/node_modules/@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol": {
-      "lastModificationDate": 1617342496554,
+      "lastModificationDate": 1617651757134,
       "contentHash": "9f901c17a18eadc08042b6a510da3b7d",
       "sourceName": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol",
       "solcConfig": {
@@ -5968,7 +5868,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/node_modules/@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol": {
-      "lastModificationDate": 1617342496568,
+      "lastModificationDate": 1617651757400,
       "contentHash": "91a7735bfcbb48c7482f10f1083a8ed8",
       "sourceName": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol",
       "solcConfig": {
@@ -6005,7 +5905,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/node_modules/@openzeppelin/contracts/utils/ReentrancyGuard.sol": {
-      "lastModificationDate": 1617342496571,
+      "lastModificationDate": 1617651757455,
       "contentHash": "1c60f58cee45c61469e1aea31e4dd879",
       "sourceName": "@openzeppelin/contracts/utils/ReentrancyGuard.sol",
       "solcConfig": {
@@ -6179,7 +6079,7 @@
       ]
     },
     "/Users/chris/Hop/contracts/node_modules/@openzeppelin/contracts/cryptography/MerkleProof.sol": {
-      "lastModificationDate": 1617342496570,
+      "lastModificationDate": 1617651757418,
       "contentHash": "44bd823687d58263d3b1da555235f93e",
       "sourceName": "@openzeppelin/contracts/cryptography/MerkleProof.sol",
       "solcConfig": {

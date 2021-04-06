@@ -47,8 +47,8 @@ interface INetworkParams extends IGeneralData, ISpecificData {
 // $ npm run deploy -- optimism sETH
 async function main () {
   logger.log('deploy script initiated')
-  const networkName: string = process.argv[2]
-  const tokenSymbol: string = process.argv[3]
+  const networkName: string = process.argv[2].toLowerCase()
+  const tokenSymbol: string = process.argv[3].toLowerCase()
 
   if (!networkName) {
     throw new Error('network name not specified')
@@ -256,7 +256,6 @@ function setNetworkParams (networkName: string, tokenSymbol: string) {
         l2_swapLpTokenSymbol: 'HOP-LP-sBTC'
       }
     } else if (tokenSymbol === COMMON_SYMBOLS.USDC) {
-      console.log('COMMON_SYMBOLS.USDC')
       specificData = {
         l1_canonicalTokenAddress: l1CanonicalTokenAddresses.USDC,
         l2_canonicalTokenAddress: '0x452AED3fdB2E83A1352624321629180aB1489Dd0',

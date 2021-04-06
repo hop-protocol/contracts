@@ -115,7 +115,7 @@ export async function deployL2 (config: Config) {
     L2_Bridge,
     L2_Swap,
     L2_AmmWrapper
-  } = await getContractFactories(l2_chainId, owner, ethers, ovmEthers))
+  } = await getContractFactories(l2_chainId, owner, ethers))
 
   logger.log('attaching deployed contracts')
   // Attach already deployed contracts

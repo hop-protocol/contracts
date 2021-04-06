@@ -3,7 +3,6 @@ require('dotenv').config()
 import '@nomiclabs/hardhat-ethers'
 import '@nomiclabs/hardhat-waffle'
 import '@eth-optimism/plugins/hardhat/compiler'
-// import '@eth-optimism/plugins/hardhat/ethers'
 
 import 'hardhat-abi-exporter'
 

@@ -114,7 +114,7 @@ export async function setupL1 (config: Config) {
     L1_Messenger,
     L1_MessengerWrapper,
     L2_Bridge
-  } = await getContractFactories(l2_chainId, owner, ethers, ovmEthers))
+  } = await getContractFactories(l2_chainId, owner, ethers))
 
   logger.log('attaching deployed contracts')
   // Attach already deployed contracts
@@ -263,8 +263,7 @@ export async function setupL1 (config: Config) {
       amountOutMin,
       deadline,
       ZERO_ADDRESS,
-      relayerFee,
-      { gasLimit: 500000 }
+      relayerFee
     )
   await tx.wait()
   await waitAfterTransaction()
