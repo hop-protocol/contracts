@@ -26,10 +26,12 @@ abstract contract Accounting {
     mapping(address => uint256) private _debit;
 
     event Stake (
+        address account,
         uint256 amount
     );
 
     event Unstake (
+        address account,
         uint256 amount
     );
 
@@ -124,6 +126,8 @@ abstract contract Accounting {
         require(_isBonder[bonder] == true, "ACT: Address is not bonder");
         _transferToBridge(msg.sender, amount);
         _addCredit(bonder, amount);
+
+        emit Stake(bonder, amount);
     }
 
     /**
@@ -133,6 +137,8 @@ abstract contract Accounting {
     function unstake(uint256 amount) external requirePositiveBalance {
         _addDebit(msg.sender, amount);
         _transferFromBridge(msg.sender, amount);
+
+        emit Unstake(msg.sender, amount);
     }
 
     /**
