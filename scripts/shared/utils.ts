@@ -6,7 +6,8 @@ import { ContractFactory, Contract, BigNumber, Signer } from 'ethers'
 import {
   isChainIdOptimism,
   isChainIdArbitrum,
-  isChainIdXDai
+  isChainIdXDai,
+  isChainIdPolygon
 } from '../../config/utils'
 
 export const getContractFactories = async (
@@ -67,6 +68,8 @@ const getNetworkSpecificFactories = async (
     return getArbitrumContractFactories(signer, ethers)
   } else if (isChainIdXDai(chainId)) {
     return getXDaiContractFactories(signer, ethers)
+  } else if (isChainIdPolygon(chainId)) {
+    return getPolygonContractFactories(signer, ethers)
   } else {
     return {
       L1_TokenBridge: null,
@@ -274,6 +277,10 @@ const getXDaiContractFactories = async (signer: Signer, ethers: any) => {
   }
 }
 
+const getPolygonContractFactories = async (signer: Signer, ethers: any) => {
+  // TODO: Polygon Contract Factories
+}
+
 export const sendChainSpecificBridgeDeposit = async (
   chainId: BigNumber,
   sender: Signer,
@@ -311,6 +318,8 @@ export const sendChainSpecificBridgeDeposit = async (
         amount
       )
     await tx.wait()
+  } else if (isChainIdXDai(chainId)) {
+    // TODO: Polygon Bridge Deposit
   } else {
     throw new Error(`Unsupported chain ID "${chainId}"`)
   }

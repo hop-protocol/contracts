@@ -64,7 +64,7 @@ import {
   DEFAULT_RELAYER_FEE
 } from '../../config/constants'
 
-describe.skip('L2_Polygon_Bridge', () => {
+describe('L2_Polygon_Bridge', () => {
   let _fixture: IFixture
   let l1ChainId: BigNumber
   let l2ChainId: BigNumber
@@ -101,7 +101,7 @@ describe.skip('L2_Polygon_Bridge', () => {
     beforeAllSnapshotId = await takeSnapshot()
 
     l1ChainId = CHAIN_IDS.ETHEREUM.KOVAN
-    // l2ChainId = CHAIN_IDS.POLYGON.MUMBAI
+    l2ChainId = CHAIN_IDS.POLYGON.MUMBAI
 
     _fixture = await fixture(l1ChainId, l2ChainId)
     await setUpDefaults(_fixture, l2ChainId)

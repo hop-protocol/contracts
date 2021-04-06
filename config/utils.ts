@@ -37,6 +37,8 @@ export const getMessengerWrapperDefaults = (
     const isAmbL1: boolean = true
     const ambAddress: string = getXDaiAmbAddresses(isAmbL1)
     additionalData.push(chainId.toString(), ambAddress)
+  } else if (isChainIdPolygon(chainId)) {
+    // TODO: Polygon Wrapper Defaults
   }
 
   defaults.push(l1BridgeAddress, l2BridgeAddress, gasLimit, l1MessengerAddress)
@@ -63,6 +65,7 @@ export const getL2BridgeDefaults = (
   let additionalData = []
 
   if (isChainIdArbitrum(chainId)) {
+    // No additional data needed
   } else if (isChainIdOptimism(chainId)) {
     const defaultGasLimit = DEFAULT_L2_BRIDGE_GAS_LIMIT
     additionalData.push(defaultGasLimit)
@@ -71,6 +74,8 @@ export const getL2BridgeDefaults = (
       l1ChainId,
       DEFAULT_L2_BRIDGE_GAS_LIMIT
     )
+  } else if (isChainIdPolygon(chainId)) {
+    // No additional data needed
   }
 
   defaults.push(
@@ -115,6 +120,14 @@ export const isChainIdArbitrum = (chainId: BigNumber): boolean => {
 
 export const isChainIdXDai = (chainId: BigNumber): boolean => {
   if (chainId.eq(CHAIN_IDS.XDAI.SOKOL)) {
+    return true
+  }
+
+  return false
+}
+
+export const isChainIdPolygon = (chainId: BigNumber): boolean => {
+  if (chainId.eq(CHAIN_IDS.POLYGON.MUMBAI)) {
     return true
   }
 

@@ -16,7 +16,8 @@ import {
 import {
   isChainIdOptimism,
   isChainIdArbitrum,
-  isChainIdXDai
+  isChainIdXDai,
+  isChainIdPolygon
 } from '../../config/utils'
 import {
   CHAIN_IDS,
@@ -70,6 +71,8 @@ export const executeCanonicalMessengerSendMessage = async (
     await l1_messenger.connect(sender).sendMessage(...params)
   } else if (isChainIdXDai(l2ChainId)) {
     await l1_messenger.connect(sender).requireToPassMessage(...params)
+  } else if (isChainIdPolygon(l2ChainId)) {
+    // TODO: Polygon Canonical Messenger
   } else {
     await l1_messenger.connect(sender).sendMessage(...params)
   }

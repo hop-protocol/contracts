@@ -19,6 +19,9 @@ export const CHAIN_IDS: any = {
   },
   XDAI: {
     SOKOL: BigNumber.from('77')
+  },
+  POLYGON: {
+    MUMBAI: BigNumber.from('80001')
   }
 }
 

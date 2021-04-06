@@ -35,7 +35,8 @@ import { IFixture } from './interfaces'
 import {
   isChainIdOptimism,
   isChainIdArbitrum,
-  isChainIdXDai
+  isChainIdXDai,
+  isChainIdPolygon
 } from '../../config/utils'
 
 /**
@@ -343,6 +344,8 @@ export const getL2SpecificArtifact = (chainId: BigNumber) => {
     l2_bridgeArtifact = 'Mock_L2_XDaiBridge.sol:Mock_L2_XDaiBridge'
     l1_messengerWrapperArtifact =
       'XDaiMessengerWrapper.sol:XDaiMessengerWrapper'
+  } else if (isChainIdPolygon(chainId)) {
+    // TODO: Polygon Specific Artifacts
   }
 
   return {

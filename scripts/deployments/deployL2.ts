@@ -13,8 +13,6 @@ import {
 } from '../shared/utils'
 
 import {
-  isChainIdOptimism,
-  isChainIdArbitrum,
   isChainIdXDai,
   getL2BridgeDefaults
 } from '../../config/utils'

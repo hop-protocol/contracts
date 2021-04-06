@@ -1,7 +1,6 @@
 require('dotenv').config()
 import { ethers, l2ethers } from 'hardhat'
 import { BigNumber } from 'ethers'
-import { isChainIdOptimism } from '../../config/utils'
 
 // NOTE: This works with both L1 and L2. Specify the network in the CLI.
 // Example usage:
@@ -19,8 +18,7 @@ async function main () {
   const signer = (await ethers.getSigners())[0]
   console.log('signer:', await signer.getAddress())
 
-  const ethersForFactory = isChainIdOptimism(BigNumber.from(network.chainId)) ? l2ethers : ethers
-  const MockERC20 = await ethersForFactory.getContractFactory(
+  const MockERC20 = await ethers.getContractFactory(
     'contracts/test/MockERC20.sol:MockERC20',
     { signer }
   )
