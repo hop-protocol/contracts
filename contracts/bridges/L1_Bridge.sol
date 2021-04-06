@@ -90,8 +90,8 @@ abstract contract L1_Bridge is Bridge {
      * @param recipient The address receiving funds at the destination
      * @param amount The amount being sent
      * @param amountOutMin The minimum amount received after attempting to swap in the destination
-     * Uniswap market. 0 if no swap is intended.
-     * @param deadline The deadline for swapping in the destination Uniswap market. 0 if no
+     * AMM market. 0 if no swap is intended.
+     * @param deadline The deadline for swapping in the destination AMM market. 0 if no
      * swap is intended.
      * @param relayer The address of the at the destination.
      * @param relayerFee The amount distributed to the relayer at the destination. This is subtracted from the `amount`.

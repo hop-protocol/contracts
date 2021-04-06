@@ -76,8 +76,8 @@ abstract contract Bridge is Accounting {
      * @param transferNonce Used to avoid transferId collisions
      * @param bonderFee The amount paid to the address that withdraws the Transfer
      * @param amountOutMin The minimum amount received after attempting to swap in the destination
-     * Uniswap market. 0 if no swap is intended.
-     * @param deadline The deadline for swapping in the destination Uniswap market. 0 if no
+     * AMM market. 0 if no swap is intended.
+     * @param deadline The deadline for swapping in the destination AMM market. 0 if no
      * swap is intended.
      */
     function getTransferId(
@@ -165,8 +165,8 @@ abstract contract Bridge is Accounting {
      * @param transferNonce Used to avoid transferId collisions
      * @param bonderFee The amount paid to the address that withdraws the Transfer
      * @param amountOutMin The minimum amount received after attempting to swap in the destination
-     * Uniswap market. 0 if no swap is intended. (only used to calculate `transferId` in this function)
-     * @param deadline The deadline for swapping in the destination Uniswap market. 0 if no
+     * AMM market. 0 if no swap is intended. (only used to calculate `transferId` in this function)
+     * @param deadline The deadline for swapping in the destination AMM market. 0 if no
      * swap is intended. (only used to calculate `transferId` in this function)
      * @param rootHash The Merkle root of the TransferRoot
      * @param transferRootTotalAmount The total amount being transferred in a TransferRoot

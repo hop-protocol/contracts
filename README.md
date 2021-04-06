@@ -138,12 +138,12 @@ Please see [`./config/addresses.ts`](https://github.com/hop-exchange/contracts/b
 
 ## Token Path
 
-On Hop, tokens are always converted along the following path. To convert DAI to Arbitrum DAI, DAI (on layer-1) is first converted to hDAI (on layer-2) using the layer-1 Hop Bridge. Then the hDAI is swapped for Arbitrum DAI through the Uniswap market. This can be done in one transaction by calling `sendToL2AndAttemptSwap`.
+On Hop, tokens are always converted along the following path. To convert DAI to Arbitrum DAI, DAI (on layer-1) is first converted to hDAI (on layer-2) using the layer-1 Hop Bridge. Then the hDAI is swapped for Arbitrum DAI through the AMM market. This can be done in one transaction by calling `sendToL2AndAttemptSwap`.
 
 ```
       Layer 1          |      Layer 2
                        |
-Canonical L1 Token <---|---> hToken <--(Uniswap)--> Canonical L2 Token
+Canonical L1 Token <---|---> hToken <--(AMM)--> Canonical L2 Token
                        |
 ```
 
@@ -152,7 +152,7 @@ e.g.
 ```
       Layer 1          |      Layer 2
                        |
-DAI <--------------<---|---> hDAI <----(Uniswap)--> Arbitrum DAI
+DAI <--------------<---|---> hDAI <----(AMM)--> Arbitrum DAI
                        |
 ```
 

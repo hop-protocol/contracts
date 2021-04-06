@@ -97,8 +97,8 @@ abstract contract L2_Bridge is Bridge, ReentrancyGuard {
      * @param amount The amount being sent
      * @param bonderFee The amount distributed to the Bonder at the destination. This is subtracted from the `amount`.
      * @param amountOutMin The minimum amount received after attempting to swap in the destination
-     * Uniswap market. 0 if no swap is intended.
-     * @param deadline The deadline for swapping in the destination Uniswap market. 0 if no
+     * AMM market. 0 if no swap is intended.
+     * @param deadline The deadline for swapping in the destination AMM market. 0 if no
      * swap is intended.
      */
     function send(
@@ -161,12 +161,12 @@ abstract contract L2_Bridge is Bridge, ReentrancyGuard {
     }
 
     /**
-     * @dev Mints new hTokens for the recipient and optionally swaps them in the Uniswap market.
+     * @dev Mints new hTokens for the recipient and optionally swaps them in the AMM market.
      * @param recipient The address receiving funds
      * @param amount The amount being distributed
      * @param amountOutMin The minimum amount received after attempting to swap in the destination
-     * Uniswap market. 0 if no swap is intended.
-     * @param deadline The deadline for swapping in the Uniswap market. 0 if no
+     * AMM market. 0 if no swap is intended.
+     * @param deadline The deadline for swapping in the AMM market. 0 if no
      * swap is intended.
      * @param relayer The address of the relayer.
      * @param relayerFee The amount distributed to the relayer. This is subtracted from the `amount`.
@@ -194,8 +194,8 @@ abstract contract L2_Bridge is Bridge, ReentrancyGuard {
      * @param transferNonce Used to avoid transferId collisions
      * @param bonderFee The amount paid to the address that withdraws the Transfer
      * @param amountOutMin The minimum amount received after attempting to swap in the
-     * Uniswap market. 0 if no swap is intended.
-     * @param deadline The deadline for swapping in the Uniswap market. 0 if no
+     * AMM market. 0 if no swap is intended.
+     * @param deadline The deadline for swapping in the AMM market. 0 if no
      * swap is intended.
      */
     function bondWithdrawalAndDistribute(
