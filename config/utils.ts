@@ -7,7 +7,8 @@ import {
   CHAIN_IDS,
   DEFAULT_MESSENGER_WRAPPER_GAS_LIMIT,
   DEFAULT_MESSENGER_WRAPPER_GAS_PRICE,
-  DEFAULT_MESSENGER_WRAPPER_GAS_CALL_VALUE
+  DEFAULT_MESSENGER_WRAPPER_GAS_CALL_VALUE,
+  DEFAULT_L2_BRIDGE_GAS_LIMIT
 } from './constants'
 
 export const getMessengerWrapperDefaults = (
@@ -63,10 +64,13 @@ export const getL2BridgeDefaults = (
 
   if (isChainIdArbitrum(chainId)) {
   } else if (isChainIdOptimism(chainId)) {
-    const defaultGasLimit = DEFAULT_MESSENGER_WRAPPER_GAS_LIMIT
+    const defaultGasLimit = DEFAULT_L2_BRIDGE_GAS_LIMIT
     additionalData.push(defaultGasLimit)
   } else if (isChainIdXDai(chainId)) {
-    additionalData.push(l1ChainId)
+    additionalData.push(
+      l1ChainId,
+      DEFAULT_L2_BRIDGE_GAS_LIMIT
+    )
   }
 
   defaults.push(
