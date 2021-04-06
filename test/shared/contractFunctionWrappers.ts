@@ -1143,6 +1143,12 @@ export const getRemoveBonderMessage = (
   ])
 }
 
+export const getSetL1GovernanceMessage = (l1_governanceAddress: string) => {
+  const ABI = ['function setL1Governance(address _l1Governance)']
+  const ethersInterface = new ethersUtils.Interface(ABI)
+  return ethersInterface.encodeFunctionData('setL1Governance', [l1_governanceAddress])
+}
+
 export const getSetL1BridgeAddressMessage = (l1_bridge: Contract | string) => {
   const address = getAddressFromContractOrString(l1_bridge)
   const ABI = ['function setL1BridgeAddress(address _l1BridgeAddress)']
@@ -1172,13 +1178,13 @@ export const getSetAmmWrapperAddressMessage = (
   return ethersInterface.encodeFunctionData('setAmmWrapper', [address])
 }
 
-export const getSetMessengerGasLimitMessage = (
-  messengerGasLimit: BigNumber
+export const getSetDefaultGasLimitMessage = (
+  defaultGasLimit: BigNumber
 ) => {
-  const ABI = ['function setMessengerGasLimit(uint256 _messengerGasLimit)']
+  const ABI = ['function setDefaultGasLimit(uint256 _defaultGasLimit)']
   const ethersInterface = new ethersUtils.Interface(ABI)
-  return ethersInterface.encodeFunctionData('setMessengerGasLimit', [
-    messengerGasLimit
+  return ethersInterface.encodeFunctionData('setDefaultGasLimit', [
+    defaultGasLimit
   ])
 }
 
@@ -1247,14 +1253,6 @@ export const getSetMessengerMessage = (
   const ABI = ['function setMessenger(address _messenger)']
   const ethersInterface = new ethersUtils.Interface(ABI)
   return ethersInterface.encodeFunctionData('setMessenger', [address])
-}
-
-export const getSetDefaultGasLimitMessage = (
-  defaultGasLimit: BigNumber
-) => {
-  const ABI = ['function setDefaultGasLimit(address _defaultGasLimit)']
-  const ethersInterface = new ethersUtils.Interface(ABI)
-  return ethersInterface.encodeFunctionData('setDefaultGasLimit', [defaultGasLimit])
 }
 
 export const getSetMessengerProxyMessage = (

@@ -101,8 +101,7 @@ describe.skip('L2_Polygon_Bridge', () => {
     beforeAllSnapshotId = await takeSnapshot()
 
     l1ChainId = CHAIN_IDS.ETHEREUM.KOVAN
-    // TODO: Reintroduce this when appropriate
-    // l2ChainId = CHAIN_IDS.POLYGON.TESTNET
+    // l2ChainId = CHAIN_IDS.POLYGON.MUMBAI
 
     _fixture = await fixture(l1ChainId, l2ChainId)
     await setUpDefaults(_fixture, l2ChainId)

@@ -29,7 +29,6 @@ abstract contract L2_Bridge is Bridge, ReentrancyGuard {
     IERC20 public l2CanonicalToken;
     mapping(uint256 => bool) public supportedChainIds;
     uint256 public minimumForceCommitDelay = 4 hours;
-    uint256 public messengerGasLimit = 250000;
     uint256 public maxPendingTransfers = 100;
     uint256 public minBonderBps = 2;
     uint256 public minBonderFeeAbsolute = 0;
@@ -114,7 +113,7 @@ abstract contract L2_Bridge is Bridge, ReentrancyGuard {
     {
         require(amount > 0, "L2_BRG: Must transfer a non-zero amount");
         require(amount >= bonderFee, "L2_BRG: Bonder fee cannot exceed amount");
-        require(supportedChainIds[chainId], "L2_BRG: _chainId is not supported");
+        require(supportedChainIds[chainId], "L2_BRG: chainId is not supported");
         uint256 minBonderFeeRelative = amount.mul(minBonderBps).div(10000);
         // Get the max of minBonderFeeRelative and minBonderFeeAbsolute
         uint256 minBonderFee = minBonderFeeRelative > minBonderFeeAbsolute ? minBonderFeeRelative : minBonderFeeAbsolute;
@@ -302,6 +301,10 @@ abstract contract L2_Bridge is Bridge, ReentrancyGuard {
 
     /* ========== External Config Management Functions ========== */
 
+    function setL1Governance(address _l1Governance) external onlyGovernance {
+        l1Governance = _l1Governance;
+    }
+
     function setAmmWrapper(L2_AmmWrapper _ammWrapper) external onlyGovernance {
         ammWrapper = _ammWrapper;
     }
@@ -312,10 +315,6 @@ abstract contract L2_Bridge is Bridge, ReentrancyGuard {
 
     function setL1MessengerWrapperAddress(address _l1MessengerWrapperAddress) external onlyGovernance {
         l1MessengerWrapperAddress = _l1MessengerWrapperAddress;
-    }
-
-    function setMessengerGasLimit(uint256 _messengerGasLimit) external onlyGovernance {
-        messengerGasLimit = _messengerGasLimit;
     }
 
     function addSupportedChainIds(uint256[] calldata chainIds) external onlyGovernance {
@@ -343,6 +342,7 @@ abstract contract L2_Bridge is Bridge, ReentrancyGuard {
     }
 
     function setMinimumBonderFeeRequirements(uint256 _minBonderBps, uint256 _minBonderFeeAbsolute) external onlyGovernance {
+        require(_minBonderBps <= 10000, "L2_BRG: minBonderBps must not exceed 10000");
         minBonderBps = _minBonderBps;
         minBonderFeeAbsolute = _minBonderFeeAbsolute;
     }

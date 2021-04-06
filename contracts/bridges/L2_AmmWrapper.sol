@@ -10,11 +10,11 @@ import "../interfaces/IWETH.sol";
 
 contract L2_AmmWrapper {
 
-    L2_Bridge public bridge;
-    IERC20 public l2CanonicalToken;
-    bool public l2CanonicalTokenIsEth;
-    IERC20 public hToken;
-    Swap public exchangeAddress;
+    L2_Bridge public immutable bridge;
+    IERC20 public immutable l2CanonicalToken;
+    bool public immutable l2CanonicalTokenIsEth;
+    IERC20 public immutable hToken;
+    Swap public immutable exchangeAddress;
 
     /// @notice When l2CanonicalTokenIsEth is true, l2CanonicalToken should be set to the WETH address
     constructor(
