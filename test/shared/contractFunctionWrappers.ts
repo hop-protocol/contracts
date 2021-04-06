@@ -1178,13 +1178,13 @@ export const getSetAmmWrapperAddressMessage = (
   return ethersInterface.encodeFunctionData('setAmmWrapper', [address])
 }
 
-export const getSetMessengerGasLimitMessage = (
-  messengerGasLimit: BigNumber
+export const getSetDefaultGasLimitMessage = (
+  defaultGasLimit: BigNumber
 ) => {
-  const ABI = ['function setMessengerGasLimit(uint256 _messengerGasLimit)']
+  const ABI = ['function setDefaultGasLimit(uint256 _defaultGasLimit)']
   const ethersInterface = new ethersUtils.Interface(ABI)
-  return ethersInterface.encodeFunctionData('setMessengerGasLimit', [
-    messengerGasLimit
+  return ethersInterface.encodeFunctionData('setDefaultGasLimit', [
+    defaultGasLimit
   ])
 }
 
@@ -1253,14 +1253,6 @@ export const getSetMessengerMessage = (
   const ABI = ['function setMessenger(address _messenger)']
   const ethersInterface = new ethersUtils.Interface(ABI)
   return ethersInterface.encodeFunctionData('setMessenger', [address])
-}
-
-export const getSetDefaultGasLimitMessage = (
-  defaultGasLimit: BigNumber
-) => {
-  const ABI = ['function setDefaultGasLimit(address _defaultGasLimit)']
-  const ethersInterface = new ethersUtils.Interface(ABI)
-  return ethersInterface.encodeFunctionData('setDefaultGasLimit', [defaultGasLimit])
 }
 
 export const getSetMessengerProxyMessage = (

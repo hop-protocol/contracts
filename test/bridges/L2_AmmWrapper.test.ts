@@ -32,7 +32,6 @@ import {
   getSetAmmWrapperAddressMessage,
   getSetL1BridgeAddressMessage,
   getSetL1MessengerWrapperAddressMessage,
-  getSetMessengerGasLimitMessage,
   getAddSupportedChainIdsMessage,
   getRemoveSupportedChainIdsMessage,
   getSetMinimumForceCommitDelayMessage,

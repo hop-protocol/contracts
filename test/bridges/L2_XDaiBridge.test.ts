@@ -33,7 +33,6 @@ import {
   getSetAmmWrapperAddressMessage,
   getSetL1BridgeAddressMessage,
   getSetL1MessengerWrapperAddressMessage,
-  getSetMessengerGasLimitMessage,
   getAddSupportedChainIdsMessage,
   getRemoveSupportedChainIdsMessage,
   getSetMinimumForceCommitDelayMessage,
@@ -175,7 +174,7 @@ describe('L2_XDai_Bridge', () => {
     const expectedHopBridgeTokenAddress: string = l2_hopBridgeToken.address
     const expectedL1BridgeAddress: string = l1_bridge.address
     const expectedL1ChainId: BigNumber = l1ChainId
-    const expectedMessengerGasLimit: number = DEFAULT_L2_BRIDGE_GAS_LIMIT
+    const expectedDefaultGasLimit: number = DEFAULT_L2_BRIDGE_GAS_LIMIT
 
     const messengerAddress: string = await l2_bridge.messenger()
     const l1GovernanceAddress: string = await l2_bridge.l1Governance()
@@ -183,7 +182,7 @@ describe('L2_XDai_Bridge', () => {
     const l1BridgeAddress: string = await l2_bridge.l1BridgeAddress()
     const isBonder: string = await l2_bridge.getIsBonder(await bonder.getAddress())
     const actualL1ChainId: BigNumber = await l2_bridge.l1ChainId()
-    const actualMessengerGasLimit: BigNumber = await l2_bridge.messengerGasLimit()
+    const actualGasLimit: BigNumber = await l2_bridge.defaultGasLimit()
 
     expect(expectedMessengerAddress).to.eq(messengerAddress)
     expect(expectedL1GovernanceAddress).to.eq(l1GovernanceAddress)
@@ -191,7 +190,7 @@ describe('L2_XDai_Bridge', () => {
     expect(expectedL1BridgeAddress).to.eq(l1BridgeAddress)
     expect(isBonder).to.eq(true)
     expect(expectedL1ChainId).to.eq(actualL1ChainId)
-    expect(expectedMessengerGasLimit).to.eq(actualMessengerGasLimit)
+    expect(expectedDefaultGasLimit).to.eq(actualGasLimit)
 
     for (let i = 0; i < ALL_SUPPORTED_CHAIN_IDS.length; i++) {
       const chainId: string = ALL_SUPPORTED_CHAIN_IDS[i]
@@ -274,7 +273,7 @@ describe('L2_XDai_Bridge', () => {
   })
 
   it('Should not set a defaultGasLimit because the transaction was on L2 directly', async () => {
-    const expectedErrorMsg: string = 'TODO'
+    const expectedErrorMsg: string = 'L2_XDAI_BRG: Invalid cross-domain sender'
 
     const expectedDefaultGasLimit: BigNumber = BigNumber.from('13371337')
     await expect(
@@ -283,7 +282,7 @@ describe('L2_XDai_Bridge', () => {
   })
 
   it('Should not set a defaultGasLimit because the transaction was not sent by governance', async () => {
-    const expectedErrorMsg: string = 'TODO'
+    const expectedErrorMsg: string = 'L2_XDAI_BRG: Invalid cross-domain sender'
 
     const expectedDefaultGasLimit: BigNumber = BigNumber.from('13371337')
 

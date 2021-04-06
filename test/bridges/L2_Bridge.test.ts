@@ -32,7 +32,6 @@ import {
   getSetAmmWrapperAddressMessage,
   getSetL1BridgeAddressMessage,
   getSetL1MessengerWrapperAddressMessage,
-  getSetMessengerGasLimitMessage,
   getAddSupportedChainIdsMessage,
   getRemoveSupportedChainIdsMessage,
   getSetMinimumForceCommitDelayMessage,
@@ -289,24 +288,6 @@ describe('L2_Bridge', () => {
 
       const l1MessengerWrapperAddress: string = await l2_bridge.l1MessengerWrapperAddress()
       expect(l1MessengerWrapperAddress).to.eq(expectedL1MessengerWrapperAddress)
-    })
-
-    it('Should set the messenger gas limit arbitrarily', async () => {
-      const expectedMessengerGasLimit: BigNumber = BigNumber.from('123')
-
-      const message: string = getSetMessengerGasLimitMessage(
-        expectedMessengerGasLimit
-      )
-      await executeCanonicalMessengerSendMessage(
-        l1_messenger,
-        l2_bridge,
-        l2_messenger,
-        governance,
-        message
-      )
-
-      const messengerGasLimit: BigNumber = await l2_bridge.messengerGasLimit()
-      expect(messengerGasLimit).to.eq(expectedMessengerGasLimit)
     })
 
     it('Should add support for a new chainId', async () => {
@@ -743,24 +724,6 @@ describe('L2_Bridge', () => {
 
       const message: string = getSetL1MessengerWrapperAddressMessage(
         expectedL1MessengerWrapperAddress
-      )
-      await expect(
-        executeCanonicalMessengerSendMessage(
-          l1_messenger,
-          l2_bridge,
-          l2_messenger,
-          user,
-          message
-        )
-      ).to.be.revertedWith(expectedErrorMsg)
-    })
-
-    it('Should not allow an arbitrary address to set the messenger gas limit arbitrarily', async () => {
-      const expectedErrorMsg: string = 'L2_OVM_BRG: Invalid cross-domain sender'
-      const expectedMessengerGasLimit: BigNumber = BigNumber.from('123')
-
-      const message: string = getSetMessengerGasLimitMessage(
-        expectedMessengerGasLimit
       )
       await expect(
         executeCanonicalMessengerSendMessage(
