@@ -414,7 +414,7 @@ describe('L2_Bridge', () => {
     })
 
     it('Should set the minimum bonder fee requirements', async () => {
-      const expectedMinBonderBps: BigNumber = BigNumber.from('13371337')
+      const expectedMinBonderBps: BigNumber = BigNumber.from('123')
       const expectedMinBonderFeeAbsolute: BigNumber = BigNumber.from('73317331')
 
       const message: string = getSetMinimumBonderFeeRequirementsMessage(
@@ -894,6 +894,26 @@ describe('L2_Bridge', () => {
         )
       ).to.be.revertedWith(expectedErrorMsg)
     })
+
+    it('Should not allow minimum bonder BPS to exceed 10,000', async () => {
+      const expectedErrorMsg: string = 'L2_BRG: minBonderBps must not exceed 1000'
+      const expectedMinBonderBps: BigNumber = BigNumber.from('13371337')
+      const expectedMinBonderFeeAbsolute: BigNumber = BigNumber.from('73317331')
+
+      const message: string = getSetMinimumBonderFeeRequirementsMessage(
+        expectedMinBonderBps,
+        expectedMinBonderFeeAbsolute
+      )
+      await expect(
+        executeCanonicalMessengerSendMessage(
+          l1_messenger,
+          l2_bridge,
+          l2_messenger,
+          governance,
+          message
+        )
+      ).to.be.revertedWith(expectedErrorMsg)
+    })
   })
 
   describe('send', async () => {
@@ -916,7 +936,7 @@ describe('L2_Bridge', () => {
     })
 
     it('Should not allow a send to an unsupported chainId', async () => {
-      const expectedErrorMsg: string = 'L2_BRG: _chainId is not supported'
+      const expectedErrorMsg: string = 'L2_BRG: chainId is not supported'
       const customTransfer: Transfer = new Transfer(transfer)
       customTransfer.chainId = BigNumber.from('1337')
       await expect(
