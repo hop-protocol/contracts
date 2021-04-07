@@ -9,11 +9,17 @@ import "./Mock_L1_Messenger.sol";
 contract Mock_L2_Messenger is MockMessenger {
 
     Mock_L1_Messenger public targetMessenger;
+    // This should be the PolygonMessengerWrapper
+    address public polygonTarget;
 
     constructor (IERC20 _canonicalToken) public MockMessenger(_canonicalToken) {}
 
     function setTargetMessenger(address _targetMessenger) public {
         targetMessenger = Mock_L1_Messenger(_targetMessenger);
+    }
+
+    function setPolygonTarget(address _polygonTarget) public {
+        polygonTarget = _polygonTarget;
     }
 
     /* ========== Arbitrum ========== */
@@ -70,5 +76,15 @@ contract Mock_L2_Messenger is MockMessenger {
 
     /* ========== Polygon ========== */
 
-    // TODO
+    function sendCrossDomainMessage(
+        bytes calldata _message
+    )
+        public
+    {
+        targetMessenger.receiveMessage(
+            polygonTarget,
+            _message,
+            msg.sender
+        );
+    }
 }

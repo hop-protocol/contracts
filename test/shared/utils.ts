@@ -90,13 +90,20 @@ export const setUpL2HopBridgeToken = async (fixture: IFixture) => {
 }
 
 export const setUpL1AndL2Messengers = async (fixture: IFixture) => {
-  const { l1_messenger, l2_messenger } = fixture
+  const {
+    l1_messenger,
+    l1_messengerWrapper,
+    l2_messenger,
+    l2_messengerProxy
+  } = fixture
 
   // Set up L1
   await l1_messenger.setTargetMessenger(l2_messenger.address)
+  await l1_messenger.setPolygonTarget(l2_messengerProxy.address)
 
   // Set up L2
   await l2_messenger.setTargetMessenger(l1_messenger.address)
+  await l1_messenger.setPolygonTarget(l1_messengerWrapper.address)
 }
 
 export const setUpL1AndL2Bridges = async (fixture: IFixture, opts: any) => {
@@ -345,7 +352,9 @@ export const getL2SpecificArtifact = (chainId: BigNumber) => {
     l1_messengerWrapperArtifact =
       'XDaiMessengerWrapper.sol:XDaiMessengerWrapper'
   } else if (isChainIdPolygon(chainId)) {
-    // TODO: Polygon Specific Artifacts
+    l2_bridgeArtifact = 'Mock_L2_PolygonBridge.sol:Mock_L2_PolygonBridge'
+    l1_messengerWrapperArtifact =
+      'PolygonMessengerWrapper.sol:PolygonMessengerWrapper'
   }
 
   return {

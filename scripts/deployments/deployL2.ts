@@ -14,10 +14,10 @@ import {
 
 import {
   isChainIdXDai,
+  isChainIdPolygon,
   getL2BridgeDefaults
 } from '../../config/utils'
 import {
-  ZERO_ADDRESS,
   CHAIN_IDS,
   DEFAULT_ETHERS_OVERRIDES as overrides,
   DEFAULT_SWAP_A,
@@ -83,6 +83,7 @@ export async function deployL2 (config: Config) {
   let L2_Bridge: ContractFactory
   let L2_Swap: ContractFactory
   let L2_AmmWrapper: ContractFactory
+  let L2_MessengerProxy: ContractFactory
 
   // Contracts
   let l1_bridge: Contract
@@ -91,6 +92,7 @@ export async function deployL2 (config: Config) {
   let l2_hopBridgeToken: Contract
   let l2_swap: Contract
   let l2_ammWrapper: Contract
+  let l2_messengerProxy: Contract
 
   // Instantiate the wallets
   accounts = await ethers.getSigners()
@@ -112,7 +114,8 @@ export async function deployL2 (config: Config) {
     L2_HopBridgeToken,
     L2_Bridge,
     L2_Swap,
-    L2_AmmWrapper
+    L2_AmmWrapper,
+    L2_MessengerProxy
   } = await getContractFactories(l2_chainId, owner, ethers))
 
   logger.log('attaching deployed contracts')
@@ -175,6 +178,13 @@ export async function deployL2 (config: Config) {
   await tx.wait()
   await waitAfterTransaction()
 
+  let l2_messengerProxyAddress: string = ''
+  if (isChainIdPolygon(l2_chainId)) {
+    l2_messengerProxy = await L2_MessengerProxy.deploy(l2_bridge.address)
+    await waitAfterTransaction(l2_messengerProxy, ethers)
+    l2_messengerProxyAddress = l2_messengerProxy.address
+  }
+
   const l2_hopBridgeTokenAddress: string = l2_hopBridgeToken.address
   const l2_bridgeAddress: string = l2_bridge.address
   const l2_swapAddress: string = l2_swap.address
@@ -183,8 +193,9 @@ export async function deployL2 (config: Config) {
   logger.log('L2 Deployments Complete')
   logger.log('L2 Hop Bridge Token :', l2_hopBridgeTokenAddress)
   logger.log('L2 Bridge           :', l2_bridgeAddress)
-  logger.log('L2 Swap  :', l2_swapAddress)
-  logger.log('L2 Amm Wrapper  :', l2_ammWrapperAddress)
+  logger.log('L2 Swap             :', l2_swapAddress)
+  logger.log('L2 Amm Wrapper      :', l2_ammWrapperAddress)
+  logger.log('L2 Messenger Proxy  :', l2_messengerProxyAddress)
 
   updateConfigFile({
     l2_hopBridgeTokenAddress,

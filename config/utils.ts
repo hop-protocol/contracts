@@ -1,13 +1,12 @@
 import { BigNumber, utils as ethersUtils } from 'ethers'
 import {
-  IGetMessengerWrapperDefaults,
   IGetL2BridgeDefaults
 } from './interfaces'
 import {
   CHAIN_IDS,
   DEFAULT_MESSENGER_WRAPPER_GAS_LIMIT,
   DEFAULT_MESSENGER_WRAPPER_GAS_PRICE,
-  DEFAULT_MESSENGER_WRAPPER_GAS_CALL_VALUE,
+  DEFAULT_MESSENGER_WRAPPER_CALL_VALUE,
   DEFAULT_L2_BRIDGE_GAS_LIMIT
 } from './constants'
 
@@ -16,35 +15,50 @@ export const getMessengerWrapperDefaults = (
   l1BridgeAddress: string,
   l2BridgeAddress: string,
   l1MessengerAddress: string
-): IGetMessengerWrapperDefaults[] => {
-  let defaults: IGetMessengerWrapperDefaults[] = []
+): any[] => {
+  // Ending data to return
+  let data: any = []
 
-  let additionalData = []
-  let gasLimit: number
+  // Defaults for most chains
+  let defaults: any[] = [
+    l1BridgeAddress,
+    l2BridgeAddress,
+    l1MessengerAddress
+  ]
 
   if (isChainIdArbitrum(chainId)) {
-    gasLimit = DEFAULT_MESSENGER_WRAPPER_GAS_LIMIT
+    const gasLimit: number = DEFAULT_MESSENGER_WRAPPER_GAS_LIMIT
+    const gasPrice: number = DEFAULT_MESSENGER_WRAPPER_GAS_PRICE
+    const callValue: number = DEFAULT_MESSENGER_WRAPPER_CALL_VALUE
 
-    additionalData.push(
-      DEFAULT_MESSENGER_WRAPPER_GAS_PRICE,
-      DEFAULT_MESSENGER_WRAPPER_GAS_CALL_VALUE
+    data.push(
+      ...defaults,
+      gasLimit,
+      gasPrice,
+      callValue
     )
   } else if (isChainIdOptimism(chainId)) {
-    gasLimit = DEFAULT_MESSENGER_WRAPPER_GAS_LIMIT
-  } else if (isChainIdXDai(chainId)) {
-    gasLimit = 1000000
+    const gasLimit: number = DEFAULT_MESSENGER_WRAPPER_GAS_LIMIT
 
+    data.push(
+      ...defaults,
+      gasLimit
+    )
+  } else if (isChainIdXDai(chainId)) {
+    const gasLimit: number = 1000000
     const isAmbL1: boolean = true
     const ambAddress: string = getXDaiAmbAddresses(isAmbL1)
-    additionalData.push(chainId.toString(), ambAddress)
+
+    data.push(
+      ...defaults,
+      gasLimit,
+      chainId.toString(),
+      ambAddress
+    )
   } else if (isChainIdPolygon(chainId)) {
-    // TODO: Polygon Wrapper Defaults
-  }
-
-  defaults.push(l1BridgeAddress, l2BridgeAddress, gasLimit, l1MessengerAddress)
-
-  if (additionalData.length !== 0) {
-    defaults.push(...additionalData)
+    data.push(
+      l1BridgeAddress
+    )
   }
 
   return defaults

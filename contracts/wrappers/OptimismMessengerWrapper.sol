@@ -18,15 +18,15 @@ contract OptimismMessengerWrapper is MessengerWrapper {
     constructor(
         address _l1BridgeAddress,
         address _l2BridgeAddress,
-        uint256 _defaultGasLimit,
-        iOVM_L1CrossDomainMessenger _l1MessengerAddress
+        iOVM_L1CrossDomainMessenger _l1MessengerAddress,
+        uint256 _defaultGasLimit
     )
         public
     {
         l1BridgeAddress = _l1BridgeAddress;
         l2BridgeAddress = _l2BridgeAddress;
-        defaultGasLimit = _defaultGasLimit;
         l1MessengerAddress = _l1MessengerAddress;
+        defaultGasLimit = _defaultGasLimit;
     }
 
     /** 

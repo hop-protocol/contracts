@@ -15,19 +15,13 @@ import "../bridges/L1_Bridge.sol";
 
 contract PolygonMessengerWrapper is BaseRootTunnel, MessengerWrapper {
 
-    address public l2MessengerProxy;
-    IStateSender public l1MessengerAddress;
     address public l1Bridge;
 
     constructor(
-        address _l2MessengerProxy,
-        IStateSender _l1MessengerAddress,
         address _l1Bridge
     )
         public
     {
-        l2MessengerProxy = _l2MessengerProxy;
-        l1MessengerAddress = _l1MessengerAddress;
         l1Bridge = _l1Bridge;
     }
 

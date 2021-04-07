@@ -72,7 +72,7 @@ export const executeCanonicalMessengerSendMessage = async (
   } else if (isChainIdXDai(l2ChainId)) {
     await l1_messenger.connect(sender).requireToPassMessage(...params)
   } else if (isChainIdPolygon(l2ChainId)) {
-    // TODO: Polygon Canonical Messenger
+    await l1_messenger.sendCrossDomainMessage(message)
   } else {
     await l1_messenger.connect(sender).sendMessage(...params)
   }

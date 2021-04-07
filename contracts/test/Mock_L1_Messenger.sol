@@ -9,11 +9,17 @@ import "./Mock_L2_Messenger.sol";
 contract Mock_L1_Messenger is MockMessenger {
 
     Mock_L2_Messenger public targetMessenger;
+    // This should be the L2_PolygonMessengerProxy
+    address public polygonTarget;
 
     constructor (IERC20 _canonicalToken) public MockMessenger(_canonicalToken) {}
 
     function setTargetMessenger(address _targetMessenger) public {
         targetMessenger = Mock_L2_Messenger(_targetMessenger);
+    }
+
+    function setPolygonTarget(address _polygonTarget) public {
+        polygonTarget = _polygonTarget;
     }
 
     /* ========== Arbitrum ========== */
@@ -109,5 +115,19 @@ contract Mock_L1_Messenger is MockMessenger {
 
     /* ========== Polygon ========== */
 
-    // TODO
+    /// NOTE: Calling `_sendMessageToChild()` would be the consistent thing to do, however that is an internal
+    // function, so we are bypassing it with `syncState()`
+    function syncState(
+        address _childTunnel,
+        bytes memory _message
+    )
+        public
+    {
+        (, bytes memory message) = abi.decode(data, (address, bytes));
+        targetMessenger.receiveMessage(
+            polygonTarget,
+            message,
+            msg.sender
+        );
+    }
 }

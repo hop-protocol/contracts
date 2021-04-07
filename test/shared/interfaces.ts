@@ -19,6 +19,7 @@ export interface IFixture {
   L1_Messenger: ContractFactory
   L1_MessengerWrapper: ContractFactory
   L2_Messenger: ContractFactory
+  L2_MessengerProxy: ContractFactory
   L2_HopBridgeToken: ContractFactory
   L2_Swap: ContractFactory
   L2_AmmWrapper: ContractFactory
@@ -38,6 +39,7 @@ export interface IFixture {
   // L2
   l2_canonicalToken: Contract
   l2_messenger: Contract
+  l2_messengerProxy: Contract
   l2_hopBridgeToken: Contract
   l2_bridge: Contract
   l2_swap: Contract

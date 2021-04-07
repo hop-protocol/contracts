@@ -32,6 +32,7 @@ export const getContractFactories = async (
   let L2_Bridge: ContractFactory
   let L2_Swap: ContractFactory
   let L2_AmmWrapper: ContractFactory
+  let L2_MessengerProxy: ContractFactory
   ;({
     L1_TokenBridge,
     L1_Messenger,
@@ -40,7 +41,8 @@ export const getContractFactories = async (
     L2_HopBridgeToken,
     L2_Bridge,
     L2_Swap,
-    L2_AmmWrapper
+    L2_AmmWrapper,
+    L2_MessengerProxy
   } = await getNetworkSpecificFactories(chainId, signer, ethers))
 
   return {
@@ -53,7 +55,8 @@ export const getContractFactories = async (
     L2_HopBridgeToken,
     L2_Bridge,
     L2_Swap,
-    L2_AmmWrapper
+    L2_AmmWrapper,
+    L2_MessengerProxy
   }
 }
 
@@ -79,7 +82,8 @@ const getNetworkSpecificFactories = async (
       L2_HopBridgeToken: null,
       L2_Bridge: null,
       L2_Swap: null,
-      L2_AmmWrapper: null
+      L2_AmmWrapper: null,
+      L2_MessengerProxy: null
     }
   }
 }
@@ -147,7 +151,8 @@ const getOptimismContractFactories = async (
     L2_HopBridgeToken,
     L2_Bridge,
     L2_Swap,
-    L2_AmmWrapper
+    L2_AmmWrapper,
+    L2_MessengerProxy: null
   }
 }
 
@@ -210,7 +215,8 @@ const getArbitrumContractFactories = async (signer: Signer, ethers: any) => {
     L2_HopBridgeToken,
     L2_Bridge,
     L2_Swap,
-    L2_AmmWrapper
+    L2_AmmWrapper,
+    L2_MessengerProxy: null
   }
 }
 
@@ -273,12 +279,14 @@ const getXDaiContractFactories = async (signer: Signer, ethers: any) => {
     L2_HopBridgeToken,
     L2_Bridge,
     L2_Swap,
-    L2_AmmWrapper
+    L2_AmmWrapper,
+    L2_MessengerProxy: null
   }
 }
 
 const getPolygonContractFactories = async (signer: Signer, ethers: any) => {
   // TODO: Polygon Contract Factories
+  // NOTE: Need to figure out Matic Bridge interface
 }
 
 export const sendChainSpecificBridgeDeposit = async (
@@ -320,6 +328,7 @@ export const sendChainSpecificBridgeDeposit = async (
     await tx.wait()
   } else if (isChainIdXDai(chainId)) {
     // TODO: Polygon Bridge Deposit
+    // NOTE: Need to figure out Matic bridge interface
   } else {
     throw new Error(`Unsupported chain ID "${chainId}"`)
   }

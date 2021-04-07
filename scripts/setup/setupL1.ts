@@ -9,15 +9,16 @@ import {
   sendChainSpecificBridgeDeposit,
   readConfigFile,
   waitAfterTransaction,
+  updateConfigFile,
   Logger
 } from '../shared/utils'
 import { getMessengerWrapperDefaults } from '../../config/utils'
-import { IGetMessengerWrapperDefaults } from '../../config/interfaces'
 import {
   ALL_SUPPORTED_CHAIN_IDS,
   LIQUIDITY_PROVIDER_INITIAL_BALANCE,
   ZERO_ADDRESS
 } from '../../config/constants'
+import { isChainIdPolygon } from '../../config/utils'
 
 import {
   getSetL1MessengerWrapperAddressMessage,
@@ -126,11 +127,11 @@ export async function setupL1 (config: Config) {
   l2_bridge = L2_Bridge.attach(l2_bridgeAddress)
 
   /**
-   * Setup
+   * Setup deployments
    */
 
   // Deploy messenger wrapper
-  const messengerWrapperDefaults: IGetMessengerWrapperDefaults[] = getMessengerWrapperDefaults(
+  const messengerWrapperDefaults: any[] = getMessengerWrapperDefaults(
     l2_chainId,
     l1_bridge.address,
     l2_bridge.address,
@@ -142,6 +143,10 @@ export async function setupL1 (config: Config) {
     ...messengerWrapperDefaults
   )
   await waitAfterTransaction(l1_messengerWrapper)
+
+  /**
+   * Setup invocations
+   */
 
   logger.log('setting cross domain messenger wrapper on L1 bridge')
   // Set up the L1 bridge
@@ -267,6 +272,10 @@ export async function setupL1 (config: Config) {
     )
   await tx.wait()
   await waitAfterTransaction()
+
+  updateConfigFile({
+    l1_messengerWrapperAddress: l1_messengerWrapper.address
+  })
 
   logger.log('L1 Setup Complete')
 }

@@ -11,7 +11,6 @@ import {
   getL2BridgeDefaults
 } from '../../config/utils'
 import {
-  IGetMessengerWrapperDefaults,
   IGetL2BridgeDefaults
 } from '../../config/interfaces'
 import {
@@ -74,6 +73,9 @@ export async function fixture (
   )
   const L2_Messenger = await ethers.getContractFactory(
     'contracts/test/Mock_L2_Messenger.sol:Mock_L2_Messenger'
+  )
+  const L2_MessengerProxy = await ethers.getContractFactory(
+    'contracts/test/Mock_L2_MessengerProxy.sol:Mock_L2_MessengerProxy'
   )
 
   const MathUtils = await ethers.getContractFactory('MathUtils')
@@ -167,7 +169,7 @@ export async function fixture (
   const l2_bridge = await L2_Bridge.deploy(l2ChainId, ...l2BridgeDefaults)
 
   // Deploy Messenger Wrapper
-  const messengerWrapperDefaults: IGetMessengerWrapperDefaults[] = getMessengerWrapperDefaults(
+  const messengerWrapperDefaults:any[] = getMessengerWrapperDefaults(
     l2ChainId,
     l1_bridge.address,
     l2_bridge.address,
@@ -199,6 +201,8 @@ export async function fixture (
     l2_hopBridgeToken.address,
     l2_swap.address
   )
+
+  const l2_messengerProxy: Contract = await L2_MessengerProxy.deploy(l2_bridge.address)
 
   // Mocks
   const mockAccounting = await MockAccounting.deploy([
@@ -264,6 +268,7 @@ export async function fixture (
     L1_MessengerWrapper,
     L1_Messenger,
     L2_Messenger,
+    L2_MessengerProxy,
     L2_Swap,
     L2_AmmWrapper,
     MockAccounting,
@@ -274,6 +279,7 @@ export async function fixture (
     l1_messengerWrapper,
     l1_bridge,
     l2_messenger,
+    l2_messengerProxy,
     l2_hopBridgeToken,
     l2_bridge,
     l2_canonicalToken,

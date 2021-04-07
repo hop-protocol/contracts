@@ -11,8 +11,6 @@ import "./L2_PolygonBridge.sol";
 contract L2_PolygonMessengerProxy is BaseChildTunnel, ReentrancyGuard {
 
     address public l2Bridge;
-    address public polygonMessenger;
-    address public xDomainMessageSender;
 
     address constant public DEAD_ADDRESS = 0x000000000000000000000000000000000000dEaD;
 
@@ -22,11 +20,9 @@ contract L2_PolygonMessengerProxy is BaseChildTunnel, ReentrancyGuard {
     }
 
     constructor(
-        address _l2Bridge,
-        address _polygonMessenger
+        address _l2Bridge
     ) public {
         l2Bridge = _l2Bridge;
-        polygonMessenger = _polygonMessenger;
         xDomainMessageSender = DEAD_ADDRESS;
     }
 

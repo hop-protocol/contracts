@@ -21,8 +21,8 @@ contract XDaiMessengerWrapper is MessengerWrapper {
     constructor(
         address _l1BridgeAddress,
         address _l2BridgeAddress,
-        uint256 _defaultGasLimit,
         iArbitraryMessageBridge _l1MessengerAddress,
+        uint256 _defaultGasLimit,
         uint256 _l2ChainId,
         address _ambBridge
     )
@@ -30,8 +30,8 @@ contract XDaiMessengerWrapper is MessengerWrapper {
     {
         l1BridgeAddress = _l1BridgeAddress;
         l2BridgeAddress = _l2BridgeAddress;
-        defaultGasLimit = _defaultGasLimit;
         l1MessengerAddress = _l1MessengerAddress;
+        defaultGasLimit = _defaultGasLimit;
         l2ChainId = bytes32(_l2ChainId);
         ambBridge = _ambBridge;
     }
