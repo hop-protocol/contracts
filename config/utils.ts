@@ -61,7 +61,7 @@ export const getMessengerWrapperDefaults = (
     )
   }
 
-  return defaults
+  return data
 }
 
 export const getL2BridgeDefaults = (
@@ -141,7 +141,10 @@ export const isChainIdXDai = (chainId: BigNumber): boolean => {
 }
 
 export const isChainIdPolygon = (chainId: BigNumber): boolean => {
-  if (chainId.eq(CHAIN_IDS.POLYGON.MUMBAI)) {
+  if (
+    chainId.eq(CHAIN_IDS.POLYGON.MUMBAI) ||
+    chainId.eq(CHAIN_IDS.POLYGON.MAINNET)
+  ) {
     return true
   }
 

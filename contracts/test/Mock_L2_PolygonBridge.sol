@@ -3,6 +3,7 @@
 pragma solidity 0.6.12;
 pragma experimental ABIEncoderV2;
 
+import "../bridges/L2_PolygonMessengerProxy.sol";
 import "../bridges/L2_PolygonBridge.sol";
 
 contract Mock_L2_PolygonBridge is L2_PolygonBridge {
@@ -10,13 +11,12 @@ contract Mock_L2_PolygonBridge is L2_PolygonBridge {
 
     constructor (
         uint256 _chainId,
-        iOVM_L2CrossDomainMessenger messenger,
+        L2_PolygonMessengerProxy messenger,
         address l1Governance,
         HopBridgeToken hToken,
         address l1BridgeAddress,
         uint256[] memory supportedChainIds,
-        address[] memory bonders,
-        uint32 defaultGasLimit
+        address[] memory bonders
     )
         public
         L2_PolygonBridge(
@@ -25,8 +25,7 @@ contract Mock_L2_PolygonBridge is L2_PolygonBridge {
             hToken,
             l1BridgeAddress,
             supportedChainIds,
-            bonders,
-            defaultGasLimit
+            bonders
         )
     {
         chainId = _chainId;

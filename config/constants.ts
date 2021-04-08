@@ -21,6 +21,7 @@ export const CHAIN_IDS: any = {
     SOKOL: BigNumber.from('77')
   },
   POLYGON: {
+    MAINNET: BigNumber.from('137'),
     MUMBAI: BigNumber.from('80001')
   }
 }

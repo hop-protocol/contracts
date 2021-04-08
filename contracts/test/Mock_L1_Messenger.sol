@@ -123,7 +123,7 @@ contract Mock_L1_Messenger is MockMessenger {
     )
         public
     {
-        (, bytes memory message) = abi.decode(data, (address, bytes));
+        (, bytes memory message) = abi.decode(_message, (address, bytes));
         targetMessenger.receiveMessage(
             polygonTarget,
             message,
