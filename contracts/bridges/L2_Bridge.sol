@@ -21,11 +21,10 @@ abstract contract L2_Bridge is Bridge {
     using SafeERC20 for IERC20;
 
     address public l1Governance;
-    HopBridgeToken public hToken;
+    HopBridgeToken public immutable hToken;
     address public l1BridgeAddress;
     address public l1MessengerWrapperAddress;
     L2_AmmWrapper public ammWrapper;
-    IERC20 public l2CanonicalToken;
     mapping(uint256 => bool) public activeChainIds;
     uint256 public minimumForceCommitDelay = 4 hours;
     uint256 public maxPendingTransfers = 100;
@@ -37,8 +36,7 @@ abstract contract L2_Bridge is Bridge {
     mapping(uint256 => uint256) public lastCommitTimeForChainId;
     uint256 public transferNonceIncrementer;
 
-    //keccak256("L2_Bridge v1.0");
-    bytes32 private constant NONCE_DOMAIN_SEPARATOR = 0xcd24e8e9844849186ed93126ac365bc3a49362579aee585431811ea50bd1694c;
+    bytes32 private immutable NONCE_DOMAIN_SEPARATOR;
 
     event TransfersCommitted (
         bytes32 indexed rootHash,
@@ -70,8 +68,6 @@ abstract contract L2_Bridge is Bridge {
         public
         Bridge(bonders)
     {
-        require(NONCE_DOMAIN_SEPARATOR == keccak256("L2_Bridge v1.0"));
-
         l1Governance = _l1Governance;
         hToken = _hToken;
         l1BridgeAddress = _l1BridgeAddress;
@@ -79,6 +75,8 @@ abstract contract L2_Bridge is Bridge {
         for (uint256 i = 0; i < _activeChainIds.length; i++) {
             activeChainIds[_activeChainIds[i]] = true;
         }
+
+        NONCE_DOMAIN_SEPARATOR = keccak256("L2_Bridge v1.0");
     }
 
     /* ========== Virtual functions ========== */
