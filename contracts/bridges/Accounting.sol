@@ -72,7 +72,7 @@ abstract contract Accounting {
      * @dev This function can be optionally overridden by a parent contract to track any additional
      * debit balance in an alternative way.
      */
-    function _additionalDebit() internal view virtual returns (uint256) {
+    function _additionalDebit(address /*bonder*/) internal view virtual returns (uint256) {
         this; // Silence state mutability warning without generating any additional byte code
         return 0;
     }
@@ -112,7 +112,7 @@ abstract contract Accounting {
      * @return The Bonder's total debit balance
      */
     function getDebitAndAdditionalDebit(address bonder) public view returns (uint256) {
-        return _debit[bonder].add(_additionalDebit());
+        return _debit[bonder].add(_additionalDebit(bonder));
     }
 
     /* ========== Bonder external functions ========== */
