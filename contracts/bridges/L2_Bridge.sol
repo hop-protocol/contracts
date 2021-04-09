@@ -5,7 +5,6 @@ pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
-import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 import "./Bridge.sol";
 import "./HopBridgeToken.sol";
@@ -18,7 +17,7 @@ import "./L2_AmmWrapper.sol";
  * destination or the L1_Bridge may forward the TransferRoot to it's destination L2_Bridge.
  */
 
-abstract contract L2_Bridge is Bridge, ReentrancyGuard {
+abstract contract L2_Bridge is Bridge {
     using SafeERC20 for IERC20;
 
     address public l1Governance;
@@ -209,6 +208,7 @@ abstract contract L2_Bridge is Bridge, ReentrancyGuard {
         external
         onlyBonder
         requirePositiveBalance
+        nonReentrant
     {
         bytes32 transferId = getTransferId(
             getChainId(),

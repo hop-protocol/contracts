@@ -219,6 +219,7 @@ abstract contract Bridge is Accounting {
         external
         onlyBonder
         requirePositiveBalance
+        nonReentrant
     {
         bytes32 transferId = getTransferId(
             getChainId(),
