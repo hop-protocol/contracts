@@ -27,6 +27,7 @@ describe('L1_Bridge', () => {
   let governance: Signer
 
   let l1_messenger: Contract
+  let l1_messengerWrapper: Contract
 
   let l2_hopBridgeToken: Contract
   let l2_bridge: Contract
@@ -47,6 +48,7 @@ describe('L1_Bridge', () => {
       user,
       governance,
       l1_messenger,
+      l1_messengerWrapper,
       l2_hopBridgeToken,
       l2_bridge,
       l2_messenger
@@ -92,6 +94,7 @@ describe('L1_Bridge', () => {
     )
     await executeCanonicalMessengerSendMessage(
       l1_messenger,
+      l1_messengerWrapper,
       l2_bridge,
       l2_messenger,
       governance,
@@ -124,6 +127,7 @@ describe('L1_Bridge', () => {
     )
     await executeCanonicalMessengerSendMessage(
       l1_messenger,
+      l1_messengerWrapper,
       l2_bridge,
       l2_messenger,
       governance,

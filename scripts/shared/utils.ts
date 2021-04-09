@@ -207,8 +207,6 @@ const getPolygonContractFactories = async (signer: Signer, ethers: any) => {
     { signer }
   )
   const L1_Messenger: ContractFactory = await ethers.getContractFactory(
-    // TODO: Will either be our PolygonMessengerWrapper or the already-deployed StateSender
-    // NOTE: The already-deployed StateSender will require an interface
     'contracts/wrappers/PolygonMessengerWrapper.sol:PolygonMessengerWrapper',
     { signer }
   )

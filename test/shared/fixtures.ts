@@ -39,6 +39,7 @@ export async function fixture (
 ): Promise<IFixture> {
   const {
     l2_bridgeArtifact,
+    l1_messengerArtifact,
     l1_messengerWrapperArtifact
   } = getL2SpecificArtifact(l2ChainId)
   const accounts = await ethers.getSigners()
@@ -63,7 +64,7 @@ export async function fixture (
     `contracts/test/${l2_bridgeArtifact}`
   )
   const L1_Messenger = await ethers.getContractFactory(
-    'contracts/test/Mock_L1_Messenger.sol:Mock_L1_Messenger'
+    l1_messengerArtifact
   )
   const L1_MessengerWrapper = await ethers.getContractFactory(
     `contracts/wrappers/${l1_messengerWrapperArtifact}`

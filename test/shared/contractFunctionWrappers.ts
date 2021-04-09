@@ -51,6 +51,7 @@ export const executeCanonicalBridgeSendTokens = async (
 
 export const executeCanonicalMessengerSendMessage = async (
   l1_messenger: Contract,
+  l1_messengerWrapper: Contract,
   l2_bridge: Contract,
   l2_messenger: Contract | string,
   sender: Signer,
@@ -68,18 +69,11 @@ export const executeCanonicalMessengerSendMessage = async (
       .connect(sender)
       .sendContractTransaction(...arbitrumParams);
   } else if (isChainIdOptimism(l2ChainId)) {
-    await l1_messenger.connect(sender).sendMessage(...params)
+    await l1_messenger.connect(sender).sendMessage( ...params)
   } else if (isChainIdXDai(l2ChainId)) {
     await l1_messenger.connect(sender).requireToPassMessage(...params)
   } else if (isChainIdPolygon(l2ChainId)) {
-    let l2_messengerAddress: string = ''
-    if (typeof l2_messenger === 'object') {
-      l2_messengerAddress = l2_messenger.address
-    } else {
-      l2_messengerAddress = l2_messenger
-    }
-    // TODO: Polygon resolve this
-    await l1_messenger.sendCrossDomainMessage(l2_messengerAddress, message)
+    await l1_messengerWrapper.sendCrossDomainMessage(message)
   } else {
     await l1_messenger.connect(sender).sendMessage(...params)
   }

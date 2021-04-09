@@ -20,6 +20,8 @@ abstract contract MockMessenger {
 
     Message public nextMessage;
     IERC20 public canonicalToken;
+    bool public isPolygonL1;
+    bool public isPolygonL2;
 
     /**
      * Chain specific params
@@ -32,16 +34,24 @@ abstract contract MockMessenger {
     address public messageSender;
     bytes32 public messageSourceChainId = 0x000000000000000000000000000000000000000000000000000000000000002a;
 
-    constructor(IERC20 _canonicalToken) public {
+    constructor(IERC20 _canonicalToken, bool _isPolygonL1, bool _isPolygonL2) public {
         canonicalToken = _canonicalToken;
+        isPolygonL1 = _isPolygonL1;
+        isPolygonL2 = _isPolygonL2;
     }
 
     function relayNextMessage() public {
         messageSender = nextMessage.sender;
         xDomainMessageSender = nextMessage.sender;
 
-        (bool success, bytes memory res) = nextMessage.target.call(nextMessage.message);
-        require(success, _getRevertMsgFromRes(res));
+        if (isPolygonL1) {
+            IPolygonMessengerWrapper(nextMessage.target).receiveMessage(nextMessage.message);
+        } else if (isPolygonL2) {
+            IL2_PolygonMessengerProxy(nextMessage.target).onStateReceive(0, nextMessage.message);
+        } else {
+            (bool success, bytes memory res) = nextMessage.target.call(nextMessage.message);
+            require(success, _getRevertMsgFromRes(res));
+        }
     }
 
     function receiveMessage(

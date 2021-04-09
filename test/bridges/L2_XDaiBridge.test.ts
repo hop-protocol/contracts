@@ -81,6 +81,7 @@ describe('L2_XDai_Bridge', () => {
   let l1_bridge: Contract
   let l1_canonicalBridge: Contract
   let l1_messenger: Contract
+  let l1_messengerWrapper: Contract
   let l2_canonicalToken: Contract
   let l2_hopBridgeToken: Contract
   let l2_bridge: Contract
@@ -115,6 +116,7 @@ describe('L2_XDai_Bridge', () => {
       l1_canonicalToken,
       l1_bridge,
       l1_messenger,
+      l1_messengerWrapper,
       l1_canonicalBridge,
       l2_canonicalToken,
       l2_hopBridgeToken,
@@ -213,6 +215,7 @@ describe('L2_XDai_Bridge', () => {
     )
     await executeCanonicalMessengerSendMessage(
       l1_messenger,
+      l1_messengerWrapper,
       l2_bridge,
       l2_messenger,
       governance,
@@ -231,6 +234,7 @@ describe('L2_XDai_Bridge', () => {
     )
     await executeCanonicalMessengerSendMessage(
       l1_messenger,
+      l1_messengerWrapper,
       l2_bridge,
       l2_messenger,
       governance,
@@ -264,6 +268,7 @@ describe('L2_XDai_Bridge', () => {
     await expect(
       executeCanonicalMessengerSendMessage(
         l1_messenger,
+        l1_messengerWrapper,
         l2_bridge,
         l2_messenger,
         user,
@@ -292,6 +297,7 @@ describe('L2_XDai_Bridge', () => {
     await expect(
       executeCanonicalMessengerSendMessage(
         l1_messenger,
+        l1_messengerWrapper,
         l2_bridge,
         l2_messenger,
         user,
