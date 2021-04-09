@@ -184,6 +184,7 @@ abstract contract Bridge is Accounting {
         bytes32[] calldata proof
     )
         external
+        nonReentrant
     {
         bytes32 transferId = getTransferId(
             getChainId(),
