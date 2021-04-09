@@ -22,7 +22,7 @@ import {
 import {
   getSetL1MessengerWrapperAddressMessage,
   executeCanonicalMessengerSendMessage,
-  getAddSupportedChainIdsMessage,
+  getAddActiveChainIdsMessage,
   getSetAmmWrapperAddressMessage
 } from '../../test/shared/contractFunctionWrappers'
 
@@ -169,8 +169,8 @@ export async function setupL1 (config: Config) {
   )
   await waitAfterTransaction()
 
-  let addSupportedChainIdsParams: any[] = ALL_SUPPORTED_CHAIN_IDS
-  message = getAddSupportedChainIdsMessage(addSupportedChainIdsParams)
+  let addActiveChainIdsParams: any[] = ALL_SUPPORTED_CHAIN_IDS
+  message = getAddActiveChainIdsMessage(addActiveChainIdsParams)
 
   logger.log('setting supported chain IDs on L2 bridge')
   logger.log(

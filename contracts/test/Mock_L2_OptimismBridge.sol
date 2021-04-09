@@ -14,7 +14,7 @@ contract Mock_L2_OptimismBridge is L2_OptimismBridge {
         address l1Governance,
         HopBridgeToken hToken,
         address l1BridgeAddress,
-        uint256[] memory supportedChainIds,
+        uint256[] memory activeChainIds,
         address[] memory bonders,
         uint32 defaultGasLimit
     )
@@ -24,7 +24,7 @@ contract Mock_L2_OptimismBridge is L2_OptimismBridge {
             l1Governance,
             hToken,
             l1BridgeAddress,
-            supportedChainIds,
+            activeChainIds,
             bonders,
             defaultGasLimit
         )

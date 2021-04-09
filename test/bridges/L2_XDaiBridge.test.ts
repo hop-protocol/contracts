@@ -33,8 +33,8 @@ import {
   getSetAmmWrapperAddressMessage,
   getSetL1BridgeAddressMessage,
   getSetL1MessengerWrapperAddressMessage,
-  getAddSupportedChainIdsMessage,
-  getRemoveSupportedChainIdsMessage,
+  getAddActiveChainIdsMessage,
+  getRemoveActiveChainIdsMessage,
   getSetMinimumForceCommitDelayMessage,
   getSetMaxPendingTransfersMessage,
   getSetHopBridgeTokenOwnerMessage,
@@ -194,7 +194,7 @@ describe('L2_XDai_Bridge', () => {
 
     for (let i = 0; i < ALL_SUPPORTED_CHAIN_IDS.length; i++) {
       const chainId: string = ALL_SUPPORTED_CHAIN_IDS[i]
-      const isChainIdSupported = await l2_bridge.supportedChainIds(
+      const isChainIdSupported = await l2_bridge.activeChainIds(
         chainId
       )
       expect(isChainIdSupported).to.eq(true)
