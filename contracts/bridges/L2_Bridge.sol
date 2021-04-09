@@ -27,7 +27,7 @@ abstract contract L2_Bridge is Bridge {
     L2_AmmWrapper public ammWrapper;
     mapping(uint256 => bool) public activeChainIds;
     uint256 public minimumForceCommitDelay = 4 hours;
-    uint256 public maxPendingTransfers = 100;
+    uint256 public maxPendingTransfers = 128;
     uint256 public minBonderBps = 2;
     uint256 public minBonderFeeAbsolute = 0;
 
