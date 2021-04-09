@@ -26,7 +26,7 @@ abstract contract L1_Bridge is Bridge {
 
     mapping(bytes32 => uint256) public transferRootCommittedAt;
     mapping(bytes32 => TransferBond) public transferBonds;
-    mapping(uint256 => uint256) public timeSlotToAmountBonded;
+    mapping(uint256 => mapping(address => uint256)) public timeSlotToAmountBonded;
     mapping(uint256 => uint256) public chainBalance;
 
     /* ========== Config State ========== */
@@ -161,7 +161,7 @@ abstract contract L1_Bridge is Bridge {
 
         uint256 currentTimeSlot = getTimeSlot(block.timestamp);
         uint256 bondAmount = getBondForTransferAmount(totalAmount);
-        timeSlotToAmountBonded[currentTimeSlot] = timeSlotToAmountBonded[currentTimeSlot].add(bondAmount);
+        timeSlotToAmountBonded[currentTimeSlot][msg.sender] = timeSlotToAmountBonded[currentTimeSlot][msg.sender].add(bondAmount);
 
         transferBonds[transferRootId] = TransferBond(
             msg.sender,
@@ -259,7 +259,8 @@ abstract contract L1_Bridge is Bridge {
         // Move amount from timeSlotToAmountBonded to debit
         uint256 timeSlot = getTimeSlot(transferBond.createdAt);
         uint256 bondAmount = getBondForTransferAmount(originalAmount);
-        timeSlotToAmountBonded[timeSlot] = timeSlotToAmountBonded[timeSlot].sub(bondAmount);
+        address bonder = transferBond.bonder;
+        timeSlotToAmountBonded[timeSlot][bonder] = timeSlotToAmountBonded[timeSlot][bonder].sub(bondAmount);
 
         _addDebit(transferBond.bonder, bondAmount);
 
@@ -316,13 +317,13 @@ abstract contract L1_Bridge is Bridge {
 
     /* ========== Override Functions ========== */
 
-    function _additionalDebit() internal view override returns (uint256) {
+    function _additionalDebit(address bonder) internal view override returns (uint256) {
         uint256 currentTimeSlot = getTimeSlot(block.timestamp);
         uint256 bonded = 0;
 
         uint256 numTimeSlots = challengePeriod / timeSlotSize;
         for (uint256 i = 0; i < numTimeSlots; i++) {
-            bonded = bonded.add(timeSlotToAmountBonded[currentTimeSlot - i]);
+            bonded = bonded.add(timeSlotToAmountBonded[currentTimeSlot - i][bonder]);
         }
 
         return bonded;

@@ -415,9 +415,13 @@ export const executeL1BridgeBondTransferRoot = async (
     transfer.amount
   )
   const timeSlotToAmountBonded: number = await l1_bridge.timeSlotToAmountBonded(
-    timeSlot
+    timeSlot,
+    await bonder.getAddress()
   )
-  const transferBond: number = await l1_bridge.timeSlotToAmountBonded(timeSlot)
+  const transferBond: number = await l1_bridge.timeSlotToAmountBonded(
+    timeSlot,
+    await bonder.getAddress()
+  )
   const transferRoot: number = await l1_bridge.getTransferRoot(
     rootHash,
     transfer.amount
@@ -605,7 +609,8 @@ export const executeL1BridgeChallengeTransferBond = async (
 
   const timeSlot: string = await l1_bridge.getTimeSlot(currentTime)
   const bondAmountForTimeSlot: number = await l1_bridge.timeSlotToAmountBonded(
-    timeSlot
+    timeSlot,
+    await bonder.getAddress()
   )
   expect(bondAmountForTimeSlot).to.eq(BigNumber.from('0'))
 
