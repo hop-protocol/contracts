@@ -26,7 +26,7 @@ abstract contract L2_Bridge is Bridge {
     address public l1MessengerWrapperAddress;
     L2_AmmWrapper public ammWrapper;
     IERC20 public l2CanonicalToken;
-    mapping(uint256 => bool) public supportedChainIds;
+    mapping(uint256 => bool) public activeChainIds;
     uint256 public minimumForceCommitDelay = 4 hours;
     uint256 public maxPendingTransfers = 100;
     uint256 public minBonderBps = 2;
@@ -64,7 +64,7 @@ abstract contract L2_Bridge is Bridge {
         address _l1Governance,
         HopBridgeToken _hToken,
         address _l1BridgeAddress,
-        uint256[] memory _supportedChainIds,
+        uint256[] memory _activeChainIds,
         address[] memory bonders
     )
         public
@@ -76,8 +76,8 @@ abstract contract L2_Bridge is Bridge {
         hToken = _hToken;
         l1BridgeAddress = _l1BridgeAddress;
 
-        for (uint256 i = 0; i < _supportedChainIds.length; i++) {
-            supportedChainIds[_supportedChainIds[i]] = true;
+        for (uint256 i = 0; i < _activeChainIds.length; i++) {
+            activeChainIds[_activeChainIds[i]] = true;
         }
     }
 
@@ -112,7 +112,7 @@ abstract contract L2_Bridge is Bridge {
     {
         require(amount > 0, "L2_BRG: Must transfer a non-zero amount");
         require(amount >= bonderFee, "L2_BRG: Bonder fee cannot exceed amount");
-        require(supportedChainIds[chainId], "L2_BRG: chainId is not supported");
+        require(activeChainIds[chainId], "L2_BRG: chainId is not supported");
         uint256 minBonderFeeRelative = amount.mul(minBonderBps).div(10000);
         // Get the max of minBonderFeeRelative and minBonderFeeAbsolute
         uint256 minBonderFee = minBonderFeeRelative > minBonderFeeAbsolute ? minBonderFeeRelative : minBonderFeeAbsolute;
@@ -317,15 +317,15 @@ abstract contract L2_Bridge is Bridge {
         l1MessengerWrapperAddress = _l1MessengerWrapperAddress;
     }
 
-    function addSupportedChainIds(uint256[] calldata chainIds) external onlyGovernance {
+    function addActiveChainIds(uint256[] calldata chainIds) external onlyGovernance {
         for (uint256 i = 0; i < chainIds.length; i++) {
-            supportedChainIds[chainIds[i]] = true;
+            activeChainIds[chainIds[i]] = true;
         }
     }
 
-    function removeSupportedChainIds(uint256[] calldata chainIds) external onlyGovernance {
+    function removeActiveChainIds(uint256[] calldata chainIds) external onlyGovernance {
         for (uint256 i = 0; i < chainIds.length; i++) {
-            supportedChainIds[chainIds[i]] = false;
+            activeChainIds[chainIds[i]] = false;
         }
     }
 

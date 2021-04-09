@@ -14,7 +14,7 @@ contract Mock_L2_XDaiBridge is L2_XDaiBridge {
         address l1Governance,
         HopBridgeToken hToken,
         address l1BridgeAddress,
-        uint256[] memory supportedChainIds,
+        uint256[] memory activeChainIds,
         address[] memory bonders,
         uint256 l1ChainId,
         uint256 defaultGasLimit
@@ -25,7 +25,7 @@ contract Mock_L2_XDaiBridge is L2_XDaiBridge {
             l1Governance,
             hToken,
             l1BridgeAddress,
-            supportedChainIds,
+            activeChainIds,
             bonders,
             l1ChainId,
             defaultGasLimit

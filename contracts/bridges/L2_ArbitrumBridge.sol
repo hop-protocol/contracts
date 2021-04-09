@@ -18,7 +18,7 @@ contract L2_ArbitrumBridge is L2_Bridge {
         address l1Governance,
         HopBridgeToken hToken,
         address l1BridgeAddress,
-        uint256[] memory supportedChainIds,
+        uint256[] memory activeChainIds,
         address[] memory bonders
     )
         public
@@ -26,7 +26,7 @@ contract L2_ArbitrumBridge is L2_Bridge {
             l1Governance,
             hToken,
             l1BridgeAddress,
-            supportedChainIds,
+            activeChainIds,
             bonders
         )
     {

@@ -32,8 +32,8 @@ import {
   getSetAmmWrapperAddressMessage,
   getSetL1BridgeAddressMessage,
   getSetL1MessengerWrapperAddressMessage,
-  getAddSupportedChainIdsMessage,
-  getRemoveSupportedChainIdsMessage,
+  getAddActiveChainIdsMessage,
+  getRemoveActiveChainIdsMessage,
   getSetMinimumForceCommitDelayMessage,
   getSetMaxPendingTransfersMessage,
   getSetHopBridgeTokenOwnerMessage,
@@ -210,7 +210,7 @@ describe('L2_Bridge', () => {
     expect(expectedDecimals).to.eq(decimals)
 
     for (let i = 0; i < ALL_SUPPORTED_CHAIN_IDS.length; i++) {
-      const isChainIdSupported = await l2_bridge.supportedChainIds(
+      const isChainIdSupported = await l2_bridge.activeChainIds(
         ALL_SUPPORTED_CHAIN_IDS[i]
       )
       expect(expectedIsChainIdSupported).to.eq(isChainIdSupported)
@@ -293,7 +293,7 @@ describe('L2_Bridge', () => {
     it('Should add support for a new chainId', async () => {
       const newChainId: BigNumber[] = [BigNumber.from('13371337')]
 
-      const message: string = getAddSupportedChainIdsMessage(newChainId)
+      const message: string = getAddActiveChainIdsMessage(newChainId)
       await executeCanonicalMessengerSendMessage(
         l1_messenger,
         l2_bridge,
@@ -302,7 +302,7 @@ describe('L2_Bridge', () => {
         message
       )
 
-      const isChainIdSupported: boolean = await l2_bridge.supportedChainIds(
+      const isChainIdSupported: boolean = await l2_bridge.activeChainIds(
         newChainId[0]
       )
       expect(isChainIdSupported).to.eq(true)
@@ -311,7 +311,7 @@ describe('L2_Bridge', () => {
     it('Should add support for a new chainId then remove it', async () => {
       const newChainId: BigNumber[] = [BigNumber.from('13371337')]
 
-      let message: string = getAddSupportedChainIdsMessage(newChainId)
+      let message: string = getAddActiveChainIdsMessage(newChainId)
       await executeCanonicalMessengerSendMessage(
         l1_messenger,
         l2_bridge,
@@ -320,12 +320,12 @@ describe('L2_Bridge', () => {
         message
       )
 
-      let isChainIdSupported: boolean = await l2_bridge.supportedChainIds(
+      let isChainIdSupported: boolean = await l2_bridge.activeChainIds(
         newChainId[0]
       )
       expect(isChainIdSupported).to.eq(true)
 
-      message = getRemoveSupportedChainIdsMessage(newChainId)
+      message = getRemoveActiveChainIdsMessage(newChainId)
       await executeCanonicalMessengerSendMessage(
         l1_messenger,
         l2_bridge,
@@ -334,7 +334,7 @@ describe('L2_Bridge', () => {
         message
       )
 
-      isChainIdSupported = await l2_bridge.supportedChainIds(newChainId[0])
+      isChainIdSupported = await l2_bridge.activeChainIds(newChainId[0])
       expect(isChainIdSupported).to.eq(false)
     })
 
@@ -740,7 +740,7 @@ describe('L2_Bridge', () => {
       const expectedErrorMsg: string = 'L2_OVM_BRG: Invalid cross-domain sender'
       const newChainId: BigNumber[] = [BigNumber.from('13371337')]
 
-      const message: string = getAddSupportedChainIdsMessage(newChainId)
+      const message: string = getAddActiveChainIdsMessage(newChainId)
       await expect(
         executeCanonicalMessengerSendMessage(
           l1_messenger,
@@ -756,7 +756,7 @@ describe('L2_Bridge', () => {
       const expectedErrorMsg: string = 'L2_OVM_BRG: Invalid cross-domain sender'
       const newChainId: BigNumber[] = [BigNumber.from('13371337')]
 
-      let message: string = getAddSupportedChainIdsMessage(newChainId)
+      let message: string = getAddActiveChainIdsMessage(newChainId)
       await executeCanonicalMessengerSendMessage(
         l1_messenger,
         l2_bridge,
@@ -765,12 +765,12 @@ describe('L2_Bridge', () => {
         message
       )
 
-      let isChainIdSupported: boolean = await l2_bridge.supportedChainIds(
+      let isChainIdSupported: boolean = await l2_bridge.activeChainIds(
         newChainId[0]
       )
       expect(isChainIdSupported).to.eq(true)
 
-      message = getRemoveSupportedChainIdsMessage(newChainId)
+      message = getRemoveActiveChainIdsMessage(newChainId)
       await expect(
         executeCanonicalMessengerSendMessage(
           l1_messenger,

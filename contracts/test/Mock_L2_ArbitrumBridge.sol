@@ -14,7 +14,7 @@ contract Mock_L2_ArbitrumBridge is L2_ArbitrumBridge {
         address l1Governance,
         HopBridgeToken hToken,
         address l1BridgeAddress,
-        uint256[] memory supportedChainIds,
+        uint256[] memory activeChainIds,
         address[] memory bonders
     )
         public
@@ -23,7 +23,7 @@ contract Mock_L2_ArbitrumBridge is L2_ArbitrumBridge {
             l1Governance,
             hToken,
             l1BridgeAddress,
-            supportedChainIds,
+            activeChainIds,
             bonders
         )
     {
