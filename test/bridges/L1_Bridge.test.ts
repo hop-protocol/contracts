@@ -478,41 +478,15 @@ describe('L1_Bridge', () => {
       expect(isPaused).to.eq(true)
     })
 
-    it('Should set a new challengeAmountMultiplier', async () => {
-      const expectedChallengeAmountMultiplier: BigNumber = BigNumber.from(
-        '13371337'
-      )
-      await l1_bridge.connect(governance).setChallengeAmountMultiplier(
-        expectedChallengeAmountMultiplier
-      )
+    it('Should set a new challengePeriod', async () => {
+      const expectedChallengePeriod: BigNumber = BigNumber.from('28800')
 
-      const challengeAmountMultiplier: BigNumber = await l1_bridge.challengeAmountMultiplier()
-      expect(challengeAmountMultiplier).to.eq(expectedChallengeAmountMultiplier)
-    })
-
-    it('Should set a new challengeAmountDivisor', async () => {
-      const expectedChallengeAmountDivisor: BigNumber = BigNumber.from(
-        '13371337'
-      )
-      await l1_bridge.connect(governance).setChallengeAmountDivisor(expectedChallengeAmountDivisor)
-
-      const challengeAmountDivisor: BigNumber = await l1_bridge.challengeAmountDivisor()
-      expect(challengeAmountDivisor).to.eq(expectedChallengeAmountDivisor)
-    })
-
-    it('Should set a new challengePeriod and timeSlot', async () => {
-      const expectedChallengePeriod: BigNumber = BigNumber.from('100')
-      const expectedTimeSlotSize: BigNumber = BigNumber.from('5')
-
-      await l1_bridge.connect(governance).setChallengePeriodAndTimeSlotSize(
-        expectedChallengePeriod,
-        expectedTimeSlotSize
+      await l1_bridge.connect(governance).setChallengePeriod(
+        expectedChallengePeriod
       )
 
       const challengePeriod: BigNumber = await l1_bridge.challengePeriod()
-      const timeSlotSize: BigNumber = await l1_bridge.timeSlotSize()
       expect(challengePeriod).to.eq(expectedChallengePeriod)
-      expect(timeSlotSize).to.eq(expectedTimeSlotSize)
     })
 
     it('Should set a new challengeResolutionPeriod', async () => {
@@ -569,7 +543,7 @@ describe('L1_Bridge', () => {
       let timeSlot: BigNumber = await l1_bridge.getTimeSlot(time)
       expect(timeSlot).to.eq(expectedTimeSlot)
 
-      expectedTimeSlot = BigNumber.from('92592592592592592')
+      expectedTimeSlot = BigNumber.from('69444444444444444')
       time = BigNumber.from(parseEther('1000'))
       timeSlot = await l1_bridge.getTimeSlot(time)
       expect(timeSlot).to.eq(expectedTimeSlot)
@@ -1702,17 +1676,15 @@ describe('L1_Bridge', () => {
       await expect(l1_bridge.setGovernance(ZERO_ADDRESS)).to.be.reverted
     })
 
-    it('Should not set a new challengePeriod and timeSlot because they are not valid values', async () => {
+    it('Should not set a new challengePeriod because it is not a valid value', async () => {
       const expectedErrorMsg: string =
-        'L1_BRG: challengePeriod must be divisible by timeSlotSize'
+        'L1_BRG: challengePeriod must be divisible by TIME_SLOT_SIZE'
 
       const expectedChallengePeriod: BigNumber = BigNumber.from('100')
-      const expectedTimeSlotSize: BigNumber = BigNumber.from('99')
 
       await expect(
-        l1_bridge.connect(governance).setChallengePeriodAndTimeSlotSize(
-          expectedChallengePeriod,
-          expectedTimeSlotSize
+        l1_bridge.connect(governance).setChallengePeriod(
+          expectedChallengePeriod
         )
       ).to.be.revertedWith(expectedErrorMsg)
     })
