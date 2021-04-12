@@ -279,6 +279,7 @@ const getXDaiContractFactories = async (signer: Signer, ethers: any) => {
 
 const getPolygonContractFactories = async (signer: Signer, ethers: any) => {
   // TODO: Polygon Contract Factories
+  throw new Error('getPolygonContractFactories not implemented')
 }
 
 export const sendChainSpecificBridgeDeposit = async (

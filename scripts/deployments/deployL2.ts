@@ -271,7 +271,6 @@ const deployBridge = async (
     chainId,
     l2_messengerAddress,
     await governance.getAddress(),
-    l2_hopBridgeToken.address,
     l1_bridge.address,
     [CHAIN_IDS.ETHEREUM.MAINNET.toString()],
     [await bonder.getAddress()],
@@ -281,8 +280,8 @@ const deployBridge = async (
   l2_bridge = await L2_Bridge.connect(owner).deploy(...l2BridgeDeploymentParams)
   await waitAfterTransaction(l2_bridge, ethers)
 
-  const l2CanonicalTokenName = 'why'//await l2_canonicalToken.symbol(overrides)
-  const l2CanonicalTokenIsEth: boolean = false//l2CanonicalTokenName === 'WETH'
+  const l2CanonicalTokenName = await l2_canonicalToken.symbol(overrides)
+  const l2CanonicalTokenIsEth: boolean = l2CanonicalTokenName === 'WETH'
   l2_ammWrapper = await L2_AmmWrapper.connect(owner).deploy(
     l2_bridge.address,
     l2_canonicalToken.address,
