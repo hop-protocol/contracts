@@ -388,9 +388,8 @@ export const getL2SpecificArtifact = (chainId: BigNumber) => {
   } else if (isChainIdPolygon(chainId)) {
     l2_bridgeArtifact = 'Mock_L2_PolygonBridge.sol:Mock_L2_PolygonBridge'
     l1_messengerArtifact = 'contracts/test/Mock_L1_Messenger.sol:Mock_L1_Messenger'
-    // l1_messengerArtifact = 'contracts/wrappers/PolygonMessengerWrapper.sol:PolygonMessengerWrapper'
     l1_messengerWrapperArtifact =
-      'PolygonMessengerWrapper.sol:PolygonMessengerWrapper'
+      'MockPolygonMessengerWrapper.sol:MockPolygonMessengerWrapper'
   }
 
   return {
