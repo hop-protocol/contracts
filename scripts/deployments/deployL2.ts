@@ -127,6 +127,14 @@ export async function deployL2 (config: Config) {
    * Deployments
    */
 
+  let l2_messengerProxyAddress: string = ''
+  if (isChainIdPolygon(l2_chainId)) {
+    l2_messengerProxy = await L2_MessengerProxy.deploy()
+    await waitAfterTransaction(l2_messengerProxy, ethers)
+    l2_messengerProxyAddress = l2_messengerProxy.address
+  }
+
+
   logger.log('deploying L2 hop bridge token')
   l2_hopBridgeToken = await L2_HopBridgeToken.deploy(
     l2_hBridgeTokenName,
@@ -162,7 +170,8 @@ export async function deployL2 (config: Config) {
     l2_canonicalToken,
     l2_swap,
     l2_ammWrapper,
-    l2_messengerAddress
+    l2_messengerAddress,
+    l2_messengerProxyAddress
   ))
 
   logger.log('deploying network specific contracts')
@@ -177,13 +186,6 @@ export async function deployL2 (config: Config) {
   tx = await l2_hopBridgeToken.transferOwnership(...transferOwnershipParams)
   await tx.wait()
   await waitAfterTransaction()
-
-  let l2_messengerProxyAddress: string = ''
-  if (isChainIdPolygon(l2_chainId)) {
-    l2_messengerProxy = await L2_MessengerProxy.deploy(l2_bridge.address)
-    await waitAfterTransaction(l2_messengerProxy, ethers)
-    l2_messengerProxyAddress = l2_messengerProxy.address
-  }
 
   const l2_hopBridgeTokenAddress: string = l2_hopBridgeToken.address
   const l2_bridgeAddress: string = l2_bridge.address
@@ -274,13 +276,15 @@ const deployBridge = async (
   l2_canonicalToken: Contract,
   l2_swap: Contract,
   l2_ammWrapper: Contract,
-  l2_messengerAddress: string
+  l2_messengerAddress: string,
+  l2_messengerProxyAddress: string
 ) => {
   // NOTE: Adding more CHAIN_IDs here will push the OVM deployment over the contract size limit
   //       If additional CHAIN_IDs must be added, do so after the deployment.
   const l2BridgeDeploymentParams = getL2BridgeDefaults(
     chainId,
     l2_messengerAddress,
+    l2_messengerProxyAddress,
     await governance.getAddress(),
     l2_hopBridgeToken.address,
     l1_bridge.address,

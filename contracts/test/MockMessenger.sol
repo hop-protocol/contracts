@@ -5,6 +5,8 @@ pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
+import "./polygon/IPolygonMessengerWrapper.sol";
+import "./polygon/I_L2_PolygonMessengerProxy.sol";
 
 import "./BytesLib.sol";
 
@@ -34,9 +36,15 @@ abstract contract MockMessenger {
     address public messageSender;
     bytes32 public messageSourceChainId = 0x000000000000000000000000000000000000000000000000000000000000002a;
 
-    constructor(IERC20 _canonicalToken, bool _isPolygonL1, bool _isPolygonL2) public {
+    constructor(IERC20 _canonicalToken) public {
         canonicalToken = _canonicalToken;
+    }
+
+    function setIsPolygonL1(bool _isPolygonL1) public {
         isPolygonL1 = _isPolygonL1;
+    }
+
+    function setIsPolygonL2(bool _isPolygonL2) public {
         isPolygonL2 = _isPolygonL2;
     }
 
@@ -45,9 +53,9 @@ abstract contract MockMessenger {
         xDomainMessageSender = nextMessage.sender;
 
         if (isPolygonL1) {
-            IPolygonMessengerWrapper(nextMessage.target).receiveMessage(nextMessage.message);
+            IPolygonMessengerWrapper(nextMessage.target).processMessageFromChild(nextMessage.message);
         } else if (isPolygonL2) {
-            IL2_PolygonMessengerProxy(nextMessage.target).onStateReceive(0, nextMessage.message);
+            I_L2_PolygonMessengerProxy(nextMessage.target).processMessageFromRoot(nextMessage.message);
         } else {
             (bool success, bytes memory res) = nextMessage.target.call(nextMessage.message);
             require(success, _getRevertMsgFromRes(res));

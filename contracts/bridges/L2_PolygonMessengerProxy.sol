@@ -21,11 +21,13 @@ contract L2_PolygonMessengerProxy is BaseChildTunnel, ReentrancyGuard {
         _;
     }
 
-    constructor(
-        address _l2Bridge
-    ) public {
-        l2Bridge = _l2Bridge;
+    constructor() public {
         xDomainMessageSender = DEAD_ADDRESS;
+    }
+
+    function setL2Bridge(address _l2Bridge) external {
+        require(l2Bridge == address(0), "L2_PLGN_MSG: L2 Bridge already set");
+        l2Bridge = _l2Bridge;
     }
 
     function sendCrossDomainMessage(bytes memory message) external onlyL2Bridge {

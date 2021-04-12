@@ -12,7 +12,10 @@ import {
   wait,
   Logger
 } from '../shared/utils'
-import { isChainIdXDai } from '../../config/utils'
+import {
+  isChainIdXDai,
+  isChainIdPolygon
+} from '../../config/utils'
 
 import {
   DEFAULT_DEADLINE,
@@ -29,6 +32,7 @@ interface Config {
   l2_hopBridgeTokenAddress: string
   l2_bridgeAddress: string
   l2_swapAddress: string
+  l2_messengerProxyAddress: string
 }
 
 export async function setupL2 (config: Config) {
@@ -39,7 +43,8 @@ export async function setupL2 (config: Config) {
     l2_canonicalTokenAddress,
     l2_hopBridgeTokenAddress,
     l2_bridgeAddress,
-    l2_swapAddress
+    l2_swapAddress,
+    l2_messengerProxyAddress
   } = config
 
   logger.log(`config:
@@ -47,7 +52,9 @@ export async function setupL2 (config: Config) {
             l2_canonicalTokenAddress: ${l2_canonicalTokenAddress}
             l2_hopBridgeTokenAddress: ${l2_hopBridgeTokenAddress}
             l2_bridgeAddress: ${l2_bridgeAddress}
-            l2_swapAddress: ${l2_swapAddress}`)
+            l2_swapAddress: ${l2_swapAddress}
+            l2_messengerProxyAddress: ${l2_messengerProxyAddress}`
+            )
 
   l2_chainId = BigNumber.from(l2_chainId)
 
@@ -61,12 +68,14 @@ export async function setupL2 (config: Config) {
   let L2_HopBridgeToken: ContractFactory
   let L2_Bridge: ContractFactory
   let L2_Swap: ContractFactory
+  let L2_MessengerProxy: ContractFactory
 
   // L2
   let l2_canonicalToken: Contract
   let l2_hopBridgeToken: Contract
   let l2_bridge: Contract
   let l2_swap: Contract
+  let l2_messengerProxy: Contract
 
   // Instantiate the wallets
   accounts = await ethers.getSigners()
@@ -85,7 +94,8 @@ export async function setupL2 (config: Config) {
     L2_MockERC20,
     L2_HopBridgeToken,
     L2_Bridge,
-    L2_Swap
+    L2_Swap,
+    L2_MessengerProxy
   } = await getContractFactories(l2_chainId, owner, ethers))
 
   logger.log('attaching deployed contracts')
@@ -95,6 +105,8 @@ export async function setupL2 (config: Config) {
 
   l2_bridge = L2_Bridge.attach(l2_bridgeAddress)
   l2_swap = L2_Swap.attach(l2_swapAddress)
+
+  l2_messengerProxy = L2_MessengerProxy.attach(l2_messengerProxyAddress)
 
   /**
    * Setup
@@ -114,6 +126,12 @@ export async function setupL2 (config: Config) {
     l2_hopBridgeToken,
     l2_bridge
   )
+
+  if (isChainIdPolygon(l2_chainId)) {
+    await l2_messengerProxy.setL2Bridge(l2_bridge.address)
+    await tx.wait()
+    await waitAfterTransaction()
+  }
 
   logger.log('L2 state verified')
   // Set up Amm
@@ -230,14 +248,16 @@ if (require.main === module) {
     l2_canonicalTokenAddress,
     l2_hopBridgeTokenAddress,
     l2_bridgeAddress,
-    l2_swapAddress
+    l2_swapAddress,
+    l2_messengerProxyAddress
   } = readConfigFile()
   setupL2({
     l2_chainId,
     l2_canonicalTokenAddress,
     l2_hopBridgeTokenAddress,
     l2_bridgeAddress,
-    l2_swapAddress
+    l2_swapAddress,
+    l2_messengerProxyAddress
   })
     .then(() => {
       process.exit(0)

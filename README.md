@@ -156,30 +156,6 @@ DAI <--------------<---|---> hDAI <----(AMM)--> Arbitrum DAI
                        |
 ```
 
-## Steps to Integrate a New L2
-
-The following steps are to add a new layer-2 (Xyz, for example) to the Hop System:
-
-- Contract updates
-
-  - Add the Xyz messenger interface in `./contracts/interfaces/xyz/messengers/IXyz.sol`
-  - Add a wrapper for the Xyz messenger in `./contracts/wrappers/XyzMessengerWrapper.sol`
-  - Add messenger logic for Xyz to the L1 mock messenger in `./contracts/test/L1_MockMessenger.sol`
-  - Add messenger logic for Xyz to the L2 mock messenger in `./contracts/test/L2_MockMessenger.sol`
-  - Add an L2 Bridge for Xyz to `./contracts/bridges/L2_XyzBridge.sol`
-  - Add a mock L2 Bridge for Xyz to `./contracts/test/Mock_L2_XyzBridge.sol`
-
-- Testing updates
-
-  - Add Xyz contract artifacts to `getL2SpecificArtifact()` in `./test/shared/fixtures.ts`
-  - Add Xyz to `CHAIN_IDS` in `./config/constants.ts`
-  - Add `getMessengerWrapperDefaults()` to `./config/utils.ts`
-  - Add `isChainIdXyz()` to `./config/utils.ts`
-  - Add Xyz to `sendChainSpecificBridgeDeposit()` to ./scripts/shared/utils.ts
-
-- Config updates
-  - Add the L2 and its config to `./hardhat.config.ts`
-
 ## Temporary Steps for Deploying on Optimism
 Because Optimism does not support the OpenZeppelin contracts out of the box, these steps must be followed to deploy with patched OpenZeppelin contracts.
 ```

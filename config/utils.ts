@@ -67,6 +67,7 @@ export const getMessengerWrapperDefaults = (
 export const getL2BridgeDefaults = (
   chainId: BigNumber,
   l2MessengerAddress: string,
+  l2MessengerProxyAddress: string,
   governanceAddress: string,
   l2HopBridgeTokenAddress: string,
   l1BridgeAddress: string,
@@ -76,6 +77,7 @@ export const getL2BridgeDefaults = (
 ): IGetL2BridgeDefaults[] => {
   let defaults: IGetL2BridgeDefaults[] = []
 
+  let actualL2MessengerAddress: string = l2MessengerAddress
   let additionalData = []
 
   if (isChainIdArbitrum(chainId)) {
@@ -89,11 +91,11 @@ export const getL2BridgeDefaults = (
       DEFAULT_L2_BRIDGE_GAS_LIMIT
     )
   } else if (isChainIdPolygon(chainId)) {
-    // No additional data needed
+    actualL2MessengerAddress = l2MessengerProxyAddress
   }
 
   defaults.push(
-    l2MessengerAddress,
+    actualL2MessengerAddress,
     governanceAddress,
     l2HopBridgeTokenAddress,
     l1BridgeAddress,

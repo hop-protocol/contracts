@@ -24,7 +24,8 @@ import {
   TIMESTAMP_VARIANCE,
   DEAD_ADDRESS,
   H_TO_C_SWAP_INDICES,
-  C_TO_H_SWAP_INDICES
+  C_TO_H_SWAP_INDICES,
+  ZERO_ADDRESS
 } from '../../config/constants'
 
 /**
@@ -73,7 +74,9 @@ export const executeCanonicalMessengerSendMessage = async (
   } else if (isChainIdXDai(l2ChainId)) {
     await l1_messenger.connect(sender).requireToPassMessage(...params)
   } else if (isChainIdPolygon(l2ChainId)) {
-    await l1_messengerWrapper.sendCrossDomainMessage(message)
+    const coder = ethersUtils.defaultAbiCoder
+    const customMessage: string = coder.encode(['address', 'bytes'], [await sender.getAddress(), message])
+    await l1_messenger.connect(sender).syncState(ZERO_ADDRESS, customMessage)
   } else {
     await l1_messenger.connect(sender).sendMessage(...params)
   }

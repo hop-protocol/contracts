@@ -12,7 +12,7 @@ contract Mock_L2_Messenger is MockMessenger {
     // This should be the PolygonMessengerWrapper
     address public polygonTarget;
 
-    constructor (IERC20 _canonicalToken, bool _isPolygonL1, bool _isPolygonL2) public MockMessenger(_canonicalToken, _isPolygonL1, _isPolygonL2) {}
+    constructor (IERC20 _canonicalToken) public MockMessenger(_canonicalToken) {}
 
     function setTargetMessenger(address _targetMessenger) public {
         targetMessenger = Mock_L1_Messenger(_targetMessenger);

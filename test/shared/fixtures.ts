@@ -67,7 +67,7 @@ export async function fixture (
     l1_messengerArtifact
   )
   const L1_MessengerWrapper = await ethers.getContractFactory(
-    `contracts/wrappers/${l1_messengerWrapperArtifact}`
+    l1_messengerWrapperArtifact
   )
   const L2_HopBridgeToken = await ethers.getContractFactory(
     'contracts/bridges/HopBridgeToken.sol:HopBridgeToken'
@@ -76,7 +76,7 @@ export async function fixture (
     'contracts/test/Mock_L2_Messenger.sol:Mock_L2_Messenger'
   )
   const L2_MessengerProxy = await ethers.getContractFactory(
-    'contracts/test/Mock_L2_MessengerProxy.sol:Mock_L2_MessengerProxy'
+    'contracts/test/Mock_L2_PolygonMessengerProxy.sol:Mock_L2_PolygonMessengerProxy'
   )
 
   const MathUtils = await ethers.getContractFactory('MathUtils')
@@ -155,10 +155,14 @@ export async function fixture (
     DEFAULT_H_BRIDGE_TOKEN_DECIMALS
   )
 
+  // Deploy Messenger Proxy
+  const l2_messengerProxy: Contract = await L2_MessengerProxy.deploy()
+
   // Deploy Hop L2 contracts
   let l2BridgeDefaults: IGetL2BridgeDefaults[] = getL2BridgeDefaults(
     l2ChainId,
     l2_messenger.address,
+    l2_messengerProxy.address,
     await governance.getAddress(),
     l2_hopBridgeToken.address,
     l1_bridge.address,
@@ -202,8 +206,6 @@ export async function fixture (
     l2_hopBridgeToken.address,
     l2_swap.address
   )
-
-  const l2_messengerProxy: Contract = await L2_MessengerProxy.deploy(l2_bridge.address)
 
   // Mocks
   const mockAccounting = await MockAccounting.deploy([
