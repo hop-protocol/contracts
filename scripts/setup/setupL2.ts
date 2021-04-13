@@ -2,7 +2,6 @@ require('dotenv').config()
 
 import { ethers } from 'hardhat'
 import { BigNumber, ContractFactory, Contract, Signer, providers } from 'ethers'
-const ethers = ethers
 
 import {
   getContractFactories,

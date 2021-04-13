@@ -54,6 +54,7 @@ export const getL2BridgeDefaults = (
   chainId: BigNumber,
   l2MessengerAddress: string,
   governanceAddress: string,
+  l2HopBridgeTokenAddress: string,
   l1BridgeAddress: string,
   activeChainIds: string[],
   bonderAddresses: string[],
@@ -80,6 +81,7 @@ export const getL2BridgeDefaults = (
   defaults.push(
     l2MessengerAddress,
     governanceAddress,
+    l2HopBridgeTokenAddress,
     l1BridgeAddress,
     activeChainIds,
     bonderAddresses
