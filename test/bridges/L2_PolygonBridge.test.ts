@@ -172,7 +172,6 @@ describe('L2_Polygon_Bridge', () => {
    */
 
   it('Should set the correct values in the constructor', async () => {
-    // TODO: Verify all of these are expected
     const expectedMessengerProxyAddress: string = l2_messengerProxy.address
     const expectedL1GovernanceAddress: string = await governance.getAddress()
     const expectedHopBridgeTokenAddress: string = l2_hopBridgeToken.address
@@ -211,7 +210,6 @@ describe('L2_Polygon_Bridge', () => {
     )
     await executeCanonicalMessengerSendMessage(
       l1_messenger,
-      l1_messengerWrapper,
       l2_bridge,
       l2_messenger,
       governance,
@@ -249,7 +247,6 @@ describe('L2_Polygon_Bridge', () => {
     await expect(
       executeCanonicalMessengerSendMessage(
         l1_messenger,
-        l1_messengerWrapper,
         l2_bridge,
         l2_messenger,
         user,

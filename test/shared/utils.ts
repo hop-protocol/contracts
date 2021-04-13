@@ -163,7 +163,6 @@ export const setUpL1AndL2Bridges = async (fixture: IFixture, opts: any) => {
   let message: string = getSetL1BridgeAddressMessage(l1_bridge)
   await executeCanonicalMessengerSendMessage(
     l1_messenger,
-    l1_messengerWrapper,
     l2_bridge,
     l2_messenger,
     governance,
@@ -174,7 +173,6 @@ export const setUpL1AndL2Bridges = async (fixture: IFixture, opts: any) => {
   message = getSetL1MessengerWrapperAddressMessage(l1_messengerWrapper)
   await executeCanonicalMessengerSendMessage(
     l1_messenger,
-    l1_messengerWrapper,
     l2_bridge,
     l2_messenger,
     governance,
@@ -185,7 +183,6 @@ export const setUpL1AndL2Bridges = async (fixture: IFixture, opts: any) => {
   message = getSetAmmWrapperAddressMessage(l2_ammWrapper)
   await executeCanonicalMessengerSendMessage(
     l1_messenger,
-    l1_messengerWrapper,
     l2_bridge,
     l2_messenger,
     governance,

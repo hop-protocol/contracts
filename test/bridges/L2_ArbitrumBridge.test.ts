@@ -208,11 +208,11 @@ describe.skip('L2_Arbitrum_Bridge', () => {
     )
     await executeCanonicalMessengerSendMessage(
       l1_messenger,
-      l1_messengerWrapper,
       l2_bridge,
       l2_messenger,
       governance,
-      message
+      message,
+      l2ChainId
     )
 
     const messengerAddress: string = await l2_bridge.messenger()
@@ -242,11 +242,11 @@ describe.skip('L2_Arbitrum_Bridge', () => {
     await expect(
       executeCanonicalMessengerSendMessage(
         l1_messenger,
-        l1_messengerWrapper,
         l2_bridge,
         l2_messenger,
         user,
-        message
+        message,
+        l2ChainId
       )
     ).to.be.revertedWith(expectedErrorMsg)
   })

@@ -62,7 +62,6 @@ async function main () {
 
   await executeCanonicalMessengerSendMessage(
     l1_messenger,
-    l1_messengerWrapper,
     l2_bridge,
     ZERO_ADDRESS,
     owner,

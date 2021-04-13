@@ -94,11 +94,11 @@ describe('L1_Bridge', () => {
     )
     await executeCanonicalMessengerSendMessage(
       l1_messenger,
-      l1_messengerWrapper,
       l2_bridge,
       l2_messenger,
       governance,
-      message
+      message,
+      l2ChainId
     )
 
     const mintAmount: BigNumber = BigNumber.from('13371377')
@@ -127,11 +127,11 @@ describe('L1_Bridge', () => {
     )
     await executeCanonicalMessengerSendMessage(
       l1_messenger,
-      l1_messengerWrapper,
       l2_bridge,
       l2_messenger,
       governance,
-      message
+      message,
+      l2ChainId
     )
 
     const mintAmount: BigNumber = BigNumber.from('13371377')

@@ -61,12 +61,11 @@ export const executeCanonicalBridgeSendTokens = async (
 
 export const executeCanonicalMessengerSendMessage = async (
   l1_messenger: Contract,
-  l1_messengerWrapper: Contract, // TODO: Get rid of this everywhere
   l2_bridge: Contract,
   l2_messenger: Contract | string,
   sender: Signer,
   message: string,
-  l2ChainId: BigNumber = BigNumber.from('0') // TODO: Make this not optional
+  l2ChainId: BigNumber
 ) => {
   const gasLimit: BigNumber = BigNumber.from('1500000')
   const params: any[] = [l2_bridge.address, message, gasLimit]

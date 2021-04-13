@@ -378,11 +378,11 @@ describe('L2_AmmWrapper', () => {
 
       await executeCanonicalMessengerSendMessage(
         l1_messenger,
-        l1_messengerWrapper,
         l2_bridge,
         l2_messenger,
         governance,
-        message
+        message,
+        l2ChainId
       )
 
       const customTransfer: Transfer = new Transfer(l2Transfer)
@@ -442,11 +442,11 @@ describe('L2_AmmWrapper', () => {
 
       await executeCanonicalMessengerSendMessage(
         l1_messenger,
-        l1_messengerWrapper,
         l2_bridge,
         l2_messenger,
         governance,
-        message
+        message,
+        l2ChainId
       )
 
       const customTransfer: Transfer = new Transfer(l2Transfer)
@@ -483,11 +483,11 @@ describe('L2_AmmWrapper', () => {
 
       await executeCanonicalMessengerSendMessage(
         l1_messenger,
-        l1_messengerWrapper,
         l2_bridge,
         l2_messenger,
         governance,
-        message
+        message,
+        l2ChainId
       )
 
       const customTransfer: Transfer = new Transfer(l2Transfer)

@@ -215,11 +215,11 @@ describe('L2_XDai_Bridge', () => {
     )
     await executeCanonicalMessengerSendMessage(
       l1_messenger,
-      l1_messengerWrapper,
       l2_bridge,
       l2_messenger,
       governance,
-      message
+      message,
+      l2ChainId
     )
 
     const messengerAddress: string = await l2_bridge.messenger()
@@ -234,11 +234,11 @@ describe('L2_XDai_Bridge', () => {
     )
     await executeCanonicalMessengerSendMessage(
       l1_messenger,
-      l1_messengerWrapper,
       l2_bridge,
       l2_messenger,
       governance,
-      message
+      message,
+      l2ChainId
     )
 
     const defaultGasLimit: string = await l2_bridge.defaultGasLimit()
@@ -268,11 +268,11 @@ describe('L2_XDai_Bridge', () => {
     await expect(
       executeCanonicalMessengerSendMessage(
         l1_messenger,
-        l1_messengerWrapper,
         l2_bridge,
         l2_messenger,
         user,
-        message
+        message,
+        l2ChainId
       )
     ).to.be.revertedWith(expectedErrorMsg)
   })
@@ -297,11 +297,11 @@ describe('L2_XDai_Bridge', () => {
     await expect(
       executeCanonicalMessengerSendMessage(
         l1_messenger,
-        l1_messengerWrapper,
         l2_bridge,
         l2_messenger,
         user,
-        message
+        message,
+        l2ChainId
       )
     ).to.be.revertedWith(expectedErrorMsg)
   })
