@@ -106,7 +106,7 @@ describe('L2_XDai_Bridge', () => {
     l2ChainId = CHAIN_IDS.XDAI.SOKOL
 
     _fixture = await fixture(l1ChainId, l2ChainId)
-    await setUpDefaults(_fixture, l2ChainId)
+    await setUpDefaults(_fixture)
     ;({
       user,
       bonder,

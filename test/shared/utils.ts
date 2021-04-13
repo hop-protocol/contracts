@@ -18,7 +18,8 @@ import {
   DEFAULT_DEADLINE,
   CHALLENGER_INITIAL_BALANCE,
   RELAYER_INITIAL_BALANCE,
-  DEFAULT_RELAYER_FEE
+  DEFAULT_RELAYER_FEE,
+  CHECKPOINT_MANAGER_ADDRESSES
 } from '../../config/constants'
 
 import {
@@ -36,17 +37,18 @@ import {
   isChainIdOptimism,
   isChainIdArbitrum,
   isChainIdXDai,
-  isChainIdPolygon
+  isChainIdPolygon,
+  isChainIdMainnet,
+  isChainIdGoerli
 } from '../../config/utils'
 
 /**
  * Initialization functions
  */
 
-export const setUpDefaults = async (
-  fixture: IFixture,
-  l2ChainId: BigNumber
-) => {
+export const setUpDefaults = async (fixture: IFixture) => {
+  const l2ChainId: BigNumber = fixture.l2ChainId
+
   const setUpL1AndL2MessengersOpts = {
     l2ChainId
   }
@@ -95,6 +97,8 @@ export const setUpL2HopBridgeToken = async (fixture: IFixture) => {
 
 export const setUpL1AndL2Messengers = async (fixture: IFixture, setUpL1AndL2MessengersOpts: any) => {
   const {
+    // owner,
+    l1ChainId,
     l2_bridge,
     l1_messenger,
     l1_messengerWrapper,
@@ -109,16 +113,10 @@ export const setUpL1AndL2Messengers = async (fixture: IFixture, setUpL1AndL2Mess
     // Set L2 bridge on proxy
     await l2_messengerProxy.setL2Bridge(l2_bridge.address)
 
-    //Goerli
+    // Set Polygon-specific data
     const stateSender: string = l1_messenger.address
-    const checkpointManager: string = '0x2890bA17EfE978480615e330ecB65333b880928e'
+    const checkpointManager: string = getPolygonCheckpointManagerAddress(l1ChainId)
     const childTunnel: string = l2_messengerProxy.address
-
-    // TODO: Get these from appropriate place
-    // Mainnet
-    // const stateSender: string = 'TODO'
-    // const checkpointManager: string = '0x86E4Dc95c7FBdBf52e33D563BbDB00823894C287'
-    // const childTunnel: string = l2_messengerProxy.address
 
     l1_messengerWrapper.setStateSender(stateSender)
     l1_messengerWrapper.setCheckpointManager(checkpointManager)
@@ -457,6 +455,16 @@ export const getNewMerkleTree = (transferIds: Buffer[]): MerkleTree => {
   return new MerkleTree(transferIds, merkleHash, {
     fillDefaultHash: () => ethersUtils.keccak256(Buffer.alloc(32))
   })
+}
+
+export const getPolygonCheckpointManagerAddress = (l1ChainId: BigNumber): string => {
+  if (isChainIdMainnet(l1ChainId)) {
+    return CHECKPOINT_MANAGER_ADDRESSES.MAINNET
+  } else if (isChainIdGoerli(l1ChainId)) {
+    return CHECKPOINT_MANAGER_ADDRESSES.GOERLI
+  } else {
+    throw new Error('Invalid Chain ID')
+  }
 }
 
 /**

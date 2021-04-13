@@ -1,7 +1,11 @@
-import { ContractFactory, Signer, Contract } from 'ethers'
+import { ContractFactory, Signer, Contract, BigNumber } from 'ethers'
 import Transfer from '../../lib/Transfer'
 
 export interface IFixture {
+  // Chain IDs
+  l1ChainId: BigNumber
+  l2ChainId: BigNumber
+
   // Users
   accounts: Signer[]
   user: Signer

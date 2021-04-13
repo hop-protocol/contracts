@@ -106,7 +106,7 @@ describe.skip('L2_Optimism_Bridge', () => {
     l2ChainId = CHAIN_IDS.OPTIMISM.TESTNET_1
 
     _fixture = await fixture(l1ChainId, l2ChainId)
-    await setUpDefaults(_fixture, l2ChainId)
+    await setUpDefaults(_fixture)
     ;({
       user,
       bonder,

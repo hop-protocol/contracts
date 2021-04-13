@@ -28,12 +28,11 @@ describe.skip('Polygon Wrapper', () => {
   let l2_bridge: Contract
 
   beforeEach(async () => {
-    l1ChainId = CHAIN_IDS.ETHEREUM.KOVAN
-    // TODO: Reintroduce this when appropriate
-    // l2ChainId = CHAIN_IDS.ARBITRUM.TESTNET_4
+    l1ChainId = CHAIN_IDS.ETHEREUM.GOERLI
+    l2ChainId = CHAIN_IDS.POLYGON.MUMBAI
 
     _fixture = await fixture(l1ChainId, l2ChainId)
-    await setUpDefaults(_fixture, l2ChainId)
+    await setUpDefaults(_fixture)
     ;({ l1_messenger, l1_bridge, l1_messengerWrapper, l2_bridge } = _fixture)
   })
 

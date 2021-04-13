@@ -105,7 +105,7 @@ describe.skip('L2_Arbitrum_Bridge', () => {
     l2ChainId = CHAIN_IDS.ARBITRUM.TESTNET_4
 
     _fixture = await fixture(l1ChainId, l2ChainId)
-    await setUpDefaults(_fixture, l2ChainId)
+    await setUpDefaults(_fixture)
     ;({
       user,
       bonder,

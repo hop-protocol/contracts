@@ -110,7 +110,7 @@ describe('L2_AmmWrapper', () => {
     l22ChainId = CHAIN_IDS.ARBITRUM.TESTNET_4
 
     _fixture = await fixture(l1ChainId, l2ChainId)
-    await setUpDefaults(_fixture, l2ChainId)
+    await setUpDefaults(_fixture)
     ;({
       user,
       bonder,
@@ -136,7 +136,7 @@ describe('L2_AmmWrapper', () => {
       l1CanonicalTokenAddress: l1_canonicalToken.address
     }
     _fixture = await fixture(l1ChainId, l22ChainId, l1AlreadySetOpts)
-    await setUpDefaults(_fixture, l22ChainId)
+    await setUpDefaults(_fixture)
     ;({
       l2_canonicalToken: l22_canonicalToken,
       l2_hopBridgeToken: l22_hopBridgeToken,

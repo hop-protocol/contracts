@@ -255,6 +255,8 @@ export async function fixture (
   ]
 
   return {
+    l1ChainId,
+    l2ChainId,
     accounts,
     user,
     liquidityProvider,

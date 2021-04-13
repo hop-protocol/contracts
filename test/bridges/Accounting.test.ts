@@ -29,7 +29,7 @@ describe('Accounting', () => {
     l1ChainId = CHAIN_IDS.ETHEREUM.KOVAN
     l2ChainId = CHAIN_IDS.OPTIMISM.TESTNET_1
     _fixture = await fixture(l1ChainId, l2ChainId)
-    await setUpDefaults(_fixture, l2ChainId)
+    await setUpDefaults(_fixture)
     ;({ bonder, user, governance, otherUser, mockAccounting } = _fixture)
   })
 

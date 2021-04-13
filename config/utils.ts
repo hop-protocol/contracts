@@ -153,6 +153,36 @@ export const isChainIdPolygon = (chainId: BigNumber): boolean => {
   return false
 }
 
+export const isChainIdMainnet = (chainId: BigNumber): boolean => {
+  if (
+    chainId.eq(CHAIN_IDS.ETHEREUM.MAINNET)
+  ) {
+    return true
+  }
+
+  return false
+}
+
+export const isChainIdGoerli = (chainId: BigNumber): boolean => {
+  if (
+    chainId.eq(CHAIN_IDS.ETHEREUM.GOERLI)
+  ) {
+    return true
+  }
+
+  return false
+}
+
+export const isChainIdKovan = (chainId: BigNumber): boolean => {
+  if (
+    chainId.eq(CHAIN_IDS.ETHEREUM.KOVAN)
+  ) {
+    return true
+  }
+
+  return false
+}
+
 export const getXDaiAmbAddresses = (isAmbL1: boolean): string => {
   const kovanAmbAddress: string = '0xFe446bEF1DbF7AFE24E81e05BC8B271C1BA9a560'
   const sokolAmbAddress: string = '0xFe446bEF1DbF7AFE24E81e05BC8B271C1BA9a560'

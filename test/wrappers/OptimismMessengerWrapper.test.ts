@@ -28,7 +28,7 @@ describe('Optimism Messenger Wrapper', () => {
     l1ChainId = CHAIN_IDS.ETHEREUM.KOVAN
     l2ChainId = CHAIN_IDS.OPTIMISM.HOP_TESTNET
     _fixture = await fixture(l1ChainId, l2ChainId)
-    await setUpDefaults(_fixture, l2ChainId)
+    await setUpDefaults(_fixture)
     ;({ l1_messenger, l1_bridge, l1_messengerWrapper, l2_bridge } = _fixture)
   })
 

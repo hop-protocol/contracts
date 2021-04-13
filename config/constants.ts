@@ -101,6 +101,11 @@ export const DEFAULT_SWAP_FEE: string = '4000000'
 export const DEFAULT_SWAP_ADMIN_FEE: string = '0'
 export const DEFAULT_SWAP_WITHDRAWAL_FEE: string = '0'
 
+export const CHECKPOINT_MANAGER_ADDRESSES:any = {
+  MAINNET: '0x86E4Dc95c7FBdBf52e33D563BbDB00823894C287',
+  GOERLI: '0x2890bA17EfE978480615e330ecB65333b880928e'
+}
+
 export const COMMON_SYMBOLS: any = {
   DAI: 'DAI',
   sETH: 'sETH',

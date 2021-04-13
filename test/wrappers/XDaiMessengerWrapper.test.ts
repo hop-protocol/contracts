@@ -32,7 +32,7 @@ describe.skip('XDai Messenger Wrapper', () => {
     l2ChainId = CHAIN_IDS.XDAI.SOKOL
 
     _fixture = await fixture(l1ChainId, l2ChainId)
-    await setUpDefaults(_fixture, l2ChainId)
+    await setUpDefaults(_fixture)
     ;({ l1_messenger, l1_bridge, l1_messengerWrapper, l2_bridge } = _fixture)
   })
 
