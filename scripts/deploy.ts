@@ -101,17 +101,17 @@ function setNetworkParams (networkName: string, tokenSymbol: string) {
   console.log(networkName, tokenSymbol)
   if (networkName === 'kovan') {
     let l1_canonicalTokenAddress: string = ''
-    if (tokenSymbol === COMMON_SYMBOLS.DAI) {
+    if (tokenSymbol === COMMON_SYMBOLS.DAI.toLowerCase()) {
       l1_canonicalTokenAddress = l1CanonicalTokenAddresses.DAI
-    } else if (tokenSymbol === COMMON_SYMBOLS.sETH) {
+    } else if (tokenSymbol === COMMON_SYMBOLS.sETH.toLowerCase()) {
       l1_canonicalTokenAddress = l1CanonicalTokenAddresses.sETH
-    } else if (tokenSymbol === COMMON_SYMBOLS.sBTC) {
+    } else if (tokenSymbol === COMMON_SYMBOLS.sBTC.toLowerCase()) {
       l1_canonicalTokenAddress = l1CanonicalTokenAddresses.sBTC
-    } else if (tokenSymbol === COMMON_SYMBOLS.USDC) {
+    } else if (tokenSymbol === COMMON_SYMBOLS.USDC.toLowerCase()) {
       l1_canonicalTokenAddress = l1CanonicalTokenAddresses.USDC
-    } else if (tokenSymbol === COMMON_SYMBOLS.WBTC) {
+    } else if (tokenSymbol === COMMON_SYMBOLS.WBTC.toLowerCase()) {
       l1_canonicalTokenAddress = l1CanonicalTokenAddresses.WBTC
-    } else if (tokenSymbol === COMMON_SYMBOLS.TST) {
+    } else if (tokenSymbol === COMMON_SYMBOLS.TST.toLowerCase()) {
       l1_canonicalTokenAddress = l1CanonicalTokenAddresses.TST
     }
 

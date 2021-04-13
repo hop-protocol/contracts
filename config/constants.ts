@@ -100,7 +100,7 @@ export const DEFAULT_SWAP_FEE: string = '4000000'
 export const DEFAULT_SWAP_ADMIN_FEE: string = '0'
 export const DEFAULT_SWAP_WITHDRAWAL_FEE: string = '0'
 
-export const COMMON_SYMBOLS: any = {
+export const COMMON_SYMBOLS: { [key: string]: string } = {
   DAI: 'DAI',
   sETH: 'sETH',
   sBTC: 'sBTC',
