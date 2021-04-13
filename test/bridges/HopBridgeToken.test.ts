@@ -18,7 +18,7 @@ import {
   getSetHopBridgeTokenOwnerMessage
 } from '../shared/contractFunctionWrappers'
 
-describe('L1_Bridge', () => {
+describe('Hop_Bridge_Token', () => {
   let _fixture: IFixture
   let l1ChainId: BigNumber
   let l2ChainId: BigNumber

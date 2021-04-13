@@ -82,8 +82,10 @@ export const executeCanonicalMessengerSendMessage = async (
   } else if (isChainIdXDai(l2ChainId)) {
     await l1_messenger.connect(sender).requireToPassMessage(...params)
   } else if (isChainIdPolygon(l2ChainId)) {
-    const coder = ethersUtils.defaultAbiCoder
-    const customMessage: string = coder.encode(['address', 'bytes'], [await sender.getAddress(), message])
+    const customMessage: string = ethersUtils.defaultAbiCoder.encode(
+      ['address', 'bytes'],
+      [await sender.getAddress(), message]
+    )
     await l1_messenger.connect(sender).syncState(ZERO_ADDRESS, customMessage)
   } else {
     await l1_messenger.connect(sender).sendMessage(...params)

@@ -13,7 +13,6 @@ contract L2_PolygonMessengerProxy is BaseChildTunnel, ReentrancyGuard {
     address public l2Bridge;
     address public xDomainMessageSender;
 
-
     address constant public DEAD_ADDRESS = 0x000000000000000000000000000000000000dEaD;
 
     modifier onlyL2Bridge {
