@@ -50,4 +50,32 @@ contract Mock_L1_CanonicalBridge {
 
         sendMessage(_target, mintCalldata);
     }
+
+    // TODO: Handle this better
+    function sendTokensPolygon(
+        address _target,
+        address _recipient,
+        uint256 _amount
+    )
+        public
+    {
+        bytes memory mintCalldata = abi.encodeWithSignature("mint(address,uint256)", _recipient, _amount);
+
+        canonicalToken.safeTransferFrom(msg.sender, address(this), _amount);
+
+        sendMessagePolygon(_target, mintCalldata);
+    }
+
+    // TODO: Handle this better
+    function sendMessagePolygon(
+        address _target,
+        bytes memory _message
+    )
+        public
+    {
+        messenger.syncStateCanonicalToken(
+            _target,
+            _message
+        );
+    }
 }

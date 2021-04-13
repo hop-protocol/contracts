@@ -55,7 +55,13 @@ abstract contract MockMessenger {
         if (isPolygonL1) {
             IPolygonMessengerWrapper(nextMessage.target).processMessageFromChild(nextMessage.message);
         } else if (isPolygonL2) {
-            I_L2_PolygonMessengerProxy(nextMessage.target).processMessageFromRoot(nextMessage.message);
+            // TODO: Handle this better
+            if (nextMessage.target == address(canonicalToken)) {
+                (bool success, bytes memory res) = nextMessage.target.call(nextMessage.message);
+                require(success, _getRevertMsgFromRes(res));
+            } else {
+                I_L2_PolygonMessengerProxy(nextMessage.target).processMessageFromRoot(nextMessage.message);
+            }
         } else {
             (bool success, bytes memory res) = nextMessage.target.call(nextMessage.message);
             require(success, _getRevertMsgFromRes(res));

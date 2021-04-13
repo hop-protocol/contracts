@@ -87,6 +87,7 @@ describe('L2_Polygon_Bridge', () => {
   let l2_messenger: Contract
   let l2_swap: Contract
   let l2_ammWrapper: Contract
+  let l2_messengerProxy: Contract
 
   let transfers: Transfer[]
   let transfer: Transfer
@@ -123,6 +124,7 @@ describe('L2_Polygon_Bridge', () => {
       l2_messenger,
       l2_swap,
       l2_ammWrapper,
+      l2_messengerProxy,
       transfers
     } = _fixture)
 
@@ -170,18 +172,19 @@ describe('L2_Polygon_Bridge', () => {
    */
 
   it('Should set the correct values in the constructor', async () => {
-    const expectedMessengerAddress: string = l2_messenger.address
+    // TODO: Verify all of these are expected
+    const expectedMessengerProxyAddress: string = l2_messengerProxy.address
     const expectedL1GovernanceAddress: string = await governance.getAddress()
     const expectedHopBridgeTokenAddress: string = l2_hopBridgeToken.address
     const expectedL1BridgeAddress: string = l1_bridge.address
 
-    const messengerAddress: string = await l2_bridge.messenger()
+    const messengerProxyAddress: string = await l2_bridge.messengerProxy()
     const l1GovernanceAddress: string = await l2_bridge.l1Governance()
     const hopBridgeTokenAddress: string = await l2_bridge.hToken()
     const l1BridgeAddress: string = await l2_bridge.l1BridgeAddress()
     const isBonder: string = await l2_bridge.getIsBonder(await bonder.getAddress())
 
-    expect(expectedMessengerAddress).to.eq(messengerAddress)
+    expect(expectedMessengerProxyAddress).to.eq(messengerProxyAddress)
     expect(expectedL1GovernanceAddress).to.eq(l1GovernanceAddress)
     expect(expectedHopBridgeTokenAddress).to.eq(hopBridgeTokenAddress)
     expect(expectedL1BridgeAddress).to.eq(l1BridgeAddress)
@@ -212,7 +215,8 @@ describe('L2_Polygon_Bridge', () => {
       l2_bridge,
       l2_messenger,
       governance,
-      message
+      message,
+      l2ChainId
     )
 
     const messengerProxyAddress: string = await l2_bridge.messengerProxy()
@@ -225,14 +229,16 @@ describe('L2_Polygon_Bridge', () => {
    */
 
   it('Should not set an arbitrary messenger proxy because the transaction was on L2 directly', async () => {
-    const expectedErrorMsg: string = 'TODO'
+    // TODO: Verify this is expected
+    const expectedErrorMsg: string = 'L2_PLGN_BRG: Caller is not the expected sender'
 
     const expectedMessengerProxyAddress: string = ONE_ADDRESS
     await expect(l2_bridge.setMessengerProxy(expectedMessengerProxyAddress)).to.be.revertedWith(expectedErrorMsg)
   })
 
   it('Should not set an arbitrary messenger proxy because the transaction was not sent by governance', async () => {
-    const expectedErrorMsg: string = 'TODO'
+    // TODO: Verify this is expected
+    const expectedErrorMsg: string = 'L2_PLGN_MSG: Failed to proxy message'
 
     const expectedMessengerProxyAddress: string = ONE_ADDRESS
 
@@ -247,7 +253,8 @@ describe('L2_Polygon_Bridge', () => {
         l2_bridge,
         l2_messenger,
         user,
-        message
+        message,
+        l2ChainId
       )
     ).to.be.revertedWith(expectedErrorMsg)
   })

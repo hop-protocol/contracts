@@ -141,6 +141,20 @@ contract Mock_L1_Messenger is MockMessenger {
         );
     }
 
+    // TODO: Handle this better
+    function syncStateCanonicalToken(
+        address _target,
+        bytes memory _message
+    )
+        public
+    {
+        targetMessenger.receiveMessage(
+            _target,
+            _message,
+            msg.sender
+        );
+    }
+
     function isContract(address _addr) private returns (bool isContract){
         uint32 size;
         assembly {

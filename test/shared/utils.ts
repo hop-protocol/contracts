@@ -170,7 +170,6 @@ export const setUpL1AndL2Bridges = async (fixture: IFixture, opts: any) => {
     message,
     messengerWrapperChainId
   )
-  console.log('C')
 
   message = getSetL1MessengerWrapperAddressMessage(l1_messengerWrapper)
   await executeCanonicalMessengerSendMessage(
@@ -296,7 +295,8 @@ export const setUpL2AmmMarket = async (fixture: IFixture, opts: any) => {
     l2_canonicalToken,
     l2_messenger,
     liquidityProvider,
-    liquidityProviderBalance
+    liquidityProviderBalance,
+    l2ChainId
   )
 
   // liquidityProvider moves funds across the Hop liquidity bridge

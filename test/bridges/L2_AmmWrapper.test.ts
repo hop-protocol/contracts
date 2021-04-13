@@ -216,7 +216,8 @@ describe('L2_AmmWrapper', () => {
         l2_canonicalToken,
         l2_messenger,
         user,
-        transfer.amount
+        transfer.amount,
+        l2ChainId
       )
 
       await executeL2AmmWrapperSwapAndSend(
@@ -315,7 +316,8 @@ describe('L2_AmmWrapper', () => {
         l2_canonicalToken,
         l2_messenger,
         user,
-        transfer.amount
+        transfer.amount,
+        l2ChainId
       )
 
       await expect(
@@ -339,7 +341,8 @@ describe('L2_AmmWrapper', () => {
         l2_canonicalToken,
         l2_messenger,
         user,
-        transfer.amount
+        transfer.amount,
+        l2ChainId
       )
 
       await expect(
@@ -391,7 +394,8 @@ describe('L2_AmmWrapper', () => {
         l2_canonicalToken,
         l2_messenger,
         user,
-        transfer.amount
+        transfer.amount,
+        l2ChainId
       )
 
       await expect(
@@ -454,7 +458,8 @@ describe('L2_AmmWrapper', () => {
         l2_canonicalToken,
         l2_messenger,
         user,
-        transfer.amount
+        transfer.amount,
+        l2ChainId
       )
 
       await executeL2AmmWrapperSwapAndSend(
@@ -494,7 +499,8 @@ describe('L2_AmmWrapper', () => {
         l2_canonicalToken,
         l2_messenger,
         user,
-        transfer.amount
+        transfer.amount,
+        l2ChainId
       )
 
       await executeL2AmmWrapperSwapAndSend(

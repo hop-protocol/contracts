@@ -38,26 +38,35 @@ export const executeCanonicalBridgeSendTokens = async (
   l2_canonicalToken: Contract,
   l2_messenger: Contract,
   account: Signer,
-  amount: BigNumber
+  amount: BigNumber,
+  l2ChainId: BigNumber
 ) => {
   await l1_canonicalToken
     .connect(account)
     .approve(l1_canonicalBridge.address, amount)
-  await l1_canonicalBridge
-    .connect(account)
-    .sendTokens(l2_canonicalToken.address, await account.getAddress(), amount)
+
+  // TODO: Handle this better
+  if (isChainIdPolygon(l2ChainId)) {
+    await l1_canonicalBridge
+      .connect(account)
+      .sendTokensPolygon(l2_canonicalToken.address, await account.getAddress(), amount)
+  } else {
+    await l1_canonicalBridge
+      .connect(account)
+      .sendTokens(l2_canonicalToken.address, await account.getAddress(), amount)
+  }
   await l2_messenger.relayNextMessage()
   await expectBalanceOf(l2_canonicalToken, account, amount)
 }
 
 export const executeCanonicalMessengerSendMessage = async (
   l1_messenger: Contract,
-  l1_messengerWrapper: Contract,
+  l1_messengerWrapper: Contract, // TODO: Get rid of this everywhere
   l2_bridge: Contract,
   l2_messenger: Contract | string,
   sender: Signer,
   message: string,
-  l2ChainId: BigNumber = BigNumber.from('0')
+  l2ChainId: BigNumber = BigNumber.from('0') // TODO: Make this not optional
 ) => {
   const gasLimit: BigNumber = BigNumber.from('1500000')
   const params: any[] = [l2_bridge.address, message, gasLimit]
