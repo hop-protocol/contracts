@@ -223,4 +223,25 @@ describe('L2_Polygon_Messenger_Proxy', () => {
     ).to.be.revertedWith(expectedErrorMsg)
   })
 
+
+  it('Should not allow _processMessageFromRoot to succeed because the transaction fails', async () => {
+    const expectedErrorMsg: string = 'L2_PLGN_MSG: Failed to proxy message'
+
+    const message: string = getSetL1GovernanceMessage(
+      DEAD_ADDRESS
+    )
+
+    // Trying to set state with an account that is not the governance address will fail
+    await expect(
+      executeCanonicalMessengerSendMessage(
+        l1_messenger,
+        l2_bridge,
+        l2_messenger,
+        otherUser,
+        message,
+        l2ChainId
+      )
+
+    ).to.be.revertedWith(expectedErrorMsg)
+  })
 })
