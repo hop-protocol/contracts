@@ -71,7 +71,7 @@ export const getL2BridgeDefaults = (
   governanceAddress: string,
   l2HopBridgeTokenAddress: string,
   l1BridgeAddress: string,
-  supportedChainIds: string[],
+  activeChainIds: string[],
   bonderAddresses: string[],
   l1ChainId: BigNumber
 ): IGetL2BridgeDefaults[] => {
@@ -99,7 +99,7 @@ export const getL2BridgeDefaults = (
     governanceAddress,
     l2HopBridgeTokenAddress,
     l1BridgeAddress,
-    supportedChainIds,
+    activeChainIds,
     bonderAddresses
   )
 
@@ -193,10 +193,10 @@ export const getXDaiAmbAddresses = (isAmbL1: boolean): string => {
 }
 
 // Create an array of strings for each supported chain ID
-export const getAllSupportedChainIds = (obj: any): string[] =>
+export const getAllActiveChainIds = (obj: any): string[] =>
   obj && obj instanceof Object
     ? Object.values(obj)
-        .map(getAllSupportedChainIds)
+        .map(getAllActiveChainIds)
         .reduce((a: string[], b: any) => a.concat(b), [] as any[])
         .filter((a: any) => typeof a === 'string')
     : [obj]

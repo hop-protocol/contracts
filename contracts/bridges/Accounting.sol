@@ -4,6 +4,7 @@ pragma solidity 0.6.12;
 pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/math/SafeMath.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 /**
  * @dev Accounting is an abstract contract that encapsulates the most critical logic in the Hop contracts.
@@ -17,7 +18,7 @@ import "@openzeppelin/contracts/math/SafeMath.sol";
  * use more than its available stake.
  */
 
-abstract contract Accounting {
+abstract contract Accounting is ReentrancyGuard {
     using SafeMath for uint256;
 
     mapping(address => bool) private _isBonder;
@@ -72,7 +73,7 @@ abstract contract Accounting {
      * @dev This function can be optionally overridden by a parent contract to track any additional
      * debit balance in an alternative way.
      */
-    function _additionalDebit() internal view virtual returns (uint256) {
+    function _additionalDebit(address /*bonder*/) internal view virtual returns (uint256) {
         this; // Silence state mutability warning without generating any additional byte code
         return 0;
     }
@@ -112,7 +113,7 @@ abstract contract Accounting {
      * @return The Bonder's total debit balance
      */
     function getDebitAndAdditionalDebit(address bonder) public view returns (uint256) {
-        return _debit[bonder].add(_additionalDebit());
+        return _debit[bonder].add(_additionalDebit(bonder));
     }
 
     /* ========== Bonder external functions ========== */
@@ -122,7 +123,7 @@ abstract contract Accounting {
      * @param bonder The address being staked on
      * @param amount The amount being staked
      */
-    function stake(address bonder, uint256 amount) external payable {
+    function stake(address bonder, uint256 amount) external payable nonReentrant {
         require(_isBonder[bonder] == true, "ACT: Address is not bonder");
         _transferToBridge(msg.sender, amount);
         _addCredit(bonder, amount);
@@ -134,7 +135,7 @@ abstract contract Accounting {
      * @dev Allows the caller to withdraw any available balance and add to their debit balance
      * @param amount The amount being staked
      */
-    function unstake(uint256 amount) external requirePositiveBalance {
+    function unstake(uint256 amount) external requirePositiveBalance nonReentrant {
         _addDebit(msg.sender, amount);
         _transferFromBridge(msg.sender, amount);
 

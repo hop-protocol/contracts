@@ -106,7 +106,7 @@ export const CHECKPOINT_MANAGER_ADDRESSES:any = {
   GOERLI: '0x2890bA17EfE978480615e330ecB65333b880928e'
 }
 
-export const COMMON_SYMBOLS: any = {
+export const COMMON_SYMBOLS: { [key: string]: string } = {
   DAI: 'DAI',
   sETH: 'sETH',
   sBTC: 'sBTC',

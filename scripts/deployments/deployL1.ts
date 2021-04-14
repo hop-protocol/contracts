@@ -58,7 +58,6 @@ export async function deployL1 (config: Config) {
       [await bonder.getAddress()],
       await governance.getAddress()
       )
-  // console.log('l1_bridge: ', l1_bridge)
   await waitAfterTransaction(l1_bridge)
 
   const l1_bridgeAddress = l1_bridge.address

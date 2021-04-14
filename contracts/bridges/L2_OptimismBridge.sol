@@ -19,7 +19,7 @@ contract L2_OptimismBridge is L2_Bridge {
         address l1Governance,
         HopBridgeToken hToken,
         address l1BridgeAddress,
-        uint256[] memory supportedChainIds,
+        uint256[] memory activeChainIds,
         address[] memory bonders,
         uint32 _defaultGasLimit
     )
@@ -28,7 +28,7 @@ contract L2_OptimismBridge is L2_Bridge {
             l1Governance,
             hToken,
             l1BridgeAddress,
-            supportedChainIds,
+            activeChainIds,
             bonders
         )
     {

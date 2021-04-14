@@ -2,7 +2,6 @@ require('dotenv').config()
 
 import { ethers } from 'hardhat'
 import { BigNumber, ContractFactory, Contract, Signer, providers } from 'ethers'
-const ethers = ethers
 
 import {
   getContractFactories,
@@ -201,7 +200,7 @@ const waitForL2StateVerification = async (
     }
 
     // Validate that the chainIds have been added
-    const isChainIdSupported: boolean = await l2_bridge.supportedChainIds(
+    const isChainIdSupported: boolean = await l2_bridge.activeChainIds(
       l2ChainId,
       overrides
     )

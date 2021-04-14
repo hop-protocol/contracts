@@ -26,7 +26,7 @@ abstract contract L1_Bridge is Bridge {
 
     mapping(bytes32 => uint256) public transferRootCommittedAt;
     mapping(bytes32 => TransferBond) public transferBonds;
-    mapping(uint256 => uint256) public timeSlotToAmountBonded;
+    mapping(uint256 => mapping(address => uint256)) public timeSlotToAmountBonded;
     mapping(uint256 => uint256) public chainBalance;
 
     /* ========== Config State ========== */
@@ -34,12 +34,12 @@ abstract contract L1_Bridge is Bridge {
     address public governance;
     mapping(uint256 => IMessengerWrapper) public crossDomainMessengerWrappers;
     mapping(uint256 => bool) public isChainIdPaused;
-    uint256 public challengeAmountMultiplier = 1;
-    uint256 public challengeAmountDivisor = 10;
-    uint256 public timeSlotSize = 3 hours;
     uint256 public challengePeriod = 1 days;
     uint256 public challengeResolutionPeriod = 10 days;
     uint256 public minTransferRootBondDelay = 15 minutes;
+    
+    uint256 public constant CHALLENGE_AMOUNT_DIVISOR = 10;
+    uint256 public constant TIME_SLOT_SIZE = 4 hours;
 
     /* ========== Events ========== */
 
@@ -161,7 +161,7 @@ abstract contract L1_Bridge is Bridge {
 
         uint256 currentTimeSlot = getTimeSlot(block.timestamp);
         uint256 bondAmount = getBondForTransferAmount(totalAmount);
-        timeSlotToAmountBonded[currentTimeSlot] = timeSlotToAmountBonded[currentTimeSlot].add(bondAmount);
+        timeSlotToAmountBonded[currentTimeSlot][msg.sender] = timeSlotToAmountBonded[currentTimeSlot][msg.sender].add(bondAmount);
 
         transferBonds[transferRootId] = TransferBond(
             msg.sender,
@@ -259,7 +259,8 @@ abstract contract L1_Bridge is Bridge {
         // Move amount from timeSlotToAmountBonded to debit
         uint256 timeSlot = getTimeSlot(transferBond.createdAt);
         uint256 bondAmount = getBondForTransferAmount(originalAmount);
-        timeSlotToAmountBonded[timeSlot] = timeSlotToAmountBonded[timeSlot].sub(bondAmount);
+        address bonder = transferBond.bonder;
+        timeSlotToAmountBonded[timeSlot][bonder] = timeSlotToAmountBonded[timeSlot][bonder].sub(bondAmount);
 
         _addDebit(transferBond.bonder, bondAmount);
 
@@ -316,13 +317,13 @@ abstract contract L1_Bridge is Bridge {
 
     /* ========== Override Functions ========== */
 
-    function _additionalDebit() internal view override returns (uint256) {
+    function _additionalDebit(address bonder) internal view override returns (uint256) {
         uint256 currentTimeSlot = getTimeSlot(block.timestamp);
         uint256 bonded = 0;
 
-        uint256 numTimeSlots = challengePeriod / timeSlotSize;
+        uint256 numTimeSlots = challengePeriod / TIME_SLOT_SIZE;
         for (uint256 i = 0; i < numTimeSlots; i++) {
-            bonded = bonded.add(timeSlotToAmountBonded[currentTimeSlot - i]);
+            bonded = bonded.add(timeSlotToAmountBonded[currentTimeSlot - i][bonder]);
         }
 
         return bonded;
@@ -347,19 +348,10 @@ abstract contract L1_Bridge is Bridge {
         isChainIdPaused[chainId] = isPaused;
     }
 
-    function setChallengeAmountMultiplier(uint256 _challengeAmountMultiplier) external onlyGovernance {
-        challengeAmountMultiplier = _challengeAmountMultiplier;
-    }
-
-    function setChallengeAmountDivisor(uint256 _challengeAmountDivisor) external onlyGovernance {
-        challengeAmountDivisor = _challengeAmountDivisor;
-    }
-
-    function setChallengePeriodAndTimeSlotSize(uint256 _challengePeriod, uint256 _timeSlotSize) external onlyGovernance {
-        require(_challengePeriod % _timeSlotSize == 0, "L1_BRG: challengePeriod must be divisible by timeSlotSize");
+    function setChallengePeriod(uint256 _challengePeriod) external onlyGovernance {
+        require(_challengePeriod % TIME_SLOT_SIZE == 0, "L1_BRG: challengePeriod must be divisible by TIME_SLOT_SIZE");
 
         challengePeriod = _challengePeriod;
-        timeSlotSize = _timeSlotSize;
     }
 
     function setChallengeResolutionPeriod(uint256 _challengeResolutionPeriod) external onlyGovernance {
@@ -379,10 +371,10 @@ abstract contract L1_Bridge is Bridge {
 
     function getChallengeAmountForTransferAmount(uint256 amount) public view returns (uint256) {
         // Bond covers amount plus a bounty to pay a potential challenger
-        return amount.mul(challengeAmountMultiplier).div(challengeAmountDivisor);
+        return amount.div(CHALLENGE_AMOUNT_DIVISOR);
     }
 
-    function getTimeSlot(uint256 time) public view returns (uint256) {
-        return time / timeSlotSize;
+    function getTimeSlot(uint256 time) public pure returns (uint256) {
+        return time / TIME_SLOT_SIZE;
     }
 }
