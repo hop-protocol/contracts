@@ -23,6 +23,7 @@ import {
   executeCanonicalBridgeSendTokens,
   getSetMessengerProxyMessage,
   getAddBonderMessage,
+  getSetL1GovernanceMessage,
   executeL1BridgeSendToL2,
   executeBridgeBondWithdrawal,
   executeL1BridgeBondTransferRoot,
@@ -196,6 +197,10 @@ describe('L2_Polygon_Messenger_Proxy', () => {
     await executeL2BridgeCommitTransfers(l2_bridge, [transfer], bonder)
   })
 
+  it('Should process a message from root', async () => {
+    // This happens on any transfer from Lx -> L2
+    await executeL2BridgeSend(l2_hopBridgeToken, l2_bridge, transfer)
+  })
 
   /**
    * Non-Happy Path
@@ -222,7 +227,6 @@ describe('L2_Polygon_Messenger_Proxy', () => {
         )
     ).to.be.revertedWith(expectedErrorMsg)
   })
-
 
   it('Should not allow _processMessageFromRoot to succeed because the transaction fails', async () => {
     const expectedErrorMsg: string = 'L2_PLGN_MSG: Failed to proxy message'

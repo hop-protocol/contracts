@@ -227,7 +227,6 @@ describe('L2_Polygon_Bridge', () => {
    */
 
   it('Should not set an arbitrary messenger proxy because the transaction was on L2 directly', async () => {
-    // TODO: Verify this is expected
     const expectedErrorMsg: string = 'L2_PLGN_BRG: Caller is not the expected sender'
 
     const expectedMessengerProxyAddress: string = ONE_ADDRESS
@@ -235,7 +234,6 @@ describe('L2_Polygon_Bridge', () => {
   })
 
   it('Should not set an arbitrary messenger proxy because the transaction was not sent by governance', async () => {
-    // TODO: Verify this is expected
     const expectedErrorMsg: string = 'L2_PLGN_MSG: Failed to proxy message'
 
     const expectedMessengerProxyAddress: string = ONE_ADDRESS
