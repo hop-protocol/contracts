@@ -106,7 +106,7 @@ abstract contract L2_Bridge is Bridge {
         uint256 amountOutMin,
         uint256 deadline
     )
-        public
+        external
     {
         require(amount > 0, "L2_BRG: Must transfer a non-zero amount");
         require(amount >= bonderFee, "L2_BRG: Bonder fee cannot exceed amount");
