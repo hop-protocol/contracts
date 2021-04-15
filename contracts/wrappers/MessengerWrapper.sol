@@ -6,9 +6,11 @@ pragma experimental ABIEncoderV2;
 import "../interfaces/IMessengerWrapper.sol";
 
 abstract contract MessengerWrapper is IMessengerWrapper {
-    address public l1BridgeAddress;
-    address public l2BridgeAddress;
-    uint256 public defaultGasLimit;
+    address public immutable l1BridgeAddress;
+
+    constructor(address _l1BridgeAddress) public {
+        l1BridgeAddress = _l1BridgeAddress;
+    }
 
     modifier onlyL1Bridge {
         require(msg.sender == l1BridgeAddress, "MW: Sender must be the L1 Bridge");

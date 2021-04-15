@@ -13,7 +13,9 @@ import "./MessengerWrapper.sol";
 
 contract OptimismMessengerWrapper is MessengerWrapper {
 
-    iOVM_L1CrossDomainMessenger public l1MessengerAddress;
+    iOVM_L1CrossDomainMessenger public immutable l1MessengerAddress;
+    address public immutable l2BridgeAddress;
+    uint256 public immutable defaultGasLimit;
 
     constructor(
         address _l1BridgeAddress,
@@ -22,8 +24,8 @@ contract OptimismMessengerWrapper is MessengerWrapper {
         iOVM_L1CrossDomainMessenger _l1MessengerAddress
     )
         public
+        MessengerWrapper(_l1BridgeAddress)
     {
-        l1BridgeAddress = _l1BridgeAddress;
         l2BridgeAddress = _l2BridgeAddress;
         defaultGasLimit = _defaultGasLimit;
         l1MessengerAddress = _l1MessengerAddress;
