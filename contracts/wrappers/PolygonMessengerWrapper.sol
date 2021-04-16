@@ -15,20 +15,19 @@ import "../bridges/L1_Bridge.sol";
 
 contract PolygonMessengerWrapper is BaseRootTunnel, MessengerWrapper {
 
-    address public l2MessengerProxy;
-    IStateSender public l1MessengerAddress;
-    address public l1Bridge;
+    address public immutable l2MessengerProxy;
+    IStateSender public immutable l1MessengerAddress;
 
     constructor(
+        address _l1BridgeAddress,
         address _l2MessengerProxy,
-        IStateSender _l1MessengerAddress,
-        address _l1Bridge
+        IStateSender _l1MessengerAddress
     )
         public
+        MessengerWrapper(_l1BridgeAddress)
     {
         l2MessengerProxy = _l2MessengerProxy;
         l1MessengerAddress = _l1MessengerAddress;
-        l1Bridge = _l1Bridge;
     }
 
     /** 
@@ -47,7 +46,7 @@ contract PolygonMessengerWrapper is BaseRootTunnel, MessengerWrapper {
     }
 
     function _processMessageFromChild(bytes memory message) internal override {
-        (bool success,) = l1Bridge.call(message);
+        (bool success,) = l1BridgeAddress.call(message);
         require(success, "L1_PLGN_WPR: Call to L1 Bridge failed");
     }
 }

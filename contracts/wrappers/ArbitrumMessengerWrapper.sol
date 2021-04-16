@@ -16,9 +16,11 @@ import "./MessengerWrapper.sol";
 contract ArbitrumMessengerWrapper is MessengerWrapper {
 
     IInbox public arbInbox;
-    IBridge public arbBridge;
-    uint256 public defaultGasPrice;
-    uint256 public defaultCallValue;
+    IBridge public immutable arbBridge;
+    uint256 public immutable defaultGasPrice;
+    uint256 public immutable defaultCallValue;
+    address public immutable l2BridgeAddress;
+    uint256 public immutable defaultGasLimit;
 
     constructor(
         address _l1BridgeAddress,
@@ -29,8 +31,8 @@ contract ArbitrumMessengerWrapper is MessengerWrapper {
         uint256 _defaultCallValue
     )
         public
+        MessengerWrapper(_l1BridgeAddress)
     {
-        l1BridgeAddress = _l1BridgeAddress;
         l2BridgeAddress = _l2BridgeAddress;
         defaultGasLimit = _defaultGasLimit;
         arbInbox = _arbInbox;

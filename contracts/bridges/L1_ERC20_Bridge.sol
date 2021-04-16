@@ -12,7 +12,7 @@ import "./L1_Bridge.sol";
 contract L1_ERC20_Bridge is L1_Bridge {
     using SafeERC20 for IERC20;
 
-    IERC20 public l1CanonicalToken;
+    IERC20 public immutable l1CanonicalToken;
 
     constructor (IERC20 _l1CanonicalToken, address[] memory bonders, address _governance) public L1_Bridge(bonders, _governance) {
         l1CanonicalToken = _l1CanonicalToken;
