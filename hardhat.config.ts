@@ -33,6 +33,11 @@ export default {
       accounts: desiredAccounts,
       chainId: CHAIN_IDS.ETHEREUM.KOVAN.toNumber()
     },
+    goerli: {
+      url: 'https://goerli.rpc.hop.exchange',
+      accounts: desiredAccounts,
+      chainId: CHAIN_IDS.ETHEREUM.GOERLI.toNumber()
+    },
     arbitrum: {
       url: 'https://kovan4.arbitrum.io/rpc',
       accounts: desiredAccounts,

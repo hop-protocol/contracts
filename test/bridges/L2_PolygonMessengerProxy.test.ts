@@ -38,8 +38,6 @@ import {
   getSetAmmWrapperAddressMessage,
   getSetL1BridgeAddressMessage,
   getSetL1MessengerWrapperAddressMessage,
-  getAddSupportedChainIdsMessage,
-  getRemoveSupportedChainIdsMessage,
   getSetMinimumForceCommitDelayMessage,
   getSetMaxPendingTransfersMessage,
   getSetHopBridgeTokenOwnerMessage,

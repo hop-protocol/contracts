@@ -16,6 +16,10 @@ import {
   isChainIdPolygon
 } from '../../config/utils'
 
+import {
+  CHAIN_IDS
+} from '../../config/constants'
+
 export const getContractFactories = async (
   chainId: BigNumber,
   signer: Signer,
@@ -377,4 +381,8 @@ export const Logger = (label: string) => {
       console.error(label, timestamp, ...args)
     }
   }
+}
+
+export const getL1ChainIdFromNetworkName = (networkName: string): BigNumber => {
+  return CHAIN_IDS.ETHEREUM[networkName.toUpperCase()]
 }
