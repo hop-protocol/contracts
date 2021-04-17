@@ -7,7 +7,8 @@ import {
   DEFAULT_MESSENGER_WRAPPER_GAS_LIMIT,
   DEFAULT_MESSENGER_WRAPPER_GAS_PRICE,
   DEFAULT_MESSENGER_WRAPPER_CALL_VALUE,
-  DEFAULT_L2_BRIDGE_GAS_LIMIT
+  DEFAULT_L2_BRIDGE_GAS_LIMIT,
+  CHECKPOINT_MANAGER_ADDRESSES
 } from './constants'
 
 export const getMessengerWrapperDefaults = (
@@ -200,3 +201,13 @@ export const getAllActiveChainIds = (obj: any): string[] =>
         .reduce((a: string[], b: any) => a.concat(b), [] as any[])
         .filter((a: any) => typeof a === 'string')
     : [obj]
+
+export const getPolygonCheckpointManagerAddress = (l1ChainId: BigNumber): string => {
+  if (isChainIdMainnet(l1ChainId)) {
+    return CHECKPOINT_MANAGER_ADDRESSES.MAINNET
+  } else if (isChainIdGoerli(l1ChainId)) {
+    return CHECKPOINT_MANAGER_ADDRESSES.GOERLI
+  } else {
+    throw new Error('Invalid Chain ID')
+  }
+}

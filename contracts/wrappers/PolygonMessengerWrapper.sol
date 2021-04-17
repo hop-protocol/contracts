@@ -3,7 +3,6 @@
 pragma solidity 0.6.12;
 pragma experimental ABIEncoderV2;
 
-// import "@maticnetwork/pos-portal/contracts/tunnel/BaseRootTunnel.sol";
 import "../polygon/tunnel/BaseRootTunnel.sol";
 import "./MessengerWrapper.sol";
 import "../bridges/L1_Bridge.sol";

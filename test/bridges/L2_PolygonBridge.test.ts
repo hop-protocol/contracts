@@ -1,7 +1,6 @@
 import '@nomiclabs/hardhat-waffle'
 import { expect } from 'chai'
 import { Signer, Contract, BigNumber } from 'ethers'
-import { parseEther } from 'ethers/lib/utils'
 import Transfer from '../../lib/Transfer'
 
 import {
