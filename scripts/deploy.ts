@@ -50,6 +50,10 @@ interface INetworkParams extends IGeneralData, ISpecificData {
 
 // In order to run just the L1 bridge deployment, use `x` as the L2 name
 // $ npm run deploy -- goerli x USDC 
+
+// In order to run just the L1 bridge deployment for polygon, use `xpolygon` as the L2 name
+// NOTE: This will deploy the messenger wrapper / messenger
+// $ npm run deploy -- goerli xpolygon USDC 
 async function main () {
   logger.log('deploy script initiated')
   const l1NetworkName: string = process.argv[2].toLowerCase()
@@ -70,7 +74,7 @@ async function main () {
 
   setNetworkParams(l1NetworkName, l2NetworkName,tokenSymbol)
   const scripts: string[] = []
-  if (l2NetworkName === 'x') {
+  if (l2NetworkName === 'x' || l2NetworkName === 'xpolygon') {
     scripts.push(`npm run deploy:l1-${l1NetworkName}`)
   } else {
     scripts.push(
@@ -118,7 +122,18 @@ function setNetworkParams (l1NetworkName: string, l2NetworkName: string, tokenSy
     }
   }
 
-  if (l2NetworkName === 'x') {
+  // TODO: Handle this better
+  if (l2NetworkName === 'x' || l2NetworkName === 'xpolygon') {
+    let l2ChainId: BigNumber
+
+    // Define the L2 chain ID
+    if (l2NetworkName === 'xpolygon' && l1NetworkName === 'goerli') {
+      l2ChainId = CHAIN_IDS.POLYGON.MUMBAI
+    } else if (l2NetworkName === 'xpolygon' && l1NetworkName === 'mainnet') {
+      l2ChainId = CHAIN_IDS.POLYGON.MAINNET
+    }
+
+    // Define the token addresses
     let l1_canonicalTokenAddress: string = ''
     if (tokenSymbol === COMMON_SYMBOLS.DAI.toLowerCase()) {
       l1_canonicalTokenAddress = l1CanonicalTokenAddresses.DAI
@@ -136,6 +151,7 @@ function setNetworkParams (l1NetworkName: string, l2NetworkName: string, tokenSy
 
     updateConfigFile({
       l1_chainId: l1ChainId.toString(),
+      l2_chainId: l2ChainId.toString(),
       l1_canonicalTokenAddress
     })
     return
@@ -310,16 +326,19 @@ function setNetworkParams (l1NetworkName: string, l2NetworkName: string, tokenSy
       l2_networkName: l2NetworkName,
       l1_chainId: l1ChainId.toString(),
       l2_chainId: CHAIN_IDS.POLYGON.MUMBAI.toString(),
-      l1_messengerAddress: 'todo',
-      l2_tokenBridgeAddress: 'todo',
-      l2_messengerAddress: 'todo',
-      l1_tokenBridgeAddress: 'todo'
+      // For Polygon, this is the messenger wrapper. This is handled during the deployment scripts
+      l1_messengerAddress: '0x',
+      // For Polygon, this is unused
+      l2_tokenBridgeAddress: '0x',
+      // For Polygon, this is the messenger proxy. This is handled during the deployment scripts.
+      l2_messengerAddress: '0x',
+      l1_tokenBridgeAddress: '0x57823134bc226b2335CA2E6D03c8E59a8314b2A9'
     }
 
     if (tokenSymbol === COMMON_SYMBOLS.DAI) {
       specificData = {
         l1_canonicalTokenAddress: l1CanonicalTokenAddresses.DAI,
-        l2_canonicalTokenAddress: 'todo',
+        l2_canonicalTokenAddress: '0xb224913CE3851b0a0d7C0FB461eEF40f2e31ddb8',
         l2_hBridgeTokenName: DEFAULT_H_BRIDGE_TOKEN_NAME,
         l2_hBridgeTokenSymbol: DEFAULT_H_BRIDGE_TOKEN_SYMBOL,
         l2_hBridgeTokenDecimals: DEFAULT_H_BRIDGE_TOKEN_DECIMALS,
@@ -329,7 +348,7 @@ function setNetworkParams (l1NetworkName: string, l2NetworkName: string, tokenSy
     } else if (tokenSymbol === COMMON_SYMBOLS.sETH) {
       specificData = {
         l1_canonicalTokenAddress: l1CanonicalTokenAddresses.sETH,
-        l2_canonicalTokenAddress: 'todo',
+        l2_canonicalTokenAddress: '0x61F00BD6995A087F84BCcA62dCC835905f2a9207',
         l2_hBridgeTokenName: 'Synth sETH Hop Token',
         l2_hBridgeTokenSymbol: 'hsETH',
         l2_hBridgeTokenDecimals: DEFAULT_H_BRIDGE_TOKEN_DECIMALS,
@@ -339,7 +358,7 @@ function setNetworkParams (l1NetworkName: string, l2NetworkName: string, tokenSy
     } else if (tokenSymbol === COMMON_SYMBOLS.sBTC) {
       specificData = {
         l1_canonicalTokenAddress: l1CanonicalTokenAddresses.sBTC,
-        l2_canonicalTokenAddress: 'todo',
+        l2_canonicalTokenAddress: '0xe5BEd2355E575b32B0e151EA6577Dfe05FaE5484',
         l2_hBridgeTokenName: 'Synth sBTC Hop Token',
         l2_hBridgeTokenSymbol: 'hsBTC',
         l2_hBridgeTokenDecimals: DEFAULT_H_BRIDGE_TOKEN_DECIMALS,
@@ -349,7 +368,7 @@ function setNetworkParams (l1NetworkName: string, l2NetworkName: string, tokenSy
     } else if (tokenSymbol === COMMON_SYMBOLS.USDC) {
       specificData = {
         l1_canonicalTokenAddress: l1CanonicalTokenAddresses.USDC,
-        l2_canonicalTokenAddress: 'todo',
+        l2_canonicalTokenAddress: '0xcc4f6aE976dd9dFb44E741e7430b6111bF0cbCd0',
         l2_hBridgeTokenName: 'USD Coin Hop Token',
         l2_hBridgeTokenSymbol: 'hUSDC',
         l2_hBridgeTokenDecimals: DEFAULT_H_BRIDGE_TOKEN_DECIMALS,
@@ -359,7 +378,7 @@ function setNetworkParams (l1NetworkName: string, l2NetworkName: string, tokenSy
     } else if (tokenSymbol === COMMON_SYMBOLS.WBTC) {
       specificData = {
         l1_canonicalTokenAddress: l1CanonicalTokenAddresses.WBTC,
-        l2_canonicalTokenAddress: 'todo',
+        l2_canonicalTokenAddress: '0x90ac599445B07c8aa0FC82248f51f6558136203D',
         l2_hBridgeTokenName: 'Wrapped BTC Hop Token',
         l2_hBridgeTokenSymbol: 'hWBTC',
         l2_hBridgeTokenDecimals: DEFAULT_H_BRIDGE_TOKEN_DECIMALS,
@@ -369,7 +388,7 @@ function setNetworkParams (l1NetworkName: string, l2NetworkName: string, tokenSy
     } else if (tokenSymbol === COMMON_SYMBOLS.TST) {
       specificData = {
         l1_canonicalTokenAddress: l1CanonicalTokenAddresses.TST,
-        l2_canonicalTokenAddress: 'todo',
+        l2_canonicalTokenAddress: '0xd9965dD7FD84246Bbca1ee4E3eE8f92D8e5cbE6F',
         l2_hBridgeTokenName: 'Test Coin Hop Token',
         l2_hBridgeTokenSymbol: 'TST',
         l2_hBridgeTokenDecimals: DEFAULT_H_BRIDGE_TOKEN_DECIMALS,

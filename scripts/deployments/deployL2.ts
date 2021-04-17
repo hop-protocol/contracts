@@ -1,8 +1,13 @@
 require('dotenv').config()
 
 import { ethers } from 'hardhat'
-import { ContractFactory, Signer, Contract, BigNumber, providers } from 'ethers'
-const ovmEthers = ethers
+import {
+  ContractFactory,
+  Signer,
+  Contract,
+  BigNumber,
+  providers
+} from 'ethers'
 
 import {
   getContractFactories,
@@ -17,6 +22,7 @@ import {
   isChainIdPolygon,
   getL2BridgeDefaults
 } from '../../config/utils'
+
 import {
   CHAIN_IDS,
   DEFAULT_ETHERS_OVERRIDES as overrides,
@@ -132,6 +138,7 @@ export async function deployL2 (config: Config) {
     l2_messengerProxy = await L2_MessengerProxy.deploy()
     await waitAfterTransaction(l2_messengerProxy, ethers)
     l2_messengerProxyAddress = l2_messengerProxy.address
+    l2_messengerAddress = l2_messengerProxy.address
   }
 
 
