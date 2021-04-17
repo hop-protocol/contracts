@@ -152,6 +152,7 @@ export async function deployL2 (config: Config) {
 
   logger.log('deploying L2 swap contract')
   ;({ l2_swap } = await deployAmm(
+    owner,
     ethers,
     l2_chainId,
     l2_canonicalToken,
@@ -221,6 +222,7 @@ export async function deployL2 (config: Config) {
 }
 
 const deployAmm = async (
+  owner: Signer,
   ethers: any,
   l2_chainId: BigNumber,
   l2_canonicalToken: Contract,
@@ -240,8 +242,8 @@ const deployAmm = async (
   const l2_hopBridgeTokenDecimals = BigNumber.from('18')//await l2_hopBridgeToken.decimals(...decimalParams)
 
   // Deploy AMM contracts
-
-  const l2_swap = await L2_Swap.deploy()
+  const L2_SwapContractFactory: ContractFactory = await deployL2SwapLibs(owner, ethers)
+  const l2_swap = await L2_SwapContractFactory.deploy()
   await waitAfterTransaction(l2_swap, ethers)
 
   let initializeParams: any[] = [
@@ -266,6 +268,36 @@ const deployAmm = async (
   return {
     l2_swap
   }
+}
+
+const deployL2SwapLibs = async (
+  signer: Signer,
+  ethers: any
+) => {
+  const L2_MathUtils: ContractFactory = await ethers.getContractFactory('MathUtils', { signer })
+  const l2_mathUtils = await L2_MathUtils.deploy()
+  await waitAfterTransaction(l2_mathUtils, ethers)
+
+  const L2_SwapUtils = await ethers.getContractFactory(
+    'SwapUtils',
+    {
+      libraries: {
+        'MathUtils': l2_mathUtils.address
+      }
+    }
+  )
+
+  const l2_swapUtils = await L2_SwapUtils.deploy()
+  await waitAfterTransaction(l2_swapUtils, ethers)
+
+  return await ethers.getContractFactory(
+    'Swap',
+    {
+      libraries: {
+        'SwapUtils': l2_swapUtils.address
+      }
+    }
+  )
 }
 
 const deployBridge = async (

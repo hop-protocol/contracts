@@ -17,7 +17,8 @@ import {
 } from '../../config/utils'
 
 import {
-  CHAIN_IDS
+  CHAIN_IDS,
+  ZERO_ADDRESS
 } from '../../config/constants'
 
 export const getContractFactories = async (
@@ -25,6 +26,7 @@ export const getContractFactories = async (
   signer: Signer,
   ethers: any
 ) => {
+
   const L1_MockERC20: ContractFactory = await ethers.getContractFactory(
     'contracts/test/MockERC20.sol:MockERC20',
     { signer }
@@ -42,32 +44,20 @@ export const getContractFactories = async (
     { signer }
   )
 
-  const L2_MathUtils: ContractFactory = await ethers.getContractFactory('MathUtils', { signer })
-  const l2_mathUtils = await L2_MathUtils.deploy()
-  await l2_mathUtils.deployed()
-
-  const L2_SwapUtils = await ethers.getContractFactory(
-    'SwapUtils',
-    {
-      libraries: {
-        'MathUtils': l2_mathUtils.address
-      }
-    }
-  )
-  const l2_swapUtils = await L2_SwapUtils.deploy()
-  await l2_swapUtils.deployed()
-
-  const L2_Swap = await ethers.getContractFactory(
+  // This contract needs to be linked. This line links it to an arbitrary address.
+  // The linking must only be done for the deployment of this contract. Rather than doing it in this getter function,
+  // it is done in the appropriate location in code. This is because the linked libraries are not deployed sometimes
+  // when this function is called.
+  const L2_Swap: ContractFactory = await ethers.getContractFactory(
     'Swap',
     {
+      signer,
       libraries: {
-        'SwapUtils': l2_swapUtils.address
+        'SwapUtils': ZERO_ADDRESS
       }
     }
   )
-
   const L2_AmmWrapper: ContractFactory = await ethers.getContractFactory('L2_AmmWrapper', { signer })
-
 
   let L1_TokenBridge: ContractFactory
   let L1_Messenger: ContractFactory
