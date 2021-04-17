@@ -1760,4 +1760,31 @@ describe('L2_Bridge', () => {
       actualTransferAmount
     )
   })
+
+  it('Should send a transaction, deactivate the receiving chain, bond the transfer, and commit a transfer by the bonder at any time', async () => {
+    await executeL2BridgeSend(l2_hopBridgeToken, l2_bridge, transfer)
+
+    const message: string = getRemoveActiveChainIdsMessage([transfer.chainId])
+    await executeCanonicalMessengerSendMessage(
+      l1_messenger,
+      l2_bridge,
+      l2_messenger,
+      governance,
+      message,
+      l2ChainId
+    )
+
+    const isChainIdSupported: boolean = await l2_bridge.activeChainIds(transfer.chainId)
+    expect(isChainIdSupported).to.eq(false)
+
+    await executeBridgeBondWithdrawal(
+      l1_canonicalToken,
+      l1_bridge,
+      l2_bridge,
+      transfer,
+      bonder
+    )
+
+    await executeL2BridgeCommitTransfers(l2_bridge, [transfer], bonder)
+  })
 })

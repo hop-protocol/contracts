@@ -46,7 +46,6 @@ export const executeCanonicalBridgeSendTokens = async (
     .approve(l1_canonicalBridge.address, amount)
 
   // TODO: Handle this better
-  // I believe that both sendTokens and sendTokensPolygon works here. It should not.
   if (isChainIdPolygon(l2ChainId)) {
     await l1_canonicalBridge
       .connect(account)
