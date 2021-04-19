@@ -14,11 +14,11 @@ import {
   updateConfigFile,
   readConfigFile,
   waitAfterTransaction,
+  doesNeedExplicitGasLimit,
   Logger
 } from '../shared/utils'
 
 import {
-  isChainIdXDai,
   isChainIdPolygon,
   getL2BridgeDefaults
 } from '../../config/utils'
@@ -87,7 +87,6 @@ export async function deployL2 (config: Config) {
   let L2_MockERC20: ContractFactory
   let L2_HopBridgeToken: ContractFactory
   let L2_Bridge: ContractFactory
-  let L2_Swap: ContractFactory
   let L2_AmmWrapper: ContractFactory
   let L2_MessengerProxy: ContractFactory
 
@@ -119,7 +118,6 @@ export async function deployL2 (config: Config) {
     L2_MockERC20,
     L2_HopBridgeToken,
     L2_Bridge,
-    L2_Swap,
     L2_AmmWrapper,
     L2_MessengerProxy
   } = await getContractFactories(l2_chainId, owner, ethers))
@@ -157,7 +155,6 @@ export async function deployL2 (config: Config) {
     l2_chainId,
     l2_canonicalToken,
     l2_hopBridgeToken,
-    L2_Swap,
     l2_swapLpTokenName,
     l2_swapLpTokenSymbol
   ))
@@ -186,7 +183,7 @@ export async function deployL2 (config: Config) {
 
   // Transfer ownership of the Hop Bridge Token to the L2 Bridge
   let transferOwnershipParams: any[] = [l2_bridge.address]
-  if (isChainIdXDai(l2_chainId)) {
+  if (doesNeedExplicitGasLimit(l2_chainId)) {
     transferOwnershipParams.push(overrides)
   }
 
@@ -205,19 +202,25 @@ export async function deployL2 (config: Config) {
   logger.log('L2 Bridge           :', l2_bridgeAddress)
   logger.log('L2 Swap             :', l2_swapAddress)
   logger.log('L2 Amm Wrapper      :', l2_ammWrapperAddress)
+  logger.log('L2 Messenger        :', l2_messengerAddress)
   logger.log('L2 Messenger Proxy  :', l2_messengerProxyAddress)
 
   updateConfigFile({
     l2_hopBridgeTokenAddress,
     l2_bridgeAddress,
     l2_swapAddress,
-    l2_ammWrapperAddress
+    l2_ammWrapperAddress,
+    l2_messengerAddress,
+    l2_messengerProxyAddress
   })
 
   return {
-    l2_hopBridgeToken,
+    l2_hopBridgeTokenAddress,
     l2_bridgeAddress,
-    l2_swapAddress
+    l2_swapAddress,
+    l2_ammWrapperAddress,
+    l2_messengerAddress,
+    l2_messengerProxyAddress
   }
 }
 
@@ -227,14 +230,13 @@ const deployAmm = async (
   l2_chainId: BigNumber,
   l2_canonicalToken: Contract,
   l2_hopBridgeToken: Contract,
-  L2_Swap: ContractFactory,
   l2_swapLpTokenName: string,
   l2_swapLpTokenSymbol: string
 ) => {
 
   let decimalParams: any[] = []
 
-  if (isChainIdXDai(l2_chainId)) {
+  if (doesNeedExplicitGasLimit(l2_chainId)) {
     decimalParams.push(overrides)
   }
 
@@ -257,7 +259,7 @@ const deployAmm = async (
     DEFAULT_SWAP_WITHDRAWAL_FEE
   ]
 
-  if (isChainIdXDai(l2_chainId)) {
+  if (doesNeedExplicitGasLimit(l2_chainId)) {
     initializeParams.push(overrides)
   }
 

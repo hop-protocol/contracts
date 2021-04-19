@@ -65,7 +65,7 @@ export async function deployL1 (config: Config) {
       l1_canonicalTokenAddress,
       [await bonder.getAddress()],
       await governance.getAddress()
-      )
+    )
   await waitAfterTransaction(l1_bridge)
 
   const l1_bridgeAddress = l1_bridge.address

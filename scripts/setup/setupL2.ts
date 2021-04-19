@@ -9,10 +9,10 @@ import {
   updateConfigFile,
   waitAfterTransaction,
   wait,
+  doesNeedExplicitGasLimit,
   Logger
 } from '../shared/utils'
 import {
-  isChainIdXDai,
   isChainIdPolygon
 } from '../../config/utils'
 
@@ -148,7 +148,7 @@ export async function setupL2 (config: Config) {
     l2_swap.address,
     LIQUIDITY_PROVIDER_AMM_AMOUNT
   ]
-  if (isChainIdXDai(l2_chainId)) {
+  if (doesNeedExplicitGasLimit(l2_chainId)) {
     approvalParams.push(overrides)
   }
 
@@ -171,7 +171,7 @@ export async function setupL2 (config: Config) {
     '0',
     DEFAULT_DEADLINE
   ]
-  if (isChainIdXDai(l2_chainId)) {
+  if (doesNeedExplicitGasLimit(l2_chainId)) {
     addLiquidityParams.push(overrides)
   }
 
@@ -186,7 +186,7 @@ export async function setupL2 (config: Config) {
     l2_hopBridgeToken.address,
     l2_canonicalToken.address
   ]
-  if (isChainIdXDai(l2_chainId)) {
+  if (doesNeedExplicitGasLimit(l2_chainId)) {
     getPairParams.push(overrides)
   }
 

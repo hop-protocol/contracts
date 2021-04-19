@@ -14,14 +14,12 @@ import "../bridges/L1_Bridge.sol";
 
 contract PolygonMessengerWrapper is BaseRootTunnel, MessengerWrapper {
 
-    address public l1Bridge;
-
     constructor(
-        address _l1Bridge
+        address _l1BridgeAddress
     )
         public
     {
-        l1Bridge = _l1Bridge;
+        l1BridgeAddress = _l1BridgeAddress;
     }
 
     /** 
@@ -40,7 +38,7 @@ contract PolygonMessengerWrapper is BaseRootTunnel, MessengerWrapper {
     }
 
     function _processMessageFromChild(bytes memory message) internal override {
-        (bool success,) = l1Bridge.call(message);
+        (bool success,) = l1BridgeAddress.call(message);
         require(success, "L1_PLGN_WPR: Call to L1 Bridge failed");
     }
 }

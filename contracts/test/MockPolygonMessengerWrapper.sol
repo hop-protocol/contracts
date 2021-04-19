@@ -7,7 +7,7 @@ import "../wrappers/PolygonMessengerWrapper.sol";
 
 contract MockPolygonMessengerWrapper is PolygonMessengerWrapper {
 
-    constructor (address _l1Bridge) public PolygonMessengerWrapper(_l1Bridge) {}
+    constructor (address _l1BridgeAddress) public PolygonMessengerWrapper(_l1BridgeAddress) {}
 
     function processMessageFromChild(bytes memory message) public {
         _processMessageFromChild(message);

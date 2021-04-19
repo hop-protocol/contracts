@@ -4,9 +4,7 @@ pragma solidity 0.6.12;
 pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
-// import "@maticnetwork/pos-portal/contracts/tunnel/BaseChildTunnel.sol";
 import "../polygon/tunnel/BaseChildTunnel.sol";
-import "./L2_PolygonBridge.sol";
 
 contract L2_PolygonMessengerProxy is BaseChildTunnel, ReentrancyGuard {
 

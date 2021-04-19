@@ -2,7 +2,6 @@ require('dotenv').config()
 
 import { ethers } from 'hardhat'
 import { BigNumber, ContractFactory, Signer, Contract, providers } from 'ethers'
-const ovmEthers = ethers
 
 import {
   getContractFactories,
@@ -146,7 +145,7 @@ export async function setupL1 (config: Config) {
     l2_chainId,
     l1_bridge.address,
     l2_bridge.address,
-    l1_messenger.address
+    l1_messenger?.address || '0x'
   )
 
   logger.log('deploying L1 messenger wrapper')

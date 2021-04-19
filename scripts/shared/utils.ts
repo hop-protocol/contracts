@@ -201,11 +201,11 @@ const getPolygonContractFactories = async (signer: Signer, ethers: any) => {
     { signer }
   )
   const L1_Messenger: ContractFactory = await ethers.getContractFactory(
-    'contracts/wrappers/PolygonMessengerWrapper.sol:PolygonMessengerWrapper',
+    'contracts/test/polygon/Mock_L1_PolygonMessenger.sol:Mock_L1_PolygonMessenger',
     { signer }
   )
   const L1_MessengerWrapper: ContractFactory = await ethers.getContractFactory(
-    'contracts/wrappers/PolygonMessengerWrapper.sol:PolygonMessengerWrapper',
+    'contracts/test/MockPolygonMessengerWrapper.sol:MockPolygonMessengerWrapper',
     { signer }
   )
   const L2_Bridge: ContractFactory = await ethers.getContractFactory(
@@ -375,4 +375,11 @@ export const Logger = (label: string) => {
 
 export const getL1ChainIdFromNetworkName = (networkName: string): BigNumber => {
   return CHAIN_IDS.ETHEREUM[networkName.toUpperCase()]
+}
+
+export const doesNeedExplicitGasLimit = (chainId: BigNumber): Boolean => {
+  if (isChainIdXDai(chainId) || isChainIdPolygon(chainId)) {
+    return true
+  }
+  return false
 }
