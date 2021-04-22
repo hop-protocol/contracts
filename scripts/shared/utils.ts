@@ -261,7 +261,7 @@ export const sendChainSpecificBridgeDeposit = async (
         await sender.getAddress(),
         amount
       )
-  } else if (isChainIdXDai(chainId)) {
+  } else if (isChainIdPolygon(chainId)) {
     tx = await l1_tokenBridge
       .connect(sender)
       .depositFor(

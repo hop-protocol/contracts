@@ -139,30 +139,38 @@ export async function setupL1 (config: Config) {
   /**
    * Setup deployments
    */
-
-  // Deploy messenger wrapper
-  const messengerWrapperDefaults: any[] = getMessengerWrapperDefaults(
-    l2_chainId,
-    l1_bridge.address,
-    l2_bridge.address,
-    l1_messenger?.address || '0x'
-  )
-
-  logger.log('deploying L1 messenger wrapper')
-  l1_messengerWrapper = await L1_MessengerWrapper.connect(owner).deploy(
-    ...messengerWrapperDefaults
-  )
-  await waitAfterTransaction(l1_messengerWrapper)
-
-  if (isChainIdPolygon(l2_chainId)) {
-    await setUpPolygonContracts(
-      l1_chainId,
-      owner,
-      l1_messenger,
-      l1_messengerWrapper,
-      l2_messengerProxy
+  // NOTE: The messenger for Polygon needs to be pre-deployed and set up so that they can link it
+  // Because of this, the messenger addresses should already be defined in deploy.ts
+  if(isChainIdPolygon(l2_chainId)) {
+    // NOTE: The messenger is attached the the MessengerWrapper interface
+    l1_messenger = L1_MessengerWrapper.attach(l1_messenger.address)
+    l1_messengerWrapper = L1_MessengerWrapper.attach(l1_messenger.address)
+  } else {
+    // Deploy messenger wrapper
+    const messengerWrapperDefaults: any[] = getMessengerWrapperDefaults(
+      l2_chainId,
+      l1_bridge.address,
+      l2_bridge.address,
+      l1_messenger?.address || '0x'
     )
+
+    logger.log('deploying L1 messenger wrapper')
+    l1_messengerWrapper = await L1_MessengerWrapper.connect(owner).deploy(
+      ...messengerWrapperDefaults
+    )
+    await waitAfterTransaction(l1_messengerWrapper)
+
+    if (isChainIdPolygon(l2_chainId)) {
+      await setUpPolygonContracts(
+        l1_chainId,
+        owner,
+        l1_messenger,
+        l1_messengerWrapper,
+        l2_messengerProxy
+      )
+    }
   }
+
 
   /**
    * Setup invocations

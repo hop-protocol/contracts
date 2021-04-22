@@ -29,7 +29,9 @@ import {
   DEFAULT_SWAP_A,
   DEFAULT_SWAP_FEE,
   DEFAULT_SWAP_ADMIN_FEE,
-  DEFAULT_SWAP_WITHDRAWAL_FEE
+  DEFAULT_SWAP_WITHDRAWAL_FEE,
+  DEFAULT_ADMIN_ROLE_HASH,
+  ZERO_ADDRESS
 } from '../../config/constants'
 
 const logger = Logger('deployL2')
@@ -107,6 +109,7 @@ export async function deployL2 (config: Config) {
 
   logger.log('owner:', await owner.getAddress())
   logger.log('bonder:', await bonder.getAddress())
+  logger.log('governance:', await governance.getAddress())
 
   // Transaction
   let tx: providers.TransactionResponse
@@ -191,6 +194,21 @@ export async function deployL2 (config: Config) {
   tx = await l2_hopBridgeToken.transferOwnership(...transferOwnershipParams)
   await tx.wait()
   await waitAfterTransaction()
+
+  if (isChainIdPolygon(l2_chainId)) {
+    let tx = await l2_messengerProxy.setL2Bridge(l2_bridge.address)
+    await tx.wait()
+    await waitAfterTransaction()
+
+    // NOTE: You cannot remove all members of a role. Instead, set to 0 and then remove the original
+    tx = await l2_messengerProxy.grantRole(DEFAULT_ADMIN_ROLE_HASH, ZERO_ADDRESS)
+    await tx.wait()
+    await waitAfterTransaction()
+
+    tx = await l2_messengerProxy.revokeRole(DEFAULT_ADMIN_ROLE_HASH, await owner.getAddress())
+    await tx.wait()
+    await waitAfterTransaction()
+  }
 
   const l2_hopBridgeTokenAddress: string = l2_hopBridgeToken.address
   const l2_bridgeAddress: string = l2_bridge.address

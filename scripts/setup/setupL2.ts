@@ -13,15 +13,10 @@ import {
   Logger
 } from '../shared/utils'
 import {
-  isChainIdPolygon
-} from '../../config/utils'
-
-import {
   DEFAULT_DEADLINE,
   LIQUIDITY_PROVIDER_AMM_AMOUNT,
   ZERO_ADDRESS,
-  DEFAULT_ETHERS_OVERRIDES as overrides,
-  DEFAULT_ADMIN_ROLE_HASH
+  DEFAULT_ETHERS_OVERRIDES as overrides
 } from '../../config/constants'
 
 const logger = Logger('setupL2')
@@ -126,21 +121,6 @@ export async function setupL2 (config: Config) {
     l2_hopBridgeToken,
     l2_bridge
   )
-
-  if (isChainIdPolygon(l2_chainId)) {
-    tx = await l2_messengerProxy.setL2Bridge(l2_bridge.address)
-    await tx.wait()
-    await waitAfterTransaction()
-
-    // NOTE: You cannot remove all members of a role. Instead, set to 0 and then remove the original
-    tx = await l2_messengerProxy.grantRole(DEFAULT_ADMIN_ROLE_HASH, ZERO_ADDRESS)
-    await tx.wait()
-    await waitAfterTransaction()
-
-    tx = await l2_messengerProxy.revokeRole(DEFAULT_ADMIN_ROLE_HASH, await owner.getAddress())
-    await tx.wait()
-    await waitAfterTransaction()
-  }
 
   logger.log('L2 state verified')
   // Set up Amm
