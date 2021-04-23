@@ -135,6 +135,10 @@ export async function deployL2 (config: Config) {
    */
 
   let l2_messengerProxyAddress: string = ''
+  // NOTE: If the messenger proxy is already deployed, uncomment below and comment out the deployment
+  // let l2_messengerProxyAddress: string = ''
+  // l2_messengerProxy = L2_MessengerProxy.attach(l2_messengerProxyAddress)
+  // l2_messengerAddress = l2_messengerProxy.address
   if (isChainIdPolygon(l2_chainId)) {
     l2_messengerProxy = await L2_MessengerProxy.deploy()
     await waitAfterTransaction(l2_messengerProxy, ethers)
@@ -195,17 +199,18 @@ export async function deployL2 (config: Config) {
   await tx.wait()
   await waitAfterTransaction()
 
+  // NOTE: If the messenger proxy is already deployed and set up, comment out this section
   if (isChainIdPolygon(l2_chainId)) {
-    let tx = await l2_messengerProxy.setL2Bridge(l2_bridge.address)
+    let tx = await l2_messengerProxy.setL2Bridge(l2_bridge.address, overrides)
     await tx.wait()
     await waitAfterTransaction()
 
     // NOTE: You cannot remove all members of a role. Instead, set to 0 and then remove the original
-    tx = await l2_messengerProxy.grantRole(DEFAULT_ADMIN_ROLE_HASH, ZERO_ADDRESS)
+    tx = await l2_messengerProxy.grantRole(DEFAULT_ADMIN_ROLE_HASH, ZERO_ADDRESS, overrides)
     await tx.wait()
     await waitAfterTransaction()
 
-    tx = await l2_messengerProxy.revokeRole(DEFAULT_ADMIN_ROLE_HASH, await owner.getAddress())
+    tx = await l2_messengerProxy.revokeRole(DEFAULT_ADMIN_ROLE_HASH, await owner.getAddress(), overrides)
     await tx.wait()
     await waitAfterTransaction()
   }

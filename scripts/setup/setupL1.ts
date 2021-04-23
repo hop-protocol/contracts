@@ -160,6 +160,7 @@ export async function setupL1 (config: Config) {
     )
     await waitAfterTransaction(l1_messengerWrapper)
 
+    logger.log('setting up polygon contracts')
     if (isChainIdPolygon(l2_chainId)) {
       await setUpPolygonContracts(
         l1_chainId,
@@ -170,7 +171,6 @@ export async function setupL1 (config: Config) {
       )
     }
   }
-
 
   /**
    * Setup invocations
@@ -198,7 +198,7 @@ export async function setupL1 (config: Config) {
     ZERO_ADDRESS,
     governance,
     message,
-    l2_chainId
+    l2_chainId as BigNumber
   )
   await waitAfterTransaction()
 
@@ -216,7 +216,7 @@ export async function setupL1 (config: Config) {
     ZERO_ADDRESS,
     governance,
     message,
-    l2_chainId
+    l2_chainId as BigNumber
   )
   await waitAfterTransaction()
 
@@ -229,7 +229,7 @@ export async function setupL1 (config: Config) {
     ZERO_ADDRESS,
     governance,
     message,
-    l2_chainId
+    l2_chainId as BigNumber
   )
   await waitAfterTransaction()
 
@@ -245,16 +245,22 @@ export async function setupL1 (config: Config) {
   await tx.wait()
   await waitAfterTransaction()
 
+  let contractToApprove: string
+  if (isChainIdPolygon(l2_chainId)) {
+    contractToApprove = 'todo'
+  } else {
+    contractToApprove = l1_tokenBridge.address
+  }
   logger.log('approving L1 canonical token')
   tx = await l1_canonicalToken
     .connect(liquidityProvider)
-    .approve(l1_tokenBridge.address, LIQUIDITY_PROVIDER_INITIAL_BALANCE)
+    .approve(contractToApprove, LIQUIDITY_PROVIDER_INITIAL_BALANCE)
   await tx.wait()
   await waitAfterTransaction()
 
   logger.log('sending chain specific bridge deposit')
   await sendChainSpecificBridgeDeposit(
-    l2_chainId,
+    l2_chainId as BigNumber,
     liquidityProvider,
     LIQUIDITY_PROVIDER_INITIAL_BALANCE,
     l1_tokenBridge,
@@ -278,7 +284,7 @@ export async function setupL1 (config: Config) {
   logger.log('approving L1 canonical token')
   tx = await l1_canonicalToken
     .connect(liquidityProvider)
-    .approve(l1_bridge.address, LIQUIDITY_PROVIDER_INITIAL_BALANCE)
+    .approve(contractToApprove, LIQUIDITY_PROVIDER_INITIAL_BALANCE)
   await tx.wait()
   await waitAfterTransaction()
 
