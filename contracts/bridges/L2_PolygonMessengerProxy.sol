@@ -8,7 +8,7 @@ import "../polygon/tunnel/BaseChildTunnel.sol";
 
 contract L2_PolygonMessengerProxy is BaseChildTunnel, ReentrancyGuard {
 
-    address public l2Bridge;
+    address public immutable l2Bridge;
     address public xDomainMessageSender;
 
     address constant public DEAD_ADDRESS = 0x000000000000000000000000000000000000dEaD;

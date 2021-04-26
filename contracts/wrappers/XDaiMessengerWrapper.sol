@@ -17,6 +17,8 @@ contract XDaiMessengerWrapper is MessengerWrapper {
     /// @notice The xDai AMB uses bytes32 for chainId instead of uint256
     bytes32 public l2ChainId;
     address public ambBridge;
+    address public immutable l2BridgeAddress;
+    uint256 public immutable defaultGasLimit;
 
     constructor(
         address _l1BridgeAddress,
@@ -27,8 +29,8 @@ contract XDaiMessengerWrapper is MessengerWrapper {
         address _ambBridge
     )
         public
+        MessengerWrapper(_l1BridgeAddress)
     {
-        l1BridgeAddress = _l1BridgeAddress;
         l2BridgeAddress = _l2BridgeAddress;
         l1MessengerAddress = _l1MessengerAddress;
         defaultGasLimit = _defaultGasLimit;

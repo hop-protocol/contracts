@@ -160,17 +160,17 @@ function setNetworkParams (l1NetworkName: string, l2NetworkName: string, tokenSy
       l2_networkName: l2NetworkName,
       l1_chainId: l1ChainId.toString(),
       l2_chainId: CHAIN_IDS.OPTIMISM.HOP_TESTNET.toString(),
-      l1_messengerAddress: '0xb89065D5eB05Cac554FDB11fC764C679b4202322',
-      l2_tokenBridgeAddress: '0x4023E9eFcB444Ad6C662075FE5B4570274A2BC2E',
+      l1_messengerAddress: '0x48062eD9b6488EC41c4CfbF2f568D7773819d8C9',
+      l2_tokenBridgeAddress: '0x82784078a7a8A1697BcCe5E07896C6a553846Bd5',
       l2_messengerAddress: '0x4200000000000000000000000000000000000007',
-      l1_tokenBridgeAddress: '0xC1e7Be0E1aDD345afB2485aA5E774cD79cBbbBf5',
+      l1_tokenBridgeAddress: '0xf8099DD44375Fdbb70D286af0fFCd46bA4B193dF',
       l2_messengerProxyAddress: '0x'
     }
 
     if (tokenSymbol === COMMON_SYMBOLS.DAI.toLowerCase()) {
       specificData = {
         l1_canonicalTokenAddress: l1CanonicalTokenAddresses.DAI,
-        l2_canonicalTokenAddress: '0x3D1d74D898e29957aDc29Fb3861489899faFAFfd',
+        l2_canonicalTokenAddress: '0x43AF508997d3b33555b3Cdc093a94b5DED06e306',
         l2_hBridgeTokenName: DEFAULT_H_BRIDGE_TOKEN_NAME,
         l2_hBridgeTokenSymbol: DEFAULT_H_BRIDGE_TOKEN_SYMBOL,
         l2_hBridgeTokenDecimals: DEFAULT_H_BRIDGE_TOKEN_DECIMALS,
@@ -200,7 +200,7 @@ function setNetworkParams (l1NetworkName: string, l2NetworkName: string, tokenSy
     } else if (tokenSymbol === COMMON_SYMBOLS.USDC.toLowerCase()) {
       specificData = {
         l1_canonicalTokenAddress: l1CanonicalTokenAddresses.USDC,
-        l2_canonicalTokenAddress: '0x56836Eec6d4EfCcFBc162C0851007D9F72aD202B',
+        l2_canonicalTokenAddress: '0xd4740F9cE3149b657D2457B6Ef29F953c2FcB479',
         l2_hBridgeTokenName: 'USD Coin Hop Token',
         l2_hBridgeTokenSymbol: 'hUSDC',
         l2_hBridgeTokenDecimals: DEFAULT_H_BRIDGE_TOKEN_DECIMALS,
@@ -233,17 +233,17 @@ function setNetworkParams (l1NetworkName: string, l2NetworkName: string, tokenSy
       l2_networkName: l2NetworkName,
       l1_chainId: l1ChainId.toString(),
       l2_chainId: CHAIN_IDS.ARBITRUM.TESTNET_4.toString(),
-      l1_messengerAddress: '0x97884F2B6A2AF19C38AA0a15716CF2aC931A3c73',
+      l1_messengerAddress: '0xD71d47AD1b63981E9dB8e4A78C0b30170da8a601',
       l2_tokenBridgeAddress: '0xE49CCf3e19d847f8FF4d6962684A3242abF63f07',
       l2_messengerAddress: '0x0000000000000000000000000000000000000064',
-      l1_tokenBridgeAddress: '0x5d4958A5A5C336299445353EAB2b1CD85a331B52',
+      l1_tokenBridgeAddress: '0x2948ac43e4aff448f6af0f7a11f18bb6062dd271',
       l2_messengerProxyAddress: '0x'
     }
 
     if (tokenSymbol === COMMON_SYMBOLS.DAI.toLowerCase()) {
       specificData = {
         l1_canonicalTokenAddress: l1CanonicalTokenAddresses.DAI,
-        l2_canonicalTokenAddress: '0xD98Ba848F10697A914a8c007dBCD05fCe2A0b84f',
+        l2_canonicalTokenAddress: '0xFa226E8B73Acaafeb29fEcd601afBEC8b1208986',
         l2_hBridgeTokenName: DEFAULT_H_BRIDGE_TOKEN_NAME,
         l2_hBridgeTokenSymbol: DEFAULT_H_BRIDGE_TOKEN_SYMBOL,
         l2_hBridgeTokenDecimals: DEFAULT_H_BRIDGE_TOKEN_DECIMALS,

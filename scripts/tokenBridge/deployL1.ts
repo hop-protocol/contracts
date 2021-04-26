@@ -16,7 +16,7 @@ async function main () {
 
   const l1_messenger = {
     // address: '0x97884F2B6A2AF19C38AA0a15716CF2aC931A3c73' // Arbitrum
-    address: '0xb89065D5eB05Cac554FDB11fC764C679b4202322' // Optimism
+    address: '0x48062eD9b6488EC41c4CfbF2f568D7773819d8C9' // Optimism
   }
 
   const l1_erc20Bridge = await L1ERC20Bridge.deploy(

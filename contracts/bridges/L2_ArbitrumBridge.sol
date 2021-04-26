@@ -43,6 +43,7 @@ contract L2_ArbitrumBridge is L2_Bridge {
     function _verifySender(address expectedSender) internal override {
         // ToDo: verify sender with Arbitrum L2 messenger
         // sender should be l1BridgeAddress
+        // See https://github.com/OffchainLabs/arbitrum/blob/new-rollup/packages/arb-bridge-peripherals/contracts/tokenbridge/arbitrum/ArbTokenBridge.sol#L107
     }
 
     /**

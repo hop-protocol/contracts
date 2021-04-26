@@ -13,7 +13,7 @@ import "./L2_Bridge.sol";
 contract L2_XDaiBridge is L2_Bridge {
     iArbitraryMessageBridge public messenger;
     /// @notice The xDai AMB uses bytes32 for chainId instead of uint256
-    bytes32 public l1ChainId;
+    bytes32 public immutable l1ChainId;
     uint256 public defaultGasLimit;
 
     constructor (

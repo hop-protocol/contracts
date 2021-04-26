@@ -36,6 +36,14 @@ abstract contract Accounting is ReentrancyGuard {
         uint256 amount
     );
 
+    event BonderAdded (
+        address newBonder
+    );
+
+    event BonderRemoved (
+        address previousBonder
+    );
+
     /* ========== Modifiers ========== */
 
     modifier onlyBonder {
@@ -149,6 +157,8 @@ abstract contract Accounting is ReentrancyGuard {
     function addBonder(address bonder) external onlyGovernance {
         require(_isBonder[bonder] == false, "ACT: Address is already bonder");
         _isBonder[bonder] = true;
+
+        emit BonderAdded(bonder);
     }
 
     /**
@@ -158,6 +168,8 @@ abstract contract Accounting is ReentrancyGuard {
     function removeBonder(address bonder) external onlyGovernance {
         require(_isBonder[bonder] == true, "ACT: Address is not bonder");
         _isBonder[bonder] = false;
+
+        emit BonderRemoved(bonder);
     }
 
     /* ========== Internal functions ========== */

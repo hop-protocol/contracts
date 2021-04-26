@@ -169,7 +169,7 @@ npm run patch-oz
 TARGET=ovm npm run deploy optimism USDC
 
 # Setup L1 and setup L2
-rm package-lock.json && rm -rf node_modules && rm -rf cache && rm -rf artifacts && npm i
+rm -rf node_modules/@openzeppelin && rm -rf cache && rm -rf artifacts && npm i
 [Comment out Deploy L2 script in deploy.ts]
 [Comment in Setup L1 and Setup L2 scripts in deploy.ts]
 npm run deploy optimism USDC
