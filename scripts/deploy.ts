@@ -124,7 +124,7 @@ function setNetworkParams (l1NetworkName: string, l2NetworkName: string, tokenSy
 
   // TODO: Handle this better
   if (l2NetworkName === 'x' || l2NetworkName === 'xpolygon') {
-    let l2ChainId: BigNumber
+    let l2ChainId: BigNumber = BigNumber.from('0')
 
     // Define the L2 chain ID
     if (l2NetworkName === 'xpolygon' && l1NetworkName === 'goerli') {
@@ -329,12 +329,13 @@ function setNetworkParams (l1NetworkName: string, l2NetworkName: string, tokenSy
       l2_networkName: l2NetworkName,
       l1_chainId: l1ChainId.toString(),
       l2_chainId: CHAIN_IDS.POLYGON.MUMBAI.toString(),
-      l1_messengerAddress: '0xEAa852323826C71cd7920C3b4c007184234c3945',
+      // For Polygon, this is our MessengerWrapper. We never call the messenger (0xEAa...) directly
+      l1_messengerAddress: '0xbd11dbd2770EEBbbad4366f58DAeD25392720C3F',
       // For Polygon, this is unused
       l2_tokenBridgeAddress: '0x',
       // For Polygon, this is the messenger proxy. This is handled during the deployment scripts.
       l2_messengerAddress: '0x',
-      l1_tokenBridgeAddress: '0x57823134bc226b2335CA2E6D03c8E59a8314b2A9',
+      l1_tokenBridgeAddress: '0xBbD7cBFA79faee899Eaf900F13C9065bF03B1A74',
       l2_messengerProxyAddress: '0x'
     }
 
@@ -347,6 +348,16 @@ function setNetworkParams (l1NetworkName: string, l2NetworkName: string, tokenSy
         l2_hBridgeTokenDecimals: DEFAULT_H_BRIDGE_TOKEN_DECIMALS,
         l2_swapLpTokenName: 'Hop DAI LP Token',
         l2_swapLpTokenSymbol: 'HOP-LP-DAI'
+      }
+    } else if (tokenSymbol === 'dummy') {
+      specificData = {
+        l1_canonicalTokenAddress: '0x655F2166b0709cd575202630952D71E2bB0d61Af',
+        l2_canonicalTokenAddress: '0xfe4F5145f6e09952a5ba9e956ED0C25e3Fa4c7F1',
+        l2_hBridgeTokenName: 'Dummy ERC20 Hop Token',
+        l2_hBridgeTokenSymbol: 'hDERC20',
+        l2_hBridgeTokenDecimals: DEFAULT_H_BRIDGE_TOKEN_DECIMALS,
+        l2_swapLpTokenName: 'Hop DERC20 LP Token',
+        l2_swapLpTokenSymbol: 'HOP-LP-DERC20'
       }
     } else if (tokenSymbol === COMMON_SYMBOLS.sETH.toLowerCase()) {
       specificData = {

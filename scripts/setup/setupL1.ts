@@ -246,8 +246,9 @@ export async function setupL1 (config: Config) {
   await waitAfterTransaction()
 
   let contractToApprove: string
-  if (isChainIdPolygon(l2_chainId)) {
+  if (isChainIdPolygon(l2_chainId as BigNumber)) {
     contractToApprove = 'todo'
+    // contractToApprove = '0xdD6596F2029e6233DEFfaCa316e6A95217d4Dc34'
   } else {
     contractToApprove = l1_tokenBridge.address
   }
@@ -284,7 +285,7 @@ export async function setupL1 (config: Config) {
   logger.log('approving L1 canonical token')
   tx = await l1_canonicalToken
     .connect(liquidityProvider)
-    .approve(contractToApprove, LIQUIDITY_PROVIDER_INITIAL_BALANCE)
+    .approve(l1_bridge.address, LIQUIDITY_PROVIDER_INITIAL_BALANCE)
   await tx.wait()
   await waitAfterTransaction()
 

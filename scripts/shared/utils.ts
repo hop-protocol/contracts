@@ -262,12 +262,13 @@ export const sendChainSpecificBridgeDeposit = async (
         amount
       )
   } else if (isChainIdPolygon(chainId)) {
+    const encodedAmount = ethersUtils.defaultAbiCoder.encode(['uint256'], [amount])
     tx = await l1_tokenBridge
       .connect(sender)
       .depositFor(
         await sender.getAddress(),
         l1_canonicalToken.address,
-        ethersUtils.toUtf8Bytes(amount.toString())
+        encodedAmount
       )
   } else {
     throw new Error(`Unsupported chain ID "${chainId}"`)
