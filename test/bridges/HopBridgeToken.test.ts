@@ -18,7 +18,7 @@ import {
   getSetHopBridgeTokenOwnerMessage
 } from '../shared/contractFunctionWrappers'
 
-describe('L1_Bridge', () => {
+describe('Hop_Bridge_Token', () => {
   let _fixture: IFixture
   let l1ChainId: BigNumber
   let l2ChainId: BigNumber
@@ -27,6 +27,7 @@ describe('L1_Bridge', () => {
   let governance: Signer
 
   let l1_messenger: Contract
+  let l1_messengerWrapper: Contract
 
   let l2_hopBridgeToken: Contract
   let l2_bridge: Contract
@@ -42,11 +43,12 @@ describe('L1_Bridge', () => {
     l2ChainId = CHAIN_IDS.OPTIMISM.TESTNET_1
 
     _fixture = await fixture(l1ChainId, l2ChainId)
-    await setUpDefaults(_fixture, l2ChainId)
+    await setUpDefaults(_fixture)
     ;({
       user,
       governance,
       l1_messenger,
+      l1_messengerWrapper,
       l2_hopBridgeToken,
       l2_bridge,
       l2_messenger
@@ -95,7 +97,8 @@ describe('L1_Bridge', () => {
       l2_bridge,
       l2_messenger,
       governance,
-      message
+      message,
+      l2ChainId
     )
 
     const mintAmount: BigNumber = BigNumber.from('13371377')
@@ -127,7 +130,8 @@ describe('L1_Bridge', () => {
       l2_bridge,
       l2_messenger,
       governance,
-      message
+      message,
+      l2ChainId
     )
 
     const mintAmount: BigNumber = BigNumber.from('13371377')

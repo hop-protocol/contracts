@@ -9,6 +9,7 @@ import {
   updateConfigFile,
   waitAfterTransaction,
   wait,
+  doesNeedExplicitGasLimit,
   Logger
 } from '../shared/utils'
 import { isChainIdXDai, isChainIdArbitrum } from '../../config/utils'
@@ -38,7 +39,7 @@ export async function setupL2 (config: Config) {
     l2_canonicalTokenAddress,
     l2_hopBridgeTokenAddress,
     l2_bridgeAddress,
-    l2_swapAddress
+    l2_swapAddress,
   } = config
 
   logger.log(`config:
@@ -46,7 +47,8 @@ export async function setupL2 (config: Config) {
             l2_canonicalTokenAddress: ${l2_canonicalTokenAddress}
             l2_hopBridgeTokenAddress: ${l2_hopBridgeTokenAddress}
             l2_bridgeAddress: ${l2_bridgeAddress}
-            l2_swapAddress: ${l2_swapAddress}`)
+            l2_swapAddress: ${l2_swapAddress}`
+            )
 
   l2_chainId = BigNumber.from(l2_chainId)
 
@@ -95,6 +97,7 @@ export async function setupL2 (config: Config) {
   l2_bridge = L2_Bridge.attach(l2_bridgeAddress)
   l2_swap = L2_Swap.attach(l2_swapAddress)
 
+
   /**
    * Setup
    */
@@ -120,7 +123,7 @@ export async function setupL2 (config: Config) {
     l2_swap.address,
     LIQUIDITY_PROVIDER_AMM_AMOUNT
   ]
-  if (isChainIdXDai(l2_chainId)) {
+  if (doesNeedExplicitGasLimit(l2_chainId)) {
     approvalParams.push(overrides)
   }
 
@@ -143,7 +146,7 @@ export async function setupL2 (config: Config) {
     '0',
     DEFAULT_DEADLINE
   ]
-  if (isChainIdXDai(l2_chainId)) {
+  if (doesNeedExplicitGasLimit(l2_chainId)) {
     addLiquidityParams.push(overrides)
   } else if (isChainIdArbitrum(l2_chainId)) {
     addLiquidityParams.push({ gasLimit: 100000000 })
@@ -156,13 +159,15 @@ export async function setupL2 (config: Config) {
   await tx.wait()
   await waitAfterTransaction()
 
-  const getPairParams: any[] = [
-    l2_hopBridgeToken.address,
-    l2_canonicalToken.address
-  ]
-  if (isChainIdXDai(l2_chainId)) {
-    getPairParams.push(overrides)
-  }
+  logger.log('retrieving lp token address')
+  const res = await l2_swap.swapStorage(overrides)
+  const lpTokenAddress = res[7]
+
+  updateConfigFile({
+    l2_lpTokenAddress: lpTokenAddress
+  })
+
+  logger.log('L2 Setup Complete')
 
 }
 

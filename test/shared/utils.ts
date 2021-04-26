@@ -18,7 +18,9 @@ import {
   DEFAULT_DEADLINE,
   CHALLENGER_INITIAL_BALANCE,
   RELAYER_INITIAL_BALANCE,
-  DEFAULT_RELAYER_FEE
+  DEFAULT_RELAYER_FEE,
+  ZERO_ADDRESS,
+  DEFAULT_ADMIN_ROLE_HASH
 } from '../../config/constants'
 
 import {
@@ -36,17 +38,23 @@ import {
   isChainIdOptimism,
   isChainIdArbitrum,
   isChainIdXDai,
-  isChainIdPolygon
+  isChainIdPolygon,
+  isChainIdMainnet,
+  isChainIdGoerli,
+  getPolygonCheckpointManagerAddress
 } from '../../config/utils'
 
 /**
  * Initialization functions
  */
 
-export const setUpDefaults = async (
-  fixture: IFixture,
-  l2ChainId: BigNumber
-) => {
+export const setUpDefaults = async (fixture: IFixture) => {
+  const l2ChainId: BigNumber = fixture.l2ChainId
+
+  const setUpL1AndL2MessengersOpts = {
+    l2ChainId
+  }
+
   const setUpL1AndL2BridgesOpts = {
     messengerWrapperChainId: l2ChainId
   }
@@ -76,7 +84,7 @@ export const setUpDefaults = async (
   }
 
   await setUpL2HopBridgeToken(fixture)
-  await setUpL1AndL2Messengers(fixture)
+  await setUpL1AndL2Messengers(fixture, setUpL1AndL2MessengersOpts)
   await setUpL1AndL2Bridges(fixture, setUpL1AndL2BridgesOpts)
   await distributeCanonicalTokens(fixture, distributeCanonicalTokensOpts)
   await setUpBonderStake(fixture, setUpBonderStakeOpts)
@@ -89,8 +97,46 @@ export const setUpL2HopBridgeToken = async (fixture: IFixture) => {
   await l2_hopBridgeToken.transferOwnership(l2_bridge.address)
 }
 
-export const setUpL1AndL2Messengers = async (fixture: IFixture) => {
-  const { l1_messenger, l2_messenger } = fixture
+export const setUpL1AndL2Messengers = async (fixture: IFixture, setUpL1AndL2MessengersOpts: any) => {
+  const {
+    user,
+    l1ChainId,
+    l2_bridge,
+    l1_messenger,
+    l1_messengerWrapper,
+    l2_messenger,
+    l2_messengerProxy
+  } = fixture
+
+  const { l2ChainId } = setUpL1AndL2MessengersOpts
+
+  // Polygon's messenger is the messenger wrapper
+  if (isChainIdPolygon(l2ChainId)) {
+    // Set L2 bridge on proxy
+    await l2_messengerProxy.setL2Bridge(l2_bridge.address)
+    // NOTE: You cannot remove all members of a role. Instead, set to 0 and then remove the original
+    await l2_messengerProxy.grantRole(DEFAULT_ADMIN_ROLE_HASH, ZERO_ADDRESS)
+    await l2_messengerProxy.revokeRole(DEFAULT_ADMIN_ROLE_HASH, await user.getAddress())
+
+    // Set Polygon-specific data
+    const stateSender: string = l1_messenger.address
+    const checkpointManager: string = getPolygonCheckpointManagerAddress(l1ChainId)
+    const childTunnel: string = l2_messengerProxy.address
+
+    await l1_messengerWrapper.setStateSender(stateSender)
+    await l1_messengerWrapper.setCheckpointManager(checkpointManager)
+    await l1_messengerWrapper.setChildTunnel(childTunnel)
+    await l1_messengerWrapper.grantRole(DEFAULT_ADMIN_ROLE_HASH, ZERO_ADDRESS)
+    await l1_messengerWrapper.revokeRole(DEFAULT_ADMIN_ROLE_HASH, await user.getAddress())
+
+    // Set up L1 messenger
+    await l1_messenger.setPolygonTarget(l2_messengerProxy.address)
+    await l1_messenger.setIsPolygonL1(true)
+
+    // Set up L2 messenger
+    await l2_messenger.setPolygonTarget(l1_messengerWrapper.address)
+    await l2_messenger.setIsPolygonL2(true)
+  }
 
   // Set up L1
   await l1_messenger.setTargetMessenger(l2_messenger.address)
@@ -251,7 +297,8 @@ export const setUpL2AmmMarket = async (fixture: IFixture, opts: any) => {
     l2_canonicalToken,
     l2_messenger,
     liquidityProvider,
-    liquidityProviderBalance
+    liquidityProviderBalance,
+    l2ChainId
   )
 
   // liquidityProvider moves funds across the Hop liquidity bridge
@@ -330,26 +377,34 @@ export const expectBalanceOf = async (
 
 export const getL2SpecificArtifact = (chainId: BigNumber) => {
   let l2_bridgeArtifact: string
+  let l1_messengerArtifact: string
   let l1_messengerWrapperArtifact: string
 
   if (isChainIdOptimism(chainId)) {
     l2_bridgeArtifact = 'Mock_L2_OptimismBridge.sol:Mock_L2_OptimismBridge'
+    l1_messengerArtifact = 'contracts/test/Mock_L1_Messenger.sol:Mock_L1_Messenger'
     l1_messengerWrapperArtifact =
-      'OptimismMessengerWrapper.sol:OptimismMessengerWrapper'
+      'contracts/wrappers/OptimismMessengerWrapper.sol:OptimismMessengerWrapper'
   } else if (isChainIdArbitrum(chainId)) {
     l2_bridgeArtifact = 'Mock_L2_ArbitrumBridge.sol:Mock_L2_ArbitrumBridge'
+    l1_messengerArtifact = 'contracts/test/Mock_L1_Messenger.sol:Mock_L1_Messenger'
     l1_messengerWrapperArtifact =
-      'ArbitrumMessengerWrapper.sol:ArbitrumMessengerWrapper'
+      'contracts/wrappers/ArbitrumMessengerWrapper.sol:ArbitrumMessengerWrapper'
   } else if (isChainIdXDai(chainId)) {
     l2_bridgeArtifact = 'Mock_L2_XDaiBridge.sol:Mock_L2_XDaiBridge'
+    l1_messengerArtifact = 'contracts/test/Mock_L1_Messenger.sol:Mock_L1_Messenger'
     l1_messengerWrapperArtifact =
-      'XDaiMessengerWrapper.sol:XDaiMessengerWrapper'
+      'contracts/wrappers/XDaiMessengerWrapper.sol:XDaiMessengerWrapper'
   } else if (isChainIdPolygon(chainId)) {
-    // TODO: Polygon Specific Artifacts
+    l2_bridgeArtifact = 'Mock_L2_PolygonBridge.sol:Mock_L2_PolygonBridge'
+    l1_messengerArtifact = 'contracts/test/Mock_L1_Messenger.sol:Mock_L1_Messenger'
+    l1_messengerWrapperArtifact =
+      'contracts/test/MockPolygonMessengerWrapper.sol:MockPolygonMessengerWrapper'
   }
 
   return {
     l2_bridgeArtifact,
+    l1_messengerArtifact,
     l1_messengerWrapperArtifact
   }
 }

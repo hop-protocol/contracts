@@ -2,6 +2,8 @@ require('dotenv').config()
 
 import '@nomiclabs/hardhat-ethers'
 import '@nomiclabs/hardhat-waffle'
+import "@nomiclabs/hardhat-etherscan";
+
 import '@eth-optimism/plugins/hardhat/compiler'
 
 import 'hardhat-abi-exporter'
@@ -34,6 +36,11 @@ export default {
       chainId: CHAIN_IDS.ETHEREUM.KOVAN.toNumber(),
       timeout: 480e3
     },
+    goerli: {
+      url: 'https://goerli.rpc.hop.exchange',
+      accounts: desiredAccounts,
+      chainId: CHAIN_IDS.ETHEREUM.GOERLI.toNumber()
+    },
     arbitrum: {
       url: 'https://kovan4.arbitrum.io/rpc',
       accounts: desiredAccounts,
@@ -55,6 +62,13 @@ export default {
       gasPrice: 1000000000,
       gas: 500000,
       chainId: CHAIN_IDS.XDAI.SOKOL.toNumber()
+    },
+    polygon: {
+      url: 'https://rpc-mumbai.matic.today',
+      accounts: desiredAccounts,
+      gasPrice: 1000000000,
+      gas: 500000,
+      chainId: CHAIN_IDS.POLYGON.MUMBAI.toNumber()
     }
   },
   ovm: {
@@ -138,6 +152,9 @@ export default {
   },
   mocha: {
     timeout: 40000
+  },
+  etherscan: {
+    apiKey: ""
   }
   // abiExporter: {
   //   path: './data/abi',

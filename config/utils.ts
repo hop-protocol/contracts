@@ -1,14 +1,14 @@
 import { BigNumber, utils as ethersUtils } from 'ethers'
 import {
-  IGetMessengerWrapperDefaults,
   IGetL2BridgeDefaults
 } from './interfaces'
 import {
   CHAIN_IDS,
   DEFAULT_MESSENGER_WRAPPER_GAS_LIMIT,
   DEFAULT_MESSENGER_WRAPPER_GAS_PRICE,
-  DEFAULT_MESSENGER_WRAPPER_GAS_CALL_VALUE,
-  DEFAULT_L2_BRIDGE_GAS_LIMIT
+  DEFAULT_MESSENGER_WRAPPER_CALL_VALUE,
+  DEFAULT_L2_BRIDGE_GAS_LIMIT,
+  CHECKPOINT_MANAGER_ADDRESSES
 } from './constants'
 
 export const getMessengerWrapperDefaults = (
@@ -16,43 +16,59 @@ export const getMessengerWrapperDefaults = (
   l1BridgeAddress: string,
   l2BridgeAddress: string,
   l1MessengerAddress: string
-): IGetMessengerWrapperDefaults[] => {
-  let defaults: IGetMessengerWrapperDefaults[] = []
+): any[] => {
+  // Ending data to return
+  let data: any = []
 
-  let additionalData = []
-  let gasLimit: number
+  // Defaults for most chains
+  let defaults: any[] = [
+    l1BridgeAddress,
+    l2BridgeAddress,
+    l1MessengerAddress
+  ]
 
   if (isChainIdArbitrum(chainId)) {
-    gasLimit = DEFAULT_MESSENGER_WRAPPER_GAS_LIMIT
+    const gasLimit: number = DEFAULT_MESSENGER_WRAPPER_GAS_LIMIT
+    const gasPrice: number = DEFAULT_MESSENGER_WRAPPER_GAS_PRICE
+    const callValue: number = DEFAULT_MESSENGER_WRAPPER_CALL_VALUE
 
-    additionalData.push(
-      DEFAULT_MESSENGER_WRAPPER_GAS_PRICE,
-      DEFAULT_MESSENGER_WRAPPER_GAS_CALL_VALUE
+    data.push(
+      ...defaults,
+      gasLimit,
+      gasPrice,
+      callValue
     )
   } else if (isChainIdOptimism(chainId)) {
-    gasLimit = DEFAULT_MESSENGER_WRAPPER_GAS_LIMIT
-  } else if (isChainIdXDai(chainId)) {
-    gasLimit = 1000000
+    const gasLimit: number = DEFAULT_MESSENGER_WRAPPER_GAS_LIMIT
 
+    data.push(
+      ...defaults,
+      gasLimit
+    )
+  } else if (isChainIdXDai(chainId)) {
+    const gasLimit: number = 1000000
     const isAmbL1: boolean = true
     const ambAddress: string = getXDaiAmbAddresses(isAmbL1)
-    additionalData.push(chainId.toString(), ambAddress)
+
+    data.push(
+      ...defaults,
+      gasLimit,
+      chainId.toString(),
+      ambAddress
+    )
   } else if (isChainIdPolygon(chainId)) {
-    // TODO: Polygon Wrapper Defaults
+    data.push(
+      l1BridgeAddress
+    )
   }
 
-  defaults.push(l1BridgeAddress, l2BridgeAddress, gasLimit, l1MessengerAddress)
-
-  if (additionalData.length !== 0) {
-    defaults.push(...additionalData)
-  }
-
-  return defaults
+  return data
 }
 
 export const getL2BridgeDefaults = (
   chainId: BigNumber,
   l2MessengerAddress: string,
+  l2MessengerProxyAddress: string,
   governanceAddress: string,
   l2HopBridgeTokenAddress: string,
   l1BridgeAddress: string,
@@ -62,6 +78,7 @@ export const getL2BridgeDefaults = (
 ): IGetL2BridgeDefaults[] => {
   let defaults: IGetL2BridgeDefaults[] = []
 
+  let actualL2MessengerAddress: string = l2MessengerAddress
   let additionalData = []
 
   if (isChainIdArbitrum(chainId)) {
@@ -75,11 +92,11 @@ export const getL2BridgeDefaults = (
       DEFAULT_L2_BRIDGE_GAS_LIMIT
     )
   } else if (isChainIdPolygon(chainId)) {
-    // No additional data needed
+    actualL2MessengerAddress = l2MessengerProxyAddress
   }
 
   defaults.push(
-    l2MessengerAddress,
+    actualL2MessengerAddress,
     governanceAddress,
     l2HopBridgeTokenAddress,
     l1BridgeAddress,
@@ -127,7 +144,40 @@ export const isChainIdXDai = (chainId: BigNumber): boolean => {
 }
 
 export const isChainIdPolygon = (chainId: BigNumber): boolean => {
-  if (chainId.eq(CHAIN_IDS.POLYGON.MUMBAI)) {
+  if (
+    chainId.eq(CHAIN_IDS.POLYGON.MUMBAI) ||
+    chainId.eq(CHAIN_IDS.POLYGON.MAINNET)
+  ) {
+    return true
+  }
+
+  return false
+}
+
+export const isChainIdMainnet = (chainId: BigNumber): boolean => {
+  if (
+    chainId.eq(CHAIN_IDS.ETHEREUM.MAINNET)
+  ) {
+    return true
+  }
+
+  return false
+}
+
+export const isChainIdGoerli = (chainId: BigNumber): boolean => {
+  if (
+    chainId.eq(CHAIN_IDS.ETHEREUM.GOERLI)
+  ) {
+    return true
+  }
+
+  return false
+}
+
+export const isChainIdKovan = (chainId: BigNumber): boolean => {
+  if (
+    chainId.eq(CHAIN_IDS.ETHEREUM.KOVAN)
+  ) {
     return true
   }
 
@@ -151,3 +201,13 @@ export const getAllActiveChainIds = (obj: any): string[] =>
         .reduce((a: string[], b: any) => a.concat(b), [] as any[])
         .filter((a: any) => typeof a === 'string')
     : [obj]
+
+export const getPolygonCheckpointManagerAddress = (l1ChainId: BigNumber): string => {
+  if (isChainIdMainnet(l1ChainId)) {
+    return CHECKPOINT_MANAGER_ADDRESSES.MAINNET
+  } else if (isChainIdGoerli(l1ChainId)) {
+    return CHECKPOINT_MANAGER_ADDRESSES.GOERLI
+  } else {
+    throw new Error('Invalid Chain ID')
+  }
+}

@@ -5,6 +5,8 @@ pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
+import "./polygon/IPolygonMessengerWrapper.sol";
+import "./polygon/I_L2_PolygonMessengerProxy.sol";
 
 import "./BytesLib.sol";
 
@@ -20,6 +22,8 @@ abstract contract MockMessenger {
 
     Message public nextMessage;
     IERC20 public canonicalToken;
+    bool public isPolygonL1;
+    bool public isPolygonL2;
 
     /**
      * Chain specific params
@@ -36,12 +40,32 @@ abstract contract MockMessenger {
         canonicalToken = _canonicalToken;
     }
 
+    function setIsPolygonL1(bool _isPolygonL1) public {
+        isPolygonL1 = _isPolygonL1;
+    }
+
+    function setIsPolygonL2(bool _isPolygonL2) public {
+        isPolygonL2 = _isPolygonL2;
+    }
+
     function relayNextMessage() public {
         messageSender = nextMessage.sender;
         xDomainMessageSender = nextMessage.sender;
 
-        (bool success, bytes memory res) = nextMessage.target.call(nextMessage.message);
-        require(success, _getRevertMsgFromRes(res));
+        if (isPolygonL1) {
+            IPolygonMessengerWrapper(nextMessage.target).processMessageFromChild(nextMessage.message);
+        } else if (isPolygonL2) {
+            // TODO: Handle this better
+            if (nextMessage.target == address(canonicalToken)) {
+                (bool success, bytes memory res) = nextMessage.target.call(nextMessage.message);
+                require(success, _getRevertMsgFromRes(res));
+            } else {
+                I_L2_PolygonMessengerProxy(nextMessage.target).processMessageFromRoot(nextMessage.message);
+            }
+        } else {
+            (bool success, bytes memory res) = nextMessage.target.call(nextMessage.message);
+            require(success, _getRevertMsgFromRes(res));
+        }
     }
 
     function receiveMessage(

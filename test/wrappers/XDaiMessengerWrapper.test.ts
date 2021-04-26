@@ -10,7 +10,7 @@ import {
   CHAIN_IDS,
   DEFAULT_MESSENGER_WRAPPER_GAS_LIMIT,
   DEFAULT_MESSENGER_WRAPPER_GAS_PRICE,
-  DEFAULT_MESSENGER_WRAPPER_GAS_CALL_VALUE,
+  DEFAULT_MESSENGER_WRAPPER_CALL_VALUE,
   ZERO_ADDRESS
 } from '../../config/constants'
 
@@ -32,7 +32,7 @@ describe.skip('XDai Messenger Wrapper', () => {
     l2ChainId = CHAIN_IDS.XDAI.SOKOL
 
     _fixture = await fixture(l1ChainId, l2ChainId)
-    await setUpDefaults(_fixture, l2ChainId)
+    await setUpDefaults(_fixture)
     ;({ l1_messenger, l1_bridge, l1_messengerWrapper, l2_bridge } = _fixture)
   })
 
@@ -48,7 +48,7 @@ describe.skip('XDai Messenger Wrapper', () => {
     const expectedArbInbox: string = l1_messenger.address
     const expectedArbBridge: string = ZERO_ADDRESS
     const expectedDefaultGasPrice: number = DEFAULT_MESSENGER_WRAPPER_GAS_PRICE
-    const expectedDefaultCallValue: number = DEFAULT_MESSENGER_WRAPPER_GAS_CALL_VALUE
+    const expectedDefaultCallValue: number = DEFAULT_MESSENGER_WRAPPER_CALL_VALUE
 
     const l1BridgeAddress: string = await l1_messengerWrapper.l1BridgeAddress()
     const l2BridgeAddress: string = await l1_messengerWrapper.l2BridgeAddress()

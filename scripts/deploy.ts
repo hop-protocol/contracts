@@ -1,17 +1,20 @@
 require('dotenv').config()
 
+import { BigNumber } from 'ethers'
 import {
   readConfigFile,
   updateConfigFile,
   execScript,
-  Logger
+  Logger,
+  getL1ChainIdFromNetworkName
 } from './shared/utils'
 import {
   CHAIN_IDS,
   DEFAULT_H_BRIDGE_TOKEN_NAME,
   DEFAULT_H_BRIDGE_TOKEN_SYMBOL,
   DEFAULT_H_BRIDGE_TOKEN_DECIMALS,
-  COMMON_SYMBOLS
+  COMMON_SYMBOLS,
+  ZERO_ADDRESS
 } from '../config/constants'
 
 const logger = Logger('deploy')
@@ -24,7 +27,7 @@ interface IGeneralData {
   l2_tokenBridgeAddress: string
   l2_messengerAddress: string
   l1_tokenBridgeAddress: string
-
+  l2_messengerProxyAddress: string
 }
 
 interface ISpecificData {
@@ -42,35 +45,43 @@ interface INetworkParams extends IGeneralData, ISpecificData {
 }
 
 // Example usage:
-// $ npm run deploy -- kovan DAI
-// $ npm run deploy -- xdai USDC
-// $ npm run deploy -- optimism sETH
+// $ npm run deploy -- kovan xdai DAI
+// $ npm run deploy -- goerli xdai USDC
+// $ npm run deploy -- goerli optimism USDC
+
+// In order to run just the L1 bridge deployment, use `x` as the L2 name
+// $ npm run deploy -- goerli x USDC 
+
+// In order to run just the L1 bridge deployment for polygon, use `xpolygon` as the L2 name
+// NOTE: This will deploy the messenger wrapper / messenger
+// $ npm run deploy -- goerli xpolygon USDC 
 async function main () {
   logger.log('deploy script initiated')
-  const networkName: string = process.argv[2].toLowerCase()
-  const tokenSymbol: string = process.argv[3].toLowerCase()
+  const l1NetworkName: string = process.argv[2].toLowerCase()
+  const l2NetworkName: string = process.argv[3].toLowerCase()
+  const tokenSymbol: string = process.argv[4].toLowerCase()
 
-  if (!networkName) {
-    throw new Error('network name not specified')
+  if (!l1NetworkName) {
+    throw new Error('L1 network name not specified')
+  }
+
+  if (!l2NetworkName) {
+    throw new Error('L2 network name not specified')
   }
 
   if (!tokenSymbol) {
-    throw new Error('token symbol not specified')
+    throw new Error('Token symbol not specified')
   }
 
-  setNetworkParams(networkName, tokenSymbol)
+  setNetworkParams(l1NetworkName, l2NetworkName,tokenSymbol)
   const scripts: string[] = []
-  if (networkName === 'kovan') {
-    scripts.push(`npm run deploy:l1-kovan`)
+  if (l2NetworkName === 'x' || l2NetworkName === 'xpolygon') {
+    scripts.push(`npm run deploy:l1-${l1NetworkName}`)
   } else {
-    if (networkName === 'xdai') {
-      showL2CanonicalTokenWarning()
-    }
-
     scripts.push(
-      `npm run deploy:l2-${networkName}`,
-      `npm run setup:l1-kovan`,
-      `npm run setup:l2-${networkName}`
+      `npm run deploy:l2-${l2NetworkName}`,
+      `npm run setup:l1-${l1NetworkName}`,
+      `npm run setup:l2-${l2NetworkName}`
     )
   }
 
@@ -83,23 +94,47 @@ async function main () {
   logger.log('complete')
 }
 
-function setNetworkParams (networkName: string, tokenSymbol: string) {
+function setNetworkParams (l1NetworkName: string, l2NetworkName: string, tokenSymbol: string) {
   const { l1_bridgeAddress } = readConfigFile()
   
   let generalData: IGeneralData
   let specificData: ISpecificData
 
-  const l1CanonicalTokenAddresses = {
-    'DAI': '0x436e3FfB93A4763575E5C0F6b3c97D5489E050da',
-    'sETH': '0x7EE6109672c07Dcf97435C8238835EFF5D6E89FD',
-    'sBTC': '0x7a4f56B0Dd21d730604A266245a0067b97605DAE',
-    'USDC': '0x7326510Cf9Ae0397dbBaF37FABba54f0A7b8D100',
-    'WBTC': '0x1E1a556D2166A006e662864D376e8DD249087150',
-    'TST': '0x943599d17FE82Bb4563b1823500f3267f91Acd2e'
+  const l1ChainId: BigNumber = getL1ChainIdFromNetworkName(l1NetworkName) 
+
+  let l1CanonicalTokenAddresses: { [key: string]: string }
+  if (l1NetworkName === 'kovan') {
+    l1CanonicalTokenAddresses = {
+      'DAI': '0x436e3FfB93A4763575E5C0F6b3c97D5489E050da',
+      'sETH': '0x7EE6109672c07Dcf97435C8238835EFF5D6E89FD',
+      'sBTC': '0x7a4f56B0Dd21d730604A266245a0067b97605DAE',
+      'USDC': '0x7326510Cf9Ae0397dbBaF37FABba54f0A7b8D100',
+      'WBTC': '0x1E1a556D2166A006e662864D376e8DD249087150',
+      'TST': '0x943599d17FE82Bb4563b1823500f3267f91Acd2e'
+    }
+  } else if (l1NetworkName === 'goerli') {
+    l1CanonicalTokenAddresses = {
+      'DAI': '0xC61bA16e864eFbd06a9fe30Aab39D18B8F63710a',
+      'sETH': '0x5D13179c5fa40b87D53Ff67ca26245D3D5B2F872',
+      'sBTC': '0x12a3a66720dD925fa93f7C895bC20Ca9560AdFe7',
+      'USDC': '0x2C2Ab81Cf235e86374468b387e241DF22459A265',
+      'WBTC': '0xCB784a097f33231f2D3a1E22B236a9D2c878555d',
+      'TST': '0x72BC29409f4F8a29284285b7af4f3D59d206d454'
+    }
   }
 
-  console.log(networkName, tokenSymbol)
-  if (networkName === 'kovan') {
+  // TODO: Handle this better
+  if (l2NetworkName === 'x' || l2NetworkName === 'xpolygon') {
+    let l2ChainId: BigNumber = BigNumber.from('0')
+
+    // Define the L2 chain ID
+    if (l2NetworkName === 'xpolygon' && l1NetworkName === 'goerli') {
+      l2ChainId = CHAIN_IDS.POLYGON.MUMBAI
+    } else if (l2NetworkName === 'xpolygon' && l1NetworkName === 'mainnet') {
+      l2ChainId = CHAIN_IDS.POLYGON.MAINNET
+    }
+
+    // Define the token addresses
     let l1_canonicalTokenAddress: string = ''
     if (tokenSymbol === COMMON_SYMBOLS.DAI.toLowerCase()) {
       l1_canonicalTokenAddress = l1CanonicalTokenAddresses.DAI
@@ -116,19 +151,21 @@ function setNetworkParams (networkName: string, tokenSymbol: string) {
     }
 
     updateConfigFile({
-      l1_chainId: CHAIN_IDS.ETHEREUM.KOVAN.toString(),
+      l1_chainId: l1ChainId.toString(),
+      l2_chainId: l2ChainId.toString(),
       l1_canonicalTokenAddress
     })
     return
-  } else if (networkName === 'optimism') {
+  } else if (l2NetworkName === 'optimism') {
     generalData = {
-      l2_networkName: networkName,
-      l1_chainId: CHAIN_IDS.ETHEREUM.KOVAN.toString(),
+      l2_networkName: l2NetworkName,
+      l1_chainId: l1ChainId.toString(),
       l2_chainId: CHAIN_IDS.OPTIMISM.HOP_TESTNET.toString(),
       l1_messengerAddress: '0x48062eD9b6488EC41c4CfbF2f568D7773819d8C9',
       l2_tokenBridgeAddress: '0x82784078a7a8A1697BcCe5E07896C6a553846Bd5',
       l2_messengerAddress: '0x4200000000000000000000000000000000000007',
-      l1_tokenBridgeAddress: '0xf8099DD44375Fdbb70D286af0fFCd46bA4B193dF'
+      l1_tokenBridgeAddress: '0xf8099DD44375Fdbb70D286af0fFCd46bA4B193dF',
+      l2_messengerProxyAddress: ZERO_ADDRESS
     }
 
     if (tokenSymbol === COMMON_SYMBOLS.DAI.toLowerCase()) {
@@ -192,15 +229,16 @@ function setNetworkParams (networkName: string, tokenSymbol: string) {
         l2_swapLpTokenSymbol: 'HOP-LP-TST'
       }
     } 
-  } else if (networkName === 'arbitrum') {
+  } else if (l2NetworkName === 'arbitrum') {
     generalData = {
-      l2_networkName: networkName,
-      l1_chainId: CHAIN_IDS.ETHEREUM.KOVAN.toString(),
+      l2_networkName: l2NetworkName,
+      l1_chainId: l1ChainId.toString(),
       l2_chainId: CHAIN_IDS.ARBITRUM.TESTNET_4.toString(),
       l1_messengerAddress: '0xD71d47AD1b63981E9dB8e4A78C0b30170da8a601',
       l2_tokenBridgeAddress: '0xE49CCf3e19d847f8FF4d6962684A3242abF63f07',
       l2_messengerAddress: '0x0000000000000000000000000000000000000064',
-      l1_tokenBridgeAddress: '0x2948ac43e4aff448f6af0f7a11f18bb6062dd271'
+      l1_tokenBridgeAddress: '0x2948ac43e4aff448f6af0f7a11f18bb6062dd271',
+      l2_messengerProxyAddress: ZERO_ADDRESS
     }
 
     if (tokenSymbol === COMMON_SYMBOLS.DAI.toLowerCase()) {
@@ -214,15 +252,16 @@ function setNetworkParams (networkName: string, tokenSymbol: string) {
         l2_swapLpTokenSymbol: 'HOP-LP-DAI'
       }
     }
-  } else if (networkName === 'xdai') {
+  } else if (l2NetworkName === 'xdai') {
     generalData = {
-      l2_networkName: networkName,
-      l1_chainId: CHAIN_IDS.ETHEREUM.KOVAN.toString(),
+      l2_networkName: l2NetworkName,
+      l1_chainId: l1ChainId.toString(),
       l2_chainId: CHAIN_IDS.XDAI.SOKOL.toString(),
       l1_messengerAddress: '0xFe446bEF1DbF7AFE24E81e05BC8B271C1BA9a560',
       l2_tokenBridgeAddress: '0x40CdfF886715A4012fAD0219D15C98bB149AeF0e',
       l2_messengerAddress: '0xFe446bEF1DbF7AFE24E81e05BC8B271C1BA9a560',
-      l1_tokenBridgeAddress: '0xA960d095470f7509955d5402e36d9DB984B5C8E2'
+      l1_tokenBridgeAddress: '0xA960d095470f7509955d5402e36d9DB984B5C8E2',
+      l2_messengerProxyAddress: ZERO_ADDRESS
     }
 
     if (tokenSymbol === COMMON_SYMBOLS.DAI.toLowerCase()) {
@@ -286,6 +325,92 @@ function setNetworkParams (networkName: string, tokenSymbol: string) {
         l2_swapLpTokenSymbol: 'HOP-LP-TST'
       }
     }
+  } else if (l2NetworkName === 'polygon') {
+    generalData = {
+      l2_networkName: l2NetworkName,
+      l1_chainId: l1ChainId.toString(),
+      l2_chainId: CHAIN_IDS.POLYGON.MUMBAI.toString(),
+      // For Polygon, this is our MessengerWrapper. We never call the messenger (0xEAa...) directly
+      l1_messengerAddress: '0xbd11dbd2770EEBbbad4366f58DAeD25392720C3F',
+      // For Polygon, this is unused
+      l2_tokenBridgeAddress: '0x',
+      // For Polygon, this is the messenger proxy. This is handled during the deployment scripts.
+      l2_messengerAddress: '0x',
+      l1_tokenBridgeAddress: '0xBbD7cBFA79faee899Eaf900F13C9065bF03B1A74',
+      l2_messengerProxyAddress: '0x'
+    }
+
+    if (tokenSymbol === COMMON_SYMBOLS.DAI.toLowerCase()) {
+      specificData = {
+        l1_canonicalTokenAddress: l1CanonicalTokenAddresses.DAI,
+        l2_canonicalTokenAddress: '0xb224913CE3851b0a0d7C0FB461eEF40f2e31ddb8',
+        l2_hBridgeTokenName: DEFAULT_H_BRIDGE_TOKEN_NAME,
+        l2_hBridgeTokenSymbol: DEFAULT_H_BRIDGE_TOKEN_SYMBOL,
+        l2_hBridgeTokenDecimals: DEFAULT_H_BRIDGE_TOKEN_DECIMALS,
+        l2_swapLpTokenName: 'Hop DAI LP Token',
+        l2_swapLpTokenSymbol: 'HOP-LP-DAI'
+      }
+    } else if (tokenSymbol === 'dummy') {
+      specificData = {
+        l1_canonicalTokenAddress: '0x655F2166b0709cd575202630952D71E2bB0d61Af',
+        l2_canonicalTokenAddress: '0xfe4F5145f6e09952a5ba9e956ED0C25e3Fa4c7F1',
+        l2_hBridgeTokenName: 'Dummy ERC20 Hop Token',
+        l2_hBridgeTokenSymbol: 'hDERC20',
+        l2_hBridgeTokenDecimals: DEFAULT_H_BRIDGE_TOKEN_DECIMALS,
+        l2_swapLpTokenName: 'Hop DERC20 LP Token',
+        l2_swapLpTokenSymbol: 'HOP-LP-DERC20'
+      }
+    } else if (tokenSymbol === COMMON_SYMBOLS.sETH.toLowerCase()) {
+      specificData = {
+        l1_canonicalTokenAddress: l1CanonicalTokenAddresses.sETH,
+        l2_canonicalTokenAddress: '0x61F00BD6995A087F84BCcA62dCC835905f2a9207',
+        l2_hBridgeTokenName: 'Synth sETH Hop Token',
+        l2_hBridgeTokenSymbol: 'hsETH',
+        l2_hBridgeTokenDecimals: DEFAULT_H_BRIDGE_TOKEN_DECIMALS,
+        l2_swapLpTokenName: 'Hop sETH LP Token',
+        l2_swapLpTokenSymbol: 'HOP-LP-sETH'
+      }
+    } else if (tokenSymbol === COMMON_SYMBOLS.sBTC.toLowerCase()) {
+      specificData = {
+        l1_canonicalTokenAddress: l1CanonicalTokenAddresses.sBTC,
+        l2_canonicalTokenAddress: '0xe5BEd2355E575b32B0e151EA6577Dfe05FaE5484',
+        l2_hBridgeTokenName: 'Synth sBTC Hop Token',
+        l2_hBridgeTokenSymbol: 'hsBTC',
+        l2_hBridgeTokenDecimals: DEFAULT_H_BRIDGE_TOKEN_DECIMALS,
+        l2_swapLpTokenName: 'Hop sBTC LP Token',
+        l2_swapLpTokenSymbol: 'HOP-LP-sBTC'
+      }
+    } else if (tokenSymbol === COMMON_SYMBOLS.USDC.toLowerCase()) {
+      specificData = {
+        l1_canonicalTokenAddress: l1CanonicalTokenAddresses.USDC,
+        l2_canonicalTokenAddress: '0xcc4f6aE976dd9dFb44E741e7430b6111bF0cbCd0',
+        l2_hBridgeTokenName: 'USD Coin Hop Token',
+        l2_hBridgeTokenSymbol: 'hUSDC',
+        l2_hBridgeTokenDecimals: DEFAULT_H_BRIDGE_TOKEN_DECIMALS,
+        l2_swapLpTokenName: 'Hop USDC LP Token',
+        l2_swapLpTokenSymbol: 'HOP-LP-USDC'
+      }
+    } else if (tokenSymbol === COMMON_SYMBOLS.WBTC.toLowerCase()) {
+      specificData = {
+        l1_canonicalTokenAddress: l1CanonicalTokenAddresses.WBTC,
+        l2_canonicalTokenAddress: '0x90ac599445B07c8aa0FC82248f51f6558136203D',
+        l2_hBridgeTokenName: 'Wrapped BTC Hop Token',
+        l2_hBridgeTokenSymbol: 'hWBTC',
+        l2_hBridgeTokenDecimals: DEFAULT_H_BRIDGE_TOKEN_DECIMALS,
+        l2_swapLpTokenName: 'Hop WBTC LP Token',
+        l2_swapLpTokenSymbol: 'HOP-LP-WBTC'
+      }
+    } else if (tokenSymbol === COMMON_SYMBOLS.TST.toLowerCase()) {
+      specificData = {
+        l1_canonicalTokenAddress: l1CanonicalTokenAddresses.TST,
+        l2_canonicalTokenAddress: '0xd9965dD7FD84246Bbca1ee4E3eE8f92D8e5cbE6F',
+        l2_hBridgeTokenName: 'Test Coin Hop Token',
+        l2_hBridgeTokenSymbol: 'TST',
+        l2_hBridgeTokenDecimals: DEFAULT_H_BRIDGE_TOKEN_DECIMALS,
+        l2_swapLpTokenName: 'Hop TST LP Token',
+        l2_swapLpTokenSymbol: 'HOP-LP-TST'
+      }
+    }
   }
 
   const data: INetworkParams = {
@@ -295,19 +420,6 @@ function setNetworkParams (networkName: string, tokenSymbol: string) {
   }
   console.log('data: ', data)
   updateConfigFile(data)
-}
-
-function showL2CanonicalTokenWarning() {
-  logger.log(
-    `
-    ********************************************
-    * If this is the first time a token is     *
-    * being used on L2, you must first         *
-    * generate the L2 canonical token address  *
-    * by sending tokens across the bridge.     *
-    ********************************************
-    `
-  )
 }
 
 main()

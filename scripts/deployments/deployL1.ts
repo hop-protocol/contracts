@@ -1,7 +1,12 @@
 require('dotenv').config()
 
 import { ethers } from 'hardhat'
-import { ContractFactory, Contract, Signer, BigNumber } from 'ethers'
+import {
+  ContractFactory,
+  Contract,
+  Signer,
+  BigNumber
+} from 'ethers'
 
 import {
   getContractFactories,
@@ -21,7 +26,10 @@ interface Config {
 export async function deployL1 (config: Config) {
   logger.log('deploy L1')
 
-  let { l1_chainId, l1_canonicalTokenAddress } = config
+  let {
+    l1_chainId,
+    l1_canonicalTokenAddress
+  } = config
 
   logger.log(`config:
             l1_chainId: ${l1_chainId}
@@ -57,7 +65,7 @@ export async function deployL1 (config: Config) {
       l1_canonicalTokenAddress,
       [await bonder.getAddress()],
       await governance.getAddress()
-      )
+    )
   await waitAfterTransaction(l1_bridge)
 
   const l1_bridgeAddress = l1_bridge.address
@@ -71,7 +79,10 @@ export async function deployL1 (config: Config) {
 }
 
 if (require.main === module) {
-  const { l1_chainId, l1_canonicalTokenAddress } = readConfigFile()
+  const {
+    l1_chainId,
+    l1_canonicalTokenAddress
+  } = readConfigFile()
   deployL1({
     l1_chainId,
     l1_canonicalTokenAddress

@@ -81,6 +81,7 @@ describe('L2_XDai_Bridge', () => {
   let l1_bridge: Contract
   let l1_canonicalBridge: Contract
   let l1_messenger: Contract
+  let l1_messengerWrapper: Contract
   let l2_canonicalToken: Contract
   let l2_hopBridgeToken: Contract
   let l2_bridge: Contract
@@ -105,7 +106,7 @@ describe('L2_XDai_Bridge', () => {
     l2ChainId = CHAIN_IDS.XDAI.SOKOL
 
     _fixture = await fixture(l1ChainId, l2ChainId)
-    await setUpDefaults(_fixture, l2ChainId)
+    await setUpDefaults(_fixture)
     ;({
       user,
       bonder,
@@ -115,6 +116,7 @@ describe('L2_XDai_Bridge', () => {
       l1_canonicalToken,
       l1_bridge,
       l1_messenger,
+      l1_messengerWrapper,
       l1_canonicalBridge,
       l2_canonicalToken,
       l2_hopBridgeToken,
@@ -216,7 +218,8 @@ describe('L2_XDai_Bridge', () => {
       l2_bridge,
       l2_messenger,
       governance,
-      message
+      message,
+      l2ChainId
     )
 
     const messengerAddress: string = await l2_bridge.messenger()
@@ -234,7 +237,8 @@ describe('L2_XDai_Bridge', () => {
       l2_bridge,
       l2_messenger,
       governance,
-      message
+      message,
+      l2ChainId
     )
 
     const defaultGasLimit: string = await l2_bridge.defaultGasLimit()
@@ -267,7 +271,8 @@ describe('L2_XDai_Bridge', () => {
         l2_bridge,
         l2_messenger,
         user,
-        message
+        message,
+        l2ChainId
       )
     ).to.be.revertedWith(expectedErrorMsg)
   })
@@ -295,7 +300,8 @@ describe('L2_XDai_Bridge', () => {
         l2_bridge,
         l2_messenger,
         user,
-        message
+        message,
+        l2ChainId
       )
     ).to.be.revertedWith(expectedErrorMsg)
   })

@@ -1,29 +1,37 @@
 require('dotenv').config()
 
 import { ethers } from 'hardhat'
-import { ContractFactory, Signer, Contract, BigNumber, providers } from 'ethers'
-const ovmEthers = ethers
+import {
+  ContractFactory,
+  Signer,
+  Contract,
+  BigNumber,
+  providers
+} from 'ethers'
 
 import {
   getContractFactories,
   updateConfigFile,
   readConfigFile,
   waitAfterTransaction,
+  doesNeedExplicitGasLimit,
   Logger
 } from '../shared/utils'
 
 import {
-  isChainIdXDai,
+  isChainIdPolygon,
   getL2BridgeDefaults
 } from '../../config/utils'
+
 import {
-  ZERO_ADDRESS,
   CHAIN_IDS,
   DEFAULT_ETHERS_OVERRIDES as overrides,
   DEFAULT_SWAP_A,
   DEFAULT_SWAP_FEE,
   DEFAULT_SWAP_ADMIN_FEE,
-  DEFAULT_SWAP_WITHDRAWAL_FEE
+  DEFAULT_SWAP_WITHDRAWAL_FEE,
+  DEFAULT_ADMIN_ROLE_HASH,
+  ZERO_ADDRESS
 } from '../../config/constants'
 
 const logger = Logger('deployL2')
@@ -81,8 +89,8 @@ export async function deployL2 (config: Config) {
   let L2_MockERC20: ContractFactory
   let L2_HopBridgeToken: ContractFactory
   let L2_Bridge: ContractFactory
-  let L2_Swap: ContractFactory
   let L2_AmmWrapper: ContractFactory
+  let L2_MessengerProxy: ContractFactory
 
   // Contracts
   let l1_bridge: Contract
@@ -91,6 +99,7 @@ export async function deployL2 (config: Config) {
   let l2_hopBridgeToken: Contract
   let l2_swap: Contract
   let l2_ammWrapper: Contract
+  let l2_messengerProxy: Contract
 
   // Instantiate the wallets
   accounts = await ethers.getSigners()
@@ -100,6 +109,7 @@ export async function deployL2 (config: Config) {
 
   logger.log('owner:', await owner.getAddress())
   logger.log('bonder:', await bonder.getAddress())
+  logger.log('governance:', await governance.getAddress())
 
   // Transaction
   let tx: providers.TransactionResponse
@@ -111,8 +121,8 @@ export async function deployL2 (config: Config) {
     L2_MockERC20,
     L2_HopBridgeToken,
     L2_Bridge,
-    L2_Swap,
-    L2_AmmWrapper
+    L2_AmmWrapper,
+    L2_MessengerProxy
   } = await getContractFactories(l2_chainId, owner, ethers))
 
   logger.log('attaching deployed contracts')
@@ -124,6 +134,19 @@ export async function deployL2 (config: Config) {
    * Deployments
    */
 
+  let l2_messengerProxyAddress: string = ''
+  // NOTE: If the messenger proxy is already deployed, uncomment below and comment out the deployment
+  // let l2_messengerProxyAddress: string = ''
+  // l2_messengerProxy = L2_MessengerProxy.attach(l2_messengerProxyAddress)
+  // l2_messengerAddress = l2_messengerProxy.address
+  if (isChainIdPolygon(l2_chainId)) {
+    l2_messengerProxy = await L2_MessengerProxy.deploy()
+    await waitAfterTransaction(l2_messengerProxy, ethers)
+    l2_messengerProxyAddress = l2_messengerProxy.address
+    l2_messengerAddress = l2_messengerProxy.address
+  }
+
+
   logger.log('deploying L2 hop bridge token')
   l2_hopBridgeToken = await L2_HopBridgeToken.deploy(
     l2_hBridgeTokenName,
@@ -134,11 +157,11 @@ export async function deployL2 (config: Config) {
 
   logger.log('deploying L2 swap contract')
   ;({ l2_swap } = await deployAmm(
+    owner,
     ethers,
     l2_chainId,
     l2_canonicalToken,
     l2_hopBridgeToken,
-    L2_Swap,
     l2_swapLpTokenName,
     l2_swapLpTokenSymbol
   ))
@@ -159,14 +182,15 @@ export async function deployL2 (config: Config) {
     l2_canonicalToken,
     l2_swap,
     l2_ammWrapper,
-    l2_messengerAddress
+    l2_messengerAddress,
+    l2_messengerProxyAddress
   ))
 
   logger.log('deploying network specific contracts')
 
   // Transfer ownership of the Hop Bridge Token to the L2 Bridge
   let transferOwnershipParams: any[] = [l2_bridge.address]
-  if (isChainIdXDai(l2_chainId)) {
+  if (doesNeedExplicitGasLimit(l2_chainId)) {
     transferOwnershipParams.push(overrides)
   }
 
@@ -174,6 +198,22 @@ export async function deployL2 (config: Config) {
   tx = await l2_hopBridgeToken.transferOwnership(...transferOwnershipParams)
   await tx.wait()
   await waitAfterTransaction()
+
+  // NOTE: If the messenger proxy is already deployed and set up, comment out this section
+  if (isChainIdPolygon(l2_chainId)) {
+    let tx = await l2_messengerProxy.setL2Bridge(l2_bridge.address, overrides)
+    await tx.wait()
+    await waitAfterTransaction()
+
+    // NOTE: You cannot remove all members of a role. Instead, set to 0 and then remove the original
+    tx = await l2_messengerProxy.grantRole(DEFAULT_ADMIN_ROLE_HASH, ZERO_ADDRESS, overrides)
+    await tx.wait()
+    await waitAfterTransaction()
+
+    tx = await l2_messengerProxy.revokeRole(DEFAULT_ADMIN_ROLE_HASH, await owner.getAddress(), overrides)
+    await tx.wait()
+    await waitAfterTransaction()
+  }
 
   const l2_hopBridgeTokenAddress: string = l2_hopBridgeToken.address
   const l2_bridgeAddress: string = l2_bridge.address
@@ -183,36 +223,43 @@ export async function deployL2 (config: Config) {
   logger.log('L2 Deployments Complete')
   logger.log('L2 Hop Bridge Token :', l2_hopBridgeTokenAddress)
   logger.log('L2 Bridge           :', l2_bridgeAddress)
-  logger.log('L2 Swap  :', l2_swapAddress)
-  logger.log('L2 Amm Wrapper  :', l2_ammWrapperAddress)
+  logger.log('L2 Swap             :', l2_swapAddress)
+  logger.log('L2 Amm Wrapper      :', l2_ammWrapperAddress)
+  logger.log('L2 Messenger        :', l2_messengerAddress)
+  logger.log('L2 Messenger Proxy  :', l2_messengerProxyAddress)
 
   updateConfigFile({
     l2_hopBridgeTokenAddress,
     l2_bridgeAddress,
     l2_swapAddress,
-    l2_ammWrapperAddress
+    l2_ammWrapperAddress,
+    l2_messengerAddress,
+    l2_messengerProxyAddress
   })
 
   return {
-    l2_hopBridgeToken,
+    l2_hopBridgeTokenAddress,
     l2_bridgeAddress,
-    l2_swapAddress
+    l2_swapAddress,
+    l2_ammWrapperAddress,
+    l2_messengerAddress,
+    l2_messengerProxyAddress
   }
 }
 
 const deployAmm = async (
+  owner: Signer,
   ethers: any,
   l2_chainId: BigNumber,
   l2_canonicalToken: Contract,
   l2_hopBridgeToken: Contract,
-  L2_Swap: ContractFactory,
   l2_swapLpTokenName: string,
   l2_swapLpTokenSymbol: string
 ) => {
 
   let decimalParams: any[] = []
 
-  if (isChainIdXDai(l2_chainId)) {
+  if (doesNeedExplicitGasLimit(l2_chainId)) {
     decimalParams.push(overrides)
   }
 
@@ -220,8 +267,8 @@ const deployAmm = async (
   const l2_hopBridgeTokenDecimals = BigNumber.from('18')//await l2_hopBridgeToken.decimals(...decimalParams)
 
   // Deploy AMM contracts
-
-  const l2_swap = await L2_Swap.deploy()
+  const L2_SwapContractFactory: ContractFactory = await deployL2SwapLibs(owner, ethers)
+  const l2_swap = await L2_SwapContractFactory.deploy()
   await waitAfterTransaction(l2_swap, ethers)
 
   let initializeParams: any[] = [
@@ -235,7 +282,7 @@ const deployAmm = async (
     DEFAULT_SWAP_WITHDRAWAL_FEE
   ]
 
-  if (isChainIdXDai(l2_chainId)) {
+  if (doesNeedExplicitGasLimit(l2_chainId)) {
     initializeParams.push(overrides)
   }
 
@@ -246,6 +293,36 @@ const deployAmm = async (
   return {
     l2_swap
   }
+}
+
+const deployL2SwapLibs = async (
+  signer: Signer,
+  ethers: any
+) => {
+  const L2_MathUtils: ContractFactory = await ethers.getContractFactory('MathUtils', { signer })
+  const l2_mathUtils = await L2_MathUtils.deploy()
+  await waitAfterTransaction(l2_mathUtils, ethers)
+
+  const L2_SwapUtils = await ethers.getContractFactory(
+    'SwapUtils',
+    {
+      libraries: {
+        'MathUtils': l2_mathUtils.address
+      }
+    }
+  )
+
+  const l2_swapUtils = await L2_SwapUtils.deploy()
+  await waitAfterTransaction(l2_swapUtils, ethers)
+
+  return await ethers.getContractFactory(
+    'Swap',
+    {
+      libraries: {
+        'SwapUtils': l2_swapUtils.address
+      }
+    }
+  )
 }
 
 const deployBridge = async (
@@ -263,13 +340,15 @@ const deployBridge = async (
   l2_canonicalToken: Contract,
   l2_swap: Contract,
   l2_ammWrapper: Contract,
-  l2_messengerAddress: string
+  l2_messengerAddress: string,
+  l2_messengerProxyAddress: string
 ) => {
   // NOTE: Adding more CHAIN_IDs here will push the OVM deployment over the contract size limit
   //       If additional CHAIN_IDs must be added, do so after the deployment.
   const l2BridgeDeploymentParams = getL2BridgeDefaults(
     chainId,
     l2_messengerAddress,
+    l2_messengerProxyAddress,
     await governance.getAddress(),
     l2_hopBridgeToken.address,
     l1_bridge.address,

@@ -3,7 +3,6 @@
 pragma solidity 0.6.12;
 pragma experimental ABIEncoderV2;
 
-// import "@maticnetwork/pos-portal/contracts/tunnel/BaseRootTunnel.sol";
 import "../polygon/tunnel/BaseRootTunnel.sol";
 import "./MessengerWrapper.sol";
 import "../bridges/L1_Bridge.sol";
@@ -15,20 +14,12 @@ import "../bridges/L1_Bridge.sol";
 
 contract PolygonMessengerWrapper is BaseRootTunnel, MessengerWrapper {
 
-    address public immutable l2MessengerProxy;
-    IStateSender public immutable l1MessengerAddress;
-
     constructor(
-        address _l1BridgeAddress,
-        address _l2MessengerProxy,
-        IStateSender _l1MessengerAddress
+        address _l1BridgeAddress
     )
         public
         MessengerWrapper(_l1BridgeAddress)
-    {
-        l2MessengerProxy = _l2MessengerProxy;
-        l1MessengerAddress = _l1MessengerAddress;
-    }
+    {}
 
     /** 
      * @dev Sends a message to the l2MessengerProxy from layer-1

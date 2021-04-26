@@ -1,7 +1,13 @@
 import path from 'path'
 import { spawn } from 'child_process'
 import fs from 'fs'
-import { ContractFactory, Contract, BigNumber, Signer } from 'ethers'
+import {
+  ContractFactory,
+  Contract,
+  BigNumber,
+  Signer,
+  utils as ethersUtils
+} from 'ethers'
 
 import {
   isChainIdOptimism,
@@ -10,11 +16,17 @@ import {
   isChainIdPolygon
 } from '../../config/utils'
 
+import {
+  CHAIN_IDS,
+  ZERO_ADDRESS
+} from '../../config/constants'
+
 export const getContractFactories = async (
   chainId: BigNumber,
   signer: Signer,
   ethers: any
 ) => {
+
   const L1_MockERC20: ContractFactory = await ethers.getContractFactory(
     'contracts/test/MockERC20.sol:MockERC20',
     { signer }
@@ -23,24 +35,41 @@ export const getContractFactories = async (
     'contracts/bridges/L1_ERC20_Bridge.sol:L1_ERC20_Bridge',
     { signer }
   )
+  const L2_MockERC20: ContractFactory = await ethers.getContractFactory(
+    'contracts/test/MockERC20.sol:MockERC20',
+    { signer }
+  )
+  const L2_HopBridgeToken: ContractFactory = await ethers.getContractFactory(
+    'contracts/bridges/HopBridgeToken.sol:HopBridgeToken',
+    { signer }
+  )
+
+  // This contract needs to be linked. This line links it to an arbitrary address.
+  // The linking must only be done for the deployment of this contract. Rather than doing it in this getter function,
+  // it is done in the appropriate location in code. This is because the linked libraries are not deployed sometimes
+  // when this function is called.
+  const L2_Swap: ContractFactory = await ethers.getContractFactory(
+    'Swap',
+    {
+      signer,
+      libraries: {
+        'SwapUtils': ZERO_ADDRESS
+      }
+    }
+  )
+  const L2_AmmWrapper: ContractFactory = await ethers.getContractFactory('L2_AmmWrapper', { signer })
 
   let L1_TokenBridge: ContractFactory
   let L1_Messenger: ContractFactory
   let L1_MessengerWrapper: ContractFactory
-  let L2_MockERC20: ContractFactory
-  let L2_HopBridgeToken: ContractFactory
   let L2_Bridge: ContractFactory
-  let L2_Swap: ContractFactory
-  let L2_AmmWrapper: ContractFactory
+  let L2_MessengerProxy: ContractFactory
   ;({
     L1_TokenBridge,
     L1_Messenger,
     L1_MessengerWrapper,
-    L2_MockERC20,
-    L2_HopBridgeToken,
     L2_Bridge,
-    L2_Swap,
-    L2_AmmWrapper
+    L2_MessengerProxy
   } = await getNetworkSpecificFactories(chainId, signer, ethers))
 
   return {
@@ -53,7 +82,8 @@ export const getContractFactories = async (
     L2_HopBridgeToken,
     L2_Bridge,
     L2_Swap,
-    L2_AmmWrapper
+    L2_AmmWrapper,
+    L2_MessengerProxy
   }
 }
 
@@ -75,11 +105,8 @@ const getNetworkSpecificFactories = async (
       L1_TokenBridge: null,
       L1_Messenger: null,
       L1_MessengerWrapper: null,
-      L2_MockERC20: null,
-      L2_HopBridgeToken: null,
       L2_Bridge: null,
-      L2_Swap: null,
-      L2_AmmWrapper: null
+      L2_MessengerProxy: null
     }
   }
 }
@@ -100,54 +127,17 @@ const getOptimismContractFactories = async (
     'contracts/wrappers/OptimismMessengerWrapper.sol:OptimismMessengerWrapper',
     { signer }
   )
-  const L2_MockERC20: ContractFactory = await ethers.getContractFactory(
-    'contracts/test/MockERC20.sol:MockERC20',
-    { signer }
-  )
-  const L2_HopBridgeToken: ContractFactory = await ethers.getContractFactory(
-    'contracts/bridges/HopBridgeToken.sol:HopBridgeToken',
-    { signer }
-  )
   const L2_Bridge: ContractFactory = await ethers.getContractFactory(
     'contracts/bridges/L2_OptimismBridge.sol:L2_OptimismBridge',
     { signer }
   )
 
-  const L2_MathUtils: ContractFactory = await ethers.getContractFactory('MathUtils')
-  const l2_mathUtils = await L2_MathUtils.deploy()
-  await l2_mathUtils.deployed()
-
-  const L2_SwapUtils = await ethers.getContractFactory(
-    'SwapUtils',
-    {
-      libraries: {
-        'MathUtils': l2_mathUtils.address
-      }
-    }
-  )
-  const l2_swapUtils = await L2_SwapUtils.deploy()
-  await l2_swapUtils.deployed()
-
-  const L2_Swap = await ethers.getContractFactory(
-    'Swap',
-    {
-      libraries: {
-        'SwapUtils': l2_swapUtils.address
-      }
-    }
-  )
-
-  const L2_AmmWrapper: ContractFactory = await ethers.getContractFactory('L2_AmmWrapper', { signer })
-
   return {
     L1_TokenBridge,
     L1_Messenger,
     L1_MessengerWrapper,
-    L2_MockERC20,
-    L2_HopBridgeToken,
     L2_Bridge,
-    L2_Swap,
-    L2_AmmWrapper
+    L2_MessengerProxy: null
   }
 }
 
@@ -165,53 +155,17 @@ const getArbitrumContractFactories = async (signer: Signer, ethers: any) => {
     'contracts/wrappers/ArbitrumMessengerWrapper.sol:ArbitrumMessengerWrapper',
     { signer }
   )
-  const L2_MockERC20: ContractFactory = await ethers.getContractFactory(
-    'contracts/test/MockERC20.sol:MockERC20',
-    { signer }
-  )
-  const L2_HopBridgeToken: ContractFactory = await ethers.getContractFactory(
-    'contracts/bridges/HopBridgeToken.sol:HopBridgeToken',
-    { signer }
-  )
   const L2_Bridge: ContractFactory = await ethers.getContractFactory(
     'contracts/bridges/L2_ArbitrumBridge.sol:L2_ArbitrumBridge',
     { signer }
   )
-  const L2_MathUtils: ContractFactory = await ethers.getContractFactory('MathUtils', { signer })
-  const l2_mathUtils = await L2_MathUtils.deploy()
-  await waitAfterTransaction(l2_mathUtils, ethers)
-
-  const L2_SwapUtils = await ethers.getContractFactory(
-    'SwapUtils',
-    {
-      libraries: {
-        'MathUtils': l2_mathUtils.address
-      }
-    }
-  )
-  const l2_swapUtils = await L2_SwapUtils.deploy()
-  await waitAfterTransaction(l2_swapUtils, ethers)
-
-  const L2_Swap = await ethers.getContractFactory(
-    'Swap',
-    {
-      libraries: {
-        'SwapUtils': l2_swapUtils.address
-      }
-    }
-  )
-
-  const L2_AmmWrapper: ContractFactory = await ethers.getContractFactory('L2_AmmWrapper', { signer })
 
   return {
     L1_TokenBridge,
     L1_Messenger,
     L1_MessengerWrapper,
-    L2_MockERC20,
-    L2_HopBridgeToken,
     L2_Bridge,
-    L2_Swap,
-    L2_AmmWrapper
+    L2_MessengerProxy: null
   }
 }
 
@@ -228,59 +182,49 @@ const getXDaiContractFactories = async (signer: Signer, ethers: any) => {
     'contracts/wrappers/XDaiMessengerWrapper.sol:XDaiMessengerWrapper',
     { signer }
   )
-  const L2_MockERC20: ContractFactory = await ethers.getContractFactory(
-    'contracts/test/MockERC20.sol:MockERC20',
-    { signer }
-  )
-  const L2_HopBridgeToken: ContractFactory = await ethers.getContractFactory(
-    'contracts/bridges/HopBridgeToken.sol:HopBridgeToken',
-    { signer }
-  )
   const L2_Bridge: ContractFactory = await ethers.getContractFactory(
     'contracts/bridges/L2_XDaiBridge.sol:L2_XDaiBridge',
     { signer }
   )
-  const L2_MathUtils: ContractFactory = await ethers.getContractFactory('MathUtils', { signer })
-  const l2_mathUtils = await L2_MathUtils.deploy()
-  await l2_mathUtils.deployed()
-
-  const L2_SwapUtils = await ethers.getContractFactory(
-    'SwapUtils',
-    {
-      libraries: {
-        'MathUtils': l2_mathUtils.address
-      }
-    }
-  )
-  const l2_swapUtils = await L2_SwapUtils.deploy()
-  await l2_swapUtils.deployed()
-
-  const L2_Swap = await ethers.getContractFactory(
-    'Swap',
-    {
-      libraries: {
-        'SwapUtils': l2_swapUtils.address
-      }
-    }
-  )
-
-  const L2_AmmWrapper: ContractFactory = await ethers.getContractFactory('L2_AmmWrapper', { signer })
 
   return {
     L1_TokenBridge,
     L1_Messenger,
     L1_MessengerWrapper,
-    L2_MockERC20,
-    L2_HopBridgeToken,
     L2_Bridge,
-    L2_Swap,
-    L2_AmmWrapper
+    L2_MessengerProxy: null
   }
 }
 
 const getPolygonContractFactories = async (signer: Signer, ethers: any) => {
-  // TODO: Polygon Contract Factories
-  throw new Error('getPolygonContractFactories not implemented')
+  const L1_TokenBridge: ContractFactory = await ethers.getContractFactory(
+    'contracts/test/polygon/IRootChainManager.sol:IRootChainManager',
+    { signer }
+  )
+  const L1_Messenger: ContractFactory = await ethers.getContractFactory(
+    'contracts/test/polygon/Mock_L1_PolygonMessenger.sol:Mock_L1_PolygonMessenger',
+    { signer }
+  )
+  const L1_MessengerWrapper: ContractFactory = await ethers.getContractFactory(
+    'contracts/test/MockPolygonMessengerWrapper.sol:MockPolygonMessengerWrapper',
+    { signer }
+  )
+  const L2_Bridge: ContractFactory = await ethers.getContractFactory(
+    'contracts/bridges/L2_PolygonBridge.sol:L2_PolygonBridge',
+    { signer }
+  )
+  const L2_MessengerProxy: ContractFactory = await ethers.getContractFactory(
+    'contracts/bridges/L2_PolygonMessengerProxy.sol:L2_PolygonMessengerProxy',
+    { signer }
+  )
+
+  return {
+    L1_TokenBridge,
+    L1_Messenger,
+    L1_MessengerWrapper,
+    L2_Bridge,
+    L2_MessengerProxy
+  }
 }
 
 export const sendChainSpecificBridgeDeposit = async (
@@ -291,8 +235,9 @@ export const sendChainSpecificBridgeDeposit = async (
   l1_canonicalToken: Contract,
   l2_canonicalToken: Contract
 ) => {
+  let tx
   if (isChainIdOptimism(chainId)) {
-    const tx = await l1_tokenBridge
+    tx = await l1_tokenBridge
       .connect(sender)
       .deposit(
         l1_canonicalToken.address,
@@ -301,9 +246,8 @@ export const sendChainSpecificBridgeDeposit = async (
         amount,
         { gasLimit: 5000000 }
       )
-    await tx.wait()
   } else if (isChainIdArbitrum(chainId)) {
-    const tx = await l1_tokenBridge
+    tx = await l1_tokenBridge
       .connect(sender)
       .depositAsERC20(
         l1_canonicalToken.address,
@@ -314,21 +258,28 @@ export const sendChainSpecificBridgeDeposit = async (
         '0',
         '0x'
       )
-    await tx.wait()
   } else if (isChainIdXDai(chainId)) {
-    const tx = await l1_tokenBridge
+    tx = await l1_tokenBridge
       .connect(sender)
       .relayTokens(
         l1_canonicalToken.address,
         await sender.getAddress(),
         amount
       )
-    await tx.wait()
-  } else if (isChainIdXDai(chainId)) {
-    // TODO: Polygon Bridge Deposit
+  } else if (isChainIdPolygon(chainId)) {
+    const encodedAmount = ethersUtils.defaultAbiCoder.encode(['uint256'], [amount])
+    tx = await l1_tokenBridge
+      .connect(sender)
+      .depositFor(
+        await sender.getAddress(),
+        l1_canonicalToken.address,
+        encodedAmount
+      )
   } else {
     throw new Error(`Unsupported chain ID "${chainId}"`)
   }
+
+    await tx.wait()
 }
 
 const configFilepath = path.resolve(__dirname, '../deploy_config.json')
@@ -426,4 +377,15 @@ export const Logger = (label: string) => {
       console.error(label, timestamp, ...args)
     }
   }
+}
+
+export const getL1ChainIdFromNetworkName = (networkName: string): BigNumber => {
+  return CHAIN_IDS.ETHEREUM[networkName.toUpperCase()]
+}
+
+export const doesNeedExplicitGasLimit = (chainId: BigNumber): Boolean => {
+  if (isChainIdXDai(chainId) || isChainIdPolygon(chainId)) {
+    return true
+  }
+  return false
 }

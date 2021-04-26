@@ -25,8 +25,8 @@ contract ArbitrumMessengerWrapper is MessengerWrapper {
     constructor(
         address _l1BridgeAddress,
         address _l2BridgeAddress,
-        uint256 _defaultGasLimit,
         IInbox _arbInbox,
+        uint256 _defaultGasLimit,
         uint256 _defaultGasPrice,
         uint256 _defaultCallValue
     )
@@ -34,8 +34,8 @@ contract ArbitrumMessengerWrapper is MessengerWrapper {
         MessengerWrapper(_l1BridgeAddress)
     {
         l2BridgeAddress = _l2BridgeAddress;
-        defaultGasLimit = _defaultGasLimit;
         arbInbox = _arbInbox;
+        defaultGasLimit = _defaultGasLimit;
         defaultGasPrice = _defaultGasPrice;
         defaultCallValue = _defaultCallValue;
     }

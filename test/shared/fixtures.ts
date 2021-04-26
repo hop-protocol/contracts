@@ -11,7 +11,6 @@ import {
   getL2BridgeDefaults
 } from '../../config/utils'
 import {
-  IGetMessengerWrapperDefaults,
   IGetL2BridgeDefaults
 } from '../../config/interfaces'
 import {
@@ -40,6 +39,7 @@ export async function fixture (
 ): Promise<IFixture> {
   const {
     l2_bridgeArtifact,
+    l1_messengerArtifact,
     l1_messengerWrapperArtifact
   } = getL2SpecificArtifact(l2ChainId)
   const accounts = await ethers.getSigners()
@@ -64,16 +64,19 @@ export async function fixture (
     `contracts/test/${l2_bridgeArtifact}`
   )
   const L1_Messenger = await ethers.getContractFactory(
-    'contracts/test/Mock_L1_Messenger.sol:Mock_L1_Messenger'
+    l1_messengerArtifact
   )
   const L1_MessengerWrapper = await ethers.getContractFactory(
-    `contracts/wrappers/${l1_messengerWrapperArtifact}`
+    l1_messengerWrapperArtifact
   )
   const L2_HopBridgeToken = await ethers.getContractFactory(
     'contracts/bridges/HopBridgeToken.sol:HopBridgeToken'
   )
   const L2_Messenger = await ethers.getContractFactory(
     'contracts/test/Mock_L2_Messenger.sol:Mock_L2_Messenger'
+  )
+  const L2_MessengerProxy = await ethers.getContractFactory(
+    'contracts/test/Mock_L2_PolygonMessengerProxy.sol:Mock_L2_PolygonMessengerProxy'
   )
 
   const MathUtils = await ethers.getContractFactory('MathUtils')
@@ -152,10 +155,14 @@ export async function fixture (
     DEFAULT_H_BRIDGE_TOKEN_DECIMALS
   )
 
+  // Deploy Messenger Proxy
+  const l2_messengerProxy: Contract = await L2_MessengerProxy.deploy()
+
   // Deploy Hop L2 contracts
   let l2BridgeDefaults: IGetL2BridgeDefaults[] = getL2BridgeDefaults(
     l2ChainId,
     l2_messenger.address,
+    l2_messengerProxy.address,
     await governance.getAddress(),
     l2_hopBridgeToken.address,
     l1_bridge.address,
@@ -167,7 +174,7 @@ export async function fixture (
   const l2_bridge = await L2_Bridge.deploy(l2ChainId, ...l2BridgeDefaults)
 
   // Deploy Messenger Wrapper
-  const messengerWrapperDefaults: IGetMessengerWrapperDefaults[] = getMessengerWrapperDefaults(
+  const messengerWrapperDefaults:any[] = getMessengerWrapperDefaults(
     l2ChainId,
     l1_bridge.address,
     l2_bridge.address,
@@ -248,6 +255,8 @@ export async function fixture (
   ]
 
   return {
+    l1ChainId,
+    l2ChainId,
     accounts,
     user,
     liquidityProvider,
@@ -264,6 +273,7 @@ export async function fixture (
     L1_MessengerWrapper,
     L1_Messenger,
     L2_Messenger,
+    L2_MessengerProxy,
     L2_Swap,
     L2_AmmWrapper,
     MockAccounting,
@@ -274,6 +284,7 @@ export async function fixture (
     l1_messengerWrapper,
     l1_bridge,
     l2_messenger,
+    l2_messengerProxy,
     l2_hopBridgeToken,
     l2_bridge,
     l2_canonicalToken,

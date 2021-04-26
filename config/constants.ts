@@ -21,6 +21,7 @@ export const CHAIN_IDS: any = {
     SOKOL: BigNumber.from('77')
   },
   POLYGON: {
+    MAINNET: BigNumber.from('137'),
     MUMBAI: BigNumber.from('80001')
   }
 }
@@ -32,6 +33,7 @@ export const ALL_SUPPORTED_CHAIN_IDS: string[] = (Object.values(
 export const ZERO_ADDRESS: string = '0x0000000000000000000000000000000000000000'
 export const ONE_ADDRESS: string = '0x0000000000000000000000000000000000000001'
 export const DEAD_ADDRESS: string = '0x000000000000000000000000000000000000dEaD'
+export const DEFAULT_ADMIN_ROLE_HASH: string = '0x0000000000000000000000000000000000000000000000000000000000000000'
 export const ARBITRARY_ROOT_HASH: string =
   '0x7465737400000000000000000000000000000000000000000000000000000000'
 export const ARBITRARY_TRANSFER_NONCE: string =
@@ -43,7 +45,7 @@ export const MAX_APPROVAL: BigNumber = BigNumber.from(
 export const DEFAULT_L2_BRIDGE_GAS_LIMIT: number = 250000
 export const DEFAULT_MESSENGER_WRAPPER_GAS_LIMIT: number = 8000000
 export const DEFAULT_MESSENGER_WRAPPER_GAS_PRICE: number = 0
-export const DEFAULT_MESSENGER_WRAPPER_GAS_CALL_VALUE: number = 0
+export const DEFAULT_MESSENGER_WRAPPER_CALL_VALUE: number = 0
 
 export const DEFAULT_AMOUNT_OUT_MIN: number = 0
 export const DEFAULT_DEADLINE: BigNumber = BigNumber.from('9999999999')
@@ -99,6 +101,11 @@ export const DEFAULT_SWAP_A: string = '200'
 export const DEFAULT_SWAP_FEE: string = '4000000'
 export const DEFAULT_SWAP_ADMIN_FEE: string = '0'
 export const DEFAULT_SWAP_WITHDRAWAL_FEE: string = '0'
+
+export const CHECKPOINT_MANAGER_ADDRESSES:any = {
+  MAINNET: '0x86E4Dc95c7FBdBf52e33D563BbDB00823894C287',
+  GOERLI: '0x2890bA17EfE978480615e330ecB65333b880928e'
+}
 
 export const COMMON_SYMBOLS: { [key: string]: string } = {
   DAI: 'DAI',

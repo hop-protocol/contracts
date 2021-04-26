@@ -29,7 +29,7 @@ describe('Accounting', () => {
     l1ChainId = CHAIN_IDS.ETHEREUM.KOVAN
     l2ChainId = CHAIN_IDS.OPTIMISM.TESTNET_1
     _fixture = await fixture(l1ChainId, l2ChainId)
-    await setUpDefaults(_fixture, l2ChainId)
+    await setUpDefaults(_fixture)
     ;({ bonder, user, governance, otherUser, mockAccounting } = _fixture)
   })
 
@@ -169,6 +169,53 @@ describe('Accounting', () => {
     expect(credit).to.eq(stakeAmount.mul(3))
     expect(rawDebit).to.eq(stakeAmount.mul(2))
     expect(debit).to.eq(stakeAmount.mul(2))
+  })
+
+  it('Should add a bonder, stake to increase the credit with both bonders, and subsequently unstake to increase the debit with both bonders', async () => {
+    const otherBonder: Signer = governance
+    const stakeAmount: BigNumber = BigNumber.from(10)
+
+    await mockAccounting.connect(governance).addBonder(await otherBonder.getAddress())
+
+    await mockAccounting.stake(await bonder.getAddress(), stakeAmount)
+    let credit = await mockAccounting.getCredit(await bonder.getAddress())
+    let rawDebit = await mockAccounting.getRawDebit(await bonder.getAddress())
+    let debit = await mockAccounting.getDebitAndAdditionalDebit(
+      await bonder.getAddress()
+    )
+    expect(credit).to.eq(stakeAmount)
+    expect(rawDebit).to.eq(0)
+    expect(debit).to.eq(0)
+
+    await mockAccounting.stake(await otherBonder.getAddress(), stakeAmount)
+    credit = await mockAccounting.getCredit(await otherBonder.getAddress())
+    rawDebit = await mockAccounting.getRawDebit(await otherBonder.getAddress())
+    debit = await mockAccounting.getDebitAndAdditionalDebit(
+      await otherBonder.getAddress()
+    )
+    expect(credit).to.eq(stakeAmount)
+    expect(rawDebit).to.eq(0)
+    expect(debit).to.eq(0)
+
+    await mockAccounting.connect(bonder).unstake(stakeAmount)
+    credit = await mockAccounting.getCredit(await bonder.getAddress())
+    rawDebit = await mockAccounting.getRawDebit(await bonder.getAddress())
+    debit = await mockAccounting.getDebitAndAdditionalDebit(
+      await bonder.getAddress()
+    )
+    expect(credit).to.eq(stakeAmount)
+    expect(rawDebit).to.eq(stakeAmount)
+    expect(debit).to.eq(stakeAmount)
+
+    await mockAccounting.connect(otherBonder).unstake(stakeAmount)
+    credit = await mockAccounting.getCredit(await otherBonder.getAddress())
+    rawDebit = await mockAccounting.getRawDebit(await otherBonder.getAddress())
+    debit = await mockAccounting.getDebitAndAdditionalDebit(
+      await otherBonder.getAddress()
+    )
+    expect(credit).to.eq(stakeAmount)
+    expect(rawDebit).to.eq(stakeAmount)
+    expect(debit).to.eq(stakeAmount)
   })
 
   it('Should stake many times with different users and then unstake', async () => {

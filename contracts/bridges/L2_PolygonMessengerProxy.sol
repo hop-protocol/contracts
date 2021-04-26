@@ -4,14 +4,11 @@ pragma solidity 0.6.12;
 pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
-// import "@maticnetwork/pos-portal/contracts/tunnel/BaseChildTunnel.sol";
 import "../polygon/tunnel/BaseChildTunnel.sol";
-import "./L2_PolygonBridge.sol";
 
 contract L2_PolygonMessengerProxy is BaseChildTunnel, ReentrancyGuard {
 
-    address public immutable l2Bridge;
-    address public immutable polygonMessenger;
+    address public l2Bridge;
     address public xDomainMessageSender;
 
     address constant public DEAD_ADDRESS = 0x000000000000000000000000000000000000dEaD;
@@ -21,13 +18,13 @@ contract L2_PolygonMessengerProxy is BaseChildTunnel, ReentrancyGuard {
         _;
     }
 
-    constructor(
-        address _l2Bridge,
-        address _polygonMessenger
-    ) public {
-        l2Bridge = _l2Bridge;
-        polygonMessenger = _polygonMessenger;
+    constructor() public {
         xDomainMessageSender = DEAD_ADDRESS;
+    }
+
+    function setL2Bridge(address _l2Bridge) external {
+        require(l2Bridge == address(0), "L2_PLGN_MSG: L2 Bridge already set");
+        l2Bridge = _l2Bridge;
     }
 
     function sendCrossDomainMessage(bytes memory message) external onlyL2Bridge {

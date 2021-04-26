@@ -79,6 +79,7 @@ describe('L2_Bridge', () => {
   let l1_bridge: Contract
   let l1_canonicalBridge: Contract
   let l1_messenger: Contract
+  let l1_messengerWrapper: Contract
   let l2_canonicalToken: Contract
   let l2_hopBridgeToken: Contract
   let l2_bridge: Contract
@@ -109,7 +110,7 @@ describe('L2_Bridge', () => {
     l22ChainId = CHAIN_IDS.ARBITRUM.TESTNET_4
 
     _fixture = await fixture(l1ChainId, l2ChainId)
-    await setUpDefaults(_fixture, l2ChainId)
+    await setUpDefaults(_fixture)
     ;({
       user,
       bonder,
@@ -119,6 +120,7 @@ describe('L2_Bridge', () => {
       l1_canonicalToken,
       l1_bridge,
       l1_messenger,
+      l1_messengerWrapper,
       l1_canonicalBridge,
       l2_canonicalToken,
       l2_hopBridgeToken,
@@ -134,7 +136,7 @@ describe('L2_Bridge', () => {
       l1CanonicalTokenAddress: l1_canonicalToken.address
     }
     _fixture = await fixture(l1ChainId, l22ChainId, l1AlreadySetOpts)
-    await setUpDefaults(_fixture, l22ChainId)
+    await setUpDefaults(_fixture)
     ;({
       l2_canonicalToken: l22_canonicalToken,
       l2_hopBridgeToken: l22_hopBridgeToken,
@@ -229,7 +231,8 @@ describe('L2_Bridge', () => {
         l2_bridge,
         l2_messenger,
         governance,
-        message
+        message,
+        l2ChainId
       )
 
       const governanceAddress: string = await l2_bridge.l1Governance()
@@ -247,7 +250,8 @@ describe('L2_Bridge', () => {
         l2_bridge,
         l2_messenger,
         governance,
-        message
+        message,
+        l2ChainId
       )
 
       const exchangeAddress: string = await l2_bridge.ammWrapper()
@@ -265,7 +269,8 @@ describe('L2_Bridge', () => {
         l2_bridge,
         l2_messenger,
         governance,
-        message
+        message,
+        l2ChainId
       )
 
       const l1BridgeAddress: string = await l2_bridge.l1BridgeAddress()
@@ -283,7 +288,8 @@ describe('L2_Bridge', () => {
         l2_bridge,
         l2_messenger,
         governance,
-        message
+        message,
+        l2ChainId
       )
 
       const l1MessengerWrapperAddress: string = await l2_bridge.l1MessengerWrapperAddress()
@@ -299,7 +305,8 @@ describe('L2_Bridge', () => {
         l2_bridge,
         l2_messenger,
         governance,
-        message
+        message,
+        l2ChainId
       )
 
       const isChainIdSupported: boolean = await l2_bridge.activeChainIds(
@@ -317,7 +324,8 @@ describe('L2_Bridge', () => {
         l2_bridge,
         l2_messenger,
         governance,
-        message
+        message,
+        l2ChainId
       )
 
       let isChainIdSupported: boolean = await l2_bridge.activeChainIds(
@@ -331,7 +339,8 @@ describe('L2_Bridge', () => {
         l2_bridge,
         l2_messenger,
         governance,
-        message
+        message,
+        l2ChainId
       )
 
       isChainIdSupported = await l2_bridge.activeChainIds(newChainId[0])
@@ -349,7 +358,8 @@ describe('L2_Bridge', () => {
         l2_bridge,
         l2_messenger,
         governance,
-        message
+        message,
+        l2ChainId
       )
 
       const minimumForceCommitDelay: BigNumber = await l2_bridge.minimumForceCommitDelay()
@@ -367,7 +377,8 @@ describe('L2_Bridge', () => {
         l2_bridge,
         l2_messenger,
         governance,
-        message
+        message,
+        l2ChainId
       )
 
       const maxPendingTransfers: BigNumber = await l2_bridge.maxPendingTransfers()
@@ -387,7 +398,8 @@ describe('L2_Bridge', () => {
         l2_bridge,
         l2_messenger,
         governance,
-        message
+        message,
+        l2ChainId
       )
 
       hopBridgeTokenOwner = await l2_hopBridgeToken.owner()
@@ -407,7 +419,8 @@ describe('L2_Bridge', () => {
         l2_bridge,
         l2_messenger,
         governance,
-        message
+        message,
+        l2ChainId
       )
 
       const minBonderBps = await l2_bridge.minBonderBps()
@@ -677,7 +690,8 @@ describe('L2_Bridge', () => {
           l2_bridge,
           l2_messenger,
           user,
-          message
+          message,
+          l2ChainId
         )
       ).to.be.revertedWith(expectedErrorMsg)
     })
@@ -695,7 +709,8 @@ describe('L2_Bridge', () => {
           l2_bridge,
           l2_messenger,
           user,
-          message
+          message,
+          l2ChainId
         )
       ).to.be.revertedWith(expectedErrorMsg)
     })
@@ -713,7 +728,8 @@ describe('L2_Bridge', () => {
           l2_bridge,
           l2_messenger,
           user,
-          message
+          message,
+          l2ChainId
         )
       ).to.be.revertedWith(expectedErrorMsg)
     })
@@ -731,7 +747,8 @@ describe('L2_Bridge', () => {
           l2_bridge,
           l2_messenger,
           user,
-          message
+          message,
+          l2ChainId
         )
       ).to.be.revertedWith(expectedErrorMsg)
     })
@@ -747,7 +764,8 @@ describe('L2_Bridge', () => {
           l2_bridge,
           l2_messenger,
           user,
-          message
+          message,
+          l2ChainId
         )
       ).to.be.revertedWith(expectedErrorMsg)
     })
@@ -762,7 +780,8 @@ describe('L2_Bridge', () => {
         l2_bridge,
         l2_messenger,
         governance,
-        message
+        message,
+        l2ChainId
       )
 
       let isChainIdSupported: boolean = await l2_bridge.activeChainIds(
@@ -777,7 +796,8 @@ describe('L2_Bridge', () => {
           l2_bridge,
           l2_messenger,
           user,
-          message
+          message,
+          l2ChainId
         )
       ).to.be.revertedWith(expectedErrorMsg)
     })
@@ -795,7 +815,8 @@ describe('L2_Bridge', () => {
           l2_bridge,
           l2_messenger,
           user,
-          message
+          message,
+          l2ChainId
         )
       ).to.be.revertedWith(expectedErrorMsg)
     })
@@ -813,7 +834,8 @@ describe('L2_Bridge', () => {
           l2_bridge,
           l2_messenger,
           user,
-          message
+          message,
+          l2ChainId
         )
       ).to.be.revertedWith(expectedErrorMsg)
     })
@@ -833,7 +855,8 @@ describe('L2_Bridge', () => {
           l2_bridge,
           l2_messenger,
           user,
-          message
+          message,
+          l2ChainId
         )
       ).to.be.revertedWith(expectedErrorMsg)
     })
@@ -853,7 +876,8 @@ describe('L2_Bridge', () => {
           l2_bridge,
           l2_messenger,
           user,
-          message
+          message,
+          l2ChainId
         )
       ).to.be.revertedWith(expectedErrorMsg)
     })
@@ -873,7 +897,8 @@ describe('L2_Bridge', () => {
           l2_bridge,
           l2_messenger,
           governance,
-          message
+          message,
+          l2ChainId
         )
       ).to.be.revertedWith(expectedErrorMsg)
     })
@@ -1007,7 +1032,8 @@ describe('L2_Bridge', () => {
         l2_bridge,
         l2_messenger,
         governance,
-        message
+        message,
+        l2ChainId
       )
 
       await expect(
@@ -1081,7 +1107,8 @@ describe('L2_Bridge', () => {
         l22_bridge,
         l2_messenger,
         governance,
-        message
+        message,
+        l2ChainId
       )
 
       await executeL1BridgeSendToL2(
@@ -1259,7 +1286,8 @@ describe('L2_Bridge', () => {
       l2_bridge,
       l2_messenger,
       governance,
-      message
+      message,
+      l2ChainId
     )
 
     const customTransfer: Transfer = new Transfer(transfer)
@@ -1313,7 +1341,8 @@ describe('L2_Bridge', () => {
       l2_bridge,
       l2_messenger,
       governance,
-      message
+      message,
+      l2ChainId
     )
 
     const customTransfer: Transfer = new Transfer(transfer)
@@ -1367,7 +1396,8 @@ describe('L2_Bridge', () => {
       l2_bridge,
       l2_messenger,
       governance,
-      message
+      message,
+      l2ChainId
     )
 
     const customTransfer: Transfer = new Transfer(transfer)
@@ -1421,7 +1451,8 @@ describe('L2_Bridge', () => {
       l2_bridge,
       l2_messenger,
       governance,
-      message
+      message,
+      l2ChainId
     )
 
     const customTransfer: Transfer = new Transfer(l2Transfer)
@@ -1474,7 +1505,8 @@ describe('L2_Bridge', () => {
       l2_bridge,
       l2_messenger,
       governance,
-      message
+      message,
+      l2ChainId
     )
 
     const customTransfer: Transfer = new Transfer(l2Transfer)
@@ -1527,7 +1559,8 @@ describe('L2_Bridge', () => {
       l2_bridge,
       l2_messenger,
       governance,
-      message
+      message,
+      l2ChainId
     )
 
     const customTransfer: Transfer = new Transfer(l2Transfer)
@@ -1580,7 +1613,8 @@ describe('L2_Bridge', () => {
       l2_bridge,
       l2_messenger,
       governance,
-      message
+      message,
+      l2ChainId
     )
 
     const customTransfer: Transfer = new Transfer(l2Transfer)
@@ -1633,7 +1667,8 @@ describe('L2_Bridge', () => {
       l2_bridge,
       l2_messenger,
       governance,
-      message
+      message,
+      l2ChainId
     )
 
     const customTransfer: Transfer = new Transfer(l2Transfer)
@@ -1686,7 +1721,8 @@ describe('L2_Bridge', () => {
       l2_bridge,
       l2_messenger,
       governance,
-      message
+      message,
+      l2ChainId
     )
 
     const customTransfer: Transfer = new Transfer(l2Transfer)
@@ -1723,5 +1759,32 @@ describe('L2_Bridge', () => {
       bonder,
       actualTransferAmount
     )
+  })
+
+  it('Should send a transaction, deactivate the receiving chain, bond the transfer, and commit a transfer by the bonder at any time', async () => {
+    await executeL2BridgeSend(l2_hopBridgeToken, l2_bridge, transfer)
+
+    const message: string = getRemoveActiveChainIdsMessage([transfer.chainId])
+    await executeCanonicalMessengerSendMessage(
+      l1_messenger,
+      l2_bridge,
+      l2_messenger,
+      governance,
+      message,
+      l2ChainId
+    )
+
+    const isChainIdSupported: boolean = await l2_bridge.activeChainIds(transfer.chainId)
+    expect(isChainIdSupported).to.eq(false)
+
+    await executeBridgeBondWithdrawal(
+      l1_canonicalToken,
+      l1_bridge,
+      l2_bridge,
+      transfer,
+      bonder
+    )
+
+    await executeL2BridgeCommitTransfers(l2_bridge, [transfer], bonder)
   })
 })
