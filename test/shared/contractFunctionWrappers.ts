@@ -61,14 +61,28 @@ export const executeCanonicalMessengerSendMessage = async (
   const params: any[] = [l2_bridge.address, message, gasLimit]
 
   if (isChainIdArbitrum(l2ChainId)) {
-    const gasPrice: BigNumber = BigNumber.from('50000000000')
     const amount: BigNumber = BigNumber.from('0')
-    const arbitrumParams: any[] = [gasLimit, gasPrice, l2_bridge.address, amount, message]
+    const maxSubmissionCost: BigNumber = BigNumber.from('0')
+    const maxGas: BigNumber = BigNumber.from('100000000000')
+    const gasPriceBid: BigNumber = BigNumber.from('0')
+    const arbitrumParams: any[] = [
+      l2_bridge.address,
+      amount,
+      maxSubmissionCost,
+      await sender.getAddress(),
+      await sender.getAddress(),
+      maxGas,
+      gasPriceBid,
+      message
+    ]
+
     await l1_messenger
       .connect(sender)
-      .sendContractTransaction(...arbitrumParams);
+      .createRetryableTicket(...arbitrumParams);
   } else if (isChainIdOptimism(l2ChainId)) {
-    await l1_messenger.connect(sender).sendMessage(...params)
+    const optimismGasLimit: BigNumber = BigNumber.from('5000000')
+    const optimismParams: any[] = [l2_bridge.address, message, optimismGasLimit]
+    await l1_messenger.connect(sender).sendMessage(...optimismParams)
   } else if (isChainIdXDai(l2ChainId)) {
     await l1_messenger.connect(sender).requireToPassMessage(...params)
   } else if (isChainIdPolygon(l2ChainId)) {

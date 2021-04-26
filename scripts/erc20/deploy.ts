@@ -1,5 +1,5 @@
 require('dotenv').config()
-import { ethers, l2ethers } from 'hardhat'
+import { ethers } from 'hardhat'
 import { BigNumber } from 'ethers'
 
 // NOTE: This works with both L1 and L2. Specify the network in the CLI.
