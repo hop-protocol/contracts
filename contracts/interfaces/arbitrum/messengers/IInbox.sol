@@ -21,15 +21,8 @@ pragma solidity ^0.6.11;
 import "./IBridge.sol";
 import "./IMessageProvider.sol";
 
-interface IInbox is IMessageProvider {
-    function deployL2ContractPair(
-        uint256 maxGas,
-        uint256 gasPriceBid,
-        uint256 payment,
-        bytes calldata contractData
-    ) external;
-
-    function sendL2Message(bytes calldata messageData) external;
+contract IInbox is IMessageProvider {
+    function sendL2Message(bytes calldata messageData) external returns (uint256) {}
 
     function sendUnsignedTransaction(
         uint256 maxGas,
@@ -38,7 +31,7 @@ interface IInbox is IMessageProvider {
         address destAddr,
         uint256 amount,
         bytes calldata data
-    ) external;
+    ) external returns (uint256) {}
 
     function sendContractTransaction(
         uint256 maxGas,
@@ -46,7 +39,7 @@ interface IInbox is IMessageProvider {
         address destAddr,
         uint256 amount,
         bytes calldata data
-    ) external;
+    ) external returns (uint256) {}
 
     function sendL1FundedUnsignedTransaction(
         uint256 maxGas,
@@ -54,16 +47,29 @@ interface IInbox is IMessageProvider {
         uint256 nonce,
         address destAddr,
         bytes calldata data
-    ) external payable;
+    ) external payable returns (uint256) {}
 
     function sendL1FundedContractTransaction(
         uint256 maxGas,
         uint256 gasPriceBid,
         address destAddr,
         bytes calldata data
-    ) external payable;
+    ) external payable returns (uint256) {}
 
-    function depositEth(address destAddr) external payable;
+    function createRetryableTicket(
+        address destAddr,
+        uint256 arbTxCallValue,
+        uint256 maxSubmissionCost,
+        address submissionRefundAddress,
+        address valueRefundAddress,
+        uint256 maxGas,
+        uint256 gasPriceBid,
+        bytes calldata data
+    ) external payable returns (uint256) {}
 
-    function bridge() external view returns (IBridge);
+    function depositEth(address destAddr) external payable returns (uint256) {}
+
+    function depositEthRetryable(address destAddr, uint256 maxSubmissionCost, uint256 maxGas, uint256 maxGasPrice) external payable returns (uint256) {}
+
+    function bridge() external view returns (IBridge) {}
 }

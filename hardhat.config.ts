@@ -31,20 +31,23 @@ export default {
     kovan: {
       url: 'https://kovan.rpc.hop.exchange',
       accounts: desiredAccounts,
-      chainId: CHAIN_IDS.ETHEREUM.KOVAN.toNumber()
+      chainId: CHAIN_IDS.ETHEREUM.KOVAN.toNumber(),
+      timeout: 480e3
     },
     arbitrum: {
       url: 'https://kovan4.arbitrum.io/rpc',
       accounts: desiredAccounts,
       gasPrice: 0,
-      chainId: CHAIN_IDS.ARBITRUM.TESTNET_4.toNumber()
+      chainId: CHAIN_IDS.ARBITRUM.TESTNET_4.toNumber(),
+      timeout: 480e3
     },
     optimism: {
       url: 'https://kovan.optimism.io',
       accounts: desiredAccounts,
       gasPrice: 0,
       gas: 9000000,
-      chainId: CHAIN_IDS.OPTIMISM.HOP_TESTNET.toNumber()
+      chainId: CHAIN_IDS.OPTIMISM.HOP_TESTNET.toNumber(),
+      timeout: 480e3
     },
     xdai: {
       url: 'https://sokol.poa.network',

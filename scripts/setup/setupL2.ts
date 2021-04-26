@@ -11,7 +11,7 @@ import {
   wait,
   Logger
 } from '../shared/utils'
-import { isChainIdXDai } from '../../config/utils'
+import { isChainIdXDai, isChainIdArbitrum } from '../../config/utils'
 
 import {
   DEFAULT_DEADLINE,
@@ -145,6 +145,8 @@ export async function setupL2 (config: Config) {
   ]
   if (isChainIdXDai(l2_chainId)) {
     addLiquidityParams.push(overrides)
+  } else if (isChainIdArbitrum(l2_chainId)) {
+    addLiquidityParams.push({ gasLimit: 100000000 })
   }
 
   logger.log('adding liquidity to L2 amm')

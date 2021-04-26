@@ -152,12 +152,13 @@ const getOptimismContractFactories = async (
 }
 
 const getArbitrumContractFactories = async (signer: Signer, ethers: any) => {
+  // ToDo: Change to contracts/interfaces/arbitrum/messengers/IInbox.sol:IInbox
   const L1_TokenBridge: ContractFactory = await ethers.getContractFactory(
     'contracts/test/arbitrum/IInbox.sol:IInbox',
     { signer }
   )
   const L1_Messenger: ContractFactory = await ethers.getContractFactory(
-    'contracts/test/arbitrum/IInbox.sol:IInbox',
+    'contracts/interfaces/arbitrum/messengers/IInbox.sol:IInbox',
     { signer }
   )
   const L1_MessengerWrapper: ContractFactory = await ethers.getContractFactory(
@@ -297,17 +298,21 @@ export const sendChainSpecificBridgeDeposit = async (
         l1_canonicalToken.address,
         l2_canonicalToken.address,
         await sender.getAddress(),
-        amount
+        amount,
+        { gasLimit: 5000000 }
       )
     await tx.wait()
   } else if (isChainIdArbitrum(chainId)) {
     const tx = await l1_tokenBridge
       .connect(sender)
-      .deposit(
+      .depositAsERC20(
         l1_canonicalToken.address,
-        l2_canonicalToken.address,
         await sender.getAddress(),
-        amount
+        amount,
+        '0',
+        '1000000000000000000',
+        '0',
+        '0x'
       )
     await tx.wait()
   } else if (isChainIdXDai(chainId)) {
