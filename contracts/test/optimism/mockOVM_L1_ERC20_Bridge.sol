@@ -33,7 +33,7 @@ contract OVM_L1_ERC20_Bridge {
             _amount
         );
 
-        uint32 gasLimit = 2500000;
+        uint32 gasLimit = 9000000;
         messenger.sendMessage(_l2TokenAddress, message, gasLimit);
 
         emit Deposit(_depositor, _amount);
