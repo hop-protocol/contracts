@@ -134,7 +134,6 @@ export async function setupL1 (config: Config) {
   l2_canonicalToken = L1_MockERC20.attach(l2_canonicalTokenAddress)
   l1_bridge = L1_Bridge.attach(l1_bridgeAddress)
   l2_bridge = L2_Bridge.attach(l2_bridgeAddress)
-  l2_messengerProxy = L2_MessengerProxy.attach(l2_messengerProxyAddress)
 
   /**
    * Setup deployments
@@ -160,8 +159,9 @@ export async function setupL1 (config: Config) {
     )
     await waitAfterTransaction(l1_messengerWrapper)
 
-    logger.log('setting up polygon contracts')
     if (isChainIdPolygon(l2_chainId)) {
+      logger.log('setting up polygon contracts')
+      l2_messengerProxy = L2_MessengerProxy.attach(l2_messengerProxyAddress)
       await setUpPolygonContracts(
         l1_chainId,
         owner,

@@ -13,7 +13,8 @@ import {
   DEFAULT_H_BRIDGE_TOKEN_NAME,
   DEFAULT_H_BRIDGE_TOKEN_SYMBOL,
   DEFAULT_H_BRIDGE_TOKEN_DECIMALS,
-  COMMON_SYMBOLS
+  COMMON_SYMBOLS,
+  ZERO_ADDRESS
 } from '../config/constants'
 
 const logger = Logger('deploy')
@@ -164,7 +165,7 @@ function setNetworkParams (l1NetworkName: string, l2NetworkName: string, tokenSy
       l2_tokenBridgeAddress: '0x82784078a7a8A1697BcCe5E07896C6a553846Bd5',
       l2_messengerAddress: '0x4200000000000000000000000000000000000007',
       l1_tokenBridgeAddress: '0xf8099DD44375Fdbb70D286af0fFCd46bA4B193dF',
-      l2_messengerProxyAddress: '0x'
+      l2_messengerProxyAddress: ZERO_ADDRESS
     }
 
     if (tokenSymbol === COMMON_SYMBOLS.DAI.toLowerCase()) {
@@ -237,7 +238,7 @@ function setNetworkParams (l1NetworkName: string, l2NetworkName: string, tokenSy
       l2_tokenBridgeAddress: '0xE49CCf3e19d847f8FF4d6962684A3242abF63f07',
       l2_messengerAddress: '0x0000000000000000000000000000000000000064',
       l1_tokenBridgeAddress: '0x2948ac43e4aff448f6af0f7a11f18bb6062dd271',
-      l2_messengerProxyAddress: '0x'
+      l2_messengerProxyAddress: ZERO_ADDRESS
     }
 
     if (tokenSymbol === COMMON_SYMBOLS.DAI.toLowerCase()) {
@@ -260,7 +261,7 @@ function setNetworkParams (l1NetworkName: string, l2NetworkName: string, tokenSy
       l2_tokenBridgeAddress: '0x40CdfF886715A4012fAD0219D15C98bB149AeF0e',
       l2_messengerAddress: '0xFe446bEF1DbF7AFE24E81e05BC8B271C1BA9a560',
       l1_tokenBridgeAddress: '0xA960d095470f7509955d5402e36d9DB984B5C8E2',
-      l2_messengerProxyAddress: '0x'
+      l2_messengerProxyAddress: ZERO_ADDRESS
     }
 
     if (tokenSymbol === COMMON_SYMBOLS.DAI.toLowerCase()) {
