@@ -45,7 +45,7 @@ contract ArbitrumMessengerWrapper is MessengerWrapper {
      * @param _calldata The data that l2BridgeAddress will be called with
      */
     function sendCrossDomainMessage(bytes memory _calldata) public override onlyL1Bridge {
-        uint256 maxSubmissionCost = 50000000;//defaultGasLimit * defaultGasPrice;
+        uint256 maxSubmissionCost = defaultGasLimit * defaultGasPrice;
         arbInbox.createRetryableTicket(
             l2BridgeAddress,
             0,
