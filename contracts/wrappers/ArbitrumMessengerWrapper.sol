@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MIT
+// @unsupported: ovm
 
 pragma solidity 0.6.12;
 pragma experimental ABIEncoderV2;
@@ -16,7 +17,6 @@ import "./MessengerWrapper.sol";
 contract ArbitrumMessengerWrapper is MessengerWrapper {
 
     IInbox public arbInbox;
-    IBridge public immutable arbBridge;
     uint256 public immutable defaultGasPrice;
     uint256 public immutable defaultCallValue;
     address public immutable l2BridgeAddress;
@@ -36,7 +36,6 @@ contract ArbitrumMessengerWrapper is MessengerWrapper {
         l2BridgeAddress = _l2BridgeAddress;
         defaultGasLimit = _defaultGasLimit;
         arbInbox = _arbInbox;
-        arbBridge = arbInbox.bridge();
         defaultGasPrice = _defaultGasPrice;
         defaultCallValue = _defaultCallValue;
     }
@@ -46,12 +45,25 @@ contract ArbitrumMessengerWrapper is MessengerWrapper {
      * @param _calldata The data that l2BridgeAddress will be called with
      */
     function sendCrossDomainMessage(bytes memory _calldata) public override onlyL1Bridge {
-        arbInbox.sendContractTransaction(defaultGasLimit, defaultGasPrice, l2BridgeAddress, 0, _calldata);
+        uint256 maxSubmissionCost = 50000000;//defaultGasLimit * defaultGasPrice;
+        arbInbox.createRetryableTicket(
+            l2BridgeAddress,
+            0,
+            0,
+            tx.origin,
+            address(0),
+            100000000000,
+            0,
+            _calldata
+        );
     }
 
     function verifySender(address l1BridgeCaller, bytes memory /*_data*/) public override {
-        require(l1BridgeCaller == address(arbBridge), "ARB_MSG_WPR: Caller is not arbBridge");
+        IBridge arbBridge = arbInbox.bridge();
+        IOutbox outbox = IOutbox(arbBridge.activeOutbox());
+
+        require(l1BridgeCaller == address(outbox), "ARB_MSG_WPR: Caller is not outbox");
         // Verify that sender is l2BridgeAddress
-        require(IOutbox(arbBridge.activeOutbox()).l2ToL1Sender() == l2BridgeAddress, "ARB_MSG_WPR: Invalid cross-domain sender");
+        require(outbox.l2ToL1Sender() == l2BridgeAddress, "ARB_MSG_WPR: Invalid cross-domain sender");
     }
 }
