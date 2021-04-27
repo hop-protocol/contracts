@@ -330,8 +330,8 @@ function setNetworkParams (l1NetworkName: string, l2NetworkName: string, tokenSy
       l2_networkName: l2NetworkName,
       l1_chainId: l1ChainId.toString(),
       l2_chainId: CHAIN_IDS.POLYGON.MUMBAI.toString(),
-      // For Polygon, this is our MessengerWrapper. We never call the messenger (0xEAa...) directly
-      l1_messengerAddress: '0xbd11dbd2770EEBbbad4366f58DAeD25392720C3F',
+      // For Polygon, this is our MessengerWrapper. We never call the messenger (0xEAa... on Goerli) directly
+      l1_messengerAddress: '0x',
       // For Polygon, this is unused
       l2_tokenBridgeAddress: '0x',
       // For Polygon, this is the messenger proxy. This is handled during the deployment scripts.

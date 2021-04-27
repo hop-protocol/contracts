@@ -13,7 +13,8 @@ import {
 } from '../shared/utils'
 import {
   getMessengerWrapperDefaults,
-  getPolygonCheckpointManagerAddress
+  getPolygonCheckpointManagerAddress,
+  getPolygonStateSenderAddress
 } from '../../config/utils'
 import {
   ALL_SUPPORTED_CHAIN_IDS,
@@ -21,7 +22,9 @@ import {
   ZERO_ADDRESS,
   DEFAULT_ADMIN_ROLE_HASH
 } from '../../config/constants'
-import { isChainIdPolygon } from '../../config/utils'
+import {
+  isChainIdPolygon
+} from '../../config/utils'
 
 import {
   getSetL1MessengerWrapperAddressMessage,
@@ -138,6 +141,8 @@ export async function setupL1 (config: Config) {
   /**
    * Setup deployments
    */
+  // TODO: Handle this better
+
   // NOTE: The messenger for Polygon needs to be pre-deployed and set up so that they can link it
   // Because of this, the messenger addresses should already be defined in deploy.ts
   if(isChainIdPolygon(l2_chainId)) {
@@ -165,7 +170,6 @@ export async function setupL1 (config: Config) {
       await setUpPolygonContracts(
         l1_chainId,
         owner,
-        l1_messenger,
         l1_messengerWrapper,
         l2_messengerProxy
       )
@@ -318,11 +322,10 @@ export async function setupL1 (config: Config) {
 const setUpPolygonContracts = async (
   l1ChainId: BigNumber,
   owner: Signer,
-  l1_messenger: Contract,
   l1_messengerWrapper: Contract,
   l2_messengerProxy: Contract
 ) => {
-    const stateSender: string = l1_messenger.address
+    const stateSender: string = getPolygonStateSenderAddress(l1ChainId)
     const checkpointManager: string = getPolygonCheckpointManagerAddress(l1ChainId)
     const childTunnel: string = l2_messengerProxy.address
 
