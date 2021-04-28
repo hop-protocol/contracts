@@ -9,6 +9,10 @@ import {
 } from 'ethers'
 
 import {
+  isChainIdMainnet
+} from '../../config/utils'
+
+import {
   getContractFactories,
   updateConfigFile,
   readConfigFile,
@@ -39,9 +43,19 @@ export async function deployL1 (config: Config) {
 
   // Signers
   const accounts: Signer[] = await ethers.getSigners()
-  const owner: Signer = accounts[0]
-  const bonder: Signer = accounts[1]
-  const governance: Signer = accounts[4]
+  let owner: Signer
+  let bonder: Signer
+  let governance: Signer
+
+  if (isChainIdMainnet(l1_chainId)) {
+    owner = accounts[0]
+    bonder = owner
+    governance = owner
+  } else {
+    owner = accounts[0]
+    bonder = accounts[1]
+    governance = accounts[4]
+  }
 
   logger.log('owner:', await owner.getAddress())
   logger.log('bonder:', await bonder.getAddress())

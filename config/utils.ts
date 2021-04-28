@@ -137,7 +137,9 @@ export const isChainIdArbitrum = (chainId: BigNumber): boolean => {
 }
 
 export const isChainIdXDai = (chainId: BigNumber): boolean => {
-  if (chainId.eq(CHAIN_IDS.XDAI.SOKOL)) {
+  if (chainId.eq(CHAIN_IDS.XDAI.SOKOL) ||
+      chainId.eq(CHAIN_IDS.XDAI.XDAI)
+  ) {
     return true
   }
 

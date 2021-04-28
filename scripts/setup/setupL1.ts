@@ -18,11 +18,11 @@ import {
 } from '../../config/utils'
 import {
   ALL_SUPPORTED_CHAIN_IDS,
-  LIQUIDITY_PROVIDER_INITIAL_BALANCE,
   ZERO_ADDRESS,
   DEFAULT_ADMIN_ROLE_HASH
 } from '../../config/constants'
 import {
+  isChainIdMainnet,
   isChainIdPolygon
 } from '../../config/utils'
 
@@ -46,6 +46,7 @@ interface Config {
   l2_bridgeAddress: string
   l2_messengerProxyAddress: string
   l2_ammWrapperAddress: string
+  liquidityProviderSendAmount: string | BigNumber
 }
 
 export async function setupL1 (config: Config) {
@@ -61,7 +62,8 @@ export async function setupL1 (config: Config) {
     l2_canonicalTokenAddress,
     l2_bridgeAddress,
     l2_messengerProxyAddress,
-    l2_ammWrapperAddress
+    l2_ammWrapperAddress,
+    liquidityProviderSendAmount
   } = config
 
   logger.log(`config:
@@ -74,10 +76,12 @@ export async function setupL1 (config: Config) {
             l2_canonicalTokenAddress: ${l2_canonicalTokenAddress}
             l2_bridgeAddress: ${l2_bridgeAddress}
             l2_messengerProxyAddress: ${l2_messengerProxyAddress}
-            l2_ammWrapperAddress: ${l2_ammWrapperAddress}`)
+            l2_ammWrapperAddress: ${l2_ammWrapperAddress}
+            liquidityProviderSendAmount: ${liquidityProviderSendAmount}`)
 
   l1_chainId = BigNumber.from(l1_chainId)
   l2_chainId = BigNumber.from(l2_chainId)
+  liquidityProviderSendAmount = BigNumber.from(liquidityProviderSendAmount)
 
   // Signers
   let accounts: Signer[]
@@ -106,9 +110,16 @@ export async function setupL1 (config: Config) {
 
   // Instantiate the wallets
   accounts = await ethers.getSigners()
-  owner = accounts[0]
-  liquidityProvider = accounts[2]
-  governance = accounts[4]
+
+  if (isChainIdMainnet(l1_chainId)) {
+    owner = accounts[0]
+    liquidityProvider = owner
+    governance = owner
+  } else {
+    owner = accounts[0]
+    liquidityProvider = accounts[2]
+    governance = accounts[4]
+  }
 
   logger.log('owner:', await owner.getAddress())
   logger.log('liquidity provider:', await liquidityProvider.getAddress())
@@ -145,14 +156,14 @@ export async function setupL1 (config: Config) {
 
   // NOTE: The messenger for Polygon needs to be pre-deployed and set up so that they can link it
   // Because of this, the messenger addresses should already be defined in deploy.ts
-  if(isChainIdPolygon(l2_chainId)) {
+  if(isChainIdPolygon(l2_chainId as BigNumber)) {
     // NOTE: The messenger is attached the the MessengerWrapper interface
     l1_messenger = L1_MessengerWrapper.attach(l1_messenger.address)
     l1_messengerWrapper = L1_MessengerWrapper.attach(l1_messenger.address)
   } else {
     // Deploy messenger wrapper
     const messengerWrapperDefaults: any[] = getMessengerWrapperDefaults(
-      l2_chainId,
+      l2_chainId as BigNumber,
       l1_bridge.address,
       l2_bridge.address,
       l1_messenger?.address || '0x'
@@ -164,11 +175,11 @@ export async function setupL1 (config: Config) {
     )
     await waitAfterTransaction(l1_messengerWrapper)
 
-    if (isChainIdPolygon(l2_chainId)) {
+    if (isChainIdPolygon(l2_chainId as BigNumber)) {
       logger.log('setting up polygon contracts')
       l2_messengerProxy = L2_MessengerProxy.attach(l2_messengerProxyAddress)
       await setUpPolygonContracts(
-        l1_chainId,
+        l1_chainId as BigNumber,
         owner,
         l1_messengerWrapper,
         l2_messengerProxy
@@ -240,26 +251,30 @@ export async function setupL1 (config: Config) {
   logger.log('minting L1 canonical token')
   // Get canonical token to L2
   // NOTE: If this is not the self-mintable testnet DAI, comment this line out
-  tx = await l1_canonicalToken
-    .connect(owner)
-    .mint(
-      await liquidityProvider.getAddress(),
-      LIQUIDITY_PROVIDER_INITIAL_BALANCE
-    )
-  await tx.wait()
-  await waitAfterTransaction()
+  if (!isChainIdMainnet(l1_chainId)) {
+    tx = await l1_canonicalToken
+      .connect(owner)
+      .mint(
+        await liquidityProvider.getAddress(),
+        liquidityProviderSendAmount
+      )
+    await tx.wait()
+    await waitAfterTransaction()
+  }
 
   let contractToApprove: string
   if (isChainIdPolygon(l2_chainId as BigNumber)) {
-    contractToApprove = 'todo'
-    // contractToApprove = '0xdD6596F2029e6233DEFfaCa316e6A95217d4Dc34'
+    // TODO: Handle this better for Polygon -- we can technically use the predicate address as the `l1_tokenBridge`
+    // TODO: address in `deploy.ts`, even though it would be "incorrect"
+    // contractToApprove = 'todo'
+    contractToApprove = '0xdD6596F2029e6233DEFfaCa316e6A95217d4Dc34'
   } else {
     contractToApprove = l1_tokenBridge.address
   }
   logger.log('approving L1 canonical token')
   tx = await l1_canonicalToken
     .connect(liquidityProvider)
-    .approve(contractToApprove, LIQUIDITY_PROVIDER_INITIAL_BALANCE)
+    .approve(contractToApprove, liquidityProviderSendAmount)
   await tx.wait()
   await waitAfterTransaction()
 
@@ -267,7 +282,7 @@ export async function setupL1 (config: Config) {
   await sendChainSpecificBridgeDeposit(
     l2_chainId as BigNumber,
     liquidityProvider,
-    LIQUIDITY_PROVIDER_INITIAL_BALANCE,
+    liquidityProviderSendAmount,
     l1_tokenBridge,
     l1_canonicalToken,
     l2_canonicalToken
@@ -277,19 +292,21 @@ export async function setupL1 (config: Config) {
   logger.log('minting L1 canonical token')
   // Get hop token on L2
   // NOTE: If this is not the self-mintable testnet DAI, comment this line out
-  tx = await l1_canonicalToken
-    .connect(owner)
-    .mint(
-      await liquidityProvider.getAddress(),
-      LIQUIDITY_PROVIDER_INITIAL_BALANCE
-    )
-  await tx.wait()
-  await waitAfterTransaction()
+  if (!isChainIdMainnet(l1_chainId)) {
+    tx = await l1_canonicalToken
+      .connect(owner)
+      .mint(
+        await liquidityProvider.getAddress(),
+        liquidityProviderSendAmount
+      )
+    await tx.wait()
+    await waitAfterTransaction()
+  }
 
   logger.log('approving L1 canonical token')
   tx = await l1_canonicalToken
     .connect(liquidityProvider)
-    .approve(l1_bridge.address, LIQUIDITY_PROVIDER_INITIAL_BALANCE)
+    .approve(l1_bridge.address, liquidityProviderSendAmount)
   await tx.wait()
   await waitAfterTransaction()
 
@@ -303,7 +320,7 @@ export async function setupL1 (config: Config) {
     .sendToL2(
       l2_chainId,
       await liquidityProvider.getAddress(),
-      LIQUIDITY_PROVIDER_INITIAL_BALANCE,
+      liquidityProviderSendAmount,
       amountOutMin,
       deadline,
       ZERO_ADDRESS,
@@ -362,7 +379,8 @@ if (require.main === module) {
     l2_canonicalTokenAddress,
     l2_bridgeAddress,
     l2_messengerProxyAddress,
-    l2_ammWrapperAddress
+    l2_ammWrapperAddress,
+    liquidityProviderSendAmount
   } = readConfigFile()
   setupL1({
     l1_chainId,
@@ -374,7 +392,8 @@ if (require.main === module) {
     l1_bridgeAddress,
     l2_bridgeAddress,
     l2_messengerProxyAddress,
-    l2_ammWrapperAddress
+    l2_ammWrapperAddress,
+    liquidityProviderSendAmount
   })
     .then(() => {
       process.exit(0)

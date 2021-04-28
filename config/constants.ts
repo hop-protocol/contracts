@@ -18,6 +18,7 @@ export const CHAIN_IDS: any = {
     TESTNET_4: BigNumber.from('212984383488152')
   },
   XDAI: {
+    XDAI: BigNumber.from('100'),
     SOKOL: BigNumber.from('77')
   },
   POLYGON: {

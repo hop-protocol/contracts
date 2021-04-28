@@ -19,6 +19,7 @@ import {
 } from '../shared/utils'
 
 import {
+  isChainIdMainnet,
   isChainIdPolygon,
   getL2BridgeDefaults
 } from '../../config/utils'
@@ -103,9 +104,16 @@ export async function deployL2 (config: Config) {
 
   // Instantiate the wallets
   accounts = await ethers.getSigners()
-  owner = accounts[0]
-  bonder = accounts[1]
-  governance = accounts[4]
+
+  if (isChainIdMainnet(l1_chainId)) {
+    owner = accounts[0]
+    bonder = owner
+    governance = owner
+  } else {
+    owner = accounts[0]
+    bonder = accounts[1]
+    governance = accounts[4]
+  }
 
   logger.log('owner:', await owner.getAddress())
   logger.log('bonder:', await bonder.getAddress())
@@ -263,8 +271,8 @@ const deployAmm = async (
     decimalParams.push(overrides)
   }
 
-  const l2_canonicalTokenDecimals = BigNumber.from('18')//await l2_canonicalToken.decimals(...decimalParams)
-  const l2_hopBridgeTokenDecimals = BigNumber.from('18')//await l2_hopBridgeToken.decimals(...decimalParams)
+  const l2_canonicalTokenDecimals = await l2_canonicalToken.decimals(...decimalParams)
+  const l2_hopBridgeTokenDecimals = await l2_hopBridgeToken.decimals(...decimalParams)
 
   // Deploy AMM contracts
   const L2_SwapContractFactory: ContractFactory = await deployL2SwapLibs(owner, ethers)

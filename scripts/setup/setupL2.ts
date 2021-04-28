@@ -12,11 +12,13 @@ import {
   doesNeedExplicitGasLimit,
   Logger
 } from '../shared/utils'
-import { isChainIdXDai, isChainIdArbitrum } from '../../config/utils'
+import {
+  isChainIdMainnet,
+  isChainIdArbitrum
+} from '../../config/utils'
 
 import {
   DEFAULT_DEADLINE,
-  LIQUIDITY_PROVIDER_AMM_AMOUNT,
   ZERO_ADDRESS,
   DEFAULT_ETHERS_OVERRIDES as overrides
 } from '../../config/constants'
@@ -24,33 +26,41 @@ import {
 const logger = Logger('setupL2')
 
 interface Config {
+  l1_chainId: string | BigNumber
   l2_chainId: string | BigNumber
   l2_canonicalTokenAddress: string
   l2_hopBridgeTokenAddress: string
   l2_bridgeAddress: string
   l2_swapAddress: string
+  liquidityProviderAmmAmount: string | BigNumber
 }
 
 export async function setupL2 (config: Config) {
   logger.log('setupL2')
 
   let {
+    l1_chainId,
     l2_chainId,
     l2_canonicalTokenAddress,
     l2_hopBridgeTokenAddress,
     l2_bridgeAddress,
     l2_swapAddress,
+    liquidityProviderAmmAmount
   } = config
 
   logger.log(`config:
+            l1_chainId: ${l1_chainId}
             l2_chainId: ${l2_chainId}
             l2_canonicalTokenAddress: ${l2_canonicalTokenAddress}
             l2_hopBridgeTokenAddress: ${l2_hopBridgeTokenAddress}
             l2_bridgeAddress: ${l2_bridgeAddress}
-            l2_swapAddress: ${l2_swapAddress}`
+            l2_swapAddress: ${l2_swapAddress}
+            liquidityProviderAmmAmount: ${liquidityProviderAmmAmount}`
             )
 
+  l1_chainId = BigNumber.from(l1_chainId)
   l2_chainId = BigNumber.from(l2_chainId)
+  liquidityProviderAmmAmount = BigNumber.from(liquidityProviderAmmAmount)
 
   // Signers
   let accounts: Signer[]
@@ -71,8 +81,13 @@ export async function setupL2 (config: Config) {
 
   // Instantiate the wallets
   accounts = await ethers.getSigners()
-  owner = accounts[0]
-  liquidityProvider = accounts[2]
+  if (isChainIdMainnet(l1_chainId)) {
+    owner = accounts[0]
+    liquidityProvider = owner
+  } else {
+    owner = accounts[0]
+    liquidityProvider = accounts[2]
+  }
 
   logger.log('owner:', await owner.getAddress())
   logger.log('liquidity provider:', await liquidityProvider.getAddress())
@@ -121,7 +136,7 @@ export async function setupL2 (config: Config) {
   // Set up Amm
   let approvalParams: any[] = [
     l2_swap.address,
-    LIQUIDITY_PROVIDER_AMM_AMOUNT
+    liquidityProviderAmmAmount
   ]
   if (doesNeedExplicitGasLimit(l2_chainId)) {
     approvalParams.push(overrides)
@@ -142,7 +157,7 @@ export async function setupL2 (config: Config) {
   await waitAfterTransaction()
 
   let addLiquidityParams: any[] = [
-    [LIQUIDITY_PROVIDER_AMM_AMOUNT, LIQUIDITY_PROVIDER_AMM_AMOUNT],
+    [liquidityProviderAmmAmount, liquidityProviderAmmAmount],
     '0',
     DEFAULT_DEADLINE
   ]
@@ -232,18 +247,22 @@ const waitForL2StateVerification = async (
 
 if (require.main === module) {
   const {
+    l1_chainId,
     l2_chainId,
     l2_canonicalTokenAddress,
     l2_hopBridgeTokenAddress,
     l2_bridgeAddress,
-    l2_swapAddress
+    l2_swapAddress,
+    liquidityProviderAmmAmount
   } = readConfigFile()
   setupL2({
+    l1_chainId,
     l2_chainId,
     l2_canonicalTokenAddress,
     l2_hopBridgeTokenAddress,
     l2_bridgeAddress,
-    l2_swapAddress
+    l2_swapAddress,
+    liquidityProviderAmmAmount
   })
     .then(() => {
       process.exit(0)
