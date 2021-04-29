@@ -201,7 +201,12 @@ export async function setupL1 (config: Config) {
   await waitAfterTransaction()
 
   // Set up L2 Bridge state (through the L1 Canonical Messenger)
-  let setL1MessengerWrapperAddressParams: string = l1_messengerWrapper.address
+  let setL1MessengerWrapperAddressParams: string
+  if (isChainIdPolygon(l2_chainId as BigNumber)) {
+    setL1MessengerWrapperAddressParams = l1_bridge.address
+  } else {
+    setL1MessengerWrapperAddressParams = l1_messengerWrapper.address
+  }
   let message: string = getSetL1MessengerWrapperAddressMessage(
     setL1MessengerWrapperAddressParams
   )
