@@ -18,7 +18,7 @@ const desiredAccounts: string[] = [
   process.env.GOVERNANCE_PRIVATE_KEY
 ]
 
-const isOptimizerEnabled: boolean = true
+const isOptimizerEnabled: boolean = false
 const numOptimizerRuns: number = 1
 
 // You have to export an object to set up your config
@@ -29,6 +29,12 @@ export default {
   networks: {
     hardhat: {
       allowUnlimitedContractSize: true
+    },
+    mainnet: {
+      url: 'https://mainnet.rpc.hop.exchange',
+      accounts: desiredAccounts,
+      chainId: CHAIN_IDS.ETHEREUM.MAINNET.toNumber(),
+      timeout: 480e3
     },
     kovan: {
       url: 'https://kovan.rpc.hop.exchange',
@@ -57,6 +63,13 @@ export default {
       timeout: 480e3
     },
     xdai: {
+      url: 'https://rpc.xdaichain.com/',
+      accounts: desiredAccounts,
+      gasPrice: 1000000000,
+      gas: 500000,
+      chainId: CHAIN_IDS.XDAI.XDAI.toNumber()
+    },
+    sokol: {
       url: 'https://sokol.poa.network',
       accounts: desiredAccounts,
       gasPrice: 1000000000,
@@ -152,9 +165,6 @@ export default {
   },
   mocha: {
     timeout: 40000
-  },
-  etherscan: {
-    apiKey: ""
   }
   // abiExporter: {
   //   path: './data/abi',

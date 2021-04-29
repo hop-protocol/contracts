@@ -1,6 +1,7 @@
 require('dotenv').config()
 
 import { BigNumber } from 'ethers'
+import { parseEther } from 'ethers/lib/utils'
 import {
   readConfigFile,
   updateConfigFile,
@@ -422,8 +423,8 @@ function setNetworkParams (l1NetworkName: string, l2NetworkName: string, tokenSy
         l2_hBridgeTokenDecimals: DEFAULT_H_BRIDGE_TOKEN_DECIMALS,
         l2_swapLpTokenName: 'Hop DERC20 LP Token',
         l2_swapLpTokenSymbol: 'HOP-LP-DERC20',
-        liquidityProviderSendAmount: LIQUIDITY_PROVIDER_INITIAL_BALANCE.toString(),
-        liquidityProviderAmmAmount: LIQUIDITY_PROVIDER_AMM_AMOUNT.toString()
+        liquidityProviderSendAmount: BigNumber.from(parseEther('0.5')).toString(),
+        liquidityProviderAmmAmount: BigNumber.from(parseEther('0.25')).toString()
       }
     } else if (tokenSymbol === COMMON_SYMBOLS.sETH.toLowerCase()) {
       specificData = {
