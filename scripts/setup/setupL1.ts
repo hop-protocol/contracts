@@ -14,7 +14,8 @@ import {
 import {
   getMessengerWrapperDefaults,
   getPolygonCheckpointManagerAddress,
-  getPolygonStateSenderAddress
+  getPolygonStateSenderAddress,
+  getPolygonErc20PredicateAddress
 } from '../../config/utils'
 import {
   ALL_SUPPORTED_CHAIN_IDS,
@@ -269,10 +270,7 @@ export async function setupL1 (config: Config) {
 
   let contractToApprove: string
   if (isChainIdPolygon(l2_chainId as BigNumber)) {
-    // TODO: Handle this better for Polygon -- we can technically use the predicate address as the `l1_tokenBridge`
-    // TODO: address in `deploy.ts`, even though it would be "incorrect"
-    // contractToApprove = 'todo'
-    contractToApprove = '0xdD6596F2029e6233DEFfaCa316e6A95217d4Dc34'
+    contractToApprove = getPolygonErc20PredicateAddress(l1_chainId as BigNumber)
   } else {
     contractToApprove = l1_tokenBridge.address
   }

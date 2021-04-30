@@ -22,7 +22,7 @@ export const CHAIN_IDS: any = {
     SOKOL: BigNumber.from('77')
   },
   POLYGON: {
-    MAINNET: BigNumber.from('137'),
+    POLYGON: BigNumber.from('137'),
     MUMBAI: BigNumber.from('80001')
   }
 }
@@ -111,6 +111,11 @@ export const STATE_SENDER_ADDRESSES: any = {
 export const CHECKPOINT_MANAGER_ADDRESSES: any = {
   MAINNET: '0x86E4Dc95c7FBdBf52e33D563BbDB00823894C287',
   GOERLI: '0x2890bA17EfE978480615e330ecB65333b880928e'
+}
+
+export const ERC20_PREDICATE_ADDRESSES: any = {
+  MAINNET: '0x40ec5B33f54e0E8A33A975908C5BA1c14e5BbbDf',
+  GOERLI: '0xdD6596F2029e6233DEFfaCa316e6A95217d4Dc34'
 }
 
 export const COMMON_SYMBOLS: { [key: string]: string } = {

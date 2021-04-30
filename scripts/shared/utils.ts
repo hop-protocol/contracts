@@ -206,7 +206,7 @@ const getPolygonContractFactories = async (signer: Signer, ethers: any) => {
     { signer }
   )
   const L1_MessengerWrapper: ContractFactory = await ethers.getContractFactory(
-    'contracts/test/MockPolygonMessengerWrapper.sol:MockPolygonMessengerWrapper',
+    'contracts/wrappers/PolygonMessengerWrapper.sol:PolygonMessengerWrapper',
     { signer }
   )
   const L2_Bridge: ContractFactory = await ethers.getContractFactory(

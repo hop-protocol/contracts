@@ -9,7 +9,8 @@ import {
   DEFAULT_MESSENGER_WRAPPER_CALL_VALUE,
   DEFAULT_L2_BRIDGE_GAS_LIMIT,
   CHECKPOINT_MANAGER_ADDRESSES,
-  STATE_SENDER_ADDRESSES
+  STATE_SENDER_ADDRESSES,
+  ERC20_PREDICATE_ADDRESSES
 } from './constants'
 
 export const getMessengerWrapperDefaults = (
@@ -149,7 +150,7 @@ export const isChainIdXDai = (chainId: BigNumber): boolean => {
 export const isChainIdPolygon = (chainId: BigNumber): boolean => {
   if (
     chainId.eq(CHAIN_IDS.POLYGON.MUMBAI) ||
-    chainId.eq(CHAIN_IDS.POLYGON.MAINNET)
+    chainId.eq(CHAIN_IDS.POLYGON.POLYGON)
   ) {
     return true
   }
@@ -220,6 +221,16 @@ export const getPolygonCheckpointManagerAddress = (l1ChainId: BigNumber): string
     return CHECKPOINT_MANAGER_ADDRESSES.MAINNET
   } else if (isChainIdGoerli(l1ChainId)) {
     return CHECKPOINT_MANAGER_ADDRESSES.GOERLI
+  } else {
+    throw new Error('Invalid Chain ID')
+  }
+}
+
+export const getPolygonErc20PredicateAddress = (l1ChainId: BigNumber): string => {
+  if (isChainIdMainnet(l1ChainId)) {
+    return ERC20_PREDICATE_ADDRESSES.MAINNET
+  } else if (isChainIdGoerli(l1ChainId)) {
+    return ERC20_PREDICATE_ADDRESSES.GOERLI
   } else {
     throw new Error('Invalid Chain ID')
   }

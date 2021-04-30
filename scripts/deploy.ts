@@ -140,7 +140,7 @@ function setNetworkParams (l1NetworkName: string, l2NetworkName: string, tokenSy
     if (l2NetworkName === 'xpolygon' && l1NetworkName === 'goerli') {
       l2ChainId = CHAIN_IDS.POLYGON.MUMBAI
     } else if (l2NetworkName === 'xpolygon' && l1NetworkName === 'mainnet') {
-      l2ChainId = CHAIN_IDS.POLYGON.MAINNET
+      l2ChainId = CHAIN_IDS.POLYGON.POLYGON
     }
 
     // Define the token addresses
@@ -301,7 +301,7 @@ function setNetworkParams (l1NetworkName: string, l2NetworkName: string, tokenSy
           liquidityProviderAmmAmount: BigNumber.from('5000000').toString()
         }
       }
-    } else {
+    } else if (l1NetworkName === 'kovan') {
       generalData = {
         l2_networkName: l2NetworkName,
         l1_chainId: l1ChainId.toString(),
@@ -388,103 +388,133 @@ function setNetworkParams (l1NetworkName: string, l2NetworkName: string, tokenSy
       }
     }
   } else if (l2NetworkName === 'polygon') {
-    generalData = {
-      l2_networkName: l2NetworkName,
-      l1_chainId: l1ChainId.toString(),
-      l2_chainId: CHAIN_IDS.POLYGON.MUMBAI.toString(),
-      // For Polygon, this is our MessengerWrapper. We never call the messenger (0xEAa... on Goerli) directly
-      l1_messengerAddress: '0x',
-      // For Polygon, this is unused
-      l2_tokenBridgeAddress: '0x',
-      // For Polygon, this is the messenger proxy. This is handled during the deployment scripts.
-      l2_messengerAddress: '0x',
-      l1_tokenBridgeAddress: '0xBbD7cBFA79faee899Eaf900F13C9065bF03B1A74',
-      l2_messengerProxyAddress: '0x'
-    }
+    if (l1NetworkName === 'mainnet') {
+      generalData = {
+        l2_networkName: l2NetworkName,
+        l1_chainId: l1ChainId.toString(),
+        l2_chainId: CHAIN_IDS.POLYGON.POLYGON.toString(),
+        // For Polygon, this is our MessengerWrapper. We never call the messenger (0x28e... on Mainnet) directly
+        l1_messengerAddress: ZERO_ADDRESS,
+        // For Polygon, this is unused
+        l2_tokenBridgeAddress: ZERO_ADDRESS,
+        // For Polygon, this is the messenger proxy. This is handled during the deployment scripts.
+        l2_messengerAddress: ZERO_ADDRESS,
+        l1_tokenBridgeAddress: '0xA0c68C638235ee32657e8f720a23ceC1bFc77C77',
+        l2_messengerProxyAddress: ZERO_ADDRESS
+      }
 
-    if (tokenSymbol === COMMON_SYMBOLS.DAI.toLowerCase()) {
-      specificData = {
-        l1_canonicalTokenAddress: l1CanonicalTokenAddresses.DAI,
-        l2_canonicalTokenAddress: '0xb224913CE3851b0a0d7C0FB461eEF40f2e31ddb8',
-        l2_hBridgeTokenName: DEFAULT_H_BRIDGE_TOKEN_NAME,
-        l2_hBridgeTokenSymbol: DEFAULT_H_BRIDGE_TOKEN_SYMBOL,
-        l2_hBridgeTokenDecimals: DEFAULT_H_BRIDGE_TOKEN_DECIMALS,
-        l2_swapLpTokenName: 'Hop DAI LP Token',
-        l2_swapLpTokenSymbol: 'HOP-LP-DAI',
-        liquidityProviderSendAmount: LIQUIDITY_PROVIDER_INITIAL_BALANCE.toString(),
-        liquidityProviderAmmAmount: LIQUIDITY_PROVIDER_AMM_AMOUNT.toString()
+      if (tokenSymbol === COMMON_SYMBOLS.USDC.toLowerCase()) {
+        specificData = {
+          l1_canonicalTokenAddress: l1CanonicalTokenAddresses.USDC,
+          l2_canonicalTokenAddress: '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174',
+          l2_hBridgeTokenName: 'USD Coin Hop Token',
+          l2_hBridgeTokenSymbol: 'hUSDC',
+          l2_hBridgeTokenDecimals: 6,
+          l2_swapLpTokenName: 'Hop USDC LP Token',
+          l2_swapLpTokenSymbol: 'HOP-LP-USDC',
+          liquidityProviderSendAmount: BigNumber.from('10000000').toString(),
+          liquidityProviderAmmAmount: BigNumber.from('5000000').toString()
+        }
       }
-    } else if (tokenSymbol === 'dummy') {
-      specificData = {
-        l1_canonicalTokenAddress: '0x655F2166b0709cd575202630952D71E2bB0d61Af',
-        l2_canonicalTokenAddress: '0xfe4F5145f6e09952a5ba9e956ED0C25e3Fa4c7F1',
-        l2_hBridgeTokenName: 'Dummy ERC20 Hop Token',
-        l2_hBridgeTokenSymbol: 'hDERC20',
-        l2_hBridgeTokenDecimals: DEFAULT_H_BRIDGE_TOKEN_DECIMALS,
-        l2_swapLpTokenName: 'Hop DERC20 LP Token',
-        l2_swapLpTokenSymbol: 'HOP-LP-DERC20',
-        liquidityProviderSendAmount: BigNumber.from(parseEther('0.5')).toString(),
-        liquidityProviderAmmAmount: BigNumber.from(parseEther('0.25')).toString()
+    } else if (l1NetworkName === 'goerli') {
+      generalData = {
+        l2_networkName: l2NetworkName,
+        l1_chainId: l1ChainId.toString(),
+        l2_chainId: CHAIN_IDS.POLYGON.MUMBAI.toString(),
+        // For Polygon, this is our MessengerWrapper. We never call the messenger (0xEAa... on Goerli) directly
+        l1_messengerAddress: ZERO_ADDRESS,
+        // For Polygon, this is unused
+        l2_tokenBridgeAddress: ZERO_ADDRESS,
+        // For Polygon, this is the messenger proxy. This is handled during the deployment scripts.
+        l2_messengerAddress: ZERO_ADDRESS,
+        l1_tokenBridgeAddress: '0xBbD7cBFA79faee899Eaf900F13C9065bF03B1A74',
+        l2_messengerProxyAddress:ZERO_ADDRESS 
       }
-    } else if (tokenSymbol === COMMON_SYMBOLS.sETH.toLowerCase()) {
-      specificData = {
-        l1_canonicalTokenAddress: l1CanonicalTokenAddresses.sETH,
-        l2_canonicalTokenAddress: '0x61F00BD6995A087F84BCcA62dCC835905f2a9207',
-        l2_hBridgeTokenName: 'Synth sETH Hop Token',
-        l2_hBridgeTokenSymbol: 'hsETH',
-        l2_hBridgeTokenDecimals: DEFAULT_H_BRIDGE_TOKEN_DECIMALS,
-        l2_swapLpTokenName: 'Hop sETH LP Token',
-        l2_swapLpTokenSymbol: 'HOP-LP-sETH',
-        liquidityProviderSendAmount: LIQUIDITY_PROVIDER_INITIAL_BALANCE.toString(),
-        liquidityProviderAmmAmount: LIQUIDITY_PROVIDER_AMM_AMOUNT.toString()
-      }
-    } else if (tokenSymbol === COMMON_SYMBOLS.sBTC.toLowerCase()) {
-      specificData = {
-        l1_canonicalTokenAddress: l1CanonicalTokenAddresses.sBTC,
-        l2_canonicalTokenAddress: '0xe5BEd2355E575b32B0e151EA6577Dfe05FaE5484',
-        l2_hBridgeTokenName: 'Synth sBTC Hop Token',
-        l2_hBridgeTokenSymbol: 'hsBTC',
-        l2_hBridgeTokenDecimals: DEFAULT_H_BRIDGE_TOKEN_DECIMALS,
-        l2_swapLpTokenName: 'Hop sBTC LP Token',
-        l2_swapLpTokenSymbol: 'HOP-LP-sBTC',
-        liquidityProviderSendAmount: LIQUIDITY_PROVIDER_INITIAL_BALANCE.toString(),
-        liquidityProviderAmmAmount: LIQUIDITY_PROVIDER_AMM_AMOUNT.toString()
-      }
-    } else if (tokenSymbol === COMMON_SYMBOLS.USDC.toLowerCase()) {
-      specificData = {
-        l1_canonicalTokenAddress: l1CanonicalTokenAddresses.USDC,
-        l2_canonicalTokenAddress: '0xcc4f6aE976dd9dFb44E741e7430b6111bF0cbCd0',
-        l2_hBridgeTokenName: 'USD Coin Hop Token',
-        l2_hBridgeTokenSymbol: 'hUSDC',
-        l2_hBridgeTokenDecimals: DEFAULT_H_BRIDGE_TOKEN_DECIMALS,
-        l2_swapLpTokenName: 'Hop USDC LP Token',
-        l2_swapLpTokenSymbol: 'HOP-LP-USDC',
-        liquidityProviderSendAmount: LIQUIDITY_PROVIDER_INITIAL_BALANCE.toString(),
-        liquidityProviderAmmAmount: LIQUIDITY_PROVIDER_AMM_AMOUNT.toString()
-      }
-    } else if (tokenSymbol === COMMON_SYMBOLS.WBTC.toLowerCase()) {
-      specificData = {
-        l1_canonicalTokenAddress: l1CanonicalTokenAddresses.WBTC,
-        l2_canonicalTokenAddress: '0x90ac599445B07c8aa0FC82248f51f6558136203D',
-        l2_hBridgeTokenName: 'Wrapped BTC Hop Token',
-        l2_hBridgeTokenSymbol: 'hWBTC',
-        l2_hBridgeTokenDecimals: DEFAULT_H_BRIDGE_TOKEN_DECIMALS,
-        l2_swapLpTokenName: 'Hop WBTC LP Token',
-        l2_swapLpTokenSymbol: 'HOP-LP-WBTC',
-        liquidityProviderSendAmount: LIQUIDITY_PROVIDER_INITIAL_BALANCE.toString(),
-        liquidityProviderAmmAmount: LIQUIDITY_PROVIDER_AMM_AMOUNT.toString()
-      }
-    } else if (tokenSymbol === COMMON_SYMBOLS.TST.toLowerCase()) {
-      specificData = {
-        l1_canonicalTokenAddress: l1CanonicalTokenAddresses.TST,
-        l2_canonicalTokenAddress: '0xd9965dD7FD84246Bbca1ee4E3eE8f92D8e5cbE6F',
-        l2_hBridgeTokenName: 'Test Coin Hop Token',
-        l2_hBridgeTokenSymbol: 'TST',
-        l2_hBridgeTokenDecimals: DEFAULT_H_BRIDGE_TOKEN_DECIMALS,
-        l2_swapLpTokenName: 'Hop TST LP Token',
-        l2_swapLpTokenSymbol: 'HOP-LP-TST',
-        liquidityProviderSendAmount: LIQUIDITY_PROVIDER_INITIAL_BALANCE.toString(),
-        liquidityProviderAmmAmount: LIQUIDITY_PROVIDER_AMM_AMOUNT.toString()
+
+      if (tokenSymbol === COMMON_SYMBOLS.DAI.toLowerCase()) {
+        specificData = {
+          l1_canonicalTokenAddress: l1CanonicalTokenAddresses.DAI,
+          l2_canonicalTokenAddress: '0xb224913CE3851b0a0d7C0FB461eEF40f2e31ddb8',
+          l2_hBridgeTokenName: DEFAULT_H_BRIDGE_TOKEN_NAME,
+          l2_hBridgeTokenSymbol: DEFAULT_H_BRIDGE_TOKEN_SYMBOL,
+          l2_hBridgeTokenDecimals: DEFAULT_H_BRIDGE_TOKEN_DECIMALS,
+          l2_swapLpTokenName: 'Hop DAI LP Token',
+          l2_swapLpTokenSymbol: 'HOP-LP-DAI',
+          liquidityProviderSendAmount: LIQUIDITY_PROVIDER_INITIAL_BALANCE.toString(),
+          liquidityProviderAmmAmount: LIQUIDITY_PROVIDER_AMM_AMOUNT.toString()
+        }
+      } else if (tokenSymbol === 'dummy') {
+        specificData = {
+          l1_canonicalTokenAddress: '0x655F2166b0709cd575202630952D71E2bB0d61Af',
+          l2_canonicalTokenAddress: '0xfe4F5145f6e09952a5ba9e956ED0C25e3Fa4c7F1',
+          l2_hBridgeTokenName: 'Dummy ERC20 Hop Token',
+          l2_hBridgeTokenSymbol: 'hDERC20',
+          l2_hBridgeTokenDecimals: DEFAULT_H_BRIDGE_TOKEN_DECIMALS,
+          l2_swapLpTokenName: 'Hop DERC20 LP Token',
+          l2_swapLpTokenSymbol: 'HOP-LP-DERC20',
+          liquidityProviderSendAmount: BigNumber.from(parseEther('0.5')).toString(),
+          liquidityProviderAmmAmount: BigNumber.from(parseEther('0.25')).toString()
+        }
+      } else if (tokenSymbol === COMMON_SYMBOLS.sETH.toLowerCase()) {
+        specificData = {
+          l1_canonicalTokenAddress: l1CanonicalTokenAddresses.sETH,
+          l2_canonicalTokenAddress: '0x61F00BD6995A087F84BCcA62dCC835905f2a9207',
+          l2_hBridgeTokenName: 'Synth sETH Hop Token',
+          l2_hBridgeTokenSymbol: 'hsETH',
+          l2_hBridgeTokenDecimals: DEFAULT_H_BRIDGE_TOKEN_DECIMALS,
+          l2_swapLpTokenName: 'Hop sETH LP Token',
+          l2_swapLpTokenSymbol: 'HOP-LP-sETH',
+          liquidityProviderSendAmount: LIQUIDITY_PROVIDER_INITIAL_BALANCE.toString(),
+          liquidityProviderAmmAmount: LIQUIDITY_PROVIDER_AMM_AMOUNT.toString()
+        }
+      } else if (tokenSymbol === COMMON_SYMBOLS.sBTC.toLowerCase()) {
+        specificData = {
+          l1_canonicalTokenAddress: l1CanonicalTokenAddresses.sBTC,
+          l2_canonicalTokenAddress: '0xe5BEd2355E575b32B0e151EA6577Dfe05FaE5484',
+          l2_hBridgeTokenName: 'Synth sBTC Hop Token',
+          l2_hBridgeTokenSymbol: 'hsBTC',
+          l2_hBridgeTokenDecimals: DEFAULT_H_BRIDGE_TOKEN_DECIMALS,
+          l2_swapLpTokenName: 'Hop sBTC LP Token',
+          l2_swapLpTokenSymbol: 'HOP-LP-sBTC',
+          liquidityProviderSendAmount: LIQUIDITY_PROVIDER_INITIAL_BALANCE.toString(),
+          liquidityProviderAmmAmount: LIQUIDITY_PROVIDER_AMM_AMOUNT.toString()
+        }
+      } else if (tokenSymbol === COMMON_SYMBOLS.USDC.toLowerCase()) {
+        specificData = {
+          l1_canonicalTokenAddress: l1CanonicalTokenAddresses.USDC,
+          l2_canonicalTokenAddress: '0xcc4f6aE976dd9dFb44E741e7430b6111bF0cbCd0',
+          l2_hBridgeTokenName: 'USD Coin Hop Token',
+          l2_hBridgeTokenSymbol: 'hUSDC',
+          l2_hBridgeTokenDecimals: DEFAULT_H_BRIDGE_TOKEN_DECIMALS,
+          l2_swapLpTokenName: 'Hop USDC LP Token',
+          l2_swapLpTokenSymbol: 'HOP-LP-USDC',
+          liquidityProviderSendAmount: LIQUIDITY_PROVIDER_INITIAL_BALANCE.toString(),
+          liquidityProviderAmmAmount: LIQUIDITY_PROVIDER_AMM_AMOUNT.toString()
+        }
+      } else if (tokenSymbol === COMMON_SYMBOLS.WBTC.toLowerCase()) {
+        specificData = {
+          l1_canonicalTokenAddress: l1CanonicalTokenAddresses.WBTC,
+          l2_canonicalTokenAddress: '0x90ac599445B07c8aa0FC82248f51f6558136203D',
+          l2_hBridgeTokenName: 'Wrapped BTC Hop Token',
+          l2_hBridgeTokenSymbol: 'hWBTC',
+          l2_hBridgeTokenDecimals: DEFAULT_H_BRIDGE_TOKEN_DECIMALS,
+          l2_swapLpTokenName: 'Hop WBTC LP Token',
+          l2_swapLpTokenSymbol: 'HOP-LP-WBTC',
+          liquidityProviderSendAmount: LIQUIDITY_PROVIDER_INITIAL_BALANCE.toString(),
+          liquidityProviderAmmAmount: LIQUIDITY_PROVIDER_AMM_AMOUNT.toString()
+        }
+      } else if (tokenSymbol === COMMON_SYMBOLS.TST.toLowerCase()) {
+        specificData = {
+          l1_canonicalTokenAddress: l1CanonicalTokenAddresses.TST,
+          l2_canonicalTokenAddress: '0xd9965dD7FD84246Bbca1ee4E3eE8f92D8e5cbE6F',
+          l2_hBridgeTokenName: 'Test Coin Hop Token',
+          l2_hBridgeTokenSymbol: 'TST',
+          l2_hBridgeTokenDecimals: DEFAULT_H_BRIDGE_TOKEN_DECIMALS,
+          l2_swapLpTokenName: 'Hop TST LP Token',
+          l2_swapLpTokenSymbol: 'HOP-LP-TST',
+          liquidityProviderSendAmount: LIQUIDITY_PROVIDER_INITIAL_BALANCE.toString(),
+          liquidityProviderAmmAmount: LIQUIDITY_PROVIDER_AMM_AMOUNT.toString()
+        }
       }
     }
   }
