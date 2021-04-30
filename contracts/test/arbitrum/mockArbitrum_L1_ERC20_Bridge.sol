@@ -33,9 +33,17 @@ contract Arbitrum_L1_ERC20_Bridge {
             _amount
         );
 
-        uint256 gasLimit = 2500000;
-        uint256 gasPrice = 50000000000;
-        messenger.sendContractTransaction(gasLimit, gasPrice, _l2TokenAddress, 0, message);
+        uint256 maxGas = 100000000000;
+        messenger.createRetryableTicket(
+            _l2TokenAddress,
+            0,
+            0,
+            tx.origin,
+            address(0),
+            maxGas,
+            0,
+            message
+        );
 
         emit Deposit(_depositor, _amount);
     }

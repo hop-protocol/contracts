@@ -2,13 +2,16 @@ pragma solidity ^0.6.11;
 
 // ToDo: delete this in favor of ../../interfaces/arbitrum/messengers/IInbox.sol
 contract IInbox {
-    function sendContractTransaction(
+    function createRetryableTicket(
+        address destAddr,
+        uint256 arbTxCallValue,
+        uint256 maxSubmissionCost,
+        address submissionRefundAddress,
+        address valueRefundAddress,
         uint256 maxGas,
         uint256 gasPriceBid,
-        address destAddr,
-        uint256 amount,
         bytes calldata data
-    ) external returns (uint256) {}
+    ) external payable returns (uint256) {}
 
     function depositAsERC20(
         address erc20,
