@@ -43,17 +43,15 @@ describe('Arbitrum Messenger Wrapper', () => {
   it('Should set the correct values in the constructor', async () => {
     const expectedL1BridgeAddress: string = l1_bridge.address
     const expectedL2BridgeAddress: string = l2_bridge.address
-    const expectedDefaultGasLimit: number = DEFAULT_MESSENGER_WRAPPER_GAS_LIMIT
     const expectedArbInbox: string = l1_messenger.address
-    const expectedArbBridge: string = ZERO_ADDRESS
+    const expectedDefaultGasLimit: number = DEFAULT_MESSENGER_WRAPPER_GAS_LIMIT
     const expectedDefaultGasPrice: number = DEFAULT_MESSENGER_WRAPPER_GAS_PRICE
     const expectedDefaultCallValue: number = DEFAULT_MESSENGER_WRAPPER_CALL_VALUE
 
     const l1BridgeAddress: string = await l1_messengerWrapper.l1BridgeAddress()
     const l2BridgeAddress: string = await l1_messengerWrapper.l2BridgeAddress()
-    const defaultGasLimit: number = await l1_messengerWrapper.defaultGasLimit()
     const arbInbox: string = await l1_messengerWrapper.arbInbox()
-    const arbBridge: string = await l1_messengerWrapper.arbBridge()
+    const defaultGasLimit: number = await l1_messengerWrapper.defaultGasLimit()
     const defaultGasPrice: string = await l1_messengerWrapper.defaultGasPrice()
     const defaultCallValue: string = await l1_messengerWrapper.defaultCallValue()
 
@@ -61,7 +59,6 @@ describe('Arbitrum Messenger Wrapper', () => {
     expect(expectedL2BridgeAddress).to.eq(l2BridgeAddress)
     expect(expectedDefaultGasLimit).to.eq(defaultGasLimit)
     expect(expectedArbInbox).to.eq(arbInbox)
-    expect(expectedArbBridge).to.eq(arbBridge)
     expect(expectedDefaultGasPrice).to.eq(defaultGasPrice)
     expect(expectedDefaultCallValue).to.eq(defaultCallValue)
   })
