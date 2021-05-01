@@ -237,6 +237,7 @@ describe('L2_Polygon_Messenger_Proxy', () => {
     await expect(
       executeCanonicalMessengerSendMessage(
         l1_messenger,
+        l1_messengerWrapper,
         l2_bridge,
         l2_messenger,
         otherUser,

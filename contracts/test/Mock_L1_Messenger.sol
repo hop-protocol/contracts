@@ -82,33 +82,19 @@ contract Mock_L1_Messenger is MockMessenger {
 
     /* ========== Polygon ========== */
 
-    /// NOTE: Calling `_sendMessageToChild()` would be the consistent thing to do, however that is an internal
-    // function, so we are bypassing it with `syncState()`
     function syncState(
         address _childTunnel,
         bytes memory _message
     )
-        public
+        external
     {
-        bytes memory customMessage;
-        if (isContract(msg.sender)) {
-            // Polygon's implementation uses the L1 bridge as the message sender instead of the messenger wrapper
-            // We need to decode and re-encode the values
-            (, bytes memory message) = abi.decode(_message, (address, bytes));
-            customMessage = abi.encode(msg.sender, message);
-        } else {
-            // When calling from an EOA, we use the expected message
-            customMessage = _message;
-        }
-
         targetMessenger.receiveMessage(
             polygonTarget,
-            customMessage,
-            msg.sender
+            _message,
+            address(0)
         );
     }
 
-    // TODO: Handle this better
     function syncStateCanonicalToken(
         address _target,
         bytes memory _message
@@ -120,13 +106,5 @@ contract Mock_L1_Messenger is MockMessenger {
             _message,
             msg.sender
         );
-    }
-
-    function isContract(address _addr) private returns (bool isContract){
-        uint32 size;
-        assembly {
-            size := extcodesize(_addr)
-        }
-        return (size > 0);
     }
 }

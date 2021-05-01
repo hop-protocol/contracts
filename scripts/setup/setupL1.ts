@@ -215,6 +215,7 @@ export async function setupL1 (config: Config) {
   logger.log('setting L1 messenger wrapper address on L2 bridge')
   await executeCanonicalMessengerSendMessage(
     l1_messenger,
+    l1_messengerWrapper,
     l2_bridge,
     ZERO_ADDRESS,
     governance,
@@ -233,6 +234,7 @@ export async function setupL1 (config: Config) {
   )
   await executeCanonicalMessengerSendMessage(
     l1_messenger,
+    l1_messengerWrapper,
     l2_bridge,
     ZERO_ADDRESS,
     governance,
@@ -246,6 +248,7 @@ export async function setupL1 (config: Config) {
   logger.log('setting amm wrapper address on L2 bridge')
   await executeCanonicalMessengerSendMessage(
     l1_messenger,
+    l1_messengerWrapper,
     l2_bridge,
     ZERO_ADDRESS,
     governance,

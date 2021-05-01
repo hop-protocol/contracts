@@ -147,6 +147,7 @@ export const setUpL1AndL2Messengers = async (fixture: IFixture, setUpL1AndL2Mess
 
 export const setUpL1AndL2Bridges = async (fixture: IFixture, opts: any) => {
   const {
+    l2ChainId,
     governance,
     l1_messenger,
     l1_bridge,
@@ -168,6 +169,7 @@ export const setUpL1AndL2Bridges = async (fixture: IFixture, opts: any) => {
   let message: string = getSetL1BridgeAddressMessage(l1_bridge)
   await executeCanonicalMessengerSendMessage(
     l1_messenger,
+    l1_messengerWrapper,
     l2_bridge,
     l2_messenger,
     governance,
@@ -175,9 +177,11 @@ export const setUpL1AndL2Bridges = async (fixture: IFixture, opts: any) => {
     messengerWrapperChainId
   )
 
-  message = getSetL1MessengerWrapperAddressMessage(l1_messengerWrapper)
+  const contractToUse: Contract = isChainIdPolygon(l2ChainId) ? l1_bridge : l1_messengerWrapper
+  message = getSetL1MessengerWrapperAddressMessage(contractToUse)
   await executeCanonicalMessengerSendMessage(
     l1_messenger,
+    l1_messengerWrapper,
     l2_bridge,
     l2_messenger,
     governance,
@@ -188,6 +192,7 @@ export const setUpL1AndL2Bridges = async (fixture: IFixture, opts: any) => {
   message = getSetAmmWrapperAddressMessage(l2_ammWrapper)
   await executeCanonicalMessengerSendMessage(
     l1_messenger,
+    l1_messengerWrapper,
     l2_bridge,
     l2_messenger,
     governance,

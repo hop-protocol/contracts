@@ -19,6 +19,7 @@ import {
 async function main () {
   // Addresses
   const l1_messengerAddress: string = '0xFe446bEF1DbF7AFE24E81e05BC8B271C1BA9a560'
+  const l1_messengerWrapperAddress: string = ZERO_ADDRESS
   const l1_bridgeAddress: string = '0xe31a40e28888BbFF75a7f433f25863F9893a7cd4'
   const l2_bridgeAddress: string = '0x0116f7Cc707486def830e8B5FbEEE13A237D2A08'
 
@@ -33,6 +34,7 @@ async function main () {
 
   let l1_bridge: Contract
   let l1_messenger: Contract
+  let l1_messengerWrapper: Contract
   let l2_bridge: Contract
 
   // Signers
@@ -44,12 +46,14 @@ async function main () {
   ;({
     L1_Bridge,
     L1_Messenger,
+    L1_MessengerWrapper,
     L2_Bridge
   } = await getContractFactories(l2_chainId, bonder, ethers))
 
   // Attach already deployed contracts
   l1_bridge = L1_Bridge.attach(l1_bridgeAddress)
   l1_messenger = L1_Messenger.attach(l1_messengerAddress)
+  l1_messengerWrapper = L1_MessengerWrapper.attach(l1_messengerAddress)
   l2_bridge = L2_Bridge.attach(l2_bridgeAddress)
 
   let message: string = getAddBonderMessage(
@@ -58,6 +62,7 @@ async function main () {
 
   await executeCanonicalMessengerSendMessage(
     l1_messenger,
+    l1_messengerWrapper,
     l2_bridge,
     ZERO_ADDRESS,
     governance,

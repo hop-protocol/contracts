@@ -94,6 +94,7 @@ describe('Hop_Bridge_Token', () => {
     )
     await executeCanonicalMessengerSendMessage(
       l1_messenger,
+      l1_messengerWrapper,
       l2_bridge,
       l2_messenger,
       governance,
@@ -127,6 +128,7 @@ describe('Hop_Bridge_Token', () => {
     )
     await executeCanonicalMessengerSendMessage(
       l1_messenger,
+      l1_messengerWrapper,
       l2_bridge,
       l2_messenger,
       governance,

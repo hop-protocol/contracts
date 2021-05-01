@@ -84,7 +84,7 @@ contract Mock_L2_Messenger is MockMessenger {
         targetMessenger.receiveMessage(
             polygonTarget,
             _message,
-            msg.sender
+            address(0)
         );
     }
 }

@@ -45,22 +45,17 @@ export const executeCanonicalBridgeSendTokens = async (
     .connect(account)
     .approve(l1_canonicalBridge.address, amount)
 
-  // TODO: Handle this better
-  if (isChainIdPolygon(l2ChainId)) {
-    await l1_canonicalBridge
-      .connect(account)
-      .sendTokensPolygon(l2_canonicalToken.address, await account.getAddress(), amount)
-  } else {
-    await l1_canonicalBridge
-      .connect(account)
-      .sendTokens(l2_canonicalToken.address, await account.getAddress(), amount)
-  }
+  const isPolygon: boolean = isChainIdPolygon(l2ChainId)
+  await l1_canonicalBridge
+    .connect(account)
+    .sendTokens(l2_canonicalToken.address, await account.getAddress(), amount, isPolygon)
   await l2_messenger.relayNextMessage()
   await expectBalanceOf(l2_canonicalToken, account, amount)
 }
 
 export const executeCanonicalMessengerSendMessage = async (
   l1_messenger: Contract,
+  l1_messengerWrapper: Contract,
   l2_bridge: Contract,
   l2_messenger: Contract | string,
   sender: Signer,
@@ -96,7 +91,7 @@ export const executeCanonicalMessengerSendMessage = async (
   } else if (isChainIdXDai(l2ChainId)) {
     await l1_messenger.connect(sender).requireToPassMessage(...params)
   } else if (isChainIdPolygon(l2ChainId)) {
-    await l1_messenger.connect(sender).sendCrossDomainMessage(message)
+    await l1_messengerWrapper.connect(sender).sendCrossDomainMessage(message)
   } else {
     await l1_messenger.connect(sender).sendMessage(...params)
   }

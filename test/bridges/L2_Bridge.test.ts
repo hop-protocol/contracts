@@ -228,6 +228,7 @@ describe('L2_Bridge', () => {
       )
       await executeCanonicalMessengerSendMessage(
         l1_messenger,
+        l1_messengerWrapper,
         l2_bridge,
         l2_messenger,
         governance,
@@ -247,6 +248,7 @@ describe('L2_Bridge', () => {
       )
       await executeCanonicalMessengerSendMessage(
         l1_messenger,
+        l1_messengerWrapper,
         l2_bridge,
         l2_messenger,
         governance,
@@ -266,6 +268,7 @@ describe('L2_Bridge', () => {
       )
       await executeCanonicalMessengerSendMessage(
         l1_messenger,
+        l1_messengerWrapper,
         l2_bridge,
         l2_messenger,
         governance,
@@ -285,6 +288,7 @@ describe('L2_Bridge', () => {
       )
       await executeCanonicalMessengerSendMessage(
         l1_messenger,
+        l1_messengerWrapper,
         l2_bridge,
         l2_messenger,
         governance,
@@ -302,6 +306,7 @@ describe('L2_Bridge', () => {
       const message: string = getAddActiveChainIdsMessage(newChainId)
       await executeCanonicalMessengerSendMessage(
         l1_messenger,
+        l1_messengerWrapper,
         l2_bridge,
         l2_messenger,
         governance,
@@ -321,6 +326,7 @@ describe('L2_Bridge', () => {
       let message: string = getAddActiveChainIdsMessage(newChainId)
       await executeCanonicalMessengerSendMessage(
         l1_messenger,
+        l1_messengerWrapper,
         l2_bridge,
         l2_messenger,
         governance,
@@ -336,6 +342,7 @@ describe('L2_Bridge', () => {
       message = getRemoveActiveChainIdsMessage(newChainId)
       await executeCanonicalMessengerSendMessage(
         l1_messenger,
+        l1_messengerWrapper,
         l2_bridge,
         l2_messenger,
         governance,
@@ -355,6 +362,7 @@ describe('L2_Bridge', () => {
       )
       await executeCanonicalMessengerSendMessage(
         l1_messenger,
+        l1_messengerWrapper,
         l2_bridge,
         l2_messenger,
         governance,
@@ -374,6 +382,7 @@ describe('L2_Bridge', () => {
       )
       await executeCanonicalMessengerSendMessage(
         l1_messenger,
+        l1_messengerWrapper,
         l2_bridge,
         l2_messenger,
         governance,
@@ -395,6 +404,7 @@ describe('L2_Bridge', () => {
       )
       await executeCanonicalMessengerSendMessage(
         l1_messenger,
+        l1_messengerWrapper,
         l2_bridge,
         l2_messenger,
         governance,
@@ -416,6 +426,7 @@ describe('L2_Bridge', () => {
       )
       await executeCanonicalMessengerSendMessage(
         l1_messenger,
+        l1_messengerWrapper,
         l2_bridge,
         l2_messenger,
         governance,
@@ -687,6 +698,7 @@ describe('L2_Bridge', () => {
       await expect(
         executeCanonicalMessengerSendMessage(
           l1_messenger,
+          l1_messengerWrapper,
           l2_bridge,
           l2_messenger,
           user,
@@ -706,6 +718,7 @@ describe('L2_Bridge', () => {
       await expect(
         executeCanonicalMessengerSendMessage(
           l1_messenger,
+          l1_messengerWrapper,
           l2_bridge,
           l2_messenger,
           user,
@@ -725,6 +738,7 @@ describe('L2_Bridge', () => {
       await expect(
         executeCanonicalMessengerSendMessage(
           l1_messenger,
+          l1_messengerWrapper,
           l2_bridge,
           l2_messenger,
           user,
@@ -744,6 +758,7 @@ describe('L2_Bridge', () => {
       await expect(
         executeCanonicalMessengerSendMessage(
           l1_messenger,
+          l1_messengerWrapper,
           l2_bridge,
           l2_messenger,
           user,
@@ -761,6 +776,7 @@ describe('L2_Bridge', () => {
       await expect(
         executeCanonicalMessengerSendMessage(
           l1_messenger,
+          l1_messengerWrapper,
           l2_bridge,
           l2_messenger,
           user,
@@ -777,6 +793,7 @@ describe('L2_Bridge', () => {
       let message: string = getAddActiveChainIdsMessage(newChainId)
       await executeCanonicalMessengerSendMessage(
         l1_messenger,
+        l1_messengerWrapper,
         l2_bridge,
         l2_messenger,
         governance,
@@ -793,6 +810,7 @@ describe('L2_Bridge', () => {
       await expect(
         executeCanonicalMessengerSendMessage(
           l1_messenger,
+          l1_messengerWrapper,
           l2_bridge,
           l2_messenger,
           user,
@@ -812,6 +830,7 @@ describe('L2_Bridge', () => {
       await expect(
         executeCanonicalMessengerSendMessage(
           l1_messenger,
+          l1_messengerWrapper,
           l2_bridge,
           l2_messenger,
           user,
@@ -831,6 +850,7 @@ describe('L2_Bridge', () => {
       await expect(
         executeCanonicalMessengerSendMessage(
           l1_messenger,
+          l1_messengerWrapper,
           l2_bridge,
           l2_messenger,
           user,
@@ -852,6 +872,7 @@ describe('L2_Bridge', () => {
       await expect(
         executeCanonicalMessengerSendMessage(
           l1_messenger,
+          l1_messengerWrapper,
           l2_bridge,
           l2_messenger,
           user,
@@ -873,6 +894,7 @@ describe('L2_Bridge', () => {
       await expect(
         executeCanonicalMessengerSendMessage(
           l1_messenger,
+          l1_messengerWrapper,
           l2_bridge,
           l2_messenger,
           user,
@@ -894,6 +916,7 @@ describe('L2_Bridge', () => {
       await expect(
         executeCanonicalMessengerSendMessage(
           l1_messenger,
+          l1_messengerWrapper,
           l2_bridge,
           l2_messenger,
           governance,
@@ -1029,6 +1052,7 @@ describe('L2_Bridge', () => {
       const message: string = getAddBonderMessage(await otherUser.getAddress())
       await executeCanonicalMessengerSendMessage(
         l1_messenger,
+        l1_messengerWrapper,
         l2_bridge,
         l2_messenger,
         governance,
@@ -1104,6 +1128,7 @@ describe('L2_Bridge', () => {
       const message: string = getAddBonderMessage(await otherUser.getAddress())
       await executeCanonicalMessengerSendMessage(
         l1_messenger,
+        l1_messengerWrapper,
         l22_bridge,
         l2_messenger,
         governance,
@@ -1283,6 +1308,7 @@ describe('L2_Bridge', () => {
 
     await executeCanonicalMessengerSendMessage(
       l1_messenger,
+      l1_messengerWrapper,
       l2_bridge,
       l2_messenger,
       governance,
@@ -1338,6 +1364,7 @@ describe('L2_Bridge', () => {
 
     await executeCanonicalMessengerSendMessage(
       l1_messenger,
+      l1_messengerWrapper,
       l2_bridge,
       l2_messenger,
       governance,
@@ -1393,6 +1420,7 @@ describe('L2_Bridge', () => {
 
     await executeCanonicalMessengerSendMessage(
       l1_messenger,
+      l1_messengerWrapper,
       l2_bridge,
       l2_messenger,
       governance,
@@ -1448,6 +1476,7 @@ describe('L2_Bridge', () => {
 
     await executeCanonicalMessengerSendMessage(
       l1_messenger,
+      l1_messengerWrapper,
       l2_bridge,
       l2_messenger,
       governance,
@@ -1502,6 +1531,7 @@ describe('L2_Bridge', () => {
 
     await executeCanonicalMessengerSendMessage(
       l1_messenger,
+      l1_messengerWrapper,
       l2_bridge,
       l2_messenger,
       governance,
@@ -1556,6 +1586,7 @@ describe('L2_Bridge', () => {
 
     await executeCanonicalMessengerSendMessage(
       l1_messenger,
+      l1_messengerWrapper,
       l2_bridge,
       l2_messenger,
       governance,
@@ -1610,6 +1641,7 @@ describe('L2_Bridge', () => {
 
     await executeCanonicalMessengerSendMessage(
       l1_messenger,
+      l1_messengerWrapper,
       l2_bridge,
       l2_messenger,
       governance,
@@ -1664,6 +1696,7 @@ describe('L2_Bridge', () => {
 
     await executeCanonicalMessengerSendMessage(
       l1_messenger,
+      l1_messengerWrapper,
       l2_bridge,
       l2_messenger,
       governance,
@@ -1718,6 +1751,7 @@ describe('L2_Bridge', () => {
 
     await executeCanonicalMessengerSendMessage(
       l1_messenger,
+      l1_messengerWrapper,
       l2_bridge,
       l2_messenger,
       governance,
@@ -1767,6 +1801,7 @@ describe('L2_Bridge', () => {
     const message: string = getRemoveActiveChainIdsMessage([transfer.chainId])
     await executeCanonicalMessengerSendMessage(
       l1_messenger,
+      l1_messengerWrapper,
       l2_bridge,
       l2_messenger,
       governance,

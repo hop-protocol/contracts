@@ -37,10 +37,12 @@ contract Mock_L1_CanonicalBridge {
         );
     }
 
+    /// @notice Polygon has a different messenger for each token
     function sendTokens(
         address _target,
         address _recipient,
-        uint256 _amount
+        uint256 _amount,
+        bool isPolygon
     )
         public
     {
@@ -48,34 +50,10 @@ contract Mock_L1_CanonicalBridge {
 
         canonicalToken.safeTransferFrom(msg.sender, address(this), _amount);
 
-        sendMessage(_target, mintCalldata);
-    }
-
-    // TODO: Handle this better
-    function sendTokensPolygon(
-        address _target,
-        address _recipient,
-        uint256 _amount
-    )
-        public
-    {
-        bytes memory mintCalldata = abi.encodeWithSignature("mint(address,uint256)", _recipient, _amount);
-
-        canonicalToken.safeTransferFrom(msg.sender, address(this), _amount);
-
-        sendMessagePolygon(_target, mintCalldata);
-    }
-
-    // TODO: Handle this better
-    function sendMessagePolygon(
-        address _target,
-        bytes memory _message
-    )
-        public
-    {
-        messenger.syncStateCanonicalToken(
-            _target,
-            _message
-        );
+        if (isPolygon) {
+            messenger.syncStateCanonicalToken(_target, mintCalldata);
+        } else {
+            sendMessage(_target, mintCalldata);
+        }
     }
 }

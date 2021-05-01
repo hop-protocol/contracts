@@ -55,7 +55,7 @@ abstract contract MockMessenger {
         if (isPolygonL1) {
             IPolygonMessengerWrapper(nextMessage.target).processMessageFromChild(nextMessage.message);
         } else if (isPolygonL2) {
-            // TODO: Handle this better
+            // This is required because Polygon has a "messenger" for each token and not a generalized messenger
             if (nextMessage.target == address(canonicalToken)) {
                 (bool success, bytes memory res) = nextMessage.target.call(nextMessage.message);
                 require(success, _getRevertMsgFromRes(res));
