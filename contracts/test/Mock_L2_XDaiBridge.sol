@@ -10,7 +10,7 @@ contract Mock_L2_XDaiBridge is L2_XDaiBridge {
 
     constructor (
         uint256 _chainId,
-        iArbitraryMessageBridge messenger,
+        IArbitraryMessageBridge messenger,
         address l1Governance,
         HopBridgeToken hToken,
         address l1BridgeAddress,

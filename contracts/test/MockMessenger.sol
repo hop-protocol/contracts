@@ -5,8 +5,8 @@ pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
-import "./polygon/IPolygonMessengerWrapper.sol";
-import "./polygon/I_L2_PolygonMessengerProxy.sol";
+import "../interfaces/polygon/messengers/IPolygonMessengerWrapper.sol";
+import "../interfaces/polygon/messengers/I_L2_PolygonMessengerProxy.sol";
 
 import "./BytesLib.sol";
 

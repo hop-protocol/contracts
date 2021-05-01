@@ -2,7 +2,7 @@
 pragma solidity >0.6.0 <0.8.0;
 
 import { MockERC20 } from "../MockERC20.sol";
-import { IInbox } from "./IInbox.sol";
+import { IInbox } from "../../interfaces/arbitrum/messengers//IInbox.sol";
 
 contract Arbitrum_L1_ERC20_Bridge {
     IInbox public messenger;

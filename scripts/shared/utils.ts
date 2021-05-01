@@ -142,9 +142,8 @@ const getOptimismContractFactories = async (
 }
 
 const getArbitrumContractFactories = async (signer: Signer, ethers: any) => {
-  // ToDo: Change to contracts/interfaces/arbitrum/messengers/IInbox.sol:IInbox
   const L1_TokenBridge: ContractFactory = await ethers.getContractFactory(
-    'contracts/test/arbitrum/IInbox.sol:IInbox',
+    'contracts/interfaces/arbitrum/bridges/IEthERC20Bridge.sol:IEthERC20Bridge',
     { signer }
   )
   const L1_Messenger: ContractFactory = await ethers.getContractFactory(
@@ -171,11 +170,11 @@ const getArbitrumContractFactories = async (signer: Signer, ethers: any) => {
 
 const getXDaiContractFactories = async (signer: Signer, ethers: any) => {
   const L1_TokenBridge: ContractFactory = await ethers.getContractFactory(
-    'contracts/test/xDai/IForeignOmniBridge.sol:IForeignOmniBridge',
+    'contracts/interfaces/xDai/bridges/IForeignOmniBridge.sol:IForeignOmniBridge',
     { signer }
   )
   const L1_Messenger: ContractFactory = await ethers.getContractFactory(
-    'contracts/test/xDai/ArbitraryMessageBridge.sol:ArbitraryMessageBridge',
+    'contracts/interfaces/xDai/messengers/IArbitraryMessageBridge.sol:IArbitraryMessageBridge',
     { signer }
   )
   const L1_MessengerWrapper: ContractFactory = await ethers.getContractFactory(
@@ -198,11 +197,11 @@ const getXDaiContractFactories = async (signer: Signer, ethers: any) => {
 
 const getPolygonContractFactories = async (signer: Signer, ethers: any) => {
   const L1_TokenBridge: ContractFactory = await ethers.getContractFactory(
-    'contracts/test/polygon/IRootChainManager.sol:IRootChainManager',
+    'contracts/interfaces/polygon/bridges/IRootChainManager.sol:IRootChainManager',
     { signer }
   )
   const L1_Messenger: ContractFactory = await ethers.getContractFactory(
-    'contracts/test/polygon/Mock_L1_PolygonMessenger.sol:Mock_L1_PolygonMessenger',
+    'contracts/interfaces/polygon/messengers/I_L1_PolygonMessenger.sol:I_L1_PolygonMessenger',
     { signer }
   )
   const L1_MessengerWrapper: ContractFactory = await ethers.getContractFactory(

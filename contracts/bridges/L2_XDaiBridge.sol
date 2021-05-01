@@ -3,7 +3,7 @@
 pragma solidity 0.6.12;
 pragma experimental ABIEncoderV2;
 
-import "../interfaces/xDai/messengers/iArbitraryMessageBridge.sol";
+import "../interfaces/xDai/messengers/IArbitraryMessageBridge.sol";
 import "./L2_Bridge.sol";
 
 /**
@@ -11,13 +11,13 @@ import "./L2_Bridge.sol";
  */
 
 contract L2_XDaiBridge is L2_Bridge {
-    iArbitraryMessageBridge public messenger;
+    IArbitraryMessageBridge public messenger;
     /// @notice The xDai AMB uses bytes32 for chainId instead of uint256
     bytes32 public immutable l1ChainId;
     uint256 public defaultGasLimit;
 
     constructor (
-        iArbitraryMessageBridge _messenger,
+        IArbitraryMessageBridge _messenger,
         address l1Governance,
         HopBridgeToken hToken,
         address l1BridgeAddress,
@@ -61,7 +61,7 @@ contract L2_XDaiBridge is L2_Bridge {
      * @dev Allows the L1 Bridge to set the messenger
      * @param _messenger The new messenger address
      */
-    function setMessenger(iArbitraryMessageBridge _messenger) external onlyGovernance {
+    function setMessenger(IArbitraryMessageBridge _messenger) external onlyGovernance {
         messenger = _messenger;
     }
 
