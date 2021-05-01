@@ -1,7 +1,7 @@
 pragma solidity ^0.6.0;
 
-contract IPolygonMessengerWrapper {
+interface IPolygonMessengerWrapper {
     function processMessageFromChild(
         bytes calldata message
-    ) external {}
+    ) external;
 }

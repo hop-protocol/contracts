@@ -3,7 +3,7 @@
 pragma solidity 0.6.12;
 pragma experimental ABIEncoderV2;
 
-import "../interfaces/xDai/messengers/iArbitraryMessageBridge.sol";
+import "../interfaces/xDai/messengers/IArbitraryMessageBridge.sol";
 import "./MessengerWrapper.sol";
 
 /**
@@ -13,7 +13,7 @@ import "./MessengerWrapper.sol";
 
 contract XDaiMessengerWrapper is MessengerWrapper {
 
-    iArbitraryMessageBridge public l1MessengerAddress;
+    IArbitraryMessageBridge public l1MessengerAddress;
     /// @notice The xDai AMB uses bytes32 for chainId instead of uint256
     bytes32 public l2ChainId;
     address public ambBridge;
@@ -23,7 +23,7 @@ contract XDaiMessengerWrapper is MessengerWrapper {
     constructor(
         address _l1BridgeAddress,
         address _l2BridgeAddress,
-        iArbitraryMessageBridge _l1MessengerAddress,
+        IArbitraryMessageBridge _l1MessengerAddress,
         uint256 _defaultGasLimit,
         uint256 _l2ChainId,
         address _ambBridge

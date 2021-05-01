@@ -2,7 +2,7 @@
 pragma solidity >0.6.0 <0.8.0;
 
 import { MockERC20 } from "../MockERC20.sol";
-import { IArbSys } from "./IArbSys.sol";
+import { IArbSys } from "../../interfaces/arbitrum/messengers/IArbSys.sol";
 
 contract Arbitrum_L2_ERC20_Bridge {
     address public l1ERC20BridgeAddress;

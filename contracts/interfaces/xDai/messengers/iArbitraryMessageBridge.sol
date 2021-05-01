@@ -1,6 +1,6 @@
 pragma solidity 0.6.12;
 
-interface iArbitraryMessageBridge {
+interface IArbitraryMessageBridge {
     function messageSender() external view returns (address);
     function maxGasPerTx() external view returns (uint256);
     function transactionHash() external view returns (bytes32);
