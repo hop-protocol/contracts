@@ -23,9 +23,7 @@ import {
   CHAIN_IDS,
   TIMESTAMP_VARIANCE,
   DEAD_ADDRESS,
-  H_TO_C_SWAP_INDICES,
-  C_TO_H_SWAP_INDICES,
-  ZERO_ADDRESS
+  H_TO_C_SWAP_INDICES
 } from '../../config/constants'
 
 /**
@@ -1110,7 +1108,7 @@ export const executeL2BridgeBondWithdrawalAndDistribute = async (
     expectedRecipientAmountAfterSlippage = BigNumber.from('0')
   } else {
     expectedRecipientAmountAfterSlippage = await l2_swap.calculateSwap(
-      ...C_TO_H_SWAP_INDICES,
+      ...H_TO_C_SWAP_INDICES,
       swapAmount
     )
   }
