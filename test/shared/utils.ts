@@ -469,6 +469,14 @@ export const getNewMerkleTree = (transferIds: Buffer[]): MerkleTree => {
   })
 }
 
+export const didAttemptedSwapSucceed = async (
+  canonicalToken: Contract,
+  recipient: Signer,
+  balanceBeforeAttemptedSwap: BigNumber
+): Promise<boolean> => {
+  const currentBalance: BigNumber = await canonicalToken.balanceOf(await recipient.getAddress())
+  return !(currentBalance.eq(balanceBeforeAttemptedSwap))
+}
 /**
  * Timing functions
  */

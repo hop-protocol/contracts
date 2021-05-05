@@ -11,7 +11,8 @@ import {
   expectBalanceOf,
   getRootHashFromTransferId,
   getTransferNonceFromEvent,
-  getNewMerkleTree
+  getNewMerkleTree,
+  didAttemptedSwapSucceed
 } from './utils'
 import {
   isChainIdOptimism,
@@ -125,7 +126,7 @@ export const executeL1BridgeSendToL2 = async (
   // The test suite setup might not have defined the Amm Router yet
   let expectedAmountAfterSlippage: BigNumber
   if (!amountOutMin.eq(0) || !deadline.eq(0)) {
-    expectedAmountAfterSlippage = await l2_swap.calculateSwap(...H_TO_C_SWAP_INDICES, amount)
+    expectedAmountAfterSlippage = await l2_swap.calculateSwap(...H_TO_C_SWAP_INDICES, amount.sub(relayerFee))
   }
 
   const senderL1CanonicalTokenBalanceBefore: BigNumber = await l1_canonicalToken.balanceOf(
@@ -157,39 +158,37 @@ export const executeL1BridgeSendToL2 = async (
   await l2_messenger.connect(relayer).relayNextMessage()
 
   // Validate state after transaction
-  // If the relayer is the same account as the recipient, the check will happen below
-  if (recipient !== relayer) {
-    await expectBalanceOf(
-      l2_hopBridgeToken,
-      relayer,
-      relayerL2HopBridgeTokenBalanceBefore.add(relayerFee)
-    )
-  }
+  const isRelayerRecipient: boolean = recipient === relayer
+  const didSwap: boolean = !amountOutMin.eq(0) || !deadline.eq(0)
+  const didSwapSucceed: boolean = await didAttemptedSwapSucceed(l2_canonicalToken, recipient, recipientL2CanonicalTokenBalanceBefore)
+
+  // Verify sender balance
   await expectBalanceOf(
     l1_canonicalToken,
     sender,
     senderL1CanonicalTokenBalanceBefore.sub(amount)
   )
 
-  if (amountOutMin.eq(0) && deadline.eq(0)) {
+  // Verify recipient and relayer balances
+  if (!didSwap || !didSwapSucceed) {
+    // The recipient will always have the same canonical token balance if a swap does not occur
     await expectBalanceOf(
       l2_canonicalToken,
       recipient,
       recipientL2CanonicalTokenBalanceBefore
     )
 
-    if (recipient === relayer) {
+    if (isRelayerRecipient) {
+      // Validate that the values are the same and then only validate balances against one account
+      expect(recipient).to.eq(relayer)
+      expect(recipientL2HopBridgeTokenBalanceBefore).to.eq(relayerL2HopBridgeTokenBalanceBefore)
+
       await expectBalanceOf(
         l2_hopBridgeToken,
         recipient,
         recipientL2HopBridgeTokenBalanceBefore.add(amount)
       )
-      await expectBalanceOf(
-        l2_hopBridgeToken,
-        relayer,
-        relayerL2HopBridgeTokenBalanceBefore.add(amount)
-      )
-    } else {
+    } else if (!isRelayerRecipient) {
       await expectBalanceOf(
         l2_hopBridgeToken,
         recipient,
@@ -201,62 +200,39 @@ export const executeL1BridgeSendToL2 = async (
         relayerL2HopBridgeTokenBalanceBefore.add(relayerFee)
       )
     }
-  } else {
-    // The recipient will either have the bridge token (if successful swap) or the canonical token
-    try {
+  } else if (didSwap) {
+    // The recipient will always receive canonical tokens in a successful swap
+    await expectBalanceOf(
+      l2_canonicalToken,
+      recipient,
+      recipientL2CanonicalTokenBalanceBefore.add(expectedAmountAfterSlippage)
+    )
+
+    if (isRelayerRecipient) {
+      // Validate that the values are the same and then only validate balances against one account
+      expect(recipient).to.eq(relayer)
+      expect(recipientL2HopBridgeTokenBalanceBefore).to.eq(relayerL2HopBridgeTokenBalanceBefore)
+
       await expectBalanceOf(
-        l2_canonicalToken,
+        l2_hopBridgeToken,
         recipient,
-        recipientL2CanonicalTokenBalanceBefore.add(expectedAmountAfterSlippage)
+        recipientL2HopBridgeTokenBalanceBefore.add(relayerFee)
       )
-      if (recipient === relayer) {
-        await expectBalanceOf(
-          l2_hopBridgeToken,
-          recipient,
-          recipientL2HopBridgeTokenBalanceBefore.add(relayerFee)
-        )
-        await expectBalanceOf(
-          l2_hopBridgeToken,
-          relayer,
-          relayerL2HopBridgeTokenBalanceBefore.add(relayerFee)
-        )
-      } else {
-        await expectBalanceOf(
-          l2_hopBridgeToken,
-          recipient,
-          recipientL2HopBridgeTokenBalanceBefore
-        )
-        await expectBalanceOf(
-          l2_hopBridgeToken,
-          relayer,
-          relayerL2HopBridgeTokenBalanceBefore.add(relayerFee)
-        )
-      }
-    } catch {
-      await expectBalanceOf(l2_canonicalToken, recipient, 0)
-      if (recipient === relayer) {
-        await expectBalanceOf(
-          l2_hopBridgeToken,
-          recipient,
-          recipientL2HopBridgeTokenBalanceBefore.add(amount)
-        )
-        await expectBalanceOf(
-          l2_hopBridgeToken,
-          relayer,
-          relayerL2HopBridgeTokenBalanceBefore.add(amount)
-        )
-      } else {
-        await expectBalanceOf(
-          l2_hopBridgeToken,
-          recipient,
-          recipientL2HopBridgeTokenBalanceBefore.add(amount).sub(relayerFee)
-        )
-        await expectBalanceOf(
-          l2_hopBridgeToken,
-          relayer,
-          relayerL2HopBridgeTokenBalanceBefore.add(relayerFee)
-        )
-      }
+    } else if (!isRelayerRecipient) {
+      await expectBalanceOf(
+        l2_hopBridgeToken,
+        recipient,
+        recipientL2HopBridgeTokenBalanceBefore
+      )
+
+      await expectBalanceOf(
+        l2_hopBridgeToken,
+        relayer,
+        relayerL2HopBridgeTokenBalanceBefore.add(relayerFee)
+      )
+    }
+    if (transfer) {
+      transfer.amountAfterSwap = expectedAmountAfterSlippage
     }
   }
 }
@@ -875,7 +851,7 @@ export const executeL2AmmWrapperSwapAndSend = async (
   const senderBalanceBefore: BigNumber = await sourceCanonicalToken.balanceOf(
     await transfer.sender.getAddress()
   )
-  const expectedAmountAfterSlippage: BigNumber = await sourceSwap.calculateSwap(...C_TO_H_SWAP_INDICES, transfer.amount)
+  let expectedAmountAfterSlippage: BigNumber = await sourceSwap.calculateSwap(...C_TO_H_SWAP_INDICES, transfer.amount)
 
   // Perform transaction
   await sourceCanonicalToken

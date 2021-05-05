@@ -18,7 +18,7 @@ const desiredAccounts: string[] = [
   process.env.GOVERNANCE_PRIVATE_KEY
 ]
 
-const isOptimizerEnabled: boolean = false
+const isOptimizerEnabled: boolean = true
 const numOptimizerRuns: number = 1
 
 // You have to export an object to set up your config

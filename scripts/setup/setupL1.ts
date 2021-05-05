@@ -187,7 +187,6 @@ export async function setupL1 (config: Config) {
       )
 
       logger.log('l1 messenger wrapper address', l1_messengerWrapper.address)
-      logger.log('l2 messenger proxy address', l2_messengerProxy.address)
       throw new Error('Please wait for Polygon contracts to be linked before continuing')
     }
   }
