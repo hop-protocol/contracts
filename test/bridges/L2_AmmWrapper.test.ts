@@ -171,7 +171,6 @@ describe('L2_AmmWrapper', () => {
       l2ChainId
     )
   })
-
   after(async () => {
     await revertSnapshot(beforeAllSnapshotId)
   })
@@ -209,6 +208,30 @@ describe('L2_AmmWrapper', () => {
   })
 
   describe('swapAndSend', async () => {
+    it('Should send tokens to L1 via swapAndSend', async () => {
+      await executeCanonicalBridgeSendTokens(
+        l1_canonicalToken,
+        l1_canonicalBridge,
+        l2_canonicalToken,
+        l2_messenger,
+        user,
+        transfer.amount,
+        l2ChainId
+      )
+
+      // There needs to be a deadline when swapping and sending to L1
+      const customTransfer: Transfer = new Transfer(transfer)
+      customTransfer.deadline = DEFAULT_DEADLINE
+
+      await executeL2AmmWrapperSwapAndSend(
+        l2_bridge,
+        l2_canonicalToken,
+        l2_swap,
+        l2_ammWrapper,
+        customTransfer
+      )
+    })
+
     it('Should send tokens to L2 via swapAndSend', async () => {
       await executeCanonicalBridgeSendTokens(
         l1_canonicalToken,

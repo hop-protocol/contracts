@@ -23,7 +23,8 @@ import {
   CHAIN_IDS,
   TIMESTAMP_VARIANCE,
   DEAD_ADDRESS,
-  H_TO_C_SWAP_INDICES
+  H_TO_C_SWAP_INDICES,
+  C_TO_H_SWAP_INDICES
 } from '../../config/constants'
 
 /**
@@ -874,7 +875,7 @@ export const executeL2AmmWrapperSwapAndSend = async (
   const senderBalanceBefore: BigNumber = await sourceCanonicalToken.balanceOf(
     await transfer.sender.getAddress()
   )
-  const expectedAmountAfterSlippage: BigNumber = await sourceSwap.calculateSwap('0', '1', transfer.amount)
+  const expectedAmountAfterSlippage: BigNumber = await sourceSwap.calculateSwap(...C_TO_H_SWAP_INDICES, transfer.amount)
 
   // Perform transaction
   await sourceCanonicalToken
@@ -950,7 +951,7 @@ export const executeL2AmmWrapperAttemptSwap = async (
   const recipientCanonicalTokenBalanceBefore: BigNumber = await l2_canonicalToken.balanceOf(
     await recipient.getAddress()
   )
-  const expectedAmountAfterSlippage: BigNumber = await l2_swap.calculateSwap('0', '1', amount)
+  const expectedAmountAfterSlippage: BigNumber = await l2_swap.calculateSwap(...H_TO_C_SWAP_INDICES, amount)
 
   // Perform transaction
   await l2_hopBridgeToken
