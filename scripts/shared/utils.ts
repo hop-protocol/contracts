@@ -170,10 +170,11 @@ const getArbitrumContractFactories = async (signer: Signer, ethers: any) => {
 
 const getXDaiContractFactories = async (signer: Signer, ethers: any) => {
   const L1_TokenBridge: ContractFactory = await ethers.getContractFactory(
-    'contracts/interfaces/xDai/bridges/IForeignOmniBridge.sol:IForeignOmniBridge',
+    'contracts/test/xDai/MockForeignOmniBridge.sol:MockForeignOmniBridge',
     { signer }
   )
   const L1_Messenger: ContractFactory = await ethers.getContractFactory(
+    // TODO: This will likely have to be converted from an interface to a mock
     'contracts/interfaces/xDai/messengers/IArbitraryMessageBridge.sol:IArbitraryMessageBridge',
     { signer }
   )
@@ -197,11 +198,11 @@ const getXDaiContractFactories = async (signer: Signer, ethers: any) => {
 
 const getPolygonContractFactories = async (signer: Signer, ethers: any) => {
   const L1_TokenBridge: ContractFactory = await ethers.getContractFactory(
-    'contracts/interfaces/polygon/bridges/IRootChainManager.sol:IRootChainManager',
+    'contracts/test/polygon/MockRootChainManager.sol:MockRootChainManager',
     { signer }
   )
   const L1_Messenger: ContractFactory = await ethers.getContractFactory(
-    'contracts/interfaces/polygon/messengers/I_L1_PolygonMessenger.sol:I_L1_PolygonMessenger',
+    'contracts/test/polygon/Mock_L1_PolygonMessenger.sol:Mock_L1_PolygonMessenger',
     { signer }
   )
   const L1_MessengerWrapper: ContractFactory = await ethers.getContractFactory(

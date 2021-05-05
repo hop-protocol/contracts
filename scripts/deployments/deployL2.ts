@@ -48,6 +48,7 @@ interface Config {
   l2_hBridgeTokenDecimals: number
   l2_swapLpTokenName: string
   l2_swapLpTokenSymbol: string
+  isPolygonFirstRun: boolean
 }
 
 export async function deployL2 (config: Config) {
@@ -63,7 +64,8 @@ export async function deployL2 (config: Config) {
     l2_hBridgeTokenSymbol,
     l2_hBridgeTokenDecimals,
     l2_swapLpTokenName,
-    l2_swapLpTokenSymbol
+    l2_swapLpTokenSymbol,
+    isPolygonFirstRun
   } = config
 
   logger.log(`config:
@@ -74,7 +76,8 @@ export async function deployL2 (config: Config) {
             l2_messengerAddress: ${l2_messengerAddress}
             l2_hBridgeTokenName: ${l2_hBridgeTokenName}
             l2_hBridgeTokenSymbol: ${l2_hBridgeTokenSymbol}
-            l2_hBridgeTokenDecimals: ${l2_hBridgeTokenDecimals}`)
+            l2_hBridgeTokenDecimals: ${l2_hBridgeTokenDecimals}
+            isPolygonFirstRun: ${isPolygonFirstRun}`)
 
   l1_chainId = BigNumber.from(l1_chainId)
   l2_chainId = BigNumber.from(l2_chainId)
@@ -142,15 +145,15 @@ export async function deployL2 (config: Config) {
    * Deployments
    */
 
+
   let l2_messengerProxyAddress: string = ''
-  // NOTE: If the messenger proxy is already deployed, uncomment below and comment out the deployment
-  // let l2_messengerProxyAddress: string = ''
-  // l2_messengerProxy = L2_MessengerProxy.attach(l2_messengerProxyAddress)
-  // l2_messengerAddress = l2_messengerProxy.address
-  if (isChainIdPolygon(l2_chainId)) {
+  if (isChainIdPolygon(l2_chainId) && isPolygonFirstRun) {
     l2_messengerProxy = await L2_MessengerProxy.deploy()
     await waitAfterTransaction(l2_messengerProxy, ethers)
     l2_messengerProxyAddress = l2_messengerProxy.address
+    l2_messengerAddress = l2_messengerProxy.address
+  } else if (isChainIdPolygon(l2_chainId) && !isPolygonFirstRun) {
+    l2_messengerProxy = L2_MessengerProxy.attach(l2_messengerProxyAddress)
     l2_messengerAddress = l2_messengerProxy.address
   }
 
@@ -207,8 +210,7 @@ export async function deployL2 (config: Config) {
   await tx.wait()
   await waitAfterTransaction()
 
-  // NOTE: If the messenger proxy is already deployed and set up, comment out this section
-  if (isChainIdPolygon(l2_chainId)) {
+  if (isChainIdPolygon(l2_chainId) && isPolygonFirstRun) {
     let tx = await l2_messengerProxy.setL2Bridge(l2_bridge.address, overrides)
     await tx.wait()
     await waitAfterTransaction()
@@ -396,7 +398,8 @@ if (require.main === module) {
     l2_hBridgeTokenSymbol,
     l2_hBridgeTokenDecimals,
     l2_swapLpTokenName,
-    l2_swapLpTokenSymbol
+    l2_swapLpTokenSymbol,
+    isPolygonFirstRun
   } = readConfigFile()
   deployL2({
     l1_chainId,
@@ -408,7 +411,8 @@ if (require.main === module) {
     l2_hBridgeTokenSymbol,
     l2_hBridgeTokenDecimals,
     l2_swapLpTokenName,
-    l2_swapLpTokenSymbol
+    l2_swapLpTokenSymbol,
+    isPolygonFirstRun
   })
     .then(() => {
       process.exit(0)

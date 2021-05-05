@@ -48,6 +48,7 @@ interface Config {
   l2_messengerProxyAddress: string
   l2_ammWrapperAddress: string
   liquidityProviderSendAmount: string | BigNumber
+  isPolygonFirstRun: boolean
 }
 
 export async function setupL1 (config: Config) {
@@ -64,7 +65,8 @@ export async function setupL1 (config: Config) {
     l2_bridgeAddress,
     l2_messengerProxyAddress,
     l2_ammWrapperAddress,
-    liquidityProviderSendAmount
+    liquidityProviderSendAmount,
+    isPolygonFirstRun
   } = config
 
   logger.log(`config:
@@ -78,7 +80,8 @@ export async function setupL1 (config: Config) {
             l2_bridgeAddress: ${l2_bridgeAddress}
             l2_messengerProxyAddress: ${l2_messengerProxyAddress}
             l2_ammWrapperAddress: ${l2_ammWrapperAddress}
-            liquidityProviderSendAmount: ${liquidityProviderSendAmount}`)
+            liquidityProviderSendAmount: ${liquidityProviderSendAmount}
+            isPolygonFirstRun: ${isPolygonFirstRun}`)
 
   l1_chainId = BigNumber.from(l1_chainId)
   l2_chainId = BigNumber.from(l2_chainId)
@@ -153,18 +156,15 @@ export async function setupL1 (config: Config) {
   /**
    * Setup deployments
    */
-  // TODO: Handle this better
 
-  // NOTE: The messenger for Polygon needs to be pre-deployed and set up so that they can link it
-  // Because of this, the messenger addresses should already be defined in deploy.ts
-  if(isChainIdPolygon(l2_chainId as BigNumber)) {
+  if(isChainIdPolygon(l2_chainId) && !isPolygonFirstRun) {
     // NOTE: The messenger is attached the the MessengerWrapper interface
     l1_messenger = L1_MessengerWrapper.attach(l1_messenger.address)
     l1_messengerWrapper = L1_MessengerWrapper.attach(l1_messenger.address)
   } else {
     // Deploy messenger wrapper
     const messengerWrapperDefaults: any[] = getMessengerWrapperDefaults(
-      l2_chainId as BigNumber,
+      l2_chainId,
       l1_bridge.address,
       l2_bridge.address,
       l1_messenger?.address || '0x'
@@ -176,15 +176,19 @@ export async function setupL1 (config: Config) {
     )
     await waitAfterTransaction(l1_messengerWrapper)
 
-    if (isChainIdPolygon(l2_chainId as BigNumber)) {
+    if (isChainIdPolygon(l2_chainId)) {
       logger.log('setting up polygon contracts')
       l2_messengerProxy = L2_MessengerProxy.attach(l2_messengerProxyAddress)
       await setUpPolygonContracts(
-        l1_chainId as BigNumber,
+        l1_chainId,
         owner,
         l1_messengerWrapper,
         l2_messengerProxy
       )
+
+      logger.log('l1 messenger wrapper address', l1_messengerWrapper.address)
+      logger.log('l2 messenger proxy address', l2_messengerProxy.address)
+      throw new Error('Please wait for Polygon contracts to be linked before continuing')
     }
   }
 
@@ -203,7 +207,7 @@ export async function setupL1 (config: Config) {
 
   // Set up L2 Bridge state (through the L1 Canonical Messenger)
   let setL1MessengerWrapperAddressParams: string
-  if (isChainIdPolygon(l2_chainId as BigNumber)) {
+  if (isChainIdPolygon(l2_chainId)) {
     setL1MessengerWrapperAddressParams = l1_bridge.address
   } else {
     setL1MessengerWrapperAddressParams = l1_messengerWrapper.address
@@ -220,7 +224,7 @@ export async function setupL1 (config: Config) {
     ZERO_ADDRESS,
     governance,
     message,
-    l2_chainId as BigNumber
+    l2_chainId
   )
   await waitAfterTransaction()
 
@@ -239,7 +243,7 @@ export async function setupL1 (config: Config) {
     ZERO_ADDRESS,
     governance,
     message,
-    l2_chainId as BigNumber
+    l2_chainId
   )
   await waitAfterTransaction()
 
@@ -253,7 +257,7 @@ export async function setupL1 (config: Config) {
     ZERO_ADDRESS,
     governance,
     message,
-    l2_chainId as BigNumber
+    l2_chainId
   )
   await waitAfterTransaction()
 
@@ -272,8 +276,8 @@ export async function setupL1 (config: Config) {
   }
 
   let contractToApprove: string
-  if (isChainIdPolygon(l2_chainId as BigNumber)) {
-    contractToApprove = getPolygonErc20PredicateAddress(l1_chainId as BigNumber)
+  if (isChainIdPolygon(l2_chainId)) {
+    contractToApprove = getPolygonErc20PredicateAddress(l1_chainId)
   } else {
     contractToApprove = l1_tokenBridge.address
   }
@@ -286,7 +290,7 @@ export async function setupL1 (config: Config) {
 
   logger.log('sending chain specific bridge deposit')
   await sendChainSpecificBridgeDeposit(
-    l2_chainId as BigNumber,
+    l2_chainId,
     liquidityProvider,
     liquidityProviderSendAmount,
     l1_tokenBridge,
@@ -386,7 +390,8 @@ if (require.main === module) {
     l2_bridgeAddress,
     l2_messengerProxyAddress,
     l2_ammWrapperAddress,
-    liquidityProviderSendAmount
+    liquidityProviderSendAmount,
+    isPolygonFirstRun
   } = readConfigFile()
   setupL1({
     l1_chainId,
@@ -399,7 +404,8 @@ if (require.main === module) {
     l2_bridgeAddress,
     l2_messengerProxyAddress,
     l2_ammWrapperAddress,
-    liquidityProviderSendAmount
+    liquidityProviderSendAmount,
+    isPolygonFirstRun
   })
     .then(() => {
       process.exit(0)

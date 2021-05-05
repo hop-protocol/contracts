@@ -60,11 +60,19 @@ interface INetworkParams extends IGeneralData, ISpecificData {
 // In order to run just the L1 bridge deployment for polygon, use `xpolygon` as the L2 name
 // NOTE: This will deploy the messenger wrapper / messenger
 // $ npm run deploy -- goerli xpolygon USDC 
+
+// Polygon must be deployed and set up separately because of the linking.
+// For the first part (deployment) you must run with `true` as the final paramter. For the second, run without the final parameter
+// $ npm run deploy -- goerli optimism USDC true
 async function main () {
   logger.log('deploy script initiated')
   const l1NetworkName: string = process.argv[2].toLowerCase()
   const l2NetworkName: string = process.argv[3].toLowerCase()
   const tokenSymbol: string = process.argv[4].toLowerCase()
+
+  // NOTE: The first Polygon run requires deployments but not setup
+  const isPolygonFirstRun: boolean = process?.argv[5] ? true : false
+  updateConfigFile({ isPolygonFirstRun })
 
   if (!l1NetworkName) {
     throw new Error('L1 network name not specified')
@@ -78,7 +86,7 @@ async function main () {
     throw new Error('Token symbol not specified')
   }
 
-  setNetworkParams(l1NetworkName, l2NetworkName,tokenSymbol)
+  setNetworkParams(l1NetworkName, l2NetworkName, tokenSymbol)
   const scripts: string[] = []
   if (l2NetworkName === 'x' || l2NetworkName === 'xpolygon') {
     scripts.push(`npm run deploy:l1-${l1NetworkName}`)
@@ -86,8 +94,13 @@ async function main () {
     scripts.push(
       `npm run deploy:l2-${l2NetworkName}`,
       `npm run setup:l1-${l1NetworkName}`,
-      `npm run setup:l2-${l2NetworkName}`
     )
+
+    if (!isPolygonFirstRun) {
+      scripts.push(
+        `npm run setup:l2-${l2NetworkName}`
+      )
+    }
   }
 
   for (let i = 0; i < scripts.length; i++) {
@@ -126,7 +139,7 @@ function setNetworkParams (l1NetworkName: string, l2NetworkName: string, tokenSy
       'DAI': '0xC61bA16e864eFbd06a9fe30Aab39D18B8F63710a',
       'sETH': '0x5D13179c5fa40b87D53Ff67ca26245D3D5B2F872',
       'sBTC': '0x12a3a66720dD925fa93f7C895bC20Ca9560AdFe7',
-      'USDC': '0x2C2Ab81Cf235e86374468b387e241DF22459A265',
+      'USDC': '0x98339D8C260052B7ad81c28c16C0b98420f2B46a',
       'WBTC': '0xCB784a097f33231f2D3a1E22B236a9D2c878555d',
       'TST': '0x72BC29409f4F8a29284285b7af4f3D59d206d454'
     }
@@ -482,7 +495,7 @@ function setNetworkParams (l1NetworkName: string, l2NetworkName: string, tokenSy
       } else if (tokenSymbol === COMMON_SYMBOLS.USDC.toLowerCase()) {
         specificData = {
           l1_canonicalTokenAddress: l1CanonicalTokenAddresses.USDC,
-          l2_canonicalTokenAddress: '0xcc4f6aE976dd9dFb44E741e7430b6111bF0cbCd0',
+          l2_canonicalTokenAddress: '0x6D4dd09982853F08d9966aC3cA4Eb5885F16f2b2',
           l2_hBridgeTokenName: 'USD Coin Hop Token',
           l2_hBridgeTokenSymbol: 'hUSDC',
           l2_hBridgeTokenDecimals: DEFAULT_H_BRIDGE_TOKEN_DECIMALS,
