@@ -220,7 +220,8 @@ export async function fixture (
     bonderFee: DEFAULT_BONDER_FEE,
     amountOutMin: BigNumber.from('0'),
     destinationAmountOutMin: BigNumber.from('0'),
-    destinationDeadline: BigNumber.from('0')
+    destinationDeadline: BigNumber.from('0'),
+    amountAfterSwap: BigNumber.from('0')
   }
 
   const transfers: Transfer[] = [

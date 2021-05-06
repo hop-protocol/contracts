@@ -28,7 +28,8 @@ import {
   executeL1BridgeResolveChallenge,
   executeL2BridgeSend,
   executeL2BridgeCommitTransfers,
-  executeL2BridgeBondWithdrawalAndDistribute
+  executeL2BridgeBondWithdrawalAndDistribute,
+  executeL2AmmWrapperSwapAndSend
 } from '../shared/contractFunctionWrappers'
 import { fixture } from '../shared/fixtures'
 import { IFixture } from '../shared/interfaces'
@@ -203,6 +204,64 @@ describe('L1_Bridge', () => {
     )
   })
 
+  it('Should allow a user to send and swap from L1 to L2, swap and send from L2 to L1, wait until the transfer is confirmed, and then withdraw', async () => {
+    const customTransfer: Transfer = new Transfer(transfer)
+    customTransfer.deadline = DEFAULT_DEADLINE
+
+    await executeL1BridgeSendToL2(
+      l1_canonicalToken,
+      l1_bridge,
+      l2_hopBridgeToken,
+      l2_canonicalToken,
+      l2_messenger,
+      l2_swap,
+      customTransfer.sender,
+      customTransfer.recipient,
+      relayer,
+      customTransfer.amount,
+      customTransfer.amountOutMin,
+      customTransfer.deadline,
+      defaultRelayerFee,
+      l2ChainId,
+      customTransfer 
+    )
+
+    // The transfer amount should now take into account slippage
+    customTransfer.amount = customTransfer.amountAfterSwap
+    customTransfer.amountAfterSwap = BigNumber.from('0')
+
+    await executeL2AmmWrapperSwapAndSend(
+      l2_bridge,
+      l2_canonicalToken,
+      l2_swap,
+      l2_ammWrapper,
+      customTransfer
+    )
+
+    const startingTransferIndex: BigNumber = BigNumber.from('0')
+    const didSwapAndSend: boolean = true
+    await executeL2BridgeCommitTransfers(
+      l2_bridge,
+      [customTransfer],
+      bonder,
+      startingTransferIndex,
+      didSwapAndSend
+    )
+
+    const timeToWait: number = 11 * SECONDS_IN_A_DAY
+    await increaseTime(timeToWait)
+    await l1_messenger.relayNextMessage()
+
+    await executeBridgeWithdraw(
+      l1_canonicalToken,
+      l1_bridge,
+      l2_bridge,
+      customTransfer,
+      bonder,
+      didSwapAndSend
+    )
+  })
+
   it('Should allow a user to send from L2 to L2, wait until the transfer is confirmed, and then withdraw', async () => {
     await executeL1BridgeSendToL2(
       l1_canonicalToken,
@@ -230,13 +289,16 @@ describe('L1_Bridge', () => {
     await l1_messenger.relayNextMessage()
     await l22_messenger.relayNextMessage()
 
+    const isSwapAndSend: boolean = false
+    const destinationHopToken: Contract = l22_hopBridgeToken
     await executeBridgeWithdraw(
       l22_canonicalToken,
       l22_bridge,
       l2_bridge,
       l2Transfer,
       bonder,
-      l22_hopBridgeToken
+      isSwapAndSend,
+      destinationHopToken
     )
   })
 

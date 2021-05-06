@@ -537,5 +537,53 @@ describe('L2_AmmWrapper', () => {
         customTransfer
       )
     })
+
+    it.only('Should successfully swap h token for canonical token twice', async () => {
+      await executeL1BridgeSendToL2(
+        l1_canonicalToken,
+        l1_bridge,
+        l2_hopBridgeToken,
+        l2_canonicalToken,
+        l2_messenger,
+        l2_swap,
+        transfer.sender,
+        transfer.recipient,
+        relayer,
+        transfer.amount,
+        transfer.amountOutMin,
+        transfer.deadline,
+        defaultRelayerFee,
+        l2ChainId
+      )
+
+      const customTransfer: Transfer = new Transfer(transfer)
+      customTransfer.amount = transfer.amount.div(2)
+
+      const recipient: Signer = otherUser
+      const deadline: BigNumber = DEFAULT_DEADLINE
+      await executeL2AmmWrapperAttemptSwap(
+        l2_swap,
+        l2_ammWrapper,
+        l2_canonicalToken,
+        l2_hopBridgeToken,
+        customTransfer.sender,
+        recipient,
+        customTransfer.amount,
+        customTransfer.amountOutMin,
+        deadline
+      )
+
+      await executeL2AmmWrapperAttemptSwap(
+        l2_swap,
+        l2_ammWrapper,
+        l2_canonicalToken,
+        l2_hopBridgeToken,
+        customTransfer.sender,
+        recipient,
+        customTransfer.amount,
+        customTransfer.amountOutMin,
+        deadline
+      )
+    })
   })
 })

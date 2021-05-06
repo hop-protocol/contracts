@@ -188,6 +188,18 @@ export const isChainIdKovan = (chainId: BigNumber): boolean => {
   return false
 }
 
+export const isChainIdL1 = (chainId: BigNumber): boolean => {
+  if (
+    isChainIdMainnet(chainId) ||
+    isChainIdGoerli(chainId) ||
+    isChainIdKovan(chainId)
+  ) {
+    return true
+  }
+
+  return false
+}
+
 export const getXDaiAmbAddresses = (isAmbL1: boolean): string => {
   const kovanAmbAddress: string = '0xFe446bEF1DbF7AFE24E81e05BC8B271C1BA9a560'
   const sokolAmbAddress: string = '0xFe446bEF1DbF7AFE24E81e05BC8B271C1BA9a560'
