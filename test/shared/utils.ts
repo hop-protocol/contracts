@@ -86,6 +86,7 @@ export const setUpDefaults = async (fixture: IFixture) => {
   await setUpL2HopBridgeToken(fixture)
   await setUpL1AndL2Messengers(fixture, setUpL1AndL2MessengersOpts)
   await setUpL1AndL2Bridges(fixture, setUpL1AndL2BridgesOpts)
+  await setUpL1AndL2Bridges(fixture, setUpL1AndL2BridgesOpts)
   await distributeCanonicalTokens(fixture, distributeCanonicalTokensOpts)
   await setUpBonderStake(fixture, setUpBonderStakeOpts)
   await setUpL2AmmMarket(fixture, setUpL2AmmMarketOpts)
@@ -222,6 +223,8 @@ export const distributeCanonicalTokens = async (
     relayerInitialBalance
   } = opts
 
+  // NOTE: This will mint WETH even we are using an L1 ETH bridge
+  // This is because the user needs to send WETH to the L2 in order to set up the system
   await l1_canonicalToken.mint(await user.getAddress(), userInitialBalance)
   await l1_canonicalToken.mint(
     await liquidityProvider.getAddress(),
@@ -244,14 +247,20 @@ export const setUpBonderStake = async (fixture: IFixture, opts: any) => {
     l2_canonicalToken,
     l2_bridge,
     l2_messenger,
-    l2_swap
+    l2_swap,
+    l2CanonicalTokenIsEth
   } = fixture
 
   const { l2ChainId, bondAmount, amountOutMin, deadline, relayerFee } = opts
+  const txOpts = l2CanonicalTokenIsEth ? { value: bondAmount } : {}
 
   // Stake on L1
-  await l1_canonicalToken.connect(bonder).approve(l1_bridge.address, bondAmount)
-  await l1_bridge.connect(bonder).stake(await bonder.getAddress(), bondAmount)
+  if (l2CanonicalTokenIsEth) {
+    await l1_bridge.connect(bonder).stake(await bonder.getAddress(), bondAmount, txOpts)
+  } else {
+    await l1_canonicalToken.connect(bonder).approve(l1_bridge.address, bondAmount)
+    await l1_bridge.connect(bonder).stake(await bonder.getAddress(), bondAmount)
+  }
 
   // Stake on L2
   await executeL1BridgeSendToL2(
@@ -368,46 +377,59 @@ export const setUpL2AmmMarket = async (fixture: IFixture, opts: any) => {
 /**
  * General functions
  */
-
 export const expectBalanceOf = async (
   token: Contract,
   account: Signer | Contract,
   expectedBalance: BigNumberish
 ) => {
-  const accountAddress: string =
-    account instanceof Signer ? await account.getAddress() : account.address
-  const balance: BigNumber = await token.balanceOf(accountAddress)
-  expect(balance.toString()).to.eq(BigNumber.from(expectedBalance).toString())
+  const balance: BigNumber = await getCanonicalTokenBalance(token, account)
+
+  if (await token.symbol() === 'L1WETH') {
+    const expectedBalanceBN: BigNumber = BigNumber.from(expectedBalance)
+    const gasCost: BigNumber = BigNumber.from('10000000000000000')
+    expect(balance.lte(expectedBalanceBN)).to.eq(true)
+    expect(balance.gte(expectedBalanceBN.sub(gasCost))).to.eq(true)
+  } else {
+    expect(balance.toString()).to.eq(BigNumber.from(expectedBalance).toString())
+  }
 }
 
-export const getL2SpecificArtifact = (chainId: BigNumber) => {
+export const getCustomArtifacts = (chainId: BigNumber, l2CanonicalTokenIsEth: boolean) => {
+  let l1_bridgeArtifact: string
   let l2_bridgeArtifact: string
   let l1_messengerArtifact: string
   let l1_messengerWrapperArtifact: string
 
+  if (l2CanonicalTokenIsEth) {
+    l1_bridgeArtifact = 'contracts/test/Mock_L1_ETH_Bridge.sol:Mock_L1_ETH_Bridge'
+  } else {
+    l1_bridgeArtifact = 'contracts/test/Mock_L1_ERC20_Bridge.sol:Mock_L1_ERC20_Bridge'
+  }
+
   if (isChainIdOptimism(chainId)) {
-    l2_bridgeArtifact = 'Mock_L2_OptimismBridge.sol:Mock_L2_OptimismBridge'
+    l2_bridgeArtifact = 'contracts/test/Mock_L2_OptimismBridge.sol:Mock_L2_OptimismBridge'
     l1_messengerArtifact = 'contracts/test/Mock_L1_Messenger.sol:Mock_L1_Messenger'
     l1_messengerWrapperArtifact =
       'contracts/wrappers/OptimismMessengerWrapper.sol:OptimismMessengerWrapper'
   } else if (isChainIdArbitrum(chainId)) {
-    l2_bridgeArtifact = 'Mock_L2_ArbitrumBridge.sol:Mock_L2_ArbitrumBridge'
+    l2_bridgeArtifact = 'contracts/test/Mock_L2_ArbitrumBridge.sol:Mock_L2_ArbitrumBridge'
     l1_messengerArtifact = 'contracts/test/Mock_L1_Messenger.sol:Mock_L1_Messenger'
     l1_messengerWrapperArtifact =
       'contracts/wrappers/ArbitrumMessengerWrapper.sol:ArbitrumMessengerWrapper'
   } else if (isChainIdXDai(chainId)) {
-    l2_bridgeArtifact = 'Mock_L2_XDaiBridge.sol:Mock_L2_XDaiBridge'
+    l2_bridgeArtifact = 'contracts/test/Mock_L2_XDaiBridge.sol:Mock_L2_XDaiBridge'
     l1_messengerArtifact = 'contracts/test/Mock_L1_Messenger.sol:Mock_L1_Messenger'
     l1_messengerWrapperArtifact =
       'contracts/wrappers/XDaiMessengerWrapper.sol:XDaiMessengerWrapper'
   } else if (isChainIdPolygon(chainId)) {
-    l2_bridgeArtifact = 'Mock_L2_PolygonBridge.sol:Mock_L2_PolygonBridge'
+    l2_bridgeArtifact = 'contracts/test/Mock_L2_PolygonBridge.sol:Mock_L2_PolygonBridge'
     l1_messengerArtifact = 'contracts/test/Mock_L1_Messenger.sol:Mock_L1_Messenger'
     l1_messengerWrapperArtifact =
       'contracts/test/MockPolygonMessengerWrapper.sol:MockPolygonMessengerWrapper'
   }
 
   return {
+    l1_bridgeArtifact,
     l2_bridgeArtifact,
     l1_messengerArtifact,
     l1_messengerWrapperArtifact
@@ -477,6 +499,19 @@ export const didAttemptedSwapSucceed = async (
   const currentBalance: BigNumber = await canonicalToken.balanceOf(await recipient.getAddress())
   return !(currentBalance.eq(balanceBeforeAttemptedSwap))
 }
+
+export const getCanonicalTokenBalance = async (token: Contract, account: Signer | Contract): Promise<BigNumber> => {
+  let balance: BigNumber
+  if (await token.symbol() === 'L1WETH') {
+    balance = await account.getBalance()
+  } else {
+    const accountAddress: string = account instanceof Signer ? await account.getAddress() : account.address
+    balance = await token.balanceOf(accountAddress)
+  }
+
+  return balance
+}
+
 /**
  * Timing functions
  */

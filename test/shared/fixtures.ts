@@ -3,7 +3,7 @@ import { ethers } from 'hardhat'
 import { BigNumber, Contract } from 'ethers'
 import Transfer from '../../lib/Transfer'
 
-import { getL2SpecificArtifact } from './utils'
+import { getCustomArtifacts } from './utils'
 import { IFixture } from './interfaces'
 
 import {
@@ -35,13 +35,16 @@ import {
 export async function fixture (
   l1ChainId: BigNumber,
   l2ChainId: BigNumber,
-  l1AlreadySetOpts: any = {}
+  fixtureOpts: any = {},
 ): Promise<IFixture> {
+  const l2CanonicalTokenIsEth: boolean = fixtureOpts?.l2CanonicalTokenIsEth || false
+
   const {
+    l1_bridgeArtifact,
     l2_bridgeArtifact,
     l1_messengerArtifact,
     l1_messengerWrapperArtifact
-  } = getL2SpecificArtifact(l2ChainId)
+  } = getCustomArtifacts(l2ChainId, l2CanonicalTokenIsEth)
   const accounts = await ethers.getSigners()
   const [
     user,
@@ -58,10 +61,10 @@ export async function fixture (
     'contracts/test/Mock_L1_CanonicalBridge.sol:Mock_L1_CanonicalBridge'
   )
   const L1_Bridge = await ethers.getContractFactory(
-    'contracts/test/Mock_L1_ERC20_Bridge.sol:Mock_L1_ERC20_Bridge'
+    l1_bridgeArtifact
   )
   const L2_Bridge = await ethers.getContractFactory(
-    `contracts/test/${l2_bridgeArtifact}`
+    l2_bridgeArtifact
   )
   const L1_Messenger = await ethers.getContractFactory(
     l1_messengerArtifact
@@ -118,16 +121,30 @@ export async function fixture (
 
   // Deploy canonical tokens
   let l1_canonicalToken: Contract
-  if (l1AlreadySetOpts?.l1CanonicalTokenAddress) {
+  if (fixtureOpts?.l1CanonicalTokenAddress) {
     l1_canonicalToken = MockERC20.attach(
-      l1AlreadySetOpts.l1CanonicalTokenAddress
+      fixtureOpts.l1CanonicalTokenAddress
     )
   } else {
-    l1_canonicalToken = await MockERC20.deploy('Dai Stable Token', 'DAI')
+    if (l2CanonicalTokenIsEth) {
+      l1_canonicalToken = await MockERC20.deploy('L1 Wrapped Ether', 'L1WETH')
+    } else {
+      l1_canonicalToken = await MockERC20.deploy('Dai Stable Token', 'DAI')
+    }
+  }
+
+  let l2CanonicalTokenName: string
+  let l2CanonicalTokenSymbol: string
+  if (l2CanonicalTokenIsEth) {
+    l2CanonicalTokenName = 'Wrapped Ether'
+    l2CanonicalTokenSymbol = 'WETH'
+  } else {
+    l2CanonicalTokenName = 'L2 Dai Stable Token'
+    l2CanonicalTokenSymbol = 'L2DAI'
   }
   const l2_canonicalToken = await MockERC20.deploy(
-    'L2 Dai Stable Token',
-    'L2DAI'
+    l2CanonicalTokenName,
+    l2CanonicalTokenSymbol
   )
 
   // Deploy canonical messengers
@@ -142,10 +159,14 @@ export async function fixture (
 
   // Deploy Hop L1 contracts
   let l1_bridge: Contract
-  if (l1AlreadySetOpts?.l1BridgeAddress) {
-    l1_bridge = L1_Bridge.attach(l1AlreadySetOpts.l1BridgeAddress)
+  if (fixtureOpts?.l1BridgeAddress) {
+    l1_bridge = L1_Bridge.attach(fixtureOpts.l1BridgeAddress)
   } else {
-    l1_bridge = await L1_Bridge.deploy(l1_canonicalToken.address, [await bonder.getAddress()], await governance.getAddress())
+    if (l2CanonicalTokenIsEth) {
+      l1_bridge = await L1_Bridge.deploy([await bonder.getAddress()], await governance.getAddress())
+    } else {
+      l1_bridge = await L1_Bridge.deploy(l1_canonicalToken.address, [await bonder.getAddress()], await governance.getAddress())
+    }
   }
 
   // Deploy Hop bridge token
@@ -197,8 +218,6 @@ export async function fixture (
     DEFAULT_SWAP_WITHDRAWAL_FEE
   )
 
-  const l2CanonicalTokenName = await l2_canonicalToken.symbol()
-  const l2CanonicalTokenIsEth: boolean = l2CanonicalTokenName === 'WETH'
   const l2_ammWrapper = await L2_AmmWrapper.deploy(
     l2_bridge.address,
     l2_canonicalToken.address,
