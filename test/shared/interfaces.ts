@@ -55,4 +55,5 @@ export interface IFixture {
 
   // Other
   transfers: Transfer[]
+  l2CanonicalTokenIsEth: boolean
 }

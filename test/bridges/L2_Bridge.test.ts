@@ -131,11 +131,11 @@ describe('L2_Bridge', () => {
       transfers
     } = _fixture)
 
-    const l1AlreadySetOpts = {
+    const fixtureOpts = {
       l1BridgeAddress: l1_bridge.address,
       l1CanonicalTokenAddress: l1_canonicalToken.address
     }
-    _fixture = await fixture(l1ChainId, l22ChainId, l1AlreadySetOpts)
+    _fixture = await fixture(l1ChainId, l22ChainId, fixtureOpts)
     await setUpDefaults(_fixture)
     ;({
       l2_canonicalToken: l22_canonicalToken,

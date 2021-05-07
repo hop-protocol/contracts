@@ -293,6 +293,7 @@ export async function fixture (
     l2_ammWrapper,
     mockAccounting,
     mockBridge,
-    transfers
+    transfers,
+    l2CanonicalTokenIsEth
   }
 }
