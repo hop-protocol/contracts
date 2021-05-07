@@ -3,7 +3,7 @@
 pragma solidity 0.6.12;
 pragma experimental ABIEncoderV2;
 
-import "../polygon/tunnel/BaseRootTunnel.sol";
+import "../polygon/tunnel/FxBaseRootTunnel.sol";
 import "./MessengerWrapper.sol";
 import "../bridges/L1_Bridge.sol";
 
@@ -12,14 +12,20 @@ import "../bridges/L1_Bridge.sol";
  * @notice Deployed on layer-1
  */
 
-contract PolygonMessengerWrapper is BaseRootTunnel, MessengerWrapper {
+contract PolygonMessengerWrapper is FxBaseRootTunnel, MessengerWrapper {
 
     constructor(
-        address _l1BridgeAddress
+        address _l1BridgeAddress,
+        address _checkpointManager,
+        address _fxRoot,
+        address _fxChildTunnel
     )
         public
         MessengerWrapper(_l1BridgeAddress)
-    {}
+        FxBaseRootTunnel(_checkpointManager, _fxRoot)
+    {
+        setFxChildTunnel(_fxChildTunnel);
+    }
 
     /** 
      * @dev Sends a message to the l2MessengerProxy from layer-1
@@ -27,6 +33,7 @@ contract PolygonMessengerWrapper is BaseRootTunnel, MessengerWrapper {
      * @notice The msg.sender is sent to the L2_PolygonMessengerProxy and checked there.
      */
     function sendCrossDomainMessage(bytes memory _calldata) public override {
+        // TODO: This may need to include the receiver now
         _sendMessageToChild(
             abi.encode(msg.sender, _calldata)
         );
