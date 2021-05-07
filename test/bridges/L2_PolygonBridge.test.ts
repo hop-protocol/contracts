@@ -30,7 +30,7 @@ import {
   executeCanonicalMessengerSendMessage,
   getSetAmmWrapperAddressMessage,
   getSetL1BridgeAddressMessage,
-  getSetL1MessengerWrapperAddressMessage,
+  getSetL1BridgeCallerMessage,
   getAddActiveChainIdsMessage,
   getRemoveActiveChainIdsMessage,
   getSetMinimumForceCommitDelayMessage,

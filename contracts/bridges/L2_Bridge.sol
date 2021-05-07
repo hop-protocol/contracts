@@ -23,7 +23,7 @@ abstract contract L2_Bridge is Bridge {
     address public l1Governance;
     HopBridgeToken public immutable hToken;
     address public l1BridgeAddress;
-    address public l1MessengerWrapperAddress;
+    address public l1BridgeCaller;
     L2_AmmWrapper public ammWrapper;
     mapping(uint256 => bool) public activeChainIds;
     uint256 public minimumForceCommitDelay = 4 hours;
@@ -54,7 +54,7 @@ abstract contract L2_Bridge is Bridge {
     );
 
     modifier onlyL1Bridge {
-        _verifySender(l1MessengerWrapperAddress);
+        _verifySender(l1BridgeCaller);
         _;
     }
 
@@ -311,8 +311,8 @@ abstract contract L2_Bridge is Bridge {
         l1BridgeAddress = _l1BridgeAddress;
     }
 
-    function setL1MessengerWrapperAddress(address _l1MessengerWrapperAddress) external onlyGovernance {
-        l1MessengerWrapperAddress = _l1MessengerWrapperAddress;
+    function setL1BridgeCaller(address _l1BridgeCaller) external onlyGovernance {
+        l1BridgeCaller = _l1BridgeCaller;
     }
 
     function addActiveChainIds(uint256[] calldata chainIds) external onlyGovernance {

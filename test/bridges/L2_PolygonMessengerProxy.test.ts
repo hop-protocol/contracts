@@ -37,7 +37,7 @@ import {
   executeCanonicalMessengerSendMessage,
   getSetAmmWrapperAddressMessage,
   getSetL1BridgeAddressMessage,
-  getSetL1MessengerWrapperAddressMessage,
+  getSetL1BridgeCallerMessage,
   getSetMinimumForceCommitDelayMessage,
   getSetMaxPendingTransfersMessage,
   getSetHopBridgeTokenOwnerMessage,

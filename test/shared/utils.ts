@@ -28,7 +28,7 @@ import {
   executeCanonicalBridgeSendTokens,
   executeL1BridgeSendToL2,
   getSetL1BridgeAddressMessage,
-  getSetL1MessengerWrapperAddressMessage,
+  getSetL1BridgeCallerMessage,
   getSetAmmWrapperAddressMessage
 } from './contractFunctionWrappers'
 
@@ -178,7 +178,7 @@ export const setUpL1AndL2Bridges = async (fixture: IFixture, opts: any) => {
   )
 
   const contractToUse: Contract = isChainIdPolygon(l2ChainId) ? l1_bridge : l1_messengerWrapper
-  message = getSetL1MessengerWrapperAddressMessage(contractToUse)
+  message = getSetL1BridgeCallerMessage(contractToUse)
   await executeCanonicalMessengerSendMessage(
     l1_messenger,
     l1_messengerWrapper,

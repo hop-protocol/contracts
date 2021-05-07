@@ -1172,15 +1172,15 @@ export const getSetL1BridgeAddressMessage = (l1_bridge: Contract | string) => {
   return ethersInterface.encodeFunctionData('setL1BridgeAddress', [address])
 }
 
-export const getSetL1MessengerWrapperAddressMessage = (
+export const getSetL1BridgeCallerMessage = (
   l1_messengerWrapper: Contract | string
 ) => {
   const address = getAddressFromContractOrString(l1_messengerWrapper)
   const ABI = [
-    'function setL1MessengerWrapperAddress(address _l1MessengerWrapperAddress)'
+    'function setL1BridgeCaller(address _l1BridgeCaller)'
   ]
   const ethersInterface = new ethersUtils.Interface(ABI)
-  return ethersInterface.encodeFunctionData('setL1MessengerWrapperAddress', [
+  return ethersInterface.encodeFunctionData('setL1BridgeCaller', [
     address
   ])
 }

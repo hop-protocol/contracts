@@ -31,7 +31,7 @@ import {
   executeCanonicalMessengerSendMessage,
   getSetAmmWrapperAddressMessage,
   getSetL1BridgeAddressMessage,
-  getSetL1MessengerWrapperAddressMessage,
+  getSetL1BridgeCallerMessage,
   getAddActiveChainIdsMessage,
   getRemoveActiveChainIdsMessage,
   getSetMinimumForceCommitDelayMessage,
@@ -281,10 +281,10 @@ describe('L2_Bridge', () => {
     })
 
     it('Should set the L1 messenger wrapper address arbitrarily', async () => {
-      const expectedL1MessengerWrapperAddress: string = ONE_ADDRESS
+      const expectedL1BridgeCaller: string = ONE_ADDRESS
 
-      const message: string = getSetL1MessengerWrapperAddressMessage(
-        expectedL1MessengerWrapperAddress
+      const message: string = getSetL1BridgeCallerMessage(
+        expectedL1BridgeCaller
       )
       await executeCanonicalMessengerSendMessage(
         l1_messenger,
@@ -296,8 +296,8 @@ describe('L2_Bridge', () => {
         l2ChainId
       )
 
-      const l1MessengerWrapperAddress: string = await l2_bridge.l1MessengerWrapperAddress()
-      expect(l1MessengerWrapperAddress).to.eq(expectedL1MessengerWrapperAddress)
+      const l1BridgeCaller: string = await l2_bridge.l1BridgeCaller()
+      expect(l1BridgeCaller).to.eq(expectedL1BridgeCaller)
     })
 
     it('Should add support for a new chainId', async () => {
@@ -750,10 +750,10 @@ describe('L2_Bridge', () => {
 
     it('Should not allow an arbitrary address to set the L1 messenger wrapper address arbitrarily', async () => {
       const expectedErrorMsg: string = 'L2_OVM_BRG: Invalid cross-domain sender'
-      const expectedL1MessengerWrapperAddress: string = ONE_ADDRESS
+      const expectedL1BridgeCaller: string = ONE_ADDRESS
 
-      const message: string = getSetL1MessengerWrapperAddressMessage(
-        expectedL1MessengerWrapperAddress
+      const message: string = getSetL1BridgeCallerMessage(
+        expectedL1BridgeCaller
       )
       await expect(
         executeCanonicalMessengerSendMessage(

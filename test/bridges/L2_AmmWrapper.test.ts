@@ -31,7 +31,7 @@ import {
   executeCanonicalMessengerSendMessage,
   getSetAmmWrapperAddressMessage,
   getSetL1BridgeAddressMessage,
-  getSetL1MessengerWrapperAddressMessage,
+  getSetL1BridgeCallerMessage,
   getAddActiveChainIdsMessage,
   getRemoveActiveChainIdsMessage,
   getSetMinimumForceCommitDelayMessage,
@@ -538,7 +538,7 @@ describe('L2_AmmWrapper', () => {
       )
     })
 
-    it.only('Should successfully swap h token for canonical token twice', async () => {
+    it('Should successfully swap h token for canonical token twice', async () => {
       await executeL1BridgeSendToL2(
         l1_canonicalToken,
         l1_bridge,
