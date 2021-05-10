@@ -175,10 +175,12 @@ export async function fixture (
 
   // Deploy Messenger Wrapper
   const messengerWrapperDefaults:any[] = getMessengerWrapperDefaults(
+    l1ChainId,
     l2ChainId,
     l1_bridge.address,
     l2_bridge.address,
-    l1_messenger.address
+    l1_messenger.address,
+    l2_messengerProxy.address
   )
   const l1_messengerWrapper = await L1_MessengerWrapper.deploy(
     ...messengerWrapperDefaults

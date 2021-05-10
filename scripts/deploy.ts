@@ -61,18 +61,11 @@ interface INetworkParams extends IGeneralData, ISpecificData {
 // NOTE: This will deploy the messenger wrapper / messenger
 // $ npm run deploy -- goerli xpolygon USDC 
 
-// Polygon must be deployed and set up separately because of the linking.
-// For the first part (deployment) you must run with `true` as the final paramter. For the second, run without the final parameter
-// $ npm run deploy -- goerli optimism USDC true
 async function main () {
   logger.log('deploy script initiated')
   const l1NetworkName: string = process.argv[2].toLowerCase()
   const l2NetworkName: string = process.argv[3].toLowerCase()
   const tokenSymbol: string = process.argv[4].toLowerCase()
-
-  // NOTE: The first Polygon run requires deployments but not setup
-  const isPolygonFirstRun: boolean = process?.argv[5] ? true : false
-  updateConfigFile({ isPolygonFirstRun })
 
   if (!l1NetworkName) {
     throw new Error('L1 network name not specified')
@@ -94,13 +87,8 @@ async function main () {
     scripts.push(
       `npm run deploy:l2-${l2NetworkName}`,
       `npm run setup:l1-${l1NetworkName}`,
+      `npm run setup:l2-${l2NetworkName}`
     )
-
-    if (!isPolygonFirstRun) {
-      scripts.push(
-        `npm run setup:l2-${l2NetworkName}`
-      )
-    }
   }
 
   for (let i = 0; i < scripts.length; i++) {

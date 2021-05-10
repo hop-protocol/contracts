@@ -21,6 +21,7 @@ import {
 import {
   isChainIdMainnet,
   isChainIdPolygon,
+  getPolygonFxChildAddress,
   getL2BridgeDefaults
 } from '../../config/utils'
 
@@ -41,6 +42,7 @@ interface Config {
   l1_chainId: string | BigNumber
   l2_chainId: string | BigNumber
   l1_bridgeAddress: string
+  l1_messengerWrapperAddress: string
   l2_canonicalTokenAddress: string
   l2_messengerAddress: string
   l2_hBridgeTokenName: string
@@ -48,7 +50,6 @@ interface Config {
   l2_hBridgeTokenDecimals: number
   l2_swapLpTokenName: string
   l2_swapLpTokenSymbol: string
-  isPolygonFirstRun: boolean
 }
 
 export async function deployL2 (config: Config) {
@@ -58,26 +59,26 @@ export async function deployL2 (config: Config) {
     l1_chainId,
     l2_chainId,
     l1_bridgeAddress,
+    l1_messengerWrapperAddress,
     l2_canonicalTokenAddress,
     l2_messengerAddress,
     l2_hBridgeTokenName,
     l2_hBridgeTokenSymbol,
     l2_hBridgeTokenDecimals,
     l2_swapLpTokenName,
-    l2_swapLpTokenSymbol,
-    isPolygonFirstRun
+    l2_swapLpTokenSymbol
   } = config
 
   logger.log(`config:
             l1_chainId: ${l1_chainId}
             l2_chainId: ${l2_chainId}
             l1_bridgeAddress: ${l1_bridgeAddress}
+            l1_messengerWrapper: ${l1_messengerWrapperAddress}
             l2_canonicalTokenAddress: ${l2_canonicalTokenAddress}
             l2_messengerAddress: ${l2_messengerAddress}
             l2_hBridgeTokenName: ${l2_hBridgeTokenName}
             l2_hBridgeTokenSymbol: ${l2_hBridgeTokenSymbol}
-            l2_hBridgeTokenDecimals: ${l2_hBridgeTokenDecimals}
-            isPolygonFirstRun: ${isPolygonFirstRun}`)
+            l2_hBridgeTokenDecimals: ${l2_hBridgeTokenDecimals}`)
 
   l1_chainId = BigNumber.from(l1_chainId)
   l2_chainId = BigNumber.from(l2_chainId)
@@ -147,16 +148,11 @@ export async function deployL2 (config: Config) {
 
 
   let l2_messengerProxyAddress: string = ''
-  if (isChainIdPolygon(l2_chainId) && isPolygonFirstRun) {
+  if (isChainIdPolygon(l2_chainId)) {
     l2_messengerProxy = await L2_MessengerProxy.deploy()
     await waitAfterTransaction(l2_messengerProxy, ethers)
-    l2_messengerProxyAddress = l2_messengerProxy.address
-    l2_messengerAddress = l2_messengerProxy.address
-  } else if (isChainIdPolygon(l2_chainId) && !isPolygonFirstRun) {
-    l2_messengerProxy = L2_MessengerProxy.attach(l2_messengerProxyAddress)
     l2_messengerAddress = l2_messengerProxy.address
   }
-
 
   logger.log('deploying L2 hop bridge token')
   l2_hopBridgeToken = await L2_HopBridgeToken.deploy(
@@ -210,17 +206,17 @@ export async function deployL2 (config: Config) {
   await tx.wait()
   await waitAfterTransaction()
 
-  if (isChainIdPolygon(l2_chainId) && isPolygonFirstRun) {
+  if (isChainIdPolygon(l2_chainId)) {
     let tx = await l2_messengerProxy.setL2Bridge(l2_bridge.address, overrides)
     await tx.wait()
     await waitAfterTransaction()
 
-    // NOTE: You cannot remove all members of a role. Instead, set to 0 and then remove the original
-    tx = await l2_messengerProxy.grantRole(DEFAULT_ADMIN_ROLE_HASH, ZERO_ADDRESS, overrides)
+    await l2_messengerProxy.setFxRootTunnel(l1_messengerWrapperAddress)
     await tx.wait()
     await waitAfterTransaction()
 
-    tx = await l2_messengerProxy.revokeRole(DEFAULT_ADMIN_ROLE_HASH, await owner.getAddress(), overrides)
+    const fxChild: string = getPolygonFxChildAddress(l1_chainId)
+    await l2_messengerProxy.setFxChild(fxChild)
     await tx.wait()
     await waitAfterTransaction()
   }
@@ -392,27 +388,27 @@ if (require.main === module) {
     l1_chainId,
     l2_chainId,
     l1_bridgeAddress,
+    l1_messengerWrapperAddress,
     l2_canonicalTokenAddress,
     l2_messengerAddress,
     l2_hBridgeTokenName,
     l2_hBridgeTokenSymbol,
     l2_hBridgeTokenDecimals,
     l2_swapLpTokenName,
-    l2_swapLpTokenSymbol,
-    isPolygonFirstRun
+    l2_swapLpTokenSymbol
   } = readConfigFile()
   deployL2({
     l1_chainId,
     l2_chainId,
     l1_bridgeAddress,
+    l1_messengerWrapperAddress,
     l2_canonicalTokenAddress,
     l2_messengerAddress,
     l2_hBridgeTokenName,
     l2_hBridgeTokenSymbol,
     l2_hBridgeTokenDecimals,
     l2_swapLpTokenName,
-    l2_swapLpTokenSymbol,
-    isPolygonFirstRun
+    l2_swapLpTokenSymbol
   })
     .then(() => {
       process.exit(0)

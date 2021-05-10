@@ -9,15 +9,18 @@ import {
   DEFAULT_MESSENGER_WRAPPER_CALL_VALUE,
   DEFAULT_L2_BRIDGE_GAS_LIMIT,
   CHECKPOINT_MANAGER_ADDRESSES,
-  STATE_SENDER_ADDRESSES,
+  FX_ROOT_ADDRESSES,
+  FX_CHILD_ADDRESSES,
   ERC20_PREDICATE_ADDRESSES
 } from './constants'
 
 export const getMessengerWrapperDefaults = (
-  chainId: BigNumber,
+  l1ChainId: BigNumber,
+  l2ChainId: BigNumber,
   l1BridgeAddress: string,
   l2BridgeAddress: string,
-  l1MessengerAddress: string
+  l1MessengerAddress: string,
+  l2MessengerProxyAddress: string
 ): any[] => {
   // Ending data to return
   let data: any = []
@@ -29,7 +32,7 @@ export const getMessengerWrapperDefaults = (
     l1MessengerAddress
   ]
 
-  if (isChainIdArbitrum(chainId)) {
+  if (isChainIdArbitrum(l2ChainId)) {
     const gasLimit: number = DEFAULT_MESSENGER_WRAPPER_GAS_LIMIT
     const gasPrice: number = DEFAULT_MESSENGER_WRAPPER_GAS_PRICE
     const callValue: number = DEFAULT_MESSENGER_WRAPPER_CALL_VALUE
@@ -40,14 +43,14 @@ export const getMessengerWrapperDefaults = (
       gasPrice,
       callValue
     )
-  } else if (isChainIdOptimism(chainId)) {
+  } else if (isChainIdOptimism(l2ChainId)) {
     const gasLimit: number = DEFAULT_MESSENGER_WRAPPER_GAS_LIMIT
 
     data.push(
       ...defaults,
       gasLimit
     )
-  } else if (isChainIdXDai(chainId)) {
+  } else if (isChainIdXDai(l2ChainId)) {
     const gasLimit: number = 1000000
     const isAmbL1: boolean = true
     const ambAddress: string = getXDaiAmbAddresses(isAmbL1)
@@ -55,12 +58,19 @@ export const getMessengerWrapperDefaults = (
     data.push(
       ...defaults,
       gasLimit,
-      chainId.toString(),
+      l2ChainId.toString(),
       ambAddress
     )
-  } else if (isChainIdPolygon(chainId)) {
+  } else if (isChainIdPolygon(l2ChainId)) {
+    const checkpointManager: string = getPolygonCheckpointManagerAddress(l1ChainId)
+    const fxRootAddress: string = l1MessengerAddress
+    const fxChildTunnelAddress: string = l2MessengerProxyAddress
+
     data.push(
-      l1BridgeAddress
+      l1BridgeAddress,
+      checkpointManager,
+      fxRootAddress,
+      fxChildTunnelAddress
     )
   }
 
@@ -218,21 +228,31 @@ export const getAllActiveChainIds = (obj: any): string[] =>
         .filter((a: any) => typeof a === 'string')
     : [obj]
 
-export const getPolygonStateSenderAddress = (l1ChainId: BigNumber): string => {
-  if (isChainIdMainnet(l1ChainId)) {
-    return STATE_SENDER_ADDRESSES.MAINNET
-  } else if (isChainIdGoerli(l1ChainId)) {
-    return STATE_SENDER_ADDRESSES.GOERLI
-  } else {
-    throw new Error('Invalid Chain ID')
-  }
-}
-
 export const getPolygonCheckpointManagerAddress = (l1ChainId: BigNumber): string => {
   if (isChainIdMainnet(l1ChainId)) {
     return CHECKPOINT_MANAGER_ADDRESSES.MAINNET
   } else if (isChainIdGoerli(l1ChainId)) {
     return CHECKPOINT_MANAGER_ADDRESSES.GOERLI
+  } else {
+    throw new Error('Invalid Chain ID')
+  }
+}
+
+export const getPolygonFxRootAddress = (l1ChainId: BigNumber): string => {
+  if (isChainIdMainnet(l1ChainId)) {
+    return FX_ROOT_ADDRESSES.MAINNET
+  } else if (isChainIdGoerli(l1ChainId)) {
+    return FX_ROOT_ADDRESSES.GOERLI
+  } else {
+    throw new Error('Invalid Chain ID')
+  }
+}
+
+export const getPolygonFxChildAddress = (l1ChainId: BigNumber): string => {
+  if (isChainIdMainnet(l1ChainId)) {
+    return FX_CHILD_ADDRESSES.MAINNET
+  } else if (isChainIdGoerli(l1ChainId)) {
+    return FX_CHILD_ADDRESSES.GOERLI
   } else {
     throw new Error('Invalid Chain ID')
   }
