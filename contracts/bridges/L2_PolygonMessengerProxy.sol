@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity 0.6.12;
+pragma solidity 0.7.3;
 pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
@@ -49,7 +49,7 @@ contract L2_PolygonMessengerProxy is FxBaseChildTunnel, ReentrancyGuard {
         nonReentrant
     {
         // TODO: This might be (address sender, address receiver, bytes memory message)
-        (address sender, bytes memory message) = abi.decode(data, (address, address, bytes));
+        (address sender, bytes memory message) = abi.decode(data, (address, bytes));
         xDomainMessageSender = sender;
         (bool success,) = l2Bridge.call(message);
         require(success, "L2_PLGN_MSG: Failed to proxy message");

@@ -76,7 +76,7 @@ export async function fixture (
     'contracts/test/Mock_L2_Messenger.sol:Mock_L2_Messenger'
   )
   const L2_MessengerProxy = await ethers.getContractFactory(
-    'contracts/test/Mock_L2_PolygonMessengerProxy.sol:Mock_L2_PolygonMessengerProxy'
+    'contracts/bridges/L2_PolygonMessengerProxy.sol:L2_PolygonMessengerProxy'
   )
 
   const MathUtils = await ethers.getContractFactory('MathUtils')
