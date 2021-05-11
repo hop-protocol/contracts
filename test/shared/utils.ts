@@ -113,7 +113,6 @@ export const setUpL1AndL2Messengers = async (fixture: IFixture, setUpL1AndL2Mess
     // Set L2 bridge on proxy
     await l2_messengerProxy.setL2Bridge(l2_bridge.address)
     await l2_messengerProxy.setFxRootTunnel(l1_messengerWrapper.address)
-    await l2_messengerProxy.setFxChild(l2_messenger.address)
 
     // Set up L1 messenger
     await l1_messenger.setPolygonTarget(l2_messengerProxy.address)

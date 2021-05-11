@@ -19,6 +19,10 @@ abstract contract FxBaseChildTunnel is IFxMessageProcessor{
     // fx root tunnel
     address public fxRootTunnel;
 
+    constructor(address _fxChild) {
+        fxChild = _fxChild;
+    }
+
     // Sender must be fxRootTunnel in case of ERC20 tunnel
     modifier validateSender(address sender) {
         require(sender == fxRootTunnel, "FxBaseChildTunnel: INVALID_SENDER_FROM_ROOT");
@@ -29,12 +33,6 @@ abstract contract FxBaseChildTunnel is IFxMessageProcessor{
     function setFxRootTunnel(address _fxRootTunnel) public {
         require(fxRootTunnel == address(0x0), "FxBaseChildTunnel: ROOT_TUNNEL_ALREADY_SET");
         fxRootTunnel = _fxRootTunnel;
-    }
-
-    // set fxChild if not set already
-    function setFxChild(address _fxChild) public {
-        require(fxChild == address(0x0), "FxBaseChildTunnel: FX_CHILD_ALREADY_SET");
-        fxChild = _fxChild;
     }
 
     function processMessageFromRoot(uint256 stateId, address rootMessageSender, bytes calldata data) public override {
@@ -61,7 +59,7 @@ abstract contract FxBaseChildTunnel is IFxMessageProcessor{
      * This is called by onStateReceive function.
      * Since it is called via a system call, any event will not be emitted during its execution.
      * @param stateId unique state id
-     * @param sender root messge sender
+     * @param sender root message sender
      * @param message bytes message that was sent from Root Tunnel
      */
     function _processMessageFromRoot(uint256 stateId, address sender, bytes memory message) virtual internal;

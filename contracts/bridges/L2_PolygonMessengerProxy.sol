@@ -18,7 +18,7 @@ contract L2_PolygonMessengerProxy is FxBaseChildTunnel, ReentrancyGuard {
         _;
     }
 
-    constructor() public {
+    constructor(address _fxChild) public FxBaseChildTunnel(_fxChild) {
         xDomainMessageSender = DEAD_ADDRESS;
     }
 

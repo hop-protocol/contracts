@@ -156,7 +156,7 @@ export async function fixture (
   )
 
   // Deploy Messenger Proxy
-  const l2_messengerProxy: Contract = await L2_MessengerProxy.deploy()
+  const l2_messengerProxy: Contract = await L2_MessengerProxy.deploy(l2_messenger.address)
 
   // Deploy Hop L2 contracts
   let l2BridgeDefaults: IGetL2BridgeDefaults[] = getL2BridgeDefaults(

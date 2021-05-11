@@ -149,8 +149,10 @@ export async function deployL2 (config: Config) {
 
   let l2_messengerProxyAddress: string = ''
   if (isChainIdPolygon(l2_chainId)) {
-    l2_messengerProxy = await L2_MessengerProxy.deploy()
+    const fxChild: string = getPolygonFxChildAddress(l1_chainId)
+    l2_messengerProxy = await L2_MessengerProxy.deploy(fxChild)
     await waitAfterTransaction(l2_messengerProxy, ethers)
+
     l2_messengerAddress = l2_messengerProxy.address
   }
 
@@ -212,11 +214,6 @@ export async function deployL2 (config: Config) {
     await waitAfterTransaction()
 
     await l2_messengerProxy.setFxRootTunnel(l1_messengerWrapperAddress)
-    await tx.wait()
-    await waitAfterTransaction()
-
-    const fxChild: string = getPolygonFxChildAddress(l1_chainId)
-    await l2_messengerProxy.setFxChild(fxChild)
     await tx.wait()
     await waitAfterTransaction()
   }
