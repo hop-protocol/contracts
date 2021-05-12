@@ -76,7 +76,7 @@ export async function fixture (
     'contracts/test/Mock_L2_Messenger.sol:Mock_L2_Messenger'
   )
   const L2_MessengerProxy = await ethers.getContractFactory(
-    'contracts/test/Mock_L2_PolygonMessengerProxy.sol:Mock_L2_PolygonMessengerProxy'
+    'contracts/bridges/L2_PolygonMessengerProxy.sol:L2_PolygonMessengerProxy'
   )
 
   const FxRoot = await ethers.getContractFactory(
@@ -169,10 +169,7 @@ export async function fixture (
   )
 
   // Deploy Messenger Proxy
-  const l2_messengerProxy: Contract = await L2_MessengerProxy.deploy(
-    fxChild.address,
-    l2_messenger.address
-  )
+  const l2_messengerProxy: Contract = await L2_MessengerProxy.deploy(fxChild.address)
 
   // Deploy Hop L2 contracts
   let l2BridgeDefaults: IGetL2BridgeDefaults[] = getL2BridgeDefaults(

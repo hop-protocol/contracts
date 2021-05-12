@@ -122,6 +122,7 @@ export const setUpL1AndL2Messengers = async (fixture: IFixture, setUpL1AndL2Mess
     // Set up L2 messenger
     await l2_messenger.setPolygonTarget(l1_messengerWrapper.address)
     await fxChild.setFxRoot(fxRoot.address)
+    await fxChild.setL2Messenger(l2_messenger.address)
   }
 
   // Set up L1
@@ -462,6 +463,13 @@ export const didAttemptedSwapSucceed = async (
 ): Promise<boolean> => {
   const currentBalance: BigNumber = await canonicalToken.balanceOf(await recipient.getAddress())
   return !(currentBalance.eq(balanceBeforeAttemptedSwap))
+}
+
+export const relayNextMessage = async (
+  l1_messengerWrapper: Contract,
+  message: string
+) => {
+  return l1_messengerWrapper.processMessageFromChild(message)
 }
 /**
  * Timing functions

@@ -76,16 +76,5 @@ contract Mock_L2_Messenger is MockMessenger {
 
     /* ========== Polygon ========== */
 
-    function syncState(
-        address _fxRootTunnel,
-        bytes memory _message
-    )
-        external
-    {
-        targetMessenger.receiveMessage(
-            _fxRootTunnel,
-            _message,
-            address(2)
-        );
-    }
+    // Polygon L2 to L1 messaging is event-based
 }

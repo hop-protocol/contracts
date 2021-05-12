@@ -16,6 +16,7 @@ interface IFxMessageProcessor {
  */
 contract MockFxChild is IStateReceiver {
     address public fxRoot;
+    address public l2Messenger;
 
     event NewFxMessage(address rootMessageSender, address receiver, bytes data);
 
@@ -24,9 +25,13 @@ contract MockFxChild is IStateReceiver {
         fxRoot = _fxRoot;
     }
 
+    function setL2Messenger(address _l2Messenger) public {
+        require(l2Messenger == address(0x0));
+        l2Messenger = _l2Messenger;
+    }
+
     function onStateReceive(uint256 stateId, bytes calldata _data) external override {
-        // TODO: Set this up as the L2 messenger
-        // require(msg.sender == address(0x0000000000000000000000000000000000001001), "Invalid sender");
+        require(msg.sender == l2Messenger, "Invalid sender");
         (address rootMessageSender, address receiver, bytes memory data) = abi.decode(_data, (address, address, bytes));
         emit NewFxMessage(rootMessageSender, receiver, data);
         IFxMessageProcessor(receiver).processMessageFromRoot(stateId, rootMessageSender, data);

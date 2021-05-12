@@ -5,7 +5,6 @@ pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
-import "../interfaces/polygon/messengers/IPolygonMessengerWrapper.sol";
 import "../interfaces/polygon/messengers/IPolygonFxChild.sol";
 
 import "./BytesLib.sol";
@@ -44,13 +43,10 @@ abstract contract MockMessenger {
 
         // Use sender address to signify where the message is coming from 
         bool isFromPolygonL1 = nextMessage.sender == address(1);
-        bool isFromPolygonL2 = nextMessage.sender == address(2);
 
         if (isFromPolygonL1) {
             uint256 stateId = 0;
             IPolygonFxChild(nextMessage.target).onStateReceive(stateId, nextMessage.message);
-        } else if (isFromPolygonL2) {
-            IPolygonMessengerWrapper(nextMessage.target).processMessageFromChild(nextMessage.message);
         } else {
             (bool success, bytes memory res) = nextMessage.target.call(nextMessage.message);
             require(success, _getRevertMsgFromRes(res));

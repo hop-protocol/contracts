@@ -27,7 +27,7 @@ contract L2_PolygonMessengerProxy is FxBaseChildTunnel, ReentrancyGuard {
         l2Bridge = _l2Bridge;
     }
 
-    function sendCrossDomainMessage(bytes memory message) external virtual onlyL2Bridge {
+    function sendCrossDomainMessage(bytes memory message) external onlyL2Bridge {
         _sendMessageToRoot(message);
     }
 

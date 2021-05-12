@@ -11,11 +11,13 @@ import {
   increaseTime,
   revertSnapshot,
   takeSnapshot,
-  getTransferNonceFromEvent
+  getTransferNonceFromEvent,
+  relayNextMessage
 } from '../shared/utils'
 import {
   executeCanonicalBridgeSendTokens,
   getSetMessengerProxyMessage,
+  executeBridgeWithdraw,
   getAddBonderMessage,
   executeL1BridgeSendToL2,
   executeBridgeBondWithdrawal,
@@ -201,6 +203,29 @@ describe('L2_Polygon_Bridge', () => {
    * Happy Path
    */
 
+  it('Should send a transaction back to L1', async () => {
+    await executeL2BridgeSend(l2_hopBridgeToken, l2_bridge, transfer)
+
+    await executeL2BridgeCommitTransfers(l2_bridge, [transfer], bonder)
+
+    const messageSentEvent = (
+      await l2_messengerProxy.queryFilter(l2_messengerProxy.filters.MessageSent())
+    )[0]
+    const message = messageSentEvent.args[0]
+
+    const timeToWait: number = 11 * SECONDS_IN_A_DAY
+    await increaseTime(timeToWait)
+    await relayNextMessage(l1_messengerWrapper, message)
+
+    await executeBridgeWithdraw(
+      l1_canonicalToken,
+      l1_bridge,
+      l2_bridge,
+      transfer,
+      bonder
+    )
+  })
+
   it('Should set an arbitrary messenger proxy', async () => {
     const expectedMessengerProxyAddress: string = ONE_ADDRESS
 
@@ -220,7 +245,6 @@ describe('L2_Polygon_Bridge', () => {
     const messengerProxyAddress: string = await l2_bridge.messengerProxy()
     expect(messengerProxyAddress).to.eq(expectedMessengerProxyAddress)
   })
-
 
   /**
    * Non-Happy Path
