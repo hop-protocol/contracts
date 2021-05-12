@@ -27,7 +27,7 @@ contract L2_PolygonMessengerProxy is FxBaseChildTunnel, ReentrancyGuard {
         l2Bridge = _l2Bridge;
     }
 
-    function sendCrossDomainMessage(bytes memory message) external onlyL2Bridge {
+    function sendCrossDomainMessage(bytes memory message) external virtual onlyL2Bridge {
         _sendMessageToRoot(message);
     }
 
@@ -41,9 +41,8 @@ contract L2_PolygonMessengerProxy is FxBaseChildTunnel, ReentrancyGuard {
         validateSender(sender)
         nonReentrant
     {
-        // TODO: This might be (address sender, address receiver, bytes memory message)
-        (address sender, bytes memory message) = abi.decode(data, (address, bytes));
-        xDomainMessageSender = sender;
+        (address l1Sender, bytes memory message) = abi.decode(data, (address, bytes));
+        xDomainMessageSender = l1Sender;
         (bool success,) = l2Bridge.call(message);
         require(success, "L2_PLGN_MSG: Failed to proxy message");
         xDomainMessageSender = DEAD_ADDRESS;

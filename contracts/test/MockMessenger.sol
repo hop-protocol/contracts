@@ -6,7 +6,7 @@ pragma experimental ABIEncoderV2;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import "../interfaces/polygon/messengers/IPolygonMessengerWrapper.sol";
-import "../interfaces/polygon/messengers/I_L2_PolygonMessengerProxy.sol";
+import "../interfaces/polygon/messengers/IPolygonFxChild.sol";
 
 import "./BytesLib.sol";
 
@@ -22,8 +22,6 @@ abstract contract MockMessenger {
 
     Message public nextMessage;
     IERC20 public canonicalToken;
-    bool public isPolygonL1;
-    bool public isPolygonL2;
 
     /**
      * Chain specific params
@@ -40,28 +38,19 @@ abstract contract MockMessenger {
         canonicalToken = _canonicalToken;
     }
 
-    function setIsPolygonL1(bool _isPolygonL1) public {
-        isPolygonL1 = _isPolygonL1;
-    }
-
-    function setIsPolygonL2(bool _isPolygonL2) public {
-        isPolygonL2 = _isPolygonL2;
-    }
-
     function relayNextMessage() public {
         messageSender = nextMessage.sender;
         xDomainMessageSender = nextMessage.sender;
 
-        if (isPolygonL1) {
+        // Use sender address to signify where the message is coming from 
+        bool isFromPolygonL1 = nextMessage.sender == address(1);
+        bool isFromPolygonL2 = nextMessage.sender == address(2);
+
+        if (isFromPolygonL1) {
+            uint256 stateId = 0;
+            IPolygonFxChild(nextMessage.target).onStateReceive(stateId, nextMessage.message);
+        } else if (isFromPolygonL2) {
             IPolygonMessengerWrapper(nextMessage.target).processMessageFromChild(nextMessage.message);
-        } else if (isPolygonL2) {
-            // This is required because Polygon has a "messenger" for each token and not a generalized messenger
-            if (nextMessage.target == address(canonicalToken)) {
-                (bool success, bytes memory res) = nextMessage.target.call(nextMessage.message);
-                require(success, _getRevertMsgFromRes(res));
-            } else {
-                I_L2_PolygonMessengerProxy(nextMessage.target).processMessageFromRoot(nextMessage.message);
-            }
         } else {
             (bool success, bytes memory res) = nextMessage.target.call(nextMessage.message);
             require(success, _getRevertMsgFromRes(res));

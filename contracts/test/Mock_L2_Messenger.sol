@@ -76,15 +76,16 @@ contract Mock_L2_Messenger is MockMessenger {
 
     /* ========== Polygon ========== */
 
-    function sendCrossDomainMessage(
-        bytes calldata _message
+    function syncState(
+        address _fxRootTunnel,
+        bytes memory _message
     )
-        public
+        external
     {
         targetMessenger.receiveMessage(
-            polygonTarget,
+            _fxRootTunnel,
             _message,
-            address(0)
+            address(2)
         );
     }
 }

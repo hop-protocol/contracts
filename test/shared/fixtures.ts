@@ -76,7 +76,15 @@ export async function fixture (
     'contracts/test/Mock_L2_Messenger.sol:Mock_L2_Messenger'
   )
   const L2_MessengerProxy = await ethers.getContractFactory(
-    'contracts/bridges/L2_PolygonMessengerProxy.sol:L2_PolygonMessengerProxy'
+    'contracts/test/Mock_L2_PolygonMessengerProxy.sol:Mock_L2_PolygonMessengerProxy'
+  )
+
+  const FxRoot = await ethers.getContractFactory(
+    'contracts/test/MockFxRoot.sol:MockFxRoot'
+  )
+
+  const FxChild = await ethers.getContractFactory(
+    'contracts/test/MockFxChild.sol:MockFxChild'
   )
 
   const MathUtils = await ethers.getContractFactory('MathUtils')
@@ -134,6 +142,11 @@ export async function fixture (
   const l1_messenger = await L1_Messenger.deploy(l1_canonicalToken.address)
   const l2_messenger = await L2_Messenger.deploy(l2_canonicalToken.address)
 
+  // Deploy Polygon-specific messengers
+  const stateSender: string = l1_messenger.address
+  const fxRoot = await FxRoot.deploy(stateSender)
+  const fxChild = await FxChild.deploy()
+
   // Deploy canonical bridges
   const l1_canonicalBridge = await L1_CanonicalBridge.deploy(
     l1_canonicalToken.address,
@@ -156,7 +169,10 @@ export async function fixture (
   )
 
   // Deploy Messenger Proxy
-  const l2_messengerProxy: Contract = await L2_MessengerProxy.deploy(l2_messenger.address)
+  const l2_messengerProxy: Contract = await L2_MessengerProxy.deploy(
+    fxChild.address,
+    l2_messenger.address
+  )
 
   // Deploy Hop L2 contracts
   let l2BridgeDefaults: IGetL2BridgeDefaults[] = getL2BridgeDefaults(
@@ -174,13 +190,16 @@ export async function fixture (
   const l2_bridge = await L2_Bridge.deploy(l2ChainId, ...l2BridgeDefaults)
 
   // Deploy Messenger Wrapper
+  const fxChildTunnelAddress: string = l2_messengerProxy.address
   const messengerWrapperDefaults:any[] = getMessengerWrapperDefaults(
     l1ChainId,
     l2ChainId,
     l1_bridge.address,
     l2_bridge.address,
     l1_messenger.address,
-    l2_messengerProxy.address
+    l2_messengerProxy.address,
+    fxRoot.address,
+    fxChildTunnelAddress
   )
   const l1_messengerWrapper = await L1_MessengerWrapper.deploy(
     ...messengerWrapperDefaults
@@ -279,6 +298,8 @@ export async function fixture (
     L2_MessengerProxy,
     L2_Swap,
     L2_AmmWrapper,
+    FxRoot,
+    FxChild,
     MockAccounting,
     MockBridge,
     l1_canonicalToken,
@@ -293,6 +314,8 @@ export async function fixture (
     l2_canonicalToken,
     l2_swap,
     l2_ammWrapper,
+    fxRoot,
+    fxChild,
     mockAccounting,
     mockBridge,
     transfers

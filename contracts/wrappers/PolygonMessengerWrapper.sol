@@ -32,7 +32,6 @@ contract PolygonMessengerWrapper is FxBaseRootTunnel, MessengerWrapper {
      * @notice The msg.sender is sent to the L2_PolygonMessengerProxy and checked there.
      */
     function sendCrossDomainMessage(bytes memory _calldata) public override {
-        // TODO: This may need to include the receiver now
         _sendMessageToChild(
             abi.encode(msg.sender, _calldata)
         );

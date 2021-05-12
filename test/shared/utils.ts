@@ -103,7 +103,9 @@ export const setUpL1AndL2Messengers = async (fixture: IFixture, setUpL1AndL2Mess
     l1_messenger,
     l1_messengerWrapper,
     l2_messenger,
-    l2_messengerProxy
+    l2_messengerProxy,
+    fxRoot,
+    fxChild
   } = fixture
 
   const { l2ChainId } = setUpL1AndL2MessengersOpts
@@ -115,12 +117,11 @@ export const setUpL1AndL2Messengers = async (fixture: IFixture, setUpL1AndL2Mess
     await l2_messengerProxy.setFxRootTunnel(l1_messengerWrapper.address)
 
     // Set up L1 messenger
-    await l1_messenger.setPolygonTarget(l2_messengerProxy.address)
-    await l1_messenger.setIsPolygonL1(true)
+    await fxRoot.setFxChild(fxChild.address)
 
     // Set up L2 messenger
     await l2_messenger.setPolygonTarget(l1_messengerWrapper.address)
-    await l2_messenger.setIsPolygonL2(true)
+    await fxChild.setFxRoot(fxRoot.address)
   }
 
   // Set up L1
