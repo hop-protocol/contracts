@@ -11,7 +11,8 @@ import {
   CHECKPOINT_MANAGER_ADDRESSES,
   FX_ROOT_ADDRESSES,
   FX_CHILD_ADDRESSES,
-  ERC20_PREDICATE_ADDRESSES
+  ERC20_PREDICATE_ADDRESSES,
+  ERC20_MINTABLE_PREDICATE_ADDRESSES
 } from './constants'
 
 export const getMessengerWrapperDefaults = (
@@ -20,7 +21,6 @@ export const getMessengerWrapperDefaults = (
   l1BridgeAddress: string,
   l2BridgeAddress: string,
   l1MessengerAddress: string,
-  l2MessengerProxyAddress: string,
   fxRootAddress: string,
   fxChildTunnelAddress: string
 ): any[] => {
@@ -263,6 +263,16 @@ export const getPolygonErc20PredicateAddress = (l1ChainId: BigNumber): string =>
     return ERC20_PREDICATE_ADDRESSES.MAINNET
   } else if (isChainIdGoerli(l1ChainId)) {
     return ERC20_PREDICATE_ADDRESSES.GOERLI
+  } else {
+    throw new Error('Invalid Chain ID')
+  }
+}
+
+export const getPolygonMintableErc20PredicateAddress = (l1ChainId: BigNumber): string => {
+  if (isChainIdMainnet(l1ChainId)) {
+    return ERC20_MINTABLE_PREDICATE_ADDRESSES.MAINNET
+  } else if (isChainIdGoerli(l1ChainId)) {
+    return ERC20_MINTABLE_PREDICATE_ADDRESSES.GOERLI
   } else {
     throw new Error('Invalid Chain ID')
   }

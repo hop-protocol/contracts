@@ -220,11 +220,11 @@ function setNetworkParams (l1NetworkName: string, l2NetworkName: string, tokenSy
         l2_canonicalTokenAddress: '0xd4740F9cE3149b657D2457B6Ef29F953c2FcB479',
         l2_hBridgeTokenName: 'USD Coin Hop Token',
         l2_hBridgeTokenSymbol: 'hUSDC',
-        l2_hBridgeTokenDecimals: DEFAULT_H_BRIDGE_TOKEN_DECIMALS,
+        l2_hBridgeTokenDecimals: 6,
         l2_swapLpTokenName: 'Hop USDC LP Token',
         l2_swapLpTokenSymbol: 'HOP-LP-USDC',
-        liquidityProviderSendAmount: LIQUIDITY_PROVIDER_INITIAL_BALANCE.toString(),
-        liquidityProviderAmmAmount: LIQUIDITY_PROVIDER_AMM_AMOUNT.toString()
+        liquidityProviderSendAmount: BigNumber.from('1000000000').toString(),
+        liquidityProviderAmmAmount: BigNumber.from('500000000').toString()
       }
     } else if (tokenSymbol === COMMON_SYMBOLS.WBTC.toLowerCase()) {
       specificData = {
@@ -356,11 +356,11 @@ function setNetworkParams (l1NetworkName: string, l2NetworkName: string, tokenSy
           l2_canonicalTokenAddress: '0x452AED3fdB2E83A1352624321629180aB1489Dd0',
           l2_hBridgeTokenName: 'USD Coin Hop Token',
           l2_hBridgeTokenSymbol: 'hUSDC',
-          l2_hBridgeTokenDecimals: DEFAULT_H_BRIDGE_TOKEN_DECIMALS,
+          l2_hBridgeTokenDecimals: 6,
           l2_swapLpTokenName: 'Hop USDC LP Token',
           l2_swapLpTokenSymbol: 'HOP-LP-USDC',
-          liquidityProviderSendAmount: LIQUIDITY_PROVIDER_INITIAL_BALANCE.toString(),
-          liquidityProviderAmmAmount: LIQUIDITY_PROVIDER_AMM_AMOUNT.toString()
+          liquidityProviderSendAmount: BigNumber.from('1000000000').toString(),
+          liquidityProviderAmmAmount: BigNumber.from('500000000').toString()
         }
       } else if (tokenSymbol === COMMON_SYMBOLS.WBTC.toLowerCase()) {
         specificData = {
@@ -486,11 +486,11 @@ function setNetworkParams (l1NetworkName: string, l2NetworkName: string, tokenSy
           l2_canonicalTokenAddress: '0x6D4dd09982853F08d9966aC3cA4Eb5885F16f2b2',
           l2_hBridgeTokenName: 'USD Coin Hop Token',
           l2_hBridgeTokenSymbol: 'hUSDC',
-          l2_hBridgeTokenDecimals: DEFAULT_H_BRIDGE_TOKEN_DECIMALS,
+          l2_hBridgeTokenDecimals: 6,
           l2_swapLpTokenName: 'Hop USDC LP Token',
           l2_swapLpTokenSymbol: 'HOP-LP-USDC',
-          liquidityProviderSendAmount: LIQUIDITY_PROVIDER_INITIAL_BALANCE.toString(),
-          liquidityProviderAmmAmount: LIQUIDITY_PROVIDER_AMM_AMOUNT.toString()
+          liquidityProviderSendAmount: BigNumber.from('1000000000').toString(),
+          liquidityProviderAmmAmount: BigNumber.from('500000000').toString()
         }
       } else if (tokenSymbol === COMMON_SYMBOLS.WBTC.toLowerCase()) {
         specificData = {

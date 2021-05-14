@@ -13,7 +13,9 @@ import {
 } from '../shared/utils'
 import {
   getMessengerWrapperDefaults,
-  getPolygonErc20PredicateAddress
+  getPolygonErc20PredicateAddress,
+  getPolygonMintableErc20PredicateAddress,
+  getPolygonFxRootAddress
 } from '../../config/utils'
 import {
   ALL_SUPPORTED_CHAIN_IDS,
@@ -152,14 +154,22 @@ export async function setupL1 (config: Config) {
    * Setup deployments
    */
 
+  // Assert that the messenger proxy address was set during deployments
+  if (isChainIdPolygon(l2_chainId) && l2_messengerProxyAddress === ZERO_ADDRESS) {
+    throw new Error('L2 Messenger Proxy address is not set')
+  }
+
   // Deploy messenger wrapper
+  const fxRootAddress: string = getPolygonFxRootAddress(l1_chainId)
+  const fxChildTunnelAddress: string = l2_messengerProxyAddress || '0x'
   const messengerWrapperDefaults: any[] = getMessengerWrapperDefaults(
     l1_chainId,
     l2_chainId,
     l1_bridge.address,
     l2_bridge.address,
     l1_messenger?.address || '0x',
-    l2_messengerProxyAddress || '0x'
+    fxRootAddress,
+    fxChildTunnelAddress
   )
 
   logger.log('deploying L1 messenger wrapper')
@@ -259,14 +269,21 @@ export async function setupL1 (config: Config) {
 
   let contractToApprove: string
   if (isChainIdPolygon(l2_chainId)) {
-    contractToApprove = getPolygonErc20PredicateAddress(l1_chainId)
+    if (isChainIdMainnet(l1_chainId)) {
+      contractToApprove = getPolygonErc20PredicateAddress(l1_chainId)
+    } else {
+      contractToApprove = getPolygonMintableErc20PredicateAddress(l1_chainId)
+    }
   } else {
     contractToApprove = l1_tokenBridge.address
   }
   logger.log('approving L1 canonical token')
   tx = await l1_canonicalToken
     .connect(liquidityProvider)
-    .approve(contractToApprove, liquidityProviderSendAmount)
+    .approve(
+      contractToApprove,
+      liquidityProviderSendAmount,
+    )
   await tx.wait()
   await waitAfterTransaction()
 
@@ -298,7 +315,10 @@ export async function setupL1 (config: Config) {
   logger.log('approving L1 canonical token')
   tx = await l1_canonicalToken
     .connect(liquidityProvider)
-    .approve(l1_bridge.address, liquidityProviderSendAmount)
+    .approve(
+      l1_bridge.address,
+      liquidityProviderSendAmount,
+    )
   await tx.wait()
   await waitAfterTransaction()
 

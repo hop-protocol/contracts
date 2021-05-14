@@ -73,7 +73,7 @@ export async function deployL2 (config: Config) {
             l1_chainId: ${l1_chainId}
             l2_chainId: ${l2_chainId}
             l1_bridgeAddress: ${l1_bridgeAddress}
-            l1_messengerWrapper: ${l1_messengerWrapperAddress}
+            l1_messengerWrapperAddress: ${l1_messengerWrapperAddress}
             l2_canonicalTokenAddress: ${l2_canonicalTokenAddress}
             l2_messengerAddress: ${l2_messengerAddress}
             l2_hBridgeTokenName: ${l2_hBridgeTokenName}
@@ -149,11 +149,13 @@ export async function deployL2 (config: Config) {
 
   let l2_messengerProxyAddress: string = ''
   if (isChainIdPolygon(l2_chainId)) {
+    logger.log('deploying Polygon messenger proxy')
     const fxChild: string = getPolygonFxChildAddress(l1_chainId)
     l2_messengerProxy = await L2_MessengerProxy.deploy(fxChild)
     await waitAfterTransaction(l2_messengerProxy, ethers)
 
     l2_messengerAddress = l2_messengerProxy.address
+    l2_messengerProxyAddress = l2_messengerProxy.address
   }
 
   logger.log('deploying L2 hop bridge token')
@@ -209,11 +211,12 @@ export async function deployL2 (config: Config) {
   await waitAfterTransaction()
 
   if (isChainIdPolygon(l2_chainId)) {
+    logger.log('setting Polygon-specific state')
     let tx = await l2_messengerProxy.setL2Bridge(l2_bridge.address, overrides)
     await tx.wait()
     await waitAfterTransaction()
 
-    await l2_messengerProxy.setFxRootTunnel(l1_messengerWrapperAddress)
+    await l2_messengerProxy.setFxRootTunnel(l1_messengerWrapperAddress, overrides)
     await tx.wait()
     await waitAfterTransaction()
   }

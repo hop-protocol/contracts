@@ -197,9 +197,10 @@ const waitForL2StateVerification = async (
   let isStateSet: boolean = false
 
   while (!isStateSet) {
-    if (checkCount === 30) {
+    // Note: Mumbai can take up to 50 checks
+    if (checkCount === 50) {
       throw new Error(
-        'L2 state has not been set after more than 5 minutes. Possibly due to a misconfiguration with modifiers on L2 bridge or messenger gas limit.'
+        'L2 state has not been set after more than 10 minutes. Possibly due to a misconfiguration with modifiers on L2 bridge or messenger gas limit.'
       )
     }
 

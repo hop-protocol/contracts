@@ -194,7 +194,6 @@ export async function fixture (
     l1_bridge.address,
     l2_bridge.address,
     l1_messenger.address,
-    l2_messengerProxy.address,
     fxRoot.address,
     fxChildTunnelAddress
   )
