@@ -258,7 +258,21 @@ export const getPolygonFxChildAddress = (l1ChainId: BigNumber): string => {
   }
 }
 
-export const getPolygonErc20PredicateAddress = (l1ChainId: BigNumber): string => {
+export const getPolygonPredicateContract = (l1ChainId: BigNumber, tokenAddress: string): string => {
+  if (isChainIdMainnet(l1ChainId)) {
+    return getPolygonErc20PredicateAddress(l1ChainId)
+  } else {
+    // Polygon's testnet USDC non-mintable but all others are
+    const polygonUSDCTestnetAddress: string = '0x7326510Cf9Ae0397dbBaF37FABba54f0A7b8D100'
+    if (tokenAddress === polygonUSDCTestnetAddress) {
+      return getPolygonErc20PredicateAddress(l1ChainId)
+    } else {
+      return getPolygonMintableErc20PredicateAddress(l1ChainId)
+    }
+  }
+}
+
+const getPolygonErc20PredicateAddress = (l1ChainId: BigNumber): string => {
   if (isChainIdMainnet(l1ChainId)) {
     return ERC20_PREDICATE_ADDRESSES.MAINNET
   } else if (isChainIdGoerli(l1ChainId)) {
@@ -268,7 +282,7 @@ export const getPolygonErc20PredicateAddress = (l1ChainId: BigNumber): string =>
   }
 }
 
-export const getPolygonMintableErc20PredicateAddress = (l1ChainId: BigNumber): string => {
+const getPolygonMintableErc20PredicateAddress = (l1ChainId: BigNumber): string => {
   if (isChainIdMainnet(l1ChainId)) {
     return ERC20_MINTABLE_PREDICATE_ADDRESSES.MAINNET
   } else if (isChainIdGoerli(l1ChainId)) {

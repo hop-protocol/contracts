@@ -1,5 +1,5 @@
 require('dotenv').config()
-
+import prompt from 'prompt'
 import { BigNumber } from 'ethers'
 import { parseEther } from 'ethers/lib/utils'
 import {
@@ -49,23 +49,20 @@ interface INetworkParams extends IGeneralData, ISpecificData {
   l1_bridgeAddress: string
 }
 
-// Example usage:
-// $ npm run deploy -- kovan xdai DAI
-// $ npm run deploy -- goerli xdai USDC
-// $ npm run deploy -- goerli optimism USDC
-
-// In order to run just the L1 bridge deployment, use `x` as the L2 name
-// $ npm run deploy -- goerli x USDC 
-
-// In order to run just the L1 bridge deployment for polygon, use `xpolygon` as the L2 name
-// NOTE: This will deploy the messenger wrapper / messenger
-// $ npm run deploy -- goerli xpolygon USDC 
-
 async function main () {
   logger.log('deploy script initiated')
-  const l1NetworkName: string = process.argv[2].toLowerCase()
-  const l2NetworkName: string = process.argv[3].toLowerCase()
-  const tokenSymbol: string = process.argv[4].toLowerCase()
+
+  let l1NetworkName: string
+  let l2NetworkName: string
+  let tokenSymbol: string
+  let isL1BridgeDeploy: boolean
+
+  ;({
+    l1NetworkName,
+    l2NetworkName,
+    tokenSymbol,
+    isL1BridgeDeploy
+  } = await getPrompts())
 
   if (!l1NetworkName) {
     throw new Error('L1 network name not specified')
@@ -79,9 +76,9 @@ async function main () {
     throw new Error('Token symbol not specified')
   }
 
-  setNetworkParams(l1NetworkName, l2NetworkName, tokenSymbol)
+  setNetworkParams(l1NetworkName, l2NetworkName, tokenSymbol, isL1BridgeDeploy)
   const scripts: string[] = []
-  if (l2NetworkName === 'x' || l2NetworkName === 'xpolygon') {
+  if (isL1BridgeDeploy) {
     scripts.push(`npm run deploy:l1-${l1NetworkName}`)
   } else {
     scripts.push(
@@ -100,7 +97,41 @@ async function main () {
   logger.log('complete')
 }
 
-function setNetworkParams (l1NetworkName: string, l2NetworkName: string, tokenSymbol: string) {
+async function getPrompts () {
+  prompt.start()
+  const res = await prompt.get([{
+    name: 'l1NetworkName',
+    type: 'string',
+    required: true
+  }, {
+    name: 'l2NetworkName',
+    type: 'string',
+    required: true
+  }, {
+    name: 'tokenSymbol',
+    type: 'string',
+    required: true
+  }, {
+    name: 'isL1BridgeDeploy',
+    type: 'boolean',
+    required: true,
+    default: false
+  }])
+
+  return {
+    l1NetworkName: res.l1NetworkName as string,
+    l2NetworkName: res.l2NetworkName as string,
+    tokenSymbol: res.tokenSymbol as string,
+    isL1BridgeDeploy: res.isL1BridgeDeploy as boolean
+  }
+}
+
+function setNetworkParams (
+  l1NetworkName: string,
+  l2NetworkName: string,
+  tokenSymbol: string,
+  isL1BridgeDeploy: boolean
+) {
   const { l1_bridgeAddress } = readConfigFile()
   
   let generalData: IGeneralData
@@ -133,17 +164,7 @@ function setNetworkParams (l1NetworkName: string, l2NetworkName: string, tokenSy
     }
   }
 
-  // TODO: Handle this better
-  if (l2NetworkName === 'x' || l2NetworkName === 'xpolygon') {
-    let l2ChainId: BigNumber = BigNumber.from('0')
-
-    // Define the L2 chain ID
-    if (l2NetworkName === 'xpolygon' && l1NetworkName === 'goerli') {
-      l2ChainId = CHAIN_IDS.POLYGON.MUMBAI
-    } else if (l2NetworkName === 'xpolygon' && l1NetworkName === 'mainnet') {
-      l2ChainId = CHAIN_IDS.POLYGON.POLYGON
-    }
-
+  if (isL1BridgeDeploy) {
     // Define the token addresses
     let l1_canonicalTokenAddress: string = ''
     if (tokenSymbol === COMMON_SYMBOLS.DAI.toLowerCase()) {
@@ -162,7 +183,6 @@ function setNetworkParams (l1NetworkName: string, l2NetworkName: string, tokenSy
 
     updateConfigFile({
       l1_chainId: l1ChainId.toString(),
-      l2_chainId: l2ChainId.toString(),
       l1_canonicalTokenAddress
     })
     return
