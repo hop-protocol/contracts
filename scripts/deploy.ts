@@ -137,7 +137,6 @@ function setNetworkParams (
     l2TokenBridgeAddress,
     l2MessengerAddress,
     l1TokenBridgeAddress,
-    l2MessengerProxyAddress,
     tokens
   } = networkData[l2NetworkName]
 
@@ -161,7 +160,6 @@ function setNetworkParams (
     l2TokenBridgeAddress,
     l2MessengerAddress,
     l1TokenBridgeAddress,
-    l2MessengerProxyAddress,
     l1CanonicalTokenAddress,
     l2CanonicalTokenAddress,
     l2HBridgeTokenName,

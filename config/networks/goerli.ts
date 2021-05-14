@@ -19,7 +19,6 @@ export const networkData: NetworkData = {
     l2TokenBridgeAddress: ZERO_ADDRESS,
     l2MessengerAddress: ZERO_ADDRESS,
     l1TokenBridgeAddress: '0xBbD7cBFA79faee899Eaf900F13C9065bF03B1A74',
-    l2MessengerProxyAddress:ZERO_ADDRESS,
     tokens: {
       DAI: {
         l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.GOERLI.DAI,
