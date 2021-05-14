@@ -77,14 +77,14 @@ export default {
       chainId: CHAIN_IDS.XDAI.SOKOL.toNumber()
     },
     polygon: {
-      url: 'https://rpc-mainnet.maticvigil.com/',
+      url: 'https://polygon.rpc.hop.exchange',
       accounts: desiredAccounts,
       gasPrice: 1000000000,
       gas: 500000,
       chainId: CHAIN_IDS.POLYGON.POLYGON.toNumber()
     },
     mumbai: {
-      url: 'https://rpc-mumbai.matic.today',
+      url: 'https://mumbai.rpc.hop.exchange',
       accounts: desiredAccounts,
       gasPrice: 1000000000,
       gas: 500000,
