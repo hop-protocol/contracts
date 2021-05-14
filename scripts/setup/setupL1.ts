@@ -1,7 +1,6 @@
 require('dotenv').config()
 
 import { ethers as l2Ethers } from 'ethers'
-
 import { ethers } from 'hardhat'
 import { BigNumber, ContractFactory, Signer, Contract, providers } from 'ethers'
 
@@ -213,7 +212,7 @@ export async function setupL1 (config: Config) {
   )
 
   logger.log('setting L1 messenger wrapper address on L2 bridge')
-  await executeCanonicalMessengerSendMessage(
+  tx = await executeCanonicalMessengerSendMessage(
     l1_messenger,
     l1_messengerWrapper,
     l2_bridge,
@@ -222,6 +221,7 @@ export async function setupL1 (config: Config) {
     message,
     l2ChainId
   )
+  await tx.wait()
   await waitAfterTransaction()
 
   let addActiveChainIdsParams: any[] = ALL_SUPPORTED_CHAIN_IDS
@@ -232,7 +232,7 @@ export async function setupL1 (config: Config) {
     'chain IDs:',
     ALL_SUPPORTED_CHAIN_IDS.map(v => v.toString()).join(', ')
   )
-  await executeCanonicalMessengerSendMessage(
+  tx = await executeCanonicalMessengerSendMessage(
     l1_messenger,
     l1_messengerWrapper,
     l2_bridge,
@@ -241,12 +241,13 @@ export async function setupL1 (config: Config) {
     message,
     l2ChainId
   )
+  await tx.wait()
   await waitAfterTransaction()
 
   message = getSetAmmWrapperAddressMessage(l2AmmWrapperAddress)
 
   logger.log('setting amm wrapper address on L2 bridge')
-  await executeCanonicalMessengerSendMessage(
+  tx = await executeCanonicalMessengerSendMessage(
     l1_messenger,
     l1_messengerWrapper,
     l2_bridge,
@@ -255,6 +256,7 @@ export async function setupL1 (config: Config) {
     message,
     l2ChainId
   )
+  await tx.wait()
   await waitAfterTransaction()
 
   // Get canonical token to L2
