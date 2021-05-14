@@ -1280,6 +1280,15 @@ export const getSetMessengerProxyMessage = (
   return ethersInterface.encodeFunctionData('setMessengerProxy', [address])
 }
 
+export const getSetFxRootTunnelMessage = (
+  l1_messengerWrapperAddress:  string
+) => {
+  const address = getAddressFromContractOrString(l1_messengerWrapperAddress)
+  const ABI = ['function setFxRootTunnel(address _fxRootTunnel)']
+  const ethersInterface = new ethersUtils.Interface(ABI)
+  return ethersInterface.encodeFunctionData('setFxRootTunnel', [address])
+}
+
 const getAddressFromContractOrString = (input: Contract | string): string => {
   if (typeof input === 'string') {
     return input

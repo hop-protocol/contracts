@@ -11,6 +11,7 @@ import {
   CHECKPOINT_MANAGER_ADDRESSES,
   FX_ROOT_ADDRESSES,
   FX_CHILD_ADDRESSES,
+  POLYGON_RPC_ENDPOINTS,
   ERC20_PREDICATE_ADDRESSES,
   ERC20_MINTABLE_PREDICATE_ADDRESSES
 } from './constants'
@@ -227,6 +228,16 @@ export const getAllActiveChainIds = (obj: any): string[] =>
         .reduce((a: string[], b: any) => a.concat(b), [] as any[])
         .filter((a: any) => typeof a === 'string')
     : [obj]
+
+export const getPolygonRpcEndpoint = (l1ChainId: BigNumber): string => {
+  if (isChainIdMainnet(l1ChainId)) {
+    return POLYGON_RPC_ENDPOINTS.MAINNET
+  } else if (isChainIdGoerli(l1ChainId)) {
+    return POLYGON_RPC_ENDPOINTS.GOERLI
+  } else {
+    throw new Error('Invalid Chain ID')
+  }
+}
 
 export const getPolygonCheckpointManagerAddress = (l1ChainId: BigNumber): string => {
   if (isChainIdMainnet(l1ChainId)) {

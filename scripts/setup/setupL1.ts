@@ -1,5 +1,7 @@
 require('dotenv').config()
 
+import { ethers as l2Ethers } from 'ethers'
+
 import { ethers } from 'hardhat'
 import { BigNumber, ContractFactory, Signer, Contract, providers } from 'ethers'
 
@@ -14,7 +16,8 @@ import {
 import {
   getMessengerWrapperDefaults,
   getPolygonPredicateContract,
-  getPolygonFxRootAddress
+  getPolygonFxRootAddress,
+  getPolygonRpcEndpoint,
 } from '../../config/utils'
 import {
   ALL_SUPPORTED_CHAIN_IDS,
@@ -29,6 +32,7 @@ import {
   getSetL1BridgeCallerMessage,
   executeCanonicalMessengerSendMessage,
   getAddActiveChainIdsMessage,
+  getSetFxRootTunnelMessage,
   getSetAmmWrapperAddressMessage
 } from '../../test/shared/contractFunctionWrappers'
 
@@ -177,9 +181,11 @@ export async function setupL1 (config: Config) {
   await waitAfterTransaction(l1_messengerWrapper)
 
   if (isChainIdPolygon(l2ChainId)) {
-    logger.log('setting up polygon contracts')
+    logger.log('make polygon specific changes')
     l1_messenger = L1_MessengerWrapper.attach(l1_messenger.address)
     l2_messengerProxy = L2_MessengerProxy.attach(l2MessengerProxyAddress)
+
+    await updatePolygonState(l1ChainId, l1_messengerWrapper, l2_messengerProxy)
   }
 
   /**
@@ -338,6 +344,27 @@ export async function setupL1 (config: Config) {
   })
 
   logger.log('L1 Setup Complete')
+}
+
+const updatePolygonState = async (
+  l1ChainId: BigNumber,
+  l1_messengerWrapper: Contract,
+  l2_messengerProxy: Contract
+) => {
+  const polygonRpcEndpoint = getPolygonRpcEndpoint(l1ChainId)
+  const l2EthersProvider = new l2Ethers.providers.JsonRpcProvider(polygonRpcEndpoint)
+  const l2EthersWallet = new l2Ethers.Wallet(process.env.OWNER_PRIVATE_KEY, l2EthersProvider)
+  const polygonTransactionData: string = getSetFxRootTunnelMessage(l1_messengerWrapper.address)
+  const gasLimit: number = 100000
+
+  const setFxRootTunnelTransaction = {
+    to: l2_messengerProxy.address,
+    gasLimit,
+    data: polygonTransactionData
+  }
+
+  const transaction = await l2EthersWallet.sendTransaction(setFxRootTunnelTransaction)
+  transaction.wait()
 }
 
 if (require.main === module) {

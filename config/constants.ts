@@ -109,6 +109,11 @@ export const DEFAULT_SWAP_FEE: string = '4000000'
 export const DEFAULT_SWAP_ADMIN_FEE: string = '0'
 export const DEFAULT_SWAP_WITHDRAWAL_FEE: string = '0'
 
+export const POLYGON_RPC_ENDPOINTS: any = {
+  MAINNET: 'https://rpc-mainnet.maticvigil.com/',
+  GOERLI: 'https://rpc-mumbai.matic.today'
+}
+
 export const FX_ROOT_ADDRESSES: any = {
   MAINNET: '0xfe5e5D361b2ad62c541bAb87C45a0B9B018389a2',
   GOERLI: '0x3d1d3E34f7fB6D26245E6640E1c50710eFFf15bA'

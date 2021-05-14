@@ -34,9 +34,9 @@ async function main () {
     setL1BridgeNetworkParams(l1NetworkName, l2NetworkName, tokenSymbol)
     scripts.push(`npm run deploy:l1-${l1NetworkName}`)
   } else {
-    // setNetworkParams(l1NetworkName, l2NetworkName, tokenSymbol)
+    setNetworkParams(l1NetworkName, l2NetworkName, tokenSymbol)
     scripts.push(
-      // `npm run deploy:l2-${l2NetworkName}`,
+      `npm run deploy:l2-${l2NetworkName}`,
       `npm run setup:l1-${l1NetworkName}`,
       `npm run setup:l2-${l2NetworkName}`
     )
