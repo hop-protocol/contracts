@@ -183,7 +183,20 @@ export async function setupL2 (config: Config) {
   })
 
   logger.log('L2 Setup Complete')
-
+  
+  // Match output with addresses package
+  const postDeploymentAddresses = readConfigFile()
+  logger.log(`
+    l1CanonicalBridge: ${postDeploymentAddresses.l1TokenBridgeAddress},
+    l1MessengerWrapper: ${postDeploymentAddresses.l1MessengerWrapperAddress},
+    l2CanonicalBridge: ${postDeploymentAddresses.l2TokenBridgeAddress},
+    l2CanonicalToken: ${postDeploymentAddresses.l2CanonicalTokenAddress},
+    l2Bridge: ${postDeploymentAddresses.l2BridgeAddress},
+    l2HopBridgeToken: ${postDeploymentAddresses.l2HopBridgeTokenAddress},
+    l2AmmWrapper: ${postDeploymentAddresses.l2AmmWrapperAddress},
+    l2SaddleSwap: ${postDeploymentAddresses.l2SwapAddress},
+    l2SaddleLpToken: ${postDeploymentAddresses.l2LpTokenAddress}
+  `)
 }
 
 const waitForL2StateVerification = async (
