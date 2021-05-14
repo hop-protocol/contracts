@@ -13,8 +13,7 @@ import {
 } from '../shared/utils'
 import {
   getMessengerWrapperDefaults,
-  getPolygonErc20PredicateAddress,
-  getPolygonMintableErc20PredicateAddress,
+  getPolygonPredicateContract,
   getPolygonFxRootAddress
 } from '../../config/utils'
 import {
@@ -253,10 +252,9 @@ export async function setupL1 (config: Config) {
   )
   await waitAfterTransaction()
 
-  logger.log('minting L1 canonical token')
   // Get canonical token to L2
-  // NOTE: If this is not the self-mintable testnet DAI, comment this line out
   if (!isChainIdMainnet(l1_chainId)) {
+    logger.log('minting L1 canonical token')
     tx = await l1_canonicalToken
       .connect(owner)
       .mint(
@@ -269,11 +267,7 @@ export async function setupL1 (config: Config) {
 
   let contractToApprove: string
   if (isChainIdPolygon(l2_chainId)) {
-    if (isChainIdMainnet(l1_chainId)) {
-      contractToApprove = getPolygonErc20PredicateAddress(l1_chainId)
-    } else {
-      contractToApprove = getPolygonMintableErc20PredicateAddress(l1_chainId)
-    }
+    contractToApprove = getPolygonPredicateContract(l1_chainId, l1_canonicalTokenAddress)
   } else {
     contractToApprove = l1_tokenBridge.address
   }
@@ -282,7 +276,7 @@ export async function setupL1 (config: Config) {
     .connect(liquidityProvider)
     .approve(
       contractToApprove,
-      liquidityProviderSendAmount,
+      liquidityProviderSendAmount
     )
   await tx.wait()
   await waitAfterTransaction()
@@ -298,10 +292,9 @@ export async function setupL1 (config: Config) {
   )
   await waitAfterTransaction()
 
-  logger.log('minting L1 canonical token')
   // Get hop token on L2
-  // NOTE: If this is not the self-mintable testnet DAI, comment this line out
   if (!isChainIdMainnet(l1_chainId)) {
+    logger.log('minting L1 canonical token')
     tx = await l1_canonicalToken
       .connect(owner)
       .mint(
@@ -317,7 +310,7 @@ export async function setupL1 (config: Config) {
     .connect(liquidityProvider)
     .approve(
       l1_bridge.address,
-      liquidityProviderSendAmount,
+      liquidityProviderSendAmount
     )
   await tx.wait()
   await waitAfterTransaction()
