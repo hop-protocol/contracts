@@ -9,17 +9,11 @@ import "./Mock_L2_Messenger.sol";
 contract Mock_L1_Messenger is MockMessenger {
 
     Mock_L2_Messenger public targetMessenger;
-    // This should be the L2_PolygonMessengerProxy
-    address public polygonTarget;
 
     constructor (IERC20 _canonicalToken) public MockMessenger(_canonicalToken) {}
 
     function setTargetMessenger(address _targetMessenger) public {
         targetMessenger = Mock_L2_Messenger(_targetMessenger);
-    }
-
-    function setPolygonTarget(address _polygonTarget) public {
-        polygonTarget = _polygonTarget;
     }
 
     /* ========== Arbitrum ========== */
@@ -83,15 +77,15 @@ contract Mock_L1_Messenger is MockMessenger {
     /* ========== Polygon ========== */
 
     function syncState(
-        address _childTunnel,
+        address _fxChild,
         bytes memory _message
     )
         external
     {
         targetMessenger.receiveMessage(
-            polygonTarget,
+            _fxChild,
             _message,
-            address(0)
+            address(1)
         );
     }
 

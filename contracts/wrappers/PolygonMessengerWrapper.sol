@@ -1,25 +1,30 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity 0.6.12;
+pragma solidity 0.7.3;
 pragma experimental ABIEncoderV2;
 
-import "../polygon/tunnel/BaseRootTunnel.sol";
+import "../polygon/tunnel/FxBaseRootTunnel.sol";
 import "./MessengerWrapper.sol";
-import "../bridges/L1_Bridge.sol";
 
 /**
  * @dev A MessengerWrapper for Polygon - https://docs.matic.network/docs
  * @notice Deployed on layer-1
  */
 
-contract PolygonMessengerWrapper is BaseRootTunnel, MessengerWrapper {
+contract PolygonMessengerWrapper is FxBaseRootTunnel, MessengerWrapper {
 
     constructor(
-        address _l1BridgeAddress
+        address _l1BridgeAddress,
+        address _checkpointManager,
+        address _fxRoot,
+        address _fxChildTunnel
     )
         public
         MessengerWrapper(_l1BridgeAddress)
-    {}
+        FxBaseRootTunnel(_checkpointManager, _fxRoot)
+    {
+        setFxChildTunnel(_fxChildTunnel);
+    }
 
     /** 
      * @dev Sends a message to the l2MessengerProxy from layer-1

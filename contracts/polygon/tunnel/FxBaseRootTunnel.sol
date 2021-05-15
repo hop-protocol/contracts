@@ -1,75 +1,59 @@
-pragma solidity ^0.6.6;
+// SPDX-License-Identifier: MIT
+pragma solidity 0.7.3;
 
 
-import {SafeMath} from "@openzeppelin/contracts/math/SafeMath.sol";
-
-import {AccessControlMixin} from "../common/AccessControlMixin.sol";
-import {IStateSender} from "../root/StateSender/IStateSender.sol";
 import {RLPReader} from "../lib/RLPReader.sol";
 import {MerklePatriciaProof} from "../lib/MerklePatriciaProof.sol";
-import {ICheckpointManager} from "../root/ICheckpointManager.sol";
-import {RLPReader} from "../lib/RLPReader.sol";
 import {Merkle} from "../lib/Merkle.sol";
 
-abstract contract BaseRootTunnel is AccessControlMixin {
+
+interface IFxStateSender {
+    function sendMessageToChild(address _receiver, bytes calldata _data) external;
+}
+
+contract ICheckpointManager {
+    struct HeaderBlock {
+        bytes32 root;
+        uint256 start;
+        uint256 end;
+        uint256 createdAt;
+        address proposer;
+    }
+
+    /**
+     * @notice mapping of checkpoint header numbers to block details
+     * @dev These checkpoints are submited by plasma contracts
+     */
+    mapping(uint256 => HeaderBlock) public headerBlocks;
+}
+
+abstract contract FxBaseRootTunnel {
     using RLPReader for bytes;
     using RLPReader for RLPReader.RLPItem;
     using Merkle for bytes32;
-    using SafeMath for uint256;
 
     // keccak256(MessageSent(bytes))
     bytes32 public constant SEND_MESSAGE_EVENT_SIG = 0x8c5261668696ce22758910d05bab8f186d6eb247ceac2af2e82c7dc17669b036;
 
     // state sender contract
-    IStateSender public stateSender;
+    IFxStateSender public fxRoot;
     // root chain manager
     ICheckpointManager public checkpointManager;
     // child tunnel contract which receives and sends messages 
-    address public childTunnel;
+    address public fxChildTunnel;
+
     // storage to avoid duplicate exits
     mapping(bytes32 => bool) public processedExits;
 
-    constructor() internal {
-      _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
-      _setupContractId("RootTunnel");
+    constructor(address _checkpointManager, address _fxRoot) {
+        checkpointManager = ICheckpointManager(_checkpointManager);
+        fxRoot = IFxStateSender(_fxRoot);
     }
 
-    /**
-     * @notice Set the state sender, callable only by admins
-     * @dev This should be the state sender from plasma contracts
-     * It is used to send bytes from root to child chain
-     * @param newStateSender address of state sender contract
-     */
-    function setStateSender(address newStateSender)
-        external
-        only(DEFAULT_ADMIN_ROLE)
-    {
-        stateSender = IStateSender(newStateSender);
-    }
-
-    /**
-     * @notice Set the checkpoint manager, callable only by admins
-     * @dev This should be the plasma contract responsible for keeping track of checkpoints
-     * @param newCheckpointManager address of checkpoint manager contract
-     */
-    function setCheckpointManager(address newCheckpointManager)
-        external
-        only(DEFAULT_ADMIN_ROLE)
-    {
-        checkpointManager = ICheckpointManager(newCheckpointManager);
-    }
-
-    /**
-     * @notice Set the child chain tunnel, callable only by admins
-     * @dev This should be the contract responsible to receive data bytes on child chain
-     * @param newChildTunnel address of child tunnel contract
-     */
-    function setChildTunnel(address newChildTunnel)
-        external
-        only(DEFAULT_ADMIN_ROLE)
-    {
-        require(newChildTunnel != address(0x0), "RootTunnel: INVALID_CHILD_TUNNEL_ADDRESS");
-        childTunnel = newChildTunnel;
+    // set fxChildTunnel if not set already
+    function setFxChildTunnel(address _fxChildTunnel) public {
+        require(fxChildTunnel == address(0x0), "FxBaseRootTunnel: CHILD_TUNNEL_ALREADY_SET");
+        fxChildTunnel = _fxChildTunnel;
     }
 
     /**
@@ -81,7 +65,7 @@ abstract contract BaseRootTunnel is AccessControlMixin {
      *   abi.encode(messageType, messageData);
      */
     function _sendMessageToChild(bytes memory message) internal {
-        stateSender.syncState(childTunnel, message);
+        fxRoot.sendMessageToChild(fxChildTunnel, message);
     }
 
     function _validateAndExtractMessage(bytes memory inputData) internal returns (bytes memory) {
@@ -103,7 +87,7 @@ abstract contract BaseRootTunnel is AccessControlMixin {
         );
         require(
             processedExits[exitHash] == false,
-            "RootTunnel: EXIT_ALREADY_PROCESSED"
+            "FxRootTunnel: EXIT_ALREADY_PROCESSED"
         );
         processedExits[exitHash] = true;
 
@@ -119,7 +103,7 @@ abstract contract BaseRootTunnel is AccessControlMixin {
         RLPReader.RLPItem[] memory logRLPList = logRLP.toList();
         
         // check child tunnel
-        require(childTunnel == RLPReader.toAddress(logRLPList[0]), "RootTunnel: INVALID_CHILD_TUNNEL");
+        require(fxChildTunnel == RLPReader.toAddress(logRLPList[0]), "FxRootTunnel: INVALID_FX_CHILD_TUNNEL");
 
         // verify receipt inclusion
         require(
@@ -129,7 +113,7 @@ abstract contract BaseRootTunnel is AccessControlMixin {
                 inputDataRLPList[7].toBytes(), // receiptProof
                 bytes32(inputDataRLPList[5].toUint()) // receiptRoot
             ),
-            "RootTunnel: INVALID_RECEIPT_PROOF"
+            "FxRootTunnel: INVALID_RECEIPT_PROOF"
         );
 
         // verify checkpoint inclusion
@@ -146,7 +130,7 @@ abstract contract BaseRootTunnel is AccessControlMixin {
 
         require(
             bytes32(logTopicRLPList[0].toUint()) == SEND_MESSAGE_EVENT_SIG, // topic0 is event sig
-            "RootTunnel: INVALID_SIGNATURE"
+            "FxRootTunnel: INVALID_SIGNATURE"
         );
 
         // received message data
@@ -176,11 +160,11 @@ abstract contract BaseRootTunnel is AccessControlMixin {
                 abi.encodePacked(blockNumber, blockTime, txRoot, receiptRoot)
             )
                 .checkMembership(
-                blockNumber.sub(startBlock),
+                blockNumber-startBlock,
                 headerRoot,
                 blockProof
             ),
-            "RootTunnel: INVALID_HEADER"
+            "FxRootTunnel: INVALID_HEADER"
         );
         return createdAt;
     }

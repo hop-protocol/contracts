@@ -1,5 +1,6 @@
 require('dotenv').config()
 
+import { ethers as l2Ethers } from 'ethers'
 import { ethers } from 'hardhat'
 import { BigNumber, ContractFactory, Signer, Contract, providers } from 'ethers'
 
@@ -13,14 +14,13 @@ import {
 } from '../shared/utils'
 import {
   getMessengerWrapperDefaults,
-  getPolygonCheckpointManagerAddress,
-  getPolygonStateSenderAddress,
-  getPolygonErc20PredicateAddress
+  getPolygonPredicateContract,
+  getPolygonFxRootAddress,
+  getPolygonRpcEndpoint,
 } from '../../config/utils'
 import {
   ALL_SUPPORTED_CHAIN_IDS,
-  ZERO_ADDRESS,
-  DEFAULT_ADMIN_ROLE_HASH
+  ZERO_ADDRESS
 } from '../../config/constants'
 import {
   isChainIdMainnet,
@@ -31,60 +31,58 @@ import {
   getSetL1BridgeCallerMessage,
   executeCanonicalMessengerSendMessage,
   getAddActiveChainIdsMessage,
+  getSetFxRootTunnelMessage,
   getSetAmmWrapperAddressMessage
 } from '../../test/shared/contractFunctionWrappers'
 
 const logger = Logger('setupL1')
 
 interface Config {
-  l1_chainId: string | BigNumber
-  l2_chainId: string | BigNumber
-  l1_tokenBridgeAddress: string
-  l1_messengerAddress: string
-  l1_canonicalTokenAddress: string
-  l1_bridgeAddress: string
-  l2_canonicalTokenAddress: string
-  l2_bridgeAddress: string
-  l2_messengerProxyAddress: string
-  l2_ammWrapperAddress: string
+  l1ChainId: string | BigNumber
+  l2ChainId: string | BigNumber
+  l1TokenBridgeAddress: string
+  l1MessengerAddress: string
+  l1CanonicalTokenAddress: string
+  l1BridgeAddress: string
+  l2CanonicalTokenAddress: string
+  l2BridgeAddress: string
+  l2MessengerProxyAddress: string
+  l2AmmWrapperAddress: string
   liquidityProviderSendAmount: string | BigNumber
-  isPolygonFirstRun: boolean
 }
 
 export async function setupL1 (config: Config) {
   logger.log('setup L1')
 
   let {
-    l1_chainId,
-    l2_chainId,
-    l1_tokenBridgeAddress,
-    l1_messengerAddress,
-    l1_canonicalTokenAddress,
-    l1_bridgeAddress,
-    l2_canonicalTokenAddress,
-    l2_bridgeAddress,
-    l2_messengerProxyAddress,
-    l2_ammWrapperAddress,
-    liquidityProviderSendAmount,
-    isPolygonFirstRun
+    l1ChainId,
+    l2ChainId,
+    l1TokenBridgeAddress,
+    l1MessengerAddress,
+    l1CanonicalTokenAddress,
+    l1BridgeAddress,
+    l2CanonicalTokenAddress,
+    l2BridgeAddress,
+    l2MessengerProxyAddress,
+    l2AmmWrapperAddress,
+    liquidityProviderSendAmount
   } = config
 
   logger.log(`config:
-            l1_chainId: ${l1_chainId}
-            l2_chainId: ${l2_chainId}
-            l1_messengerAddress: ${l1_messengerAddress}
-            l1_tokenBridgeAddress: ${l1_tokenBridgeAddress}
-            l1_canonicalTokenAddress: ${l1_canonicalTokenAddress}
-            l1_bridgeAddress: ${l1_bridgeAddress}
-            l2_canonicalTokenAddress: ${l2_canonicalTokenAddress}
-            l2_bridgeAddress: ${l2_bridgeAddress}
-            l2_messengerProxyAddress: ${l2_messengerProxyAddress}
-            l2_ammWrapperAddress: ${l2_ammWrapperAddress}
-            liquidityProviderSendAmount: ${liquidityProviderSendAmount}
-            isPolygonFirstRun: ${isPolygonFirstRun}`)
+            l1ChainId: ${l1ChainId}
+            l2ChainId: ${l2ChainId}
+            l1MessengerAddress: ${l1MessengerAddress}
+            l1TokenBridgeAddress: ${l1TokenBridgeAddress}
+            l1CanonicalTokenAddress: ${l1CanonicalTokenAddress}
+            l1BridgeAddress: ${l1BridgeAddress}
+            l2CanonicalTokenAddress: ${l2CanonicalTokenAddress}
+            l2BridgeAddress: ${l2BridgeAddress}
+            l2MessengerProxyAddress: ${l2MessengerProxyAddress}
+            l2AmmWrapperAddress: ${l2AmmWrapperAddress}
+            liquidityProviderSendAmount: ${liquidityProviderSendAmount}`)
 
-  l1_chainId = BigNumber.from(l1_chainId)
-  l2_chainId = BigNumber.from(l2_chainId)
+  l1ChainId = BigNumber.from(l1ChainId)
+  l2ChainId = BigNumber.from(l2ChainId)
   liquidityProviderSendAmount = BigNumber.from(liquidityProviderSendAmount)
 
   // Signers
@@ -115,7 +113,7 @@ export async function setupL1 (config: Config) {
   // Instantiate the wallets
   accounts = await ethers.getSigners()
 
-  if (isChainIdMainnet(l1_chainId)) {
+  if (isChainIdMainnet(l1ChainId)) {
     owner = accounts[0]
     liquidityProvider = owner
     governance = owner
@@ -142,53 +140,51 @@ export async function setupL1 (config: Config) {
     L1_MessengerWrapper,
     L2_Bridge,
     L2_MessengerProxy
-  } = await getContractFactories(l2_chainId, owner, ethers))
+  } = await getContractFactories(l2ChainId, owner, ethers))
 
   logger.log('attaching deployed contracts')
   // Attach already deployed contracts
-  l1_tokenBridge = L1_TokenBridge.attach(l1_tokenBridgeAddress)
-  l1_messenger = L1_Messenger.attach(l1_messengerAddress)
-  l1_canonicalToken = L1_MockERC20.attach(l1_canonicalTokenAddress)
-  l2_canonicalToken = L1_MockERC20.attach(l2_canonicalTokenAddress)
-  l1_bridge = L1_Bridge.attach(l1_bridgeAddress)
-  l2_bridge = L2_Bridge.attach(l2_bridgeAddress)
+  l1_tokenBridge = L1_TokenBridge.attach(l1TokenBridgeAddress)
+  l1_messenger = L1_Messenger.attach(l1MessengerAddress)
+  l1_canonicalToken = L1_MockERC20.attach(l1CanonicalTokenAddress)
+  l2_canonicalToken = L1_MockERC20.attach(l2CanonicalTokenAddress)
+  l1_bridge = L1_Bridge.attach(l1BridgeAddress)
+  l2_bridge = L2_Bridge.attach(l2BridgeAddress)
 
   /**
    * Setup deployments
    */
 
-  if(isChainIdPolygon(l2_chainId) && !isPolygonFirstRun) {
-    // NOTE: The messenger is attached the the MessengerWrapper interface
+  // Assert that the messenger proxy address was set during deployments
+  if (isChainIdPolygon(l2ChainId as BigNumber) && l2MessengerProxyAddress === ZERO_ADDRESS) {
+    throw new Error('L2 Messenger Proxy address is not set')
+  }
+
+  // Deploy messenger wrapper
+  const fxRootAddress: string = getPolygonFxRootAddress(l1ChainId)
+  const fxChildTunnelAddress: string = l2MessengerProxyAddress || '0x'
+  const messengerWrapperDefaults: any[] = getMessengerWrapperDefaults(
+    l1ChainId,
+    l2ChainId,
+    l1_bridge.address,
+    l2_bridge.address,
+    l1_messenger?.address || '0x',
+    fxRootAddress,
+    fxChildTunnelAddress
+  )
+
+  logger.log('deploying L1 messenger wrapper')
+  l1_messengerWrapper = await L1_MessengerWrapper.connect(owner).deploy(
+    ...messengerWrapperDefaults
+  )
+  await waitAfterTransaction(l1_messengerWrapper)
+
+  if (isChainIdPolygon(l2ChainId)) {
+    logger.log('make polygon specific changes')
     l1_messenger = L1_MessengerWrapper.attach(l1_messenger.address)
-    l1_messengerWrapper = L1_MessengerWrapper.attach(l1_messenger.address)
-  } else {
-    // Deploy messenger wrapper
-    const messengerWrapperDefaults: any[] = getMessengerWrapperDefaults(
-      l2_chainId,
-      l1_bridge.address,
-      l2_bridge.address,
-      l1_messenger?.address || '0x'
-    )
+    l2_messengerProxy = L2_MessengerProxy.attach(l2MessengerProxyAddress)
 
-    logger.log('deploying L1 messenger wrapper')
-    l1_messengerWrapper = await L1_MessengerWrapper.connect(owner).deploy(
-      ...messengerWrapperDefaults
-    )
-    await waitAfterTransaction(l1_messengerWrapper)
-
-    if (isChainIdPolygon(l2_chainId)) {
-      logger.log('setting up polygon contracts')
-      l2_messengerProxy = L2_MessengerProxy.attach(l2_messengerProxyAddress)
-      await setUpPolygonContracts(
-        l1_chainId,
-        owner,
-        l1_messengerWrapper,
-        l2_messengerProxy
-      )
-
-      logger.log('l1 messenger wrapper address', l1_messengerWrapper.address)
-      throw new Error('Please wait for Polygon contracts to be linked before continuing')
-    }
+    await updatePolygonState(l1ChainId, l1_messengerWrapper, l2_messengerProxy)
   }
 
   /**
@@ -198,7 +194,7 @@ export async function setupL1 (config: Config) {
   logger.log('setting cross domain messenger wrapper on L1 bridge')
   // Set up the L1 bridge
   tx = await l1_bridge.connect(governance).setCrossDomainMessengerWrapper(
-    l2_chainId,
+    l2ChainId,
     l1_messengerWrapper.address
   )
   await tx.wait()
@@ -206,7 +202,7 @@ export async function setupL1 (config: Config) {
 
   // Set up L2 Bridge state (through the L1 Canonical Messenger)
   let setL1BridgeCallerParams: string
-  if (isChainIdPolygon(l2_chainId)) {
+  if (isChainIdPolygon(l2ChainId)) {
     setL1BridgeCallerParams = l1_bridge.address
   } else {
     setL1BridgeCallerParams = l1_messengerWrapper.address
@@ -216,15 +212,16 @@ export async function setupL1 (config: Config) {
   )
 
   logger.log('setting L1 messenger wrapper address on L2 bridge')
-  await executeCanonicalMessengerSendMessage(
+  tx = await executeCanonicalMessengerSendMessage(
     l1_messenger,
     l1_messengerWrapper,
     l2_bridge,
     ZERO_ADDRESS,
     governance,
     message,
-    l2_chainId
+    l2ChainId
   )
+  await tx.wait()
   await waitAfterTransaction()
 
   let addActiveChainIdsParams: any[] = ALL_SUPPORTED_CHAIN_IDS
@@ -235,35 +232,36 @@ export async function setupL1 (config: Config) {
     'chain IDs:',
     ALL_SUPPORTED_CHAIN_IDS.map(v => v.toString()).join(', ')
   )
-  await executeCanonicalMessengerSendMessage(
+  tx = await executeCanonicalMessengerSendMessage(
     l1_messenger,
     l1_messengerWrapper,
     l2_bridge,
     ZERO_ADDRESS,
     governance,
     message,
-    l2_chainId
+    l2ChainId
   )
+  await tx.wait()
   await waitAfterTransaction()
 
-  message = getSetAmmWrapperAddressMessage(l2_ammWrapperAddress)
+  message = getSetAmmWrapperAddressMessage(l2AmmWrapperAddress)
 
   logger.log('setting amm wrapper address on L2 bridge')
-  await executeCanonicalMessengerSendMessage(
+  tx = await executeCanonicalMessengerSendMessage(
     l1_messenger,
     l1_messengerWrapper,
     l2_bridge,
     ZERO_ADDRESS,
     governance,
     message,
-    l2_chainId
+    l2ChainId
   )
+  await tx.wait()
   await waitAfterTransaction()
 
-  logger.log('minting L1 canonical token')
   // Get canonical token to L2
-  // NOTE: If this is not the self-mintable testnet DAI, comment this line out
-  if (!isChainIdMainnet(l1_chainId)) {
+  if (!isChainIdMainnet(l1ChainId)) {
+    logger.log('minting L1 canonical token')
     tx = await l1_canonicalToken
       .connect(owner)
       .mint(
@@ -275,21 +273,24 @@ export async function setupL1 (config: Config) {
   }
 
   let contractToApprove: string
-  if (isChainIdPolygon(l2_chainId)) {
-    contractToApprove = getPolygonErc20PredicateAddress(l1_chainId)
+  if (isChainIdPolygon(l2ChainId)) {
+    contractToApprove = getPolygonPredicateContract(l1ChainId, l1CanonicalTokenAddress)
   } else {
     contractToApprove = l1_tokenBridge.address
   }
   logger.log('approving L1 canonical token')
   tx = await l1_canonicalToken
     .connect(liquidityProvider)
-    .approve(contractToApprove, liquidityProviderSendAmount)
+    .approve(
+      contractToApprove,
+      liquidityProviderSendAmount
+    )
   await tx.wait()
   await waitAfterTransaction()
 
   logger.log('sending chain specific bridge deposit')
   await sendChainSpecificBridgeDeposit(
-    l2_chainId,
+    l2ChainId,
     liquidityProvider,
     liquidityProviderSendAmount,
     l1_tokenBridge,
@@ -298,10 +299,9 @@ export async function setupL1 (config: Config) {
   )
   await waitAfterTransaction()
 
-  logger.log('minting L1 canonical token')
   // Get hop token on L2
-  // NOTE: If this is not the self-mintable testnet DAI, comment this line out
-  if (!isChainIdMainnet(l1_chainId)) {
+  if (!isChainIdMainnet(l1ChainId)) {
+    logger.log('minting L1 canonical token')
     tx = await l1_canonicalToken
       .connect(owner)
       .mint(
@@ -315,7 +315,10 @@ export async function setupL1 (config: Config) {
   logger.log('approving L1 canonical token')
   tx = await l1_canonicalToken
     .connect(liquidityProvider)
-    .approve(l1_bridge.address, liquidityProviderSendAmount)
+    .approve(
+      l1_bridge.address,
+      liquidityProviderSendAmount
+    )
   await tx.wait()
   await waitAfterTransaction()
 
@@ -327,7 +330,7 @@ export async function setupL1 (config: Config) {
   tx = await l1_bridge
     .connect(liquidityProvider)
     .sendToL2(
-      l2_chainId,
+      l2ChainId,
       await liquidityProvider.getAddress(),
       liquidityProviderSendAmount,
       amountOutMin,
@@ -339,72 +342,59 @@ export async function setupL1 (config: Config) {
   await waitAfterTransaction()
 
   updateConfigFile({
-    l1_messengerWrapperAddress: l1_messengerWrapper.address
+    l1MessengerWrapperAddress: l1_messengerWrapper.address
   })
 
   logger.log('L1 Setup Complete')
 }
 
-const setUpPolygonContracts = async (
+const updatePolygonState = async (
   l1ChainId: BigNumber,
-  owner: Signer,
   l1_messengerWrapper: Contract,
   l2_messengerProxy: Contract
 ) => {
-    const stateSender: string = getPolygonStateSenderAddress(l1ChainId)
-    const checkpointManager: string = getPolygonCheckpointManagerAddress(l1ChainId)
-    const childTunnel: string = l2_messengerProxy.address
+  const polygonRpcEndpoint = getPolygonRpcEndpoint(l1ChainId)
+  const l2EthersProvider = new l2Ethers.providers.JsonRpcProvider(polygonRpcEndpoint)
+  const l2EthersWallet = new l2Ethers.Wallet(process.env.OWNER_PRIVATE_KEY, l2EthersProvider)
+  const polygonTransactionData: string = getSetFxRootTunnelMessage(l1_messengerWrapper.address)
+  const gasLimit: number = 100000
 
-    let tx = await l1_messengerWrapper.setStateSender(stateSender)
-    await tx.wait()
-    await waitAfterTransaction()
+  const setFxRootTunnelTransaction = {
+    to: l2_messengerProxy.address,
+    gasLimit,
+    data: polygonTransactionData
+  }
 
-    tx = await l1_messengerWrapper.setCheckpointManager(checkpointManager)
-    await tx.wait()
-    await waitAfterTransaction()
-
-    tx = await l1_messengerWrapper.setChildTunnel(childTunnel)
-    await tx.wait()
-    await waitAfterTransaction()
-
-    // NOTE: You cannot remove all members of a role. Instead, set to 0 and then remove the original
-    tx = await l1_messengerWrapper.grantRole(DEFAULT_ADMIN_ROLE_HASH, ZERO_ADDRESS)
-    await tx.wait()
-    await waitAfterTransaction()
-
-    tx = await l1_messengerWrapper.revokeRole(DEFAULT_ADMIN_ROLE_HASH, await owner.getAddress())
-    await tx.wait()
-    await waitAfterTransaction()
+  const transaction = await l2EthersWallet.sendTransaction(setFxRootTunnelTransaction)
+  transaction.wait()
 }
 
 if (require.main === module) {
   const {
-    l1_chainId,
-    l2_chainId,
-    l1_tokenBridgeAddress,
-    l1_messengerAddress,
-    l1_canonicalTokenAddress,
-    l1_bridgeAddress,
-    l2_canonicalTokenAddress,
-    l2_bridgeAddress,
-    l2_messengerProxyAddress,
-    l2_ammWrapperAddress,
-    liquidityProviderSendAmount,
-    isPolygonFirstRun
+    l1ChainId,
+    l2ChainId,
+    l1TokenBridgeAddress,
+    l1MessengerAddress,
+    l1CanonicalTokenAddress,
+    l1BridgeAddress,
+    l2CanonicalTokenAddress,
+    l2BridgeAddress,
+    l2MessengerProxyAddress,
+    l2AmmWrapperAddress,
+    liquidityProviderSendAmount
   } = readConfigFile()
   setupL1({
-    l1_chainId,
-    l2_chainId,
-    l1_tokenBridgeAddress,
-    l1_messengerAddress,
-    l1_canonicalTokenAddress,
-    l2_canonicalTokenAddress,
-    l1_bridgeAddress,
-    l2_bridgeAddress,
-    l2_messengerProxyAddress,
-    l2_ammWrapperAddress,
-    liquidityProviderSendAmount,
-    isPolygonFirstRun
+    l1ChainId,
+    l2ChainId,
+    l1TokenBridgeAddress,
+    l1MessengerAddress,
+    l1CanonicalTokenAddress,
+    l2CanonicalTokenAddress,
+    l1BridgeAddress,
+    l2BridgeAddress,
+    l2MessengerProxyAddress,
+    l2AmmWrapperAddress,
+    liquidityProviderSendAmount
   })
     .then(() => {
       process.exit(0)

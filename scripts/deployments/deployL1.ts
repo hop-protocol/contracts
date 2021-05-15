@@ -23,23 +23,23 @@ import {
 const logger = Logger('deployL1')
 
 interface Config {
-  l1_chainId: string | BigNumber
-  l1_canonicalTokenAddress: string
+  l1ChainId: string | BigNumber
+  l1CanonicalTokenAddress: string
 }
 
 export async function deployL1 (config: Config) {
   logger.log('deploy L1')
 
   let {
-    l1_chainId,
-    l1_canonicalTokenAddress
+    l1ChainId,
+    l1CanonicalTokenAddress
   } = config
 
   logger.log(`config:
-            l1_chainId: ${l1_chainId}
-            l1_canonicalTokenAddress: ${l1_canonicalTokenAddress}`)
+            l1ChainId: ${l1ChainId}
+            l1CanonicalTokenAddress: ${l1CanonicalTokenAddress}`)
 
-  l1_chainId = BigNumber.from(l1_chainId)
+  l1ChainId = BigNumber.from(l1ChainId)
 
   // Signers
   const accounts: Signer[] = await ethers.getSigners()
@@ -47,7 +47,7 @@ export async function deployL1 (config: Config) {
   let bonder: Signer
   let governance: Signer
 
-  if (isChainIdMainnet(l1_chainId)) {
+  if (isChainIdMainnet(l1ChainId)) {
     owner = accounts[0]
     bonder = owner
     governance = owner
@@ -64,9 +64,10 @@ export async function deployL1 (config: Config) {
   let L1_Bridge: ContractFactory
 
   logger.log('getting contract factories')
+
   // Contracts
   let l1_bridge: Contract
-  ;({ L1_Bridge } = await getContractFactories(l1_chainId, bonder, ethers))
+  ;({ L1_Bridge } = await getContractFactories(l1ChainId, bonder, ethers))
 
   /**
    * Deployments
@@ -76,30 +77,30 @@ export async function deployL1 (config: Config) {
   l1_bridge = await L1_Bridge
     .connect(owner)
     .deploy(
-      l1_canonicalTokenAddress,
+      l1CanonicalTokenAddress,
       [await bonder.getAddress()],
       await governance.getAddress()
     )
   await waitAfterTransaction(l1_bridge)
 
-  const l1_bridgeAddress = l1_bridge.address
+  const l1BridgeAddress = l1_bridge.address
 
   logger.log('L1 Deployments Complete')
-  logger.log('L1 Bridge: ', l1_bridgeAddress)
-  updateConfigFile({ l1_bridgeAddress })
+  logger.log('L1 Bridge: ', l1BridgeAddress)
+  updateConfigFile({ l1BridgeAddress })
   return {
-    l1_bridgeAddress
+    l1BridgeAddress
   }
 }
 
 if (require.main === module) {
   const {
-    l1_chainId,
-    l1_canonicalTokenAddress
+    l1ChainId,
+    l1CanonicalTokenAddress
   } = readConfigFile()
   deployL1({
-    l1_chainId,
-    l1_canonicalTokenAddress
+    l1ChainId,
+    l1CanonicalTokenAddress
   })
     .then(() => {
       process.exit(0)

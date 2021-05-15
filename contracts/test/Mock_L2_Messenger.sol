@@ -76,15 +76,5 @@ contract Mock_L2_Messenger is MockMessenger {
 
     /* ========== Polygon ========== */
 
-    function sendCrossDomainMessage(
-        bytes calldata _message
-    )
-        public
-    {
-        targetMessenger.receiveMessage(
-            polygonTarget,
-            _message,
-            address(0)
-        );
-    }
+    // Polygon L2 to L1 messaging is event-based
 }

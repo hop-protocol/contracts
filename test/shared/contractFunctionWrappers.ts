@@ -2,6 +2,7 @@ import {
   BigNumber,
   Contract,
   Signer,
+  providers,
   utils as ethersUtils
 } from 'ethers'
 import Transfer from '../../lib/Transfer'
@@ -63,6 +64,7 @@ export const executeCanonicalMessengerSendMessage = async (
   message: string,
   l2ChainId: BigNumber
 ) => {
+  let tx: providers.TransactionResponse
   const gasLimit: BigNumber = BigNumber.from('1500000')
   const params: any[] = [l2_bridge.address, message, gasLimit]
 
@@ -82,25 +84,27 @@ export const executeCanonicalMessengerSendMessage = async (
       message
     ]
 
-    await l1_messenger
+    tx = await l1_messenger
       .connect(sender)
       .createRetryableTicket(...arbitrumParams);
   } else if (isChainIdOptimism(l2ChainId)) {
     const optimismGasLimit: BigNumber = BigNumber.from('5000000')
     const optimismParams: any[] = [l2_bridge.address, message, optimismGasLimit]
-    await l1_messenger.connect(sender).sendMessage(...optimismParams)
+    tx = await l1_messenger.connect(sender).sendMessage(...optimismParams)
   } else if (isChainIdXDai(l2ChainId)) {
-    await l1_messenger.connect(sender).requireToPassMessage(...params)
+    tx = await l1_messenger.connect(sender).requireToPassMessage(...params)
   } else if (isChainIdPolygon(l2ChainId)) {
-    await l1_messengerWrapper.connect(sender).sendCrossDomainMessage(message)
+    tx = await l1_messengerWrapper.connect(sender).sendCrossDomainMessage(message)
   } else {
-    await l1_messenger.connect(sender).sendMessage(...params)
+    tx = await l1_messenger.connect(sender).sendMessage(...params)
   }
 
   // Prod deployments should pass in ZERO_ADDRESS for the l2_messenger param
   if (typeof l2_messenger === 'object') {
     await l2_messenger.relayNextMessage()
   }
+
+  return tx
 }
 
 /**
@@ -1278,6 +1282,15 @@ export const getSetMessengerProxyMessage = (
   const ABI = ['function setMessengerProxy(address _messengerProxy)']
   const ethersInterface = new ethersUtils.Interface(ABI)
   return ethersInterface.encodeFunctionData('setMessengerProxy', [address])
+}
+
+export const getSetFxRootTunnelMessage = (
+  l1_messengerWrapperAddress:  string
+) => {
+  const address = getAddressFromContractOrString(l1_messengerWrapperAddress)
+  const ABI = ['function setFxRootTunnel(address _fxRootTunnel)']
+  const ethersInterface = new ethersUtils.Interface(ABI)
+  return ethersInterface.encodeFunctionData('setFxRootTunnel', [address])
 }
 
 const getAddressFromContractOrString = (input: Contract | string): string => {

@@ -29,6 +29,8 @@ export interface IFixture {
   L2_AmmWrapper: ContractFactory
 
   // Mock Factories
+  FxRoot: ContractFactory
+  FxChild: ContractFactory
   MockERC20: ContractFactory
   MockAccounting: ContractFactory
   MockBridge: ContractFactory
@@ -50,6 +52,8 @@ export interface IFixture {
   l2_ammWrapper: Contract
 
   // Mocks
+  fxRoot: Contract
+  fxChild: Contract
   mockAccounting: Contract
   mockBridge: Contract
 

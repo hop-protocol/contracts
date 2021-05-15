@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity 0.6.12;
+pragma solidity 0.7.3;
 pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
-import "../polygon/tunnel/BaseChildTunnel.sol";
+import "../polygon/tunnel/FxBaseChildTunnel.sol";
 
-contract L2_PolygonMessengerProxy is BaseChildTunnel, ReentrancyGuard {
+contract L2_PolygonMessengerProxy is FxBaseChildTunnel, ReentrancyGuard {
 
     address public l2Bridge;
     address public xDomainMessageSender;
@@ -18,7 +18,7 @@ contract L2_PolygonMessengerProxy is BaseChildTunnel, ReentrancyGuard {
         _;
     }
 
-    constructor() public {
+    constructor(address _fxChild) public FxBaseChildTunnel(_fxChild) {
         xDomainMessageSender = DEAD_ADDRESS;
     }
 
@@ -31,9 +31,18 @@ contract L2_PolygonMessengerProxy is BaseChildTunnel, ReentrancyGuard {
         _sendMessageToRoot(message);
     }
 
-    function _processMessageFromRoot(bytes memory data) internal override nonReentrant {
-        (address sender, bytes memory message) = abi.decode(data, (address, bytes));
-        xDomainMessageSender = sender;
+    function _processMessageFromRoot(
+        uint256 stateId,
+        address sender,
+        bytes memory data
+    )
+        internal
+        override
+        validateSender(sender)
+        nonReentrant
+    {
+        (address l1Sender, bytes memory message) = abi.decode(data, (address, bytes));
+        xDomainMessageSender = l1Sender;
         (bool success,) = l2Bridge.call(message);
         require(success, "L2_PLGN_MSG: Failed to proxy message");
         xDomainMessageSender = DEAD_ADDRESS;

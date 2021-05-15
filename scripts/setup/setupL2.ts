@@ -26,12 +26,12 @@ import {
 const logger = Logger('setupL2')
 
 interface Config {
-  l1_chainId: string | BigNumber
-  l2_chainId: string | BigNumber
-  l2_canonicalTokenAddress: string
-  l2_hopBridgeTokenAddress: string
-  l2_bridgeAddress: string
-  l2_swapAddress: string
+  l1ChainId: string | BigNumber
+  l2ChainId: string | BigNumber
+  l2CanonicalTokenAddress: string
+  l2HopBridgeTokenAddress: string
+  l2BridgeAddress: string
+  l2SwapAddress: string
   liquidityProviderAmmAmount: string | BigNumber
 }
 
@@ -39,27 +39,27 @@ export async function setupL2 (config: Config) {
   logger.log('setupL2')
 
   let {
-    l1_chainId,
-    l2_chainId,
-    l2_canonicalTokenAddress,
-    l2_hopBridgeTokenAddress,
-    l2_bridgeAddress,
-    l2_swapAddress,
+    l1ChainId,
+    l2ChainId,
+    l2CanonicalTokenAddress,
+    l2HopBridgeTokenAddress,
+    l2BridgeAddress,
+    l2SwapAddress,
     liquidityProviderAmmAmount
   } = config
 
   logger.log(`config:
-            l1_chainId: ${l1_chainId}
-            l2_chainId: ${l2_chainId}
-            l2_canonicalTokenAddress: ${l2_canonicalTokenAddress}
-            l2_hopBridgeTokenAddress: ${l2_hopBridgeTokenAddress}
-            l2_bridgeAddress: ${l2_bridgeAddress}
-            l2_swapAddress: ${l2_swapAddress}
+            l1ChainId: ${l1ChainId}
+            l2ChainId: ${l2ChainId}
+            l2CanonicalTokenAddress: ${l2CanonicalTokenAddress}
+            l2HopBridgeTokenAddress: ${l2HopBridgeTokenAddress}
+            l2BridgeAddress: ${l2BridgeAddress}
+            l2SwapAddress: ${l2SwapAddress}
             liquidityProviderAmmAmount: ${liquidityProviderAmmAmount}`
             )
 
-  l1_chainId = BigNumber.from(l1_chainId)
-  l2_chainId = BigNumber.from(l2_chainId)
+  l1ChainId = BigNumber.from(l1ChainId)
+  l2ChainId = BigNumber.from(l2ChainId)
   liquidityProviderAmmAmount = BigNumber.from(liquidityProviderAmmAmount)
 
   // Signers
@@ -81,7 +81,7 @@ export async function setupL2 (config: Config) {
 
   // Instantiate the wallets
   accounts = await ethers.getSigners()
-  if (isChainIdMainnet(l1_chainId)) {
+  if (isChainIdMainnet(l1ChainId)) {
     owner = accounts[0]
     liquidityProvider = owner
   } else {
@@ -102,15 +102,15 @@ export async function setupL2 (config: Config) {
     L2_HopBridgeToken,
     L2_Bridge,
     L2_Swap
-  } = await getContractFactories(l2_chainId, owner, ethers))
+  } = await getContractFactories(l2ChainId, owner, ethers))
 
   logger.log('attaching deployed contracts')
   // Attach already deployed contracts
-  l2_canonicalToken = L2_MockERC20.attach(l2_canonicalTokenAddress)
-  l2_hopBridgeToken = L2_HopBridgeToken.attach(l2_hopBridgeTokenAddress)
+  l2_canonicalToken = L2_MockERC20.attach(l2CanonicalTokenAddress)
+  l2_hopBridgeToken = L2_HopBridgeToken.attach(l2HopBridgeTokenAddress)
 
-  l2_bridge = L2_Bridge.attach(l2_bridgeAddress)
-  l2_swap = L2_Swap.attach(l2_swapAddress)
+  l2_bridge = L2_Bridge.attach(l2BridgeAddress)
+  l2_swap = L2_Swap.attach(l2SwapAddress)
 
 
   /**
@@ -119,14 +119,14 @@ export async function setupL2 (config: Config) {
 
   logger.log('waiting for L2 state verification')
   logger.log(`verification parameters:
-            l2_chainId: ${l2_chainId}
-            l2_canonicalToken: ${l2_canonicalToken.address}
-            l2_hopBridgeToken: ${l2_hopBridgeToken.address}
-            l2_bridge: ${l2_bridge.address}`)
+            l2ChainId: ${l2ChainId}
+            l2CanonicalToken: ${l2_canonicalToken.address}
+            l2HopBridgeToken: ${l2_hopBridgeToken.address}
+            l2Bridge: ${l2_bridge.address}`)
   // Some chains take a while to send state from L1 -> L2. Wait until the state have been fully sent.
   await waitForL2StateVerification(
     liquidityProvider,
-    l2_chainId,
+    l2ChainId,
     l2_canonicalToken,
     l2_hopBridgeToken,
     l2_bridge
@@ -138,7 +138,7 @@ export async function setupL2 (config: Config) {
     l2_swap.address,
     liquidityProviderAmmAmount
   ]
-  if (doesNeedExplicitGasLimit(l2_chainId)) {
+  if (doesNeedExplicitGasLimit(l2ChainId)) {
     approvalParams.push(overrides)
   }
 
@@ -161,9 +161,9 @@ export async function setupL2 (config: Config) {
     '0',
     DEFAULT_DEADLINE
   ]
-  if (doesNeedExplicitGasLimit(l2_chainId)) {
+  if (doesNeedExplicitGasLimit(l2ChainId)) {
     addLiquidityParams.push(overrides)
-  } else if (isChainIdArbitrum(l2_chainId)) {
+  } else if (isChainIdArbitrum(l2ChainId)) {
     addLiquidityParams.push({ gasLimit: 100000000 })
   }
 
@@ -179,11 +179,24 @@ export async function setupL2 (config: Config) {
   const lpTokenAddress = res[7]
 
   updateConfigFile({
-    l2_lpTokenAddress: lpTokenAddress
+    l2LpTokenAddress: lpTokenAddress
   })
 
   logger.log('L2 Setup Complete')
-
+  
+  // Match output with addresses package
+  const postDeploymentAddresses = readConfigFile()
+  logger.log(`
+    l1CanonicalBridge: ${postDeploymentAddresses.l1TokenBridgeAddress},
+    l1MessengerWrapper: ${postDeploymentAddresses.l1MessengerWrapperAddress},
+    l2CanonicalBridge: ${postDeploymentAddresses.l2TokenBridgeAddress},
+    l2CanonicalToken: ${postDeploymentAddresses.l2CanonicalTokenAddress},
+    l2Bridge: ${postDeploymentAddresses.l2BridgeAddress},
+    l2HopBridgeToken: ${postDeploymentAddresses.l2HopBridgeTokenAddress},
+    l2AmmWrapper: ${postDeploymentAddresses.l2AmmWrapperAddress},
+    l2SaddleSwap: ${postDeploymentAddresses.l2SwapAddress},
+    l2SaddleLpToken: ${postDeploymentAddresses.l2LpTokenAddress}
+  `)
 }
 
 const waitForL2StateVerification = async (
@@ -197,9 +210,10 @@ const waitForL2StateVerification = async (
   let isStateSet: boolean = false
 
   while (!isStateSet) {
-    if (checkCount === 30) {
+    // Note: Mumbai can take up to 50 checks
+    if (checkCount === 50) {
       throw new Error(
-        'L2 state has not been set after more than 5 minutes. Possibly due to a misconfiguration with modifiers on L2 bridge or messenger gas limit.'
+        'L2 state has not been set after more than 10 minutes. Possibly due to a misconfiguration with modifiers on L2 bridge or messenger gas limit.'
       )
     }
 
@@ -247,21 +261,21 @@ const waitForL2StateVerification = async (
 
 if (require.main === module) {
   const {
-    l1_chainId,
-    l2_chainId,
-    l2_canonicalTokenAddress,
-    l2_hopBridgeTokenAddress,
-    l2_bridgeAddress,
-    l2_swapAddress,
+    l1ChainId,
+    l2ChainId,
+    l2CanonicalTokenAddress,
+    l2HopBridgeTokenAddress,
+    l2BridgeAddress,
+    l2SwapAddress,
     liquidityProviderAmmAmount
   } = readConfigFile()
   setupL2({
-    l1_chainId,
-    l2_chainId,
-    l2_canonicalTokenAddress,
-    l2_hopBridgeTokenAddress,
-    l2_bridgeAddress,
-    l2_swapAddress,
+    l1ChainId,
+    l2ChainId,
+    l2CanonicalTokenAddress,
+    l2HopBridgeTokenAddress,
+    l2BridgeAddress,
+    l2SwapAddress,
     liquidityProviderAmmAmount
   })
     .then(() => {

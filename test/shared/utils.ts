@@ -18,9 +18,7 @@ import {
   DEFAULT_DEADLINE,
   CHALLENGER_INITIAL_BALANCE,
   RELAYER_INITIAL_BALANCE,
-  DEFAULT_RELAYER_FEE,
-  ZERO_ADDRESS,
-  DEFAULT_ADMIN_ROLE_HASH
+  DEFAULT_RELAYER_FEE
 } from '../../config/constants'
 
 import {
@@ -99,13 +97,13 @@ export const setUpL2HopBridgeToken = async (fixture: IFixture) => {
 
 export const setUpL1AndL2Messengers = async (fixture: IFixture, setUpL1AndL2MessengersOpts: any) => {
   const {
-    user,
-    l1ChainId,
     l2_bridge,
     l1_messenger,
     l1_messengerWrapper,
     l2_messenger,
-    l2_messengerProxy
+    l2_messengerProxy,
+    fxRoot,
+    fxChild
   } = fixture
 
   const { l2ChainId } = setUpL1AndL2MessengersOpts
@@ -114,28 +112,15 @@ export const setUpL1AndL2Messengers = async (fixture: IFixture, setUpL1AndL2Mess
   if (isChainIdPolygon(l2ChainId)) {
     // Set L2 bridge on proxy
     await l2_messengerProxy.setL2Bridge(l2_bridge.address)
-    // NOTE: You cannot remove all members of a role. Instead, set to 0 and then remove the original
-    await l2_messengerProxy.grantRole(DEFAULT_ADMIN_ROLE_HASH, ZERO_ADDRESS)
-    await l2_messengerProxy.revokeRole(DEFAULT_ADMIN_ROLE_HASH, await user.getAddress())
-
-    // Set Polygon-specific data
-    const stateSender: string = l1_messenger.address
-    const checkpointManager: string = getPolygonCheckpointManagerAddress(l1ChainId)
-    const childTunnel: string = l2_messengerProxy.address
-
-    await l1_messengerWrapper.setStateSender(stateSender)
-    await l1_messengerWrapper.setCheckpointManager(checkpointManager)
-    await l1_messengerWrapper.setChildTunnel(childTunnel)
-    await l1_messengerWrapper.grantRole(DEFAULT_ADMIN_ROLE_HASH, ZERO_ADDRESS)
-    await l1_messengerWrapper.revokeRole(DEFAULT_ADMIN_ROLE_HASH, await user.getAddress())
+    await l2_messengerProxy.setFxRootTunnel(l1_messengerWrapper.address)
 
     // Set up L1 messenger
-    await l1_messenger.setPolygonTarget(l2_messengerProxy.address)
-    await l1_messenger.setIsPolygonL1(true)
+    await fxRoot.setFxChild(fxChild.address)
 
     // Set up L2 messenger
     await l2_messenger.setPolygonTarget(l1_messengerWrapper.address)
-    await l2_messenger.setIsPolygonL2(true)
+    await fxChild.setFxRoot(fxRoot.address)
+    await fxChild.setL2Messenger(l2_messenger.address)
   }
 
   // Set up L1
@@ -476,6 +461,13 @@ export const didAttemptedSwapSucceed = async (
 ): Promise<boolean> => {
   const currentBalance: BigNumber = await canonicalToken.balanceOf(await recipient.getAddress())
   return !(currentBalance.eq(balanceBeforeAttemptedSwap))
+}
+
+export const relayNextMessage = async (
+  l1_messengerWrapper: Contract,
+  message: string
+) => {
+  return l1_messengerWrapper.processMessageFromChild(message)
 }
 /**
  * Timing functions

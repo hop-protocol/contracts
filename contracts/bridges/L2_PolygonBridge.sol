@@ -4,19 +4,19 @@ pragma solidity 0.6.12;
 pragma experimental ABIEncoderV2;
 
 import "./L2_Bridge.sol";
-import "./L2_PolygonMessengerProxy.sol";
+import "../interfaces/polygon/messengers/I_L2_PolygonMessengerProxy.sol";
 
 /**
  * @dev An L2_Bridge for Polygon - https://docs.matic.network/docs
  */
 
 contract L2_PolygonBridge is L2_Bridge {
-    L2_PolygonMessengerProxy public messengerProxy;
+    I_L2_PolygonMessengerProxy public messengerProxy;
 
     event L1_BridgeMessage(bytes data);
 
     constructor (
-        L2_PolygonMessengerProxy _messengerProxy,
+        I_L2_PolygonMessengerProxy _messengerProxy,
         address l1Governance,
         HopBridgeToken hToken,
         address l1BridgeAddress,
@@ -49,7 +49,7 @@ contract L2_PolygonBridge is L2_Bridge {
      * @dev Allows the L1 Bridge to set the messengerProxy proxy
      * @param _messengerProxy The new messengerProxy address
      */
-    function setMessengerProxy(L2_PolygonMessengerProxy _messengerProxy) external onlyGovernance {
+    function setMessengerProxy(I_L2_PolygonMessengerProxy _messengerProxy) external onlyGovernance {
         messengerProxy = _messengerProxy;
     }
 }

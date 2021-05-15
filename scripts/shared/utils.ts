@@ -21,6 +21,12 @@ import {
   ZERO_ADDRESS
 } from '../../config/constants'
 
+import {
+  mainnetNetworkData,
+  goerliNetworkData,
+  kovanNetworkData
+} from '../../config/networks/index'
+
 export const getContractFactories = async (
   chainId: BigNumber,
   signer: Signer,
@@ -294,23 +300,36 @@ export const updateConfigFile = (newData: any) => {
 
 export const readConfigFile = () => {
   let data: any = {
-    l2_chainId: '',
-    l1_canonicalTokenAddress: '',
-    l1_messengerAddress: '',
-    l1_bridgeAddress: '',
-    l2_bridgeAddress: '',
-    l2_canonicalTokenAddress: '',
-    l2_hopBridgeTokenAddress: '',
-    l2_messengerAddress: '',
-    l2_swapAddress: '',
-    l2_ammWrapperAddress: '',
-    l2_swapLpTokenName: '',
-    l2_swapLpTokenSymbol: ''
+    l1ChainId: '',
+    l2ChainId: '',
+    l1CanonicalTokenAddress: '',
+    l1MessengerAddress: '',
+    l1BridgeAddress: '',
+    l2BridgeAddress: '',
+    l2CanonicalTokenAddress: '',
+    l2HopBridgeTokenAddress: '',
+    l2MessengerAddress: '',
+    l2SwapAddress: '',
+    l2AmmWrapperAddress: '',
+    l2SwapLpTokenName: '',
+    l2SwapLpTokenSymbol: ''
   }
   if (fs.existsSync(configFilepath)) {
     data = JSON.parse(fs.readFileSync(configFilepath, 'utf8'))
   }
   return data
+}
+
+export const getNetworkDataByNetworkName = (networkName: string) => {
+  if (networkName === 'mainnet') {
+    return mainnetNetworkData
+  } else if (networkName === 'goerli') {
+    return goerliNetworkData
+  } else if (networkName === 'kovan') {
+    return kovanNetworkData
+  } else {
+    throw new Error('Invalid network name')
+  }
 }
 
 export const waitAfterTransaction = async (
@@ -388,4 +407,14 @@ export const doesNeedExplicitGasLimit = (chainId: BigNumber): Boolean => {
     return true
   }
   return false
+}
+
+export const getTokenSymbolLetterCase = (tokenSymbol: string): string => {
+  tokenSymbol = tokenSymbol.toLowerCase()
+
+  if (tokenSymbol.toLowerCase() === 'dai') return 'DAI'
+  else if (tokenSymbol.toLowerCase() === 'seth') return 'sETh'
+  else if (tokenSymbol.toLowerCase() === 'sbtc') return 'sBTC'
+  else if (tokenSymbol.toLowerCase() === 'usdc') return 'USDC'
+  else if (tokenSymbol.toLowerCase() === 'wbtc') return 'WBTC'
 }

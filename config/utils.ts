@@ -9,15 +9,21 @@ import {
   DEFAULT_MESSENGER_WRAPPER_CALL_VALUE,
   DEFAULT_L2_BRIDGE_GAS_LIMIT,
   CHECKPOINT_MANAGER_ADDRESSES,
-  STATE_SENDER_ADDRESSES,
-  ERC20_PREDICATE_ADDRESSES
+  FX_ROOT_ADDRESSES,
+  FX_CHILD_ADDRESSES,
+  POLYGON_RPC_ENDPOINTS,
+  ERC20_PREDICATE_ADDRESSES,
+  ERC20_MINTABLE_PREDICATE_ADDRESSES
 } from './constants'
 
 export const getMessengerWrapperDefaults = (
-  chainId: BigNumber,
+  l1ChainId: BigNumber,
+  l2ChainId: BigNumber,
   l1BridgeAddress: string,
   l2BridgeAddress: string,
-  l1MessengerAddress: string
+  l1MessengerAddress: string,
+  fxRootAddress: string,
+  fxChildTunnelAddress: string
 ): any[] => {
   // Ending data to return
   let data: any = []
@@ -29,7 +35,7 @@ export const getMessengerWrapperDefaults = (
     l1MessengerAddress
   ]
 
-  if (isChainIdArbitrum(chainId)) {
+  if (isChainIdArbitrum(l2ChainId)) {
     const gasLimit: number = DEFAULT_MESSENGER_WRAPPER_GAS_LIMIT
     const gasPrice: number = DEFAULT_MESSENGER_WRAPPER_GAS_PRICE
     const callValue: number = DEFAULT_MESSENGER_WRAPPER_CALL_VALUE
@@ -40,14 +46,14 @@ export const getMessengerWrapperDefaults = (
       gasPrice,
       callValue
     )
-  } else if (isChainIdOptimism(chainId)) {
+  } else if (isChainIdOptimism(l2ChainId)) {
     const gasLimit: number = DEFAULT_MESSENGER_WRAPPER_GAS_LIMIT
 
     data.push(
       ...defaults,
       gasLimit
     )
-  } else if (isChainIdXDai(chainId)) {
+  } else if (isChainIdXDai(l2ChainId)) {
     const gasLimit: number = 1000000
     const isAmbL1: boolean = true
     const ambAddress: string = getXDaiAmbAddresses(isAmbL1)
@@ -55,12 +61,17 @@ export const getMessengerWrapperDefaults = (
     data.push(
       ...defaults,
       gasLimit,
-      chainId.toString(),
+      l2ChainId.toString(),
       ambAddress
     )
-  } else if (isChainIdPolygon(chainId)) {
+  } else if (isChainIdPolygon(l2ChainId)) {
+    const checkpointManager: string = getPolygonCheckpointManagerAddress(l1ChainId)
+
     data.push(
-      l1BridgeAddress
+      l1BridgeAddress,
+      checkpointManager,
+      fxRootAddress,
+      fxChildTunnelAddress
     )
   }
 
@@ -218,11 +229,11 @@ export const getAllActiveChainIds = (obj: any): string[] =>
         .filter((a: any) => typeof a === 'string')
     : [obj]
 
-export const getPolygonStateSenderAddress = (l1ChainId: BigNumber): string => {
+export const getPolygonRpcEndpoint = (l1ChainId: BigNumber): string => {
   if (isChainIdMainnet(l1ChainId)) {
-    return STATE_SENDER_ADDRESSES.MAINNET
+    return POLYGON_RPC_ENDPOINTS.MAINNET
   } else if (isChainIdGoerli(l1ChainId)) {
-    return STATE_SENDER_ADDRESSES.GOERLI
+    return POLYGON_RPC_ENDPOINTS.GOERLI
   } else {
     throw new Error('Invalid Chain ID')
   }
@@ -238,11 +249,55 @@ export const getPolygonCheckpointManagerAddress = (l1ChainId: BigNumber): string
   }
 }
 
-export const getPolygonErc20PredicateAddress = (l1ChainId: BigNumber): string => {
+export const getPolygonFxRootAddress = (l1ChainId: BigNumber): string => {
+  if (isChainIdMainnet(l1ChainId)) {
+    return FX_ROOT_ADDRESSES.MAINNET
+  } else if (isChainIdGoerli(l1ChainId)) {
+    return FX_ROOT_ADDRESSES.GOERLI
+  } else {
+    throw new Error('Invalid Chain ID')
+  }
+}
+
+export const getPolygonFxChildAddress = (l1ChainId: BigNumber): string => {
+  if (isChainIdMainnet(l1ChainId)) {
+    return FX_CHILD_ADDRESSES.MAINNET
+  } else if (isChainIdGoerli(l1ChainId)) {
+    return FX_CHILD_ADDRESSES.GOERLI
+  } else {
+    throw new Error('Invalid Chain ID')
+  }
+}
+
+export const getPolygonPredicateContract = (l1ChainId: BigNumber, tokenAddress: string): string => {
+  if (isChainIdMainnet(l1ChainId)) {
+    return getPolygonErc20PredicateAddress(l1ChainId)
+  } else {
+    // Polygon's testnet USDC non-mintable but all others are
+    const polygonUSDCTestnetAddress: string = '0x7326510Cf9Ae0397dbBaF37FABba54f0A7b8D100'
+    if (tokenAddress === polygonUSDCTestnetAddress) {
+      return getPolygonErc20PredicateAddress(l1ChainId)
+    } else {
+      return getPolygonMintableErc20PredicateAddress(l1ChainId)
+    }
+  }
+}
+
+const getPolygonErc20PredicateAddress = (l1ChainId: BigNumber): string => {
   if (isChainIdMainnet(l1ChainId)) {
     return ERC20_PREDICATE_ADDRESSES.MAINNET
   } else if (isChainIdGoerli(l1ChainId)) {
     return ERC20_PREDICATE_ADDRESSES.GOERLI
+  } else {
+    throw new Error('Invalid Chain ID')
+  }
+}
+
+const getPolygonMintableErc20PredicateAddress = (l1ChainId: BigNumber): string => {
+  if (isChainIdMainnet(l1ChainId)) {
+    return ERC20_MINTABLE_PREDICATE_ADDRESSES.MAINNET
+  } else if (isChainIdGoerli(l1ChainId)) {
+    return ERC20_MINTABLE_PREDICATE_ADDRESSES.GOERLI
   } else {
     throw new Error('Invalid Chain ID')
   }
