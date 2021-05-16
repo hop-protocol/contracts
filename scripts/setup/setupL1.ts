@@ -87,8 +87,7 @@ export async function setupL1 (config: Config) {
 
   // Signers
   let accounts: Signer[]
-  let owner: Signer
-  let liquidityProvider: Signer
+  let deployer: Signer
   let governance: Signer
 
   // Factories
@@ -112,19 +111,10 @@ export async function setupL1 (config: Config) {
 
   // Instantiate the wallets
   accounts = await ethers.getSigners()
+  deployer = accounts[0]
+  governance = accounts[1]
 
-  if (isChainIdMainnet(l1ChainId)) {
-    owner = accounts[0]
-    liquidityProvider = owner
-    governance = owner
-  } else {
-    owner = accounts[0]
-    liquidityProvider = accounts[2]
-    governance = accounts[4]
-  }
-
-  logger.log('owner:', await owner.getAddress())
-  logger.log('liquidity provider:', await liquidityProvider.getAddress())
+  logger.log('deployer:', await deployer.getAddress())
   logger.log('governance:', await governance.getAddress())
 
   // Transaction
@@ -140,7 +130,7 @@ export async function setupL1 (config: Config) {
     L1_MessengerWrapper,
     L2_Bridge,
     L2_MessengerProxy
-  } = await getContractFactories(l2ChainId, owner, ethers))
+  } = await getContractFactories(l2ChainId, deployer, ethers))
 
   logger.log('attaching deployed contracts')
   // Attach already deployed contracts
@@ -174,7 +164,7 @@ export async function setupL1 (config: Config) {
   )
 
   logger.log('deploying L1 messenger wrapper')
-  l1_messengerWrapper = await L1_MessengerWrapper.connect(owner).deploy(
+  l1_messengerWrapper = await L1_MessengerWrapper.connect(deployer).deploy(
     ...messengerWrapperDefaults
   )
   await waitAfterTransaction(l1_messengerWrapper)
@@ -263,9 +253,9 @@ export async function setupL1 (config: Config) {
   if (!isChainIdMainnet(l1ChainId)) {
     logger.log('minting L1 canonical token')
     tx = await l1_canonicalToken
-      .connect(owner)
+      .connect(deployer)
       .mint(
-        await liquidityProvider.getAddress(),
+        await deployer.getAddress(),
         liquidityProviderSendAmount
       )
     await tx.wait()
@@ -280,7 +270,7 @@ export async function setupL1 (config: Config) {
   }
   logger.log('approving L1 canonical token')
   tx = await l1_canonicalToken
-    .connect(liquidityProvider)
+    .connect(deployer)
     .approve(
       contractToApprove,
       liquidityProviderSendAmount
@@ -291,7 +281,7 @@ export async function setupL1 (config: Config) {
   logger.log('sending chain specific bridge deposit')
   await sendChainSpecificBridgeDeposit(
     l2ChainId,
-    liquidityProvider,
+    deployer,
     liquidityProviderSendAmount,
     l1_tokenBridge,
     l1_canonicalToken,
@@ -303,9 +293,9 @@ export async function setupL1 (config: Config) {
   if (!isChainIdMainnet(l1ChainId)) {
     logger.log('minting L1 canonical token')
     tx = await l1_canonicalToken
-      .connect(owner)
+      .connect(deployer)
       .mint(
-        await liquidityProvider.getAddress(),
+        await deployer.getAddress(),
         liquidityProviderSendAmount
       )
     await tx.wait()
@@ -314,7 +304,7 @@ export async function setupL1 (config: Config) {
 
   logger.log('approving L1 canonical token')
   tx = await l1_canonicalToken
-    .connect(liquidityProvider)
+    .connect(deployer)
     .approve(
       l1_bridge.address,
       liquidityProviderSendAmount
@@ -328,10 +318,10 @@ export async function setupL1 (config: Config) {
 
   logger.log('sending token to L2')
   tx = await l1_bridge
-    .connect(liquidityProvider)
+    .connect(deployer)
     .sendToL2(
       l2ChainId,
-      await liquidityProvider.getAddress(),
+      await deployer.getAddress(),
       liquidityProviderSendAmount,
       amountOutMin,
       deadline,
@@ -355,7 +345,7 @@ const updatePolygonState = async (
 ) => {
   const polygonRpcEndpoint = getPolygonRpcEndpoint(l1ChainId)
   const l2EthersProvider = new l2Ethers.providers.JsonRpcProvider(polygonRpcEndpoint)
-  const l2EthersWallet = new l2Ethers.Wallet(process.env.OWNER_PRIVATE_KEY, l2EthersProvider)
+  const l2EthersWallet = new l2Ethers.Wallet(process.env.DEPLOYER_PRIVATE_KEY, l2EthersProvider)
   const polygonTransactionData: string = getSetFxRootTunnelMessage(l1_messengerWrapper.address)
   const gasLimit: number = 100000
 

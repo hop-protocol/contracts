@@ -9,10 +9,6 @@ import {
 } from 'ethers'
 
 import {
-  isChainIdMainnet
-} from '../../config/utils'
-
-import {
   getContractFactories,
   updateConfigFile,
   readConfigFile,
@@ -25,6 +21,7 @@ const logger = Logger('deployL1')
 interface Config {
   l1ChainId: BigNumber
   l1CanonicalTokenAddress: string
+  bonderAddress: string
 }
 
 export async function deployL1 (config: Config) {
@@ -32,33 +29,24 @@ export async function deployL1 (config: Config) {
 
   let {
     l1ChainId,
-    l1CanonicalTokenAddress
+    l1CanonicalTokenAddress,
+    bonderAddress
   } = config
 
   logger.log(`config:
             l1ChainId: ${l1ChainId}
-            l1CanonicalTokenAddress: ${l1CanonicalTokenAddress}`)
+            l1CanonicalTokenAddress: ${l1CanonicalTokenAddress}
+            bonderAddress: ${bonderAddress}`)
 
   l1ChainId = BigNumber.from(l1ChainId)
 
   // Signers
   const accounts: Signer[] = await ethers.getSigners()
-  let owner: Signer
-  let bonder: Signer
-  let governance: Signer
+  let deployer: Signer = accounts[0]
+  let governance: Signer = accounts[1]
 
-  if (isChainIdMainnet(l1ChainId)) {
-    owner = accounts[0]
-    bonder = owner
-    governance = owner
-  } else {
-    owner = accounts[0]
-    bonder = accounts[1]
-    governance = accounts[4]
-  }
-
-  logger.log('owner:', await owner.getAddress())
-  logger.log('bonder:', await bonder.getAddress())
+  logger.log('deployer:', await deployer.getAddress())
+  logger.log('governance:', await governance.getAddress())
 
   // Factories
   let L1_Bridge: ContractFactory
@@ -67,7 +55,7 @@ export async function deployL1 (config: Config) {
 
   // Contracts
   let l1_bridge: Contract
-  ;({ L1_Bridge } = await getContractFactories(l1ChainId, bonder, ethers))
+  ;({ L1_Bridge } = await getContractFactories(l1ChainId, deployer, ethers))
 
   /**
    * Deployments
@@ -75,10 +63,10 @@ export async function deployL1 (config: Config) {
 
   logger.log('deploying L1 bridge')
   l1_bridge = await L1_Bridge
-    .connect(owner)
+    .connect(deployer)
     .deploy(
       l1CanonicalTokenAddress,
-      [await bonder.getAddress()],
+      [bonderAddress],
       await governance.getAddress()
     )
   await waitAfterTransaction(l1_bridge)
@@ -96,11 +84,13 @@ export async function deployL1 (config: Config) {
 if (require.main === module) {
   const {
     l1ChainId,
-    l1CanonicalTokenAddress
+    l1CanonicalTokenAddress,
+    bonderAddress
   } = readConfigFile()
   deployL1({
     l1ChainId,
-    l1CanonicalTokenAddress
+    l1CanonicalTokenAddress,
+    bonderAddress
   })
     .then(() => {
       process.exit(0)

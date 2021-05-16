@@ -8,6 +8,7 @@ import {
   getTokenSymbolLetterCase,
   Logger
 } from './shared/utils'
+import { ZERO_ADDRESS } from '../config/constants'
 import { NetworkData } from '../config/networks/index'
 
 const logger = Logger('deploy')
@@ -18,23 +19,25 @@ async function main () {
   let l1NetworkName: string
   let l2NetworkName: string
   let tokenSymbol: string
+  let bonderAddress: string
   let isL1BridgeDeploy: boolean
 
   ;({
     l1NetworkName,
     l2NetworkName,
     tokenSymbol,
+    bonderAddress,
     isL1BridgeDeploy
   } = await getPrompts())
 
-  validateInput(l1NetworkName, l2NetworkName, tokenSymbol)
+  validateInput(l1NetworkName, l2NetworkName, tokenSymbol, bonderAddress)
 
   const scripts: string[] = []
   if (isL1BridgeDeploy) {
-    setL1BridgeNetworkParams(l1NetworkName, l2NetworkName, tokenSymbol)
+    setL1BridgeNetworkParams(l1NetworkName, l2NetworkName, tokenSymbol, bonderAddress)
     scripts.push(`npm run deploy:l1-${l1NetworkName}`)
   } else {
-    setNetworkParams(l1NetworkName, l2NetworkName, tokenSymbol)
+    setNetworkParams(l1NetworkName, l2NetworkName, tokenSymbol, bonderAddress)
     scripts.push(
       `npm run deploy:l2-${l2NetworkName}`,
       `npm run setup:l1-${l1NetworkName}`,
@@ -69,6 +72,11 @@ async function getPrompts () {
     type: 'string',
     required: true
   }, {
+    name: 'bonderAddress',
+    type: 'string',
+    required: true,
+    default: ZERO_ADDRESS
+  }, {
     name: 'isL1BridgeDeploy',
     type: 'boolean',
     required: true,
@@ -78,12 +86,14 @@ async function getPrompts () {
   const l1NetworkName: string = (res.l1NetworkName as string).toLowerCase()
   const l2NetworkName: string = (res.l2NetworkName as string).toLowerCase()
   const tokenSymbol: string = (res.tokenSymbol as string).toLowerCase()
+  const bonderAddress: string = (res.bonderAddress as string)
   const isL1BridgeDeploy: boolean = res.isL1BridgeDeploy as boolean
 
   return {
     l1NetworkName,
     l2NetworkName,
     tokenSymbol,
+    bonderAddress,
     isL1BridgeDeploy
   }
 }
@@ -91,7 +101,8 @@ async function getPrompts () {
 function validateInput (
   l1NetworkName: string,
   l2NetworkName: string,
-  tokenSymbol: string
+  tokenSymbol: string,
+  bonderAddress: string
 ) {
   if (!l1NetworkName) {
     throw new Error('L1 network name is invalid')
@@ -104,12 +115,17 @@ function validateInput (
   if (!tokenSymbol) {
     throw new Error('Token symbol is invalid')
   }
+
+  if (bonderAddress.length !== 42) {
+    throw new Error('Bonder address is invalid')
+  }
 }
 
 function setL1BridgeNetworkParams (
   l1NetworkName: string,
   l2NetworkName: string,
-  tokenSymbol: string
+  tokenSymbol: string,
+  bonderAddress: string
 ) {
   const expectedTokenSymbolLetterCase: string = getTokenSymbolLetterCase(tokenSymbol)
   const networkData: NetworkData = getNetworkDataByNetworkName(l1NetworkName)
@@ -119,14 +135,16 @@ function setL1BridgeNetworkParams (
 
   updateConfigFile({
     l1ChainId,
-    l1CanonicalTokenAddress
+    l1CanonicalTokenAddress,
+    bonderAddress
   })
 }
 
 function setNetworkParams (
   l1NetworkName: string,
   l2NetworkName: string,
-  tokenSymbol: string
+  tokenSymbol: string,
+  bonderAddress: string
 ) {
   const { l1BridgeAddress } = readConfigFile()
 
@@ -171,7 +189,8 @@ function setNetworkParams (
     l2SwapLpTokenName,
     l2SwapLpTokenSymbol,
     liquidityProviderSendAmount,
-    liquidityProviderAmmAmount
+    liquidityProviderAmmAmount,
+    bonderAddress
   }
 
   console.log('data: ', data)

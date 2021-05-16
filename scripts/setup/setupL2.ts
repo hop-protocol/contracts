@@ -13,7 +13,6 @@ import {
   Logger
 } from '../shared/utils'
 import {
-  isChainIdMainnet,
   isChainIdArbitrum
 } from '../../config/utils'
 
@@ -64,8 +63,7 @@ export async function setupL2 (config: Config) {
 
   // Signers
   let accounts: Signer[]
-  let owner: Signer
-  let liquidityProvider: Signer
+  let deployer: Signer
 
   // Factories
   let L2_MockERC20: ContractFactory
@@ -81,16 +79,9 @@ export async function setupL2 (config: Config) {
 
   // Instantiate the wallets
   accounts = await ethers.getSigners()
-  if (isChainIdMainnet(l1ChainId)) {
-    owner = accounts[0]
-    liquidityProvider = owner
-  } else {
-    owner = accounts[0]
-    liquidityProvider = accounts[2]
-  }
+  deployer = accounts[0]
 
-  logger.log('owner:', await owner.getAddress())
-  logger.log('liquidity provider:', await liquidityProvider.getAddress())
+  logger.log('deployer:', await deployer.getAddress())
 
   // Transaction
   let tx: providers.TransactionResponse
@@ -102,7 +93,7 @@ export async function setupL2 (config: Config) {
     L2_HopBridgeToken,
     L2_Bridge,
     L2_Swap
-  } = await getContractFactories(l2ChainId, owner, ethers))
+  } = await getContractFactories(l2ChainId, deployer, ethers))
 
   logger.log('attaching deployed contracts')
   // Attach already deployed contracts
@@ -125,7 +116,7 @@ export async function setupL2 (config: Config) {
             l2Bridge: ${l2_bridge.address}`)
   // Some chains take a while to send state from L1 -> L2. Wait until the state have been fully sent.
   await waitForL2StateVerification(
-    liquidityProvider,
+    deployer,
     l2ChainId,
     l2_canonicalToken,
     l2_hopBridgeToken,
@@ -144,14 +135,14 @@ export async function setupL2 (config: Config) {
 
   logger.log('approving L2 canonical token')
   tx = await l2_canonicalToken
-    .connect(liquidityProvider)
+    .connect(deployer)
     .approve(...approvalParams)
   await tx.wait()
   await waitAfterTransaction()
 
   logger.log('approving L2 hop bridge token')
   tx = await l2_hopBridgeToken
-    .connect(liquidityProvider)
+    .connect(deployer)
     .approve(...approvalParams)
   await tx.wait()
   await waitAfterTransaction()
@@ -169,7 +160,7 @@ export async function setupL2 (config: Config) {
 
   logger.log('adding liquidity to L2 amm')
   tx = await l2_swap
-    .connect(liquidityProvider)
+    .connect(deployer)
     .addLiquidity(...addLiquidityParams)
   await tx.wait()
   await waitAfterTransaction()

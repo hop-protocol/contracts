@@ -19,7 +19,6 @@ import {
 } from '../shared/utils'
 
 import {
-  isChainIdMainnet,
   isChainIdPolygon,
   getPolygonFxChildAddress,
   getL2BridgeDefaults
@@ -49,6 +48,7 @@ interface Config {
   l2HBridgeTokenDecimals: number
   l2SwapLpTokenName: string
   l2SwapLpTokenSymbol: string
+  bonderAddress: string
 }
 
 export async function deployL2 (config: Config) {
@@ -65,7 +65,8 @@ export async function deployL2 (config: Config) {
     l2HBridgeTokenSymbol,
     l2HBridgeTokenDecimals,
     l2SwapLpTokenName,
-    l2SwapLpTokenSymbol
+    l2SwapLpTokenSymbol,
+    bonderAddress
   } = config
 
   logger.log(`config:
@@ -77,15 +78,15 @@ export async function deployL2 (config: Config) {
             l2MessengerAddress: ${l2MessengerAddress}
             l2HBridgeTokenName: ${l2HBridgeTokenName}
             l2HBridgeTokenSymbol: ${l2HBridgeTokenSymbol}
-            l2HBridgeTokenDecimals: ${l2HBridgeTokenDecimals}`)
+            l2HBridgeTokenDecimals: ${l2HBridgeTokenDecimals}
+            bonderAddress: ${bonderAddress}`)
 
   l1ChainId = BigNumber.from(l1ChainId)
   l2ChainId = BigNumber.from(l2ChainId)
 
   // Signers
   let accounts: Signer[]
-  let owner: Signer
-  let bonder: Signer
+  let deployer: Signer
   let governance: Signer
 
   // Factories
@@ -107,19 +108,10 @@ export async function deployL2 (config: Config) {
 
   // Instantiate the wallets
   accounts = await ethers.getSigners()
+  deployer = accounts[0]
+  governance = accounts[1]
 
-  if (isChainIdMainnet(l1ChainId)) {
-    owner = accounts[0]
-    bonder = owner
-    governance = owner
-  } else {
-    owner = accounts[0]
-    bonder = accounts[1]
-    governance = accounts[4]
-  }
-
-  logger.log('owner:', await owner.getAddress())
-  logger.log('bonder:', await bonder.getAddress())
+  logger.log('deployer:', await deployer.getAddress())
   logger.log('governance:', await governance.getAddress())
 
   // Transaction
@@ -134,7 +126,7 @@ export async function deployL2 (config: Config) {
     L2_Bridge,
     L2_AmmWrapper,
     L2_MessengerProxy
-  } = await getContractFactories(l2ChainId, owner, ethers))
+  } = await getContractFactories(l2ChainId, deployer, ethers))
 
   logger.log('attaching deployed contracts')
   // Attach already deployed contracts
@@ -167,7 +159,7 @@ export async function deployL2 (config: Config) {
 
   logger.log('deploying L2 swap contract')
   ;({ l2_swap } = await deployAmm(
-    owner,
+    deployer,
     ethers,
     l2ChainId,
     l2_canonicalToken,
@@ -181,9 +173,9 @@ export async function deployL2 (config: Config) {
     l2ChainId,
     l1ChainId,
     ethers,
-    owner,
-    bonder,
+    deployer,
     governance,
+    bonderAddress,
     L2_Bridge,
     L2_AmmWrapper,
     l1_bridge,
@@ -251,7 +243,7 @@ export async function deployL2 (config: Config) {
 }
 
 const deployAmm = async (
-  owner: Signer,
+  deployer: Signer,
   ethers: any,
   l2ChainId: BigNumber,
   l2_canonicalToken: Contract,
@@ -270,7 +262,7 @@ const deployAmm = async (
   const l2HopBridgeTokenDecimals = await l2_hopBridgeToken.decimals(...decimalParams)
 
   // Deploy AMM contracts
-  const L2_SwapContractFactory: ContractFactory = await deployL2SwapLibs(owner, ethers)
+  const L2_SwapContractFactory: ContractFactory = await deployL2SwapLibs(deployer, ethers)
   const l2_swap = await L2_SwapContractFactory.deploy()
   await waitAfterTransaction(l2_swap, ethers)
 
@@ -332,9 +324,9 @@ const deployBridge = async (
   chainId: BigNumber,
   l1ChainId: BigNumber,
   ethers: any,
-  owner: Signer,
-  bonder: Signer,
+  deployer: Signer,
   governance: Signer,
+  bonderAddress: string,
   L2_Bridge: ContractFactory,
   L2_AmmWrapper: ContractFactory,
   l1_bridge: Contract,
@@ -356,16 +348,16 @@ const deployBridge = async (
     l2_hopBridgeToken.address,
     l1_bridge.address,
     [CHAIN_IDS.ETHEREUM.MAINNET.toString()],
-    [await bonder.getAddress()],
+    [bonderAddress],
     l1ChainId
   )
 
-  l2_bridge = await L2_Bridge.connect(owner).deploy(...l2BridgeDeploymentParams)
+  l2_bridge = await L2_Bridge.connect(deployer).deploy(...l2BridgeDeploymentParams)
   await waitAfterTransaction(l2_bridge, ethers)
 
   const l2CanonicalTokenName = await l2_canonicalToken.symbol(overrides)
   const l2CanonicalTokenIsEth: boolean = l2CanonicalTokenName === 'WETH'
-  l2_ammWrapper = await L2_AmmWrapper.connect(owner).deploy(
+  l2_ammWrapper = await L2_AmmWrapper.connect(deployer).deploy(
     l2_bridge.address,
     l2_canonicalToken.address,
     l2CanonicalTokenIsEth,
@@ -392,7 +384,8 @@ if (require.main === module) {
     l2HBridgeTokenSymbol,
     l2HBridgeTokenDecimals,
     l2SwapLpTokenName,
-    l2SwapLpTokenSymbol
+    l2SwapLpTokenSymbol,
+    bonderAddress
   } = readConfigFile()
   deployL2({
     l1ChainId,
@@ -405,7 +398,8 @@ if (require.main === module) {
     l2HBridgeTokenSymbol,
     l2HBridgeTokenDecimals,
     l2SwapLpTokenName,
-    l2SwapLpTokenSymbol
+    l2SwapLpTokenSymbol,
+    bonderAddress
   })
     .then(() => {
       process.exit(0)

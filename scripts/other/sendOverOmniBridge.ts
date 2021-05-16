@@ -39,14 +39,13 @@ async function main () {
 
   // Signers
   const signers: Signer[] = await ethers.getSigners()
-  const owner: Signer = signers[0]
-  const bonder: Signer = signers[1]
-  const liquidityProvider: Signer = signers[2]
+  const deployer: Signer = signers[0]
+  const liquidityProvider: Signer = deployer
 
   ;({
     L1_MockERC20,
     L1_TokenBridge,
-  } = await getContractFactories(l2_chainId, bonder, ethers))
+  } = await getContractFactories(l2_chainId, deployer, ethers))
 
   // Attach already deployed contracts
   l1_tokenBridge = L1_TokenBridge.attach(l1_tokenBridgeAddress)
@@ -57,7 +56,7 @@ async function main () {
     await mintAndApproveMax(
       l1_tokenBridge,
       l1_canonicalToken,
-      owner,
+      deployer,
       liquidityProvider,
       mintAndApproveMaxAmount
     )
@@ -81,12 +80,12 @@ async function main () {
 async function mintAndApproveMax(
   l1_tokenBridge: Contract,
   l1_canonicalToken: Contract,
-  owner: Signer,
+  deployer: Signer,
   liquidityProvider: Signer,
   amount: BigNumber
 ) {
   let tx = await l1_canonicalToken
-    .connect(owner)
+    .connect(deployer)
     .mint(
       await liquidityProvider.getAddress(),
       amount

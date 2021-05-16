@@ -39,16 +39,15 @@ async function main () {
 
   // Signers
   const signers: Signer[] = await ethers.getSigners()
-  const owner: Signer = signers[0]
-  const bonder: Signer = signers[1]
-  const governance: Signer = signers[4]
+  const deployer: Signer = signers[0]
+  const governance: Signer = signers[1]
 
   ;({
     L1_Bridge,
     L1_Messenger,
     L1_MessengerWrapper,
     L2_Bridge
-  } = await getContractFactories(l2_chainId, bonder, ethers))
+  } = await getContractFactories(l2_chainId, deployer, ethers))
 
   // Attach already deployed contracts
   l1_bridge = L1_Bridge.attach(l1_bridgeAddress)
