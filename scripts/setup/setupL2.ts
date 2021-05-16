@@ -26,13 +26,13 @@ import {
 const logger = Logger('setupL2')
 
 interface Config {
-  l1ChainId: string | BigNumber
-  l2ChainId: string | BigNumber
+  l1ChainId: BigNumber
+  l2ChainId: BigNumber
   l2CanonicalTokenAddress: string
   l2HopBridgeTokenAddress: string
   l2BridgeAddress: string
   l2SwapAddress: string
-  liquidityProviderAmmAmount: string | BigNumber
+  liquidityProviderAmmAmount: BigNumber
 }
 
 export async function setupL2 (config: Config) {

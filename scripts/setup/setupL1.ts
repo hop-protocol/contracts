@@ -38,8 +38,8 @@ import {
 const logger = Logger('setupL1')
 
 interface Config {
-  l1ChainId: string | BigNumber
-  l2ChainId: string | BigNumber
+  l1ChainId: BigNumber
+  l2ChainId: BigNumber
   l1TokenBridgeAddress: string
   l1MessengerAddress: string
   l1CanonicalTokenAddress: string
@@ -48,7 +48,7 @@ interface Config {
   l2BridgeAddress: string
   l2MessengerProxyAddress: string
   l2AmmWrapperAddress: string
-  liquidityProviderSendAmount: string | BigNumber
+  liquidityProviderSendAmount: BigNumber
 }
 
 export async function setupL1 (config: Config) {
@@ -156,7 +156,7 @@ export async function setupL1 (config: Config) {
    */
 
   // Assert that the messenger proxy address was set during deployments
-  if (isChainIdPolygon(l2ChainId as BigNumber) && l2MessengerProxyAddress === ZERO_ADDRESS) {
+  if (isChainIdPolygon(l2ChainId) && l2MessengerProxyAddress === ZERO_ADDRESS) {
     throw new Error('L2 Messenger Proxy address is not set')
   }
 

@@ -53,10 +53,13 @@ async function main () {
 
 async function getPrompts () {
   prompt.start()
+  prompt.message = ''
+  prompt.delimiter = ''
+
   const res = await prompt.get([{
     name: 'l1NetworkName',
     type: 'string',
-    required: true
+    required: true,
   }, {
     name: 'l2NetworkName',
     type: 'string',

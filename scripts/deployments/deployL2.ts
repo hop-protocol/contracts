@@ -38,8 +38,8 @@ import {
 const logger = Logger('deployL2')
 
 interface Config {
-  l1ChainId: string | BigNumber
-  l2ChainId: string | BigNumber
+  l1ChainId: BigNumber
+  l2ChainId: BigNumber
   l1BridgeAddress: string
   l1MessengerWrapperAddress: string
   l2CanonicalTokenAddress: string

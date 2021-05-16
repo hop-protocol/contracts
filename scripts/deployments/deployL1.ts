@@ -23,7 +23,7 @@ import {
 const logger = Logger('deployL1')
 
 interface Config {
-  l1ChainId: string | BigNumber
+  l1ChainId: BigNumber
   l1CanonicalTokenAddress: string
 }
 
