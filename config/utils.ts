@@ -22,8 +22,8 @@ export const getMessengerWrapperDefaults = (
   l1BridgeAddress: string,
   l2BridgeAddress: string,
   l1MessengerAddress: string,
-  fxRootAddress: string,
-  fxChildTunnelAddress: string
+  fxChildTunnelAddress: string,
+  fxRootAddress: string = undefined
 ): any[] => {
   // Ending data to return
   let data: any = []
@@ -66,6 +66,7 @@ export const getMessengerWrapperDefaults = (
     )
   } else if (isChainIdPolygon(l2ChainId)) {
     const checkpointManager: string = getPolygonCheckpointManagerAddress(l1ChainId)
+    fxRootAddress = fxRootAddress || getPolygonFxRootAddress(l1ChainId)
 
     data.push(
       l1BridgeAddress,

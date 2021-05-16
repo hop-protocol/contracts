@@ -15,7 +15,6 @@ import {
 import {
   getMessengerWrapperDefaults,
   getPolygonPredicateContract,
-  getPolygonFxRootAddress,
   getPolygonRpcEndpoint,
 } from '../../config/utils'
 import {
@@ -151,7 +150,6 @@ export async function setupL1 (config: Config) {
   }
 
   // Deploy messenger wrapper
-  const fxRootAddress: string = getPolygonFxRootAddress(l1ChainId)
   const fxChildTunnelAddress: string = l2MessengerProxyAddress || '0x'
   const messengerWrapperDefaults: any[] = getMessengerWrapperDefaults(
     l1ChainId,
@@ -159,7 +157,6 @@ export async function setupL1 (config: Config) {
     l1_bridge.address,
     l2_bridge.address,
     l1_messenger?.address || '0x',
-    fxRootAddress,
     fxChildTunnelAddress
   )
 

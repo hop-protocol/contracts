@@ -180,8 +180,7 @@ const getXDaiContractFactories = async (signer: Signer, ethers: any) => {
     { signer }
   )
   const L1_Messenger: ContractFactory = await ethers.getContractFactory(
-    // TODO: This will likely have to be converted from an interface to a mock
-    'contracts/interfaces/xDai/messengers/IArbitraryMessageBridge.sol:IArbitraryMessageBridge',
+    'contracts/test/xDai/Mock_L1_xDaiMessenger.sol:Mock_L1_xDaiMessenger',
     { signer }
   )
   const L1_MessengerWrapper: ContractFactory = await ethers.getContractFactory(
