@@ -45,7 +45,8 @@
     "deploy:l1-kovan:erc20": "hardhat run scripts/erc20/deploy.ts --network kovan",
     "deploy:l1-goerli:erc20": "hardhat run scripts/erc20/deploy.ts --network goerli",
     "deploy:l2-optimism:erc20": "hardhat run scripts/erc20/deploy.ts --network optimism",
-    "deploy:l2-arbitrum:erc20": "hardhat run scripts/erc20/deploy.ts --network arbitrum"
+    "deploy:l2-arbitrum:erc20": "hardhat run scripts/erc20/deploy.ts --network arbitrum",
+    "update-contract-state": "hardhat run scripts/contractState/getUpdateContractStateMessage.ts"
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.0",

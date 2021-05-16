@@ -16,7 +16,7 @@ import {
 } from '../shared/utils'
 import {
   executeCanonicalBridgeSendTokens,
-  getSetDefaultGasLimitMessage,
+  getSetDefaultGasLimitUint32Message,
   getSetMessengerMessage,
   getAddBonderMessage,
   executeL1BridgeSendToL2,
@@ -30,7 +30,7 @@ import {
   executeL2BridgeCommitTransfers,
   executeL2BridgeBondWithdrawalAndDistribute,
   executeCanonicalMessengerSendMessage,
-  getSetAmmWrapperAddressMessage,
+  getSetAmmWrapperMessage,
   getSetL1BridgeAddressMessage,
   getSetL1BridgeCallerMessage,
   getAddActiveChainIdsMessage,
@@ -230,7 +230,7 @@ describe('L2_XDai_Bridge', () => {
   it('Should set a default gas limit', async () => {
     const expectedDefaultGasLimit: BigNumber = BigNumber.from('13371337')
 
-    const message: string = getSetDefaultGasLimitMessage(
+    const message: string = getSetDefaultGasLimitUint32Message(
       expectedDefaultGasLimit
     )
     await executeCanonicalMessengerSendMessage(
@@ -294,7 +294,7 @@ describe('L2_XDai_Bridge', () => {
 
     const expectedDefaultGasLimit: BigNumber = BigNumber.from('13371337')
 
-    const message: string = getSetDefaultGasLimitMessage(
+    const message: string = getSetDefaultGasLimitUint32Message(
       expectedDefaultGasLimit
     )
     await expect(

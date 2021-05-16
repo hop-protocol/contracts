@@ -28,31 +28,31 @@ export default {
       allowUnlimitedContractSize: true
     },
     mainnet: {
-      url: 'https://mainnet.rpc.hop.exchange',
+      url: process.env.RPC_ENDPOINT_MAINNET,
       accounts: desiredAccounts,
       chainId: CHAIN_IDS.ETHEREUM.MAINNET.toNumber(),
       timeout: 480e3
     },
     kovan: {
-      url: 'https://kovan.rpc.hop.exchange',
+      url: process.env.RPC_ENDPOINT_KOVAN,
       accounts: desiredAccounts,
       chainId: CHAIN_IDS.ETHEREUM.KOVAN.toNumber(),
       timeout: 480e3
     },
     goerli: {
-      url: 'https://goerli.rpc.hop.exchange',
+      url: process.env.RPC_ENDPOINT_GOERLI,
       accounts: desiredAccounts,
       chainId: CHAIN_IDS.ETHEREUM.GOERLI.toNumber()
     },
     arbitrum: {
-      url: 'https://kovan4.arbitrum.io/rpc',
+      url: process.env.RPC_ENDPOINT_ARBITRUM,
       accounts: desiredAccounts,
       gasPrice: 0,
       chainId: CHAIN_IDS.ARBITRUM.TESTNET_4.toNumber(),
       timeout: 480e3
     },
     optimism: {
-      url: 'https://kovan.optimism.io',
+      url: process.env.RPC_ENDPOINT_OPTIMISM,
       accounts: desiredAccounts,
       gasPrice: 0,
       gas: 9000000,
@@ -60,28 +60,28 @@ export default {
       timeout: 480e3
     },
     xdai: {
-      url: 'https://rpc.xdaichain.com/',
+      url: process.env.RPC_ENDPOINT_XDAI,
       accounts: desiredAccounts,
       gasPrice: 1000000000,
       gas: 500000,
       chainId: CHAIN_IDS.XDAI.XDAI.toNumber()
     },
     sokol: {
-      url: 'https://sokol.poa.network',
+      url: process.env.RPC_ENDPOINT_SOKOL,
       accounts: desiredAccounts,
       gasPrice: 1000000000,
       gas: 500000,
       chainId: CHAIN_IDS.XDAI.SOKOL.toNumber()
     },
     polygon: {
-      url: 'https://polygon.rpc.hop.exchange',
+      url: process.env.RPC_ENDPOINT_POLYGON,
       accounts: desiredAccounts,
       gasPrice: 1000000000,
       gas: 500000,
       chainId: CHAIN_IDS.POLYGON.POLYGON.toNumber()
     },
     mumbai: {
-      url: 'https://mumbai.rpc.hop.exchange',
+      url: process.env.RPC_ENDPOINT_MUMBAI,
       accounts: desiredAccounts,
       gasPrice: 1000000000,
       gas: 500000,

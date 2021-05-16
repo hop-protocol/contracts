@@ -1189,7 +1189,7 @@ export const getSetL1BridgeCallerMessage = (
   ])
 }
 
-export const getSetAmmWrapperAddressMessage = (
+export const getSetAmmWrapperMessage = (
   l2_ammWrapper: Contract | string
 ) => {
   const address = getAddressFromContractOrString(l2_ammWrapper)
@@ -1198,7 +1198,17 @@ export const getSetAmmWrapperAddressMessage = (
   return ethersInterface.encodeFunctionData('setAmmWrapper', [address])
 }
 
-export const getSetDefaultGasLimitMessage = (
+export const getSetDefaultGasLimitUint32Message = (
+  defaultGasLimit: BigNumber
+) => {
+  const ABI = ['function setDefaultGasLimit(uint32 _defaultGasLimit)']
+  const ethersInterface = new ethersUtils.Interface(ABI)
+  return ethersInterface.encodeFunctionData('setDefaultGasLimit', [
+    defaultGasLimit
+  ])
+}
+
+export const getSetDefaultGasLimitUint256Message = (
   defaultGasLimit: BigNumber
 ) => {
   const ABI = ['function setDefaultGasLimit(uint256 _defaultGasLimit)']

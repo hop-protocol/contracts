@@ -29,7 +29,7 @@ import {
   executeL2BridgeCommitTransfers,
   executeL2BridgeBondWithdrawalAndDistribute,
   executeCanonicalMessengerSendMessage,
-  getSetAmmWrapperAddressMessage,
+  getSetAmmWrapperMessage,
   getSetL1BridgeAddressMessage,
   getSetL1BridgeCallerMessage,
   getAddActiveChainIdsMessage,
@@ -243,7 +243,7 @@ describe('L2_Bridge', () => {
     it('Should set the amm wrapper address arbitrarily', async () => {
       const expectedAmmWrapperAddress: string = ONE_ADDRESS
 
-      const message: string = getSetAmmWrapperAddressMessage(
+      const message: string = getSetAmmWrapperMessage(
         expectedAmmWrapperAddress
       )
       await executeCanonicalMessengerSendMessage(
@@ -712,7 +712,7 @@ describe('L2_Bridge', () => {
       const expectedErrorMsg: string = 'L2_OVM_BRG: Invalid cross-domain sender'
       const expectedAmmWrapperAddress: string = ONE_ADDRESS
 
-      const message: string = getSetAmmWrapperAddressMessage(
+      const message: string = getSetAmmWrapperMessage(
         expectedAmmWrapperAddress
       )
       await expect(

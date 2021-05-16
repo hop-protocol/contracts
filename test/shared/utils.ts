@@ -27,7 +27,7 @@ import {
   executeL1BridgeSendToL2,
   getSetL1BridgeAddressMessage,
   getSetL1BridgeCallerMessage,
-  getSetAmmWrapperAddressMessage
+  getSetAmmWrapperMessage
 } from './contractFunctionWrappers'
 
 import { IFixture } from './interfaces'
@@ -174,7 +174,7 @@ export const setUpL1AndL2Bridges = async (fixture: IFixture, opts: any) => {
     messengerWrapperChainId
   )
 
-  message = getSetAmmWrapperAddressMessage(l2_ammWrapper)
+  message = getSetAmmWrapperMessage(l2_ammWrapper)
   await executeCanonicalMessengerSendMessage(
     l1_messenger,
     l1_messengerWrapper,

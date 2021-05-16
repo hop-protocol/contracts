@@ -10,9 +10,6 @@ import { BigNumber } from 'ethers'
 
 // NOTE: You should not use this for xDai, as their bridge mints a new token.
 // NOTE: Instead, call `relayTokens()` here: 0xA960d095470f7509955d5402e36d9DB984B5C8E2
-
-// NOTE: You should not use this for Polygon, as you must request that they link your token.
-// NOTE: Fill out the https://mapper.matic.today/map
 async function main () {
   const erc20Name = 'Dai Stablecoin'
   const erc20Symbol = 'DAI'

@@ -31,7 +31,7 @@ import {
   executeCanonicalMessengerSendMessage,
   getAddActiveChainIdsMessage,
   getSetFxRootTunnelMessage,
-  getSetAmmWrapperAddressMessage
+  getSetAmmWrapperMessage
 } from '../../test/shared/contractFunctionWrappers'
 
 const logger = Logger('setupL1')
@@ -231,7 +231,7 @@ export async function setupL1 (config: Config) {
   await tx.wait()
   await waitAfterTransaction()
 
-  message = getSetAmmWrapperAddressMessage(l2AmmWrapperAddress)
+  message = getSetAmmWrapperMessage(l2AmmWrapperAddress)
 
   logger.log('setting amm wrapper address on L2 bridge')
   tx = await executeCanonicalMessengerSendMessage(

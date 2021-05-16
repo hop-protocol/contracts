@@ -29,7 +29,7 @@ import {
   executeL2BridgeCommitTransfers,
   executeL2BridgeBondWithdrawalAndDistribute,
   executeCanonicalMessengerSendMessage,
-  getSetAmmWrapperAddressMessage,
+  getSetAmmWrapperMessage,
   getSetL1BridgeAddressMessage,
   getSetL1BridgeCallerMessage,
   getAddActiveChainIdsMessage,
