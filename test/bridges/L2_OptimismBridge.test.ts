@@ -17,7 +17,7 @@ import {
 import {
   executeCanonicalBridgeSendTokens,
   getSetMessengerMessage,
-  getSetDefaultGasLimitUint256Message,
+  getSetDefaultGasLimitUint32Message,
   getAddBonderMessage,
   executeL1BridgeSendToL2,
   executeBridgeBondWithdrawal,
@@ -227,7 +227,7 @@ describe.skip('L2_Optimism_Bridge', () => {
   it('Should set a default gas limit', async () => {
     const expectedDefaultGasLimit: BigNumber = BigNumber.from('13371337')
 
-    const message: string = getSetDefaultGasLimitUint256Message(
+    const message: string = getSetDefaultGasLimitUint32Message(
       expectedDefaultGasLimit
     )
     await executeCanonicalMessengerSendMessage(
@@ -294,7 +294,7 @@ describe.skip('L2_Optimism_Bridge', () => {
 
     const expectedDefaultGasLimit: BigNumber = BigNumber.from('13371337')
 
-    const message: string = getSetDefaultGasLimitUint256Message(
+    const message: string = getSetDefaultGasLimitUint32Message(
       expectedDefaultGasLimit
     )
     await expect(

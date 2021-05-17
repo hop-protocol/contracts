@@ -454,12 +454,13 @@ describe('L2_Bridge', () => {
   })
 
   describe('commitTransfers', async () => {
-    it('Should commit a transfer automatically after 100 sends', async () => {
+    it('Should commit a transfer automatically after maxPendingAmount sends', async () => {
       const customTransfer: Transfer = new Transfer(transfer)
       customTransfer.amount = BigNumber.from('100')
       customTransfer.bonderFee = BigNumber.from('0')
 
-      for (let i = 0; i < 101; i++) {
+      const maxPendingTransfers: BigNumber = await l2_bridge.maxPendingTransfers()
+      for (let i = 0; i <= (Number(maxPendingTransfers)); i++) {
         await executeL2BridgeSend(l2_hopBridgeToken, l2_bridge, customTransfer)
       }
 
@@ -468,6 +469,9 @@ describe('L2_Bridge', () => {
         'VM Exception while processing transaction: invalid opcode'
       try {
         await l2_bridge.pendingTransferIdsForChainId(transfer.chainId, 1)
+        throw new Error(
+          'There should not be a pending transfer ID for chainId in this slot.'
+        )
       } catch (err) {
         expect(err.message).to.eq(expectedErrorMsg)
       }
