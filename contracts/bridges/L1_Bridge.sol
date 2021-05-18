@@ -364,12 +364,12 @@ abstract contract L1_Bridge is Bridge {
 
     /* ========== Public Getters ========== */
 
-    function getBondForTransferAmount(uint256 amount) public view returns (uint256) {
+    function getBondForTransferAmount(uint256 amount) public pure returns (uint256) {
         // Bond covers amount plus a bounty to pay a potential challenger
         return amount.add(getChallengeAmountForTransferAmount(amount));
     }
 
-    function getChallengeAmountForTransferAmount(uint256 amount) public view returns (uint256) {
+    function getChallengeAmountForTransferAmount(uint256 amount) public pure returns (uint256) {
         // Bond covers amount plus a bounty to pay a potential challenger
         return amount.div(CHALLENGE_AMOUNT_DIVISOR);
     }

@@ -44,7 +44,7 @@ contract Mock_L2_Messenger is MockMessenger {
     function sendMessage(
         address _target,
         bytes calldata _message,
-        uint32 _gasLimit
+        uint32 /* _gasLimit */
     )
         public
     {
@@ -60,7 +60,7 @@ contract Mock_L2_Messenger is MockMessenger {
     function requireToPassMessage(
         address _target,
         bytes calldata _message,
-        uint256 _gasLimit
+        uint256 /* _gasLimit */
     )
         public
         returns (bytes32)

@@ -37,7 +37,7 @@ contract PolygonMessengerWrapper is FxBaseRootTunnel, MessengerWrapper {
         );
     }
 
-    function verifySender(address l1BridgeCaller, bytes memory /*_data*/) public override {
+    function verifySender(address l1BridgeCaller, bytes memory /*_data*/) public view override {
         require(l1BridgeCaller == address(this), "L1_PLGN_WPR: Caller must be this contract");
     }
 
