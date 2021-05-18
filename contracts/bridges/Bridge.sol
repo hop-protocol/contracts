@@ -3,8 +3,6 @@
 pragma solidity 0.6.12;
 pragma experimental ABIEncoderV2;
 
-import "@openzeppelin/contracts/cryptography/MerkleProof.sol";
-
 import "./Accounting.sol";
 import "../libraries/Lib_MerkleTree.sol";
 
@@ -17,7 +15,7 @@ import "../libraries/Lib_MerkleTree.sol";
  */
 
 abstract contract Bridge is Accounting {
-    using MerkleProof for bytes32[];
+    using Lib_MerkleTree for bytes32;
 
     struct TransferRoot {
         uint256 total;
@@ -170,7 +168,9 @@ abstract contract Bridge is Accounting {
      * swap is intended. (only used to calculate `transferId` in this function)
      * @param rootHash The Merkle root of the TransferRoot
      * @param transferRootTotalAmount The total amount being transferred in a TransferRoot
-     * @param proof The Merkle proof that proves the Transfer's inclusion in the TransferRoot
+     * @param tansferIdTreeIndex The index of the transferId in the Merkle tree
+     * @param siblings The siblings of the transferId in the Merkle tree
+     * @param totalLeaves The total number of leaves in the Merkle tree
      */
     function withdraw(
         address recipient,
@@ -181,7 +181,9 @@ abstract contract Bridge is Accounting {
         uint256 deadline,
         bytes32 rootHash,
         uint256 transferRootTotalAmount,
-        bytes32[] calldata proof
+        uint256 tansferIdTreeIndex,
+        bytes32[] calldata siblings,
+        uint256 totalLeaves
     )
         external
         nonReentrant
@@ -196,7 +198,14 @@ abstract contract Bridge is Accounting {
             deadline
         );
 
-        require(proof.verify(rootHash, transferId), "BRG: Invalid transfer proof");
+        require(
+            rootHash.verify(
+                transferId,
+                tansferIdTreeIndex,
+                siblings,
+                totalLeaves
+            )
+        , "BRG: Invalid transfer proof");
         bytes32 transferRootId = getTransferRootId(rootHash, transferRootTotalAmount);
         _addToAmountWithdrawn(transferRootId, amount);
         _fulfillWithdraw(transferId, recipient, amount, uint256(0));
@@ -243,18 +252,29 @@ abstract contract Bridge is Accounting {
      * @param transferId The Transfer's unique identifier
      * @param rootHash The Merkle root of the TransferRoot
      * @param transferRootTotalAmount The total amount being transferred in a TransferRoot
-     * @param proof The Merkle proof that proves the Transfer's inclusion in the TransferRoot
+     * @param tansferIdTreeIndex The index of the transferId in the Merkle tree
+     * @param siblings The siblings of the transferId in the Merkle tree
+     * @param totalLeaves The total number of leaves in the Merkle tree
      */
     function settleBondedWithdrawal(
         address bonder,
         bytes32 transferId,
         bytes32 rootHash,
         uint256 transferRootTotalAmount,
-        bytes32[] calldata proof
+        uint256 tansferIdTreeIndex,
+        bytes32[] calldata siblings,
+        uint256 totalLeaves
     )
         external
     {
-        require(proof.verify(rootHash, transferId), "L2_BRG: Invalid transfer proof");
+        require(
+            rootHash.verify(
+                transferId,
+                tansferIdTreeIndex,
+                siblings,
+                totalLeaves
+            )
+        , "BRG: Invalid transfer proof");
         bytes32 transferRootId = getTransferRootId(rootHash, transferRootTotalAmount);
 
         uint256 amount = _bondedWithdrawalAmounts[bonder][transferId];
