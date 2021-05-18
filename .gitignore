@@ -14,4 +14,4 @@ yarn.lock
 
 abi/*
 data/*
-scripts/deploy_config.json
+scripts/deployAndSetupHop/deploy_config.json

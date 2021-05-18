@@ -1035,6 +1035,7 @@ export const executeL2BridgeCommitTransfers = async (
     currentTime,
     TIMESTAMP_VARIANCE
   )
+
   const expectedErrorMsg: string =
     'VM Exception while processing transaction: invalid opcode'
   try {

@@ -7,9 +7,9 @@ import {
   getNetworkDataByNetworkName,
   getTokenSymbolLetterCase,
   Logger
-} from './shared/utils'
-import { ZERO_ADDRESS } from '../config/constants'
-import { NetworkData } from '../config/networks/index'
+} from '../shared/utils'
+import { ZERO_ADDRESS } from '../../config/constants'
+import { NetworkData } from '../../config/networks/index'
 
 const logger = Logger('deploy')
 
@@ -32,18 +32,19 @@ async function main () {
 
   validateInput(l1NetworkName, l2NetworkName, tokenSymbol, bonderAddress)
 
+  const basePath: string = 'scripts/deployAndSetupHop'
   const scripts: string[] = []
   if (isL1BridgeDeploy) {
     setL1BridgeNetworkParams(l1NetworkName, l2NetworkName, tokenSymbol, bonderAddress)
-    scripts.push(`npm run deploy:l1-${l1NetworkName}`)
-  } else {
-    setNetworkParams(l1NetworkName, l2NetworkName, tokenSymbol, bonderAddress)
-    scripts.push(
-      `npm run deploy:l2-${l2NetworkName}`,
-      `npm run setup:l1-${l1NetworkName}`,
-      `npm run setup:l2-${l2NetworkName}`
-    )
+    scripts.push(`hardhat run ${basePath}/deployL1.ts --network ${l1NetworkName}`)
   }
+
+  setNetworkParams(l1NetworkName, l2NetworkName, tokenSymbol, bonderAddress)
+  scripts.push(
+    `hardhat run ${basePath}/deployL2.ts --network ${l2NetworkName}`,
+    `hardhat run ${basePath}/setupL1.ts --network ${l1NetworkName}`,
+    `hardhat run ${basePath}/setupL2.ts --network ${l2NetworkName}`,
+  )
 
   for (let i = 0; i < scripts.length; i++) {
     const script = scripts[i]

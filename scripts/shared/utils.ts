@@ -287,7 +287,7 @@ export const sendChainSpecificBridgeDeposit = async (
     await tx.wait()
 }
 
-const configFilepath = path.resolve(__dirname, '../deploy_config.json')
+const configFilepath = path.resolve(__dirname, '../deployAndSetupHop/deploy_config.json')
 
 export const updateConfigFile = (newData: any) => {
   const data = readConfigFile()
