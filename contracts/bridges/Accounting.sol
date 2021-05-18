@@ -65,7 +65,9 @@ abstract contract Accounting is ReentrancyGuard {
     /// @dev Sets the Bonder addresses
     constructor(address[] memory bonders) public {
         for (uint256 i = 0; i < bonders.length; i++) {
+            require(_isBonder[bonders[i]] == false, "ACT: Cannot add duplicate bonder");
             _isBonder[bonders[i]] = true;
+            emit BonderAdded(bonders[i]);
         }
     }
 
