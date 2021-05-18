@@ -27,21 +27,21 @@ abstract contract Accounting is ReentrancyGuard {
     mapping(address => uint256) private _debit;
 
     event Stake (
-        address account,
+        address indexed account,
         uint256 amount
     );
 
     event Unstake (
-        address account,
+        address indexed account,
         uint256 amount
     );
 
     event BonderAdded (
-        address newBonder
+        address indexed newBonder
     );
 
     event BonderRemoved (
-        address previousBonder
+        address indexed previousBonder
     );
 
     /* ========== Modifiers ========== */
@@ -65,7 +65,9 @@ abstract contract Accounting is ReentrancyGuard {
     /// @dev Sets the Bonder addresses
     constructor(address[] memory bonders) public {
         for (uint256 i = 0; i < bonders.length; i++) {
+            require(_isBonder[bonders[i]] == false, "ACT: Cannot add duplicate bonder");
             _isBonder[bonders[i]] = true;
+            emit BonderAdded(bonders[i]);
         }
     }
 

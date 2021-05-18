@@ -49,21 +49,21 @@ abstract contract L1_Bridge is Bridge {
     );
 
     event TransferRootConfirmed(
-        uint256 originChainId,
-        uint256 destinationChainId,
-        bytes32 rootHash,
+        uint256 indexed originChainId,
+        uint256 indexed destinationChainId,
+        bytes32 indexed rootHash,
         uint256 totalAmount
     );
 
     event TransferBondChallenged(
-        bytes32 transferRootId,
-        bytes32 rootHash,
+        bytes32 indexed transferRootId,
+        bytes32 indexed rootHash,
         uint256 originalAmount
     );
 
     event ChallengeResolved(
-        bytes32 transferRootId,
-        bytes32 rootHash,
+        bytes32 indexed transferRootId,
+        bytes32 indexed rootHash,
         uint256 originalAmount
     );
 
