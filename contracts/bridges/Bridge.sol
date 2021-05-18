@@ -38,19 +38,19 @@ abstract contract Bridge is Accounting {
     );
 
     event WithdrawalBondSettled(
-        address bonder,
-        bytes32 transferId,
-        bytes32 rootHash
+        address indexed bonder,
+        bytes32 indexed transferId,
+        bytes32 indexed rootHash
     );
 
     event MultipleWithdrawalsSettled(
-        address bonder,
-        bytes32 rootHash,
+        address indexed bonder,
+        bytes32 indexed rootHash,
         uint256 totalBondsSettled
     );
 
     event TransferRootSet(
-        bytes32 rootHash,
+        bytes32 indexed rootHash,
         uint256 totalAmount
     );
 

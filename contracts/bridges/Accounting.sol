@@ -27,21 +27,21 @@ abstract contract Accounting is ReentrancyGuard {
     mapping(address => uint256) private _debit;
 
     event Stake (
-        address account,
+        address indexed account,
         uint256 amount
     );
 
     event Unstake (
-        address account,
+        address indexed account,
         uint256 amount
     );
 
     event BonderAdded (
-        address newBonder
+        address indexed newBonder
     );
 
     event BonderRemoved (
-        address previousBonder
+        address indexed previousBonder
     );
 
     /* ========== Modifiers ========== */
