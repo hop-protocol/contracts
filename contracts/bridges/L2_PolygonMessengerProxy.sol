@@ -32,7 +32,7 @@ contract L2_PolygonMessengerProxy is FxBaseChildTunnel, ReentrancyGuard {
     }
 
     function _processMessageFromRoot(
-        uint256 stateId,
+        uint256 /* stateId */,
         address sender,
         bytes memory data
     )

@@ -20,12 +20,12 @@ contract Mock_L1_Messenger is MockMessenger {
 
     function createRetryableTicket(
         address _destAddr,
-        uint256 _arbTxCallValue,
-        uint256 _maxSubmissionCost,
-        address _submissionRefundAddress,
-        address _valueRefundAddress,
-        uint256 _maxGas,
-        uint256 _gasPriceBid,
+        uint256 /* _arbTxCallValue */,
+        uint256 /* _maxSubmissionCost */,
+        address /* _submissionRefundAddress */,
+        address /* _valueRefundAddress */,
+        uint256 /* _maxGas */,
+        uint256 /* _gasPriceBid */,
         bytes calldata _data
     )
         external
@@ -44,7 +44,7 @@ contract Mock_L1_Messenger is MockMessenger {
     function sendMessage(
         address _target,
         bytes calldata _message,
-        uint32 _gasLimit
+        uint32 /* _gasLimit */
     )
         public
     {
@@ -60,7 +60,7 @@ contract Mock_L1_Messenger is MockMessenger {
     function requireToPassMessage(
         address _target,
         bytes calldata _message,
-        uint256 _gasLimit
+        uint256 /* _gasLimit */
     )
         public
         returns (bytes32)
