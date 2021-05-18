@@ -118,7 +118,7 @@ abstract contract Bridge is Accounting {
 
     /**
      * @dev Get the TransferRoot id for a given rootHash and totalAmount
-     * @param rootHash The merkle root of the TransferRoot
+     * @param rootHash The Merkle root of the TransferRoot
      * @param totalAmount The total of all Transfers in the TransferRoot
      * @return The calculated transferRootId
      */
@@ -128,7 +128,7 @@ abstract contract Bridge is Accounting {
 
     /**
      * @dev Get the TransferRoot for a given rootHash and totalAmount
-     * @param rootHash The merkle root of the TransferRoot
+     * @param rootHash The Merkle root of the TransferRoot
      * @param totalAmount The total of all Transfers in the TransferRoot
      * @return The TransferRoot with the calculated transferRootId
      */
@@ -237,11 +237,11 @@ abstract contract Bridge is Accounting {
     }
 
     /**
-     * @dev Refunds the bonders stake from a bonded withdrawal and counts that withdrawal against
+     * @dev Refunds the Bonder's stake from a bonded withdrawal and counts that withdrawal against
      * its TransferRoot.
      * @param bonder The Bonder of the withdrawal
      * @param transferId The Transfer's unique identifier
-     * @param rootHash The merkle root of the TransferRoot
+     * @param rootHash The Merkle root of the TransferRoot
      * @param transferRootTotalAmount The total amount being transferred in a TransferRoot
      * @param proof The Merkle proof that proves the Transfer's inclusion in the TransferRoot
      */

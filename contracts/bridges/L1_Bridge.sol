@@ -93,7 +93,7 @@ abstract contract L1_Bridge is Bridge {
      * AMM market. 0 if no swap is intended.
      * @param deadline The deadline for swapping in the destination AMM market. 0 if no
      * swap is intended.
-     * @param relayer The address of the at the destination.
+     * @param relayer The address of the relayer at the destination.
      * @param relayerFee The amount distributed to the relayer at the destination. This is subtracted from the `amount`.
      */
     function sendToL2(
@@ -141,7 +141,7 @@ abstract contract L1_Bridge is Bridge {
      */
 
     /**
-     * @dev Used by the bonder to bond a TransferRoot and propagate it up to destination L2s
+     * @dev Used by the Bonder to bond a TransferRoot and propagate it up to destination L2s
      * @param rootHash The Merkle root of the TransferRoot Merkle tree
      * @param destinationChainId The id of the destination chain
      * @param totalAmount The amount destined for the destination chain

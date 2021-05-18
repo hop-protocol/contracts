@@ -184,7 +184,7 @@ abstract contract L2_Bridge is Bridge {
     }
 
     /**
-     * @dev Allows the bonder to bond an individual withdrawal and swap it in the AMM for the
+     * @dev Allows the Bonder to bond an individual withdrawal and swap it in the AMM for the
      * canonical token on behalf of the user.
      * @param recipient The address receiving the Transfer
      * @param amount The amount being transferred including the `_bonderFee`

@@ -56,13 +56,13 @@ abstract contract Accounting is ReentrancyGuard {
         _;
     }
 
-    /// @dev Used by parent contract to ensure that the bonder is solvent at the end of the transaction.
+    /// @dev Used by parent contract to ensure that the Bonder is solvent at the end of the transaction.
     modifier requirePositiveBalance {
         _;
         require(getCredit(msg.sender) >= getDebitAndAdditionalDebit(msg.sender), "ACT: Not enough available credit");
     }
 
-    /// @dev Sets the bonder addresses
+    /// @dev Sets the Bonder addresses
     constructor(address[] memory bonders) public {
         for (uint256 i = 0; i < bonders.length; i++) {
             _isBonder[bonders[i]] = true;
@@ -108,8 +108,8 @@ abstract contract Accounting is ReentrancyGuard {
 
     /**
      * @dev Gets the debit balance tracked by `_debit` and does not include `_additionalDebit()`
-     * @param bonder The owner of the _debit balance being checked
-     * @return The _debit amount for the Bonder
+     * @param bonder The owner of the debit balance being checked
+     * @return The debit amount for the Bonder
      */
     function getRawDebit(address bonder) external view returns (uint256) {
         return _debit[bonder];
@@ -127,7 +127,7 @@ abstract contract Accounting is ReentrancyGuard {
     /* ========== Bonder external functions ========== */
 
     /** 
-     * @dev Allows the bonder to deposit tokens and increase its credit balance
+     * @dev Allows the Bonder to deposit tokens and increase its credit balance
      * @param bonder The address being staked on
      * @param amount The amount being staked
      */
@@ -141,7 +141,7 @@ abstract contract Accounting is ReentrancyGuard {
 
     /**
      * @dev Allows the caller to withdraw any available balance and add to their debit balance
-     * @param amount The amount being staked
+     * @param amount The amount being unstaked
      */
     function unstake(uint256 amount) external requirePositiveBalance nonReentrant {
         _addDebit(msg.sender, amount);
