@@ -62,11 +62,13 @@ export const executeCanonicalMessengerSendMessage = async (
   l2_messenger: Contract | string,
   sender: Signer,
   message: string,
-  l2ChainId: BigNumber
+  l2ChainId: BigNumber,
+  modifiedGasPrice: { [key: string]: BigNumber } | undefined = undefined
 ) => {
   let tx: providers.TransactionResponse
   const gasLimit: BigNumber = BigNumber.from('1500000')
   const params: any[] = [l2_bridge.address, message, gasLimit]
+  modifiedGasPrice = modifiedGasPrice || {}
 
   if (isChainIdArbitrum(l2ChainId)) {
     const amount: BigNumber = BigNumber.from('0')
@@ -86,17 +88,17 @@ export const executeCanonicalMessengerSendMessage = async (
 
     tx = await l1_messenger
       .connect(sender)
-      .createRetryableTicket(...arbitrumParams);
+      .createRetryableTicket(...arbitrumParams, modifiedGasPrice);
   } else if (isChainIdOptimism(l2ChainId)) {
     const optimismGasLimit: BigNumber = BigNumber.from('5000000')
     const optimismParams: any[] = [l2_bridge.address, message, optimismGasLimit]
-    tx = await l1_messenger.connect(sender).sendMessage(...optimismParams)
+    tx = await l1_messenger.connect(sender).sendMessage(...optimismParams, modifiedGasPrice)
   } else if (isChainIdXDai(l2ChainId)) {
-    tx = await l1_messenger.connect(sender).requireToPassMessage(...params)
+    tx = await l1_messenger.connect(sender).requireToPassMessage(...params, modifiedGasPrice)
   } else if (isChainIdPolygon(l2ChainId)) {
-    tx = await l1_messengerWrapper.connect(sender).sendCrossDomainMessage(message)
+    tx = await l1_messengerWrapper.connect(sender).sendCrossDomainMessage(message, modifiedGasPrice)
   } else {
-    tx = await l1_messenger.connect(sender).sendMessage(...params)
+    tx = await l1_messenger.connect(sender).sendMessage(...params, modifiedGasPrice)
   }
 
   // Prod deployments should pass in ZERO_ADDRESS for the l2_messenger param

@@ -10,6 +10,7 @@ import {
   readConfigFile,
   waitAfterTransaction,
   updateConfigFile,
+  getModifiedGasPrice,
   Logger
 } from '../shared/utils'
 import {
@@ -161,8 +162,10 @@ export async function setupL1 (config: Config) {
   )
 
   logger.log('deploying L1 messenger wrapper')
+  let modifiedGasPrice = await getModifiedGasPrice(ethers, l1ChainId)
   l1_messengerWrapper = await L1_MessengerWrapper.connect(deployer).deploy(
-    ...messengerWrapperDefaults
+    ...messengerWrapperDefaults,
+    modifiedGasPrice
   )
   await waitAfterTransaction(l1_messengerWrapper)
 
@@ -180,9 +183,11 @@ export async function setupL1 (config: Config) {
 
   logger.log('setting cross domain messenger wrapper on L1 bridge')
   // Set up the L1 bridge
+  modifiedGasPrice = await getModifiedGasPrice(ethers, l1ChainId)
   tx = await l1_bridge.connect(governance).setCrossDomainMessengerWrapper(
     l2ChainId,
-    l1_messengerWrapper.address
+    l1_messengerWrapper.address,
+    modifiedGasPrice
   )
   await tx.wait()
   await waitAfterTransaction()
@@ -199,6 +204,7 @@ export async function setupL1 (config: Config) {
   )
 
   logger.log('setting L1 messenger wrapper address on L2 bridge')
+  modifiedGasPrice = await getModifiedGasPrice(ethers, l1ChainId)
   tx = await executeCanonicalMessengerSendMessage(
     l1_messenger,
     l1_messengerWrapper,
@@ -206,7 +212,8 @@ export async function setupL1 (config: Config) {
     ZERO_ADDRESS,
     governance,
     message,
-    l2ChainId
+    l2ChainId,
+    modifiedGasPrice
   )
   await tx.wait()
   await waitAfterTransaction()
@@ -219,6 +226,7 @@ export async function setupL1 (config: Config) {
     'chain IDs:',
     ALL_SUPPORTED_CHAIN_IDS.map(v => v.toString()).join(', ')
   )
+  modifiedGasPrice = await getModifiedGasPrice(ethers, l1ChainId)
   tx = await executeCanonicalMessengerSendMessage(
     l1_messenger,
     l1_messengerWrapper,
@@ -226,7 +234,8 @@ export async function setupL1 (config: Config) {
     ZERO_ADDRESS,
     governance,
     message,
-    l2ChainId
+    l2ChainId,
+    modifiedGasPrice
   )
   await tx.wait()
   await waitAfterTransaction()
@@ -234,6 +243,7 @@ export async function setupL1 (config: Config) {
   message = getSetAmmWrapperMessage(l2AmmWrapperAddress)
 
   logger.log('setting amm wrapper address on L2 bridge')
+  modifiedGasPrice = await getModifiedGasPrice(ethers, l1ChainId)
   tx = await executeCanonicalMessengerSendMessage(
     l1_messenger,
     l1_messengerWrapper,
@@ -241,7 +251,8 @@ export async function setupL1 (config: Config) {
     ZERO_ADDRESS,
     governance,
     message,
-    l2ChainId
+    l2ChainId,
+    modifiedGasPrice
   )
   await tx.wait()
   await waitAfterTransaction()
@@ -249,11 +260,13 @@ export async function setupL1 (config: Config) {
   // Get canonical token to L2
   if (!isChainIdMainnet(l1ChainId)) {
     logger.log('minting L1 canonical token')
+    modifiedGasPrice = await getModifiedGasPrice(ethers, l1ChainId)
     tx = await l1_canonicalToken
       .connect(deployer)
       .mint(
         await deployer.getAddress(),
-        liquidityProviderSendAmount
+        liquidityProviderSendAmount,
+        modifiedGasPrice
       )
     await tx.wait()
     await waitAfterTransaction()
@@ -266,45 +279,53 @@ export async function setupL1 (config: Config) {
     contractToApprove = l1_tokenBridge.address
   }
   logger.log('approving L1 canonical token')
+  modifiedGasPrice = await getModifiedGasPrice(ethers, l1ChainId)
   tx = await l1_canonicalToken
     .connect(deployer)
     .approve(
       contractToApprove,
-      liquidityProviderSendAmount
+      liquidityProviderSendAmount,
+      modifiedGasPrice
     )
   await tx.wait()
   await waitAfterTransaction()
 
   logger.log('sending chain specific bridge deposit')
+  modifiedGasPrice = await getModifiedGasPrice(ethers, l1ChainId)
   await sendChainSpecificBridgeDeposit(
     l2ChainId,
     deployer,
     liquidityProviderSendAmount,
     l1_tokenBridge,
     l1_canonicalToken,
-    l2_canonicalToken
+    l2_canonicalToken,
+    modifiedGasPrice
   )
   await waitAfterTransaction()
 
   // Get hop token on L2
   if (!isChainIdMainnet(l1ChainId)) {
     logger.log('minting L1 canonical token')
+    modifiedGasPrice = await getModifiedGasPrice(ethers, l1ChainId)
     tx = await l1_canonicalToken
       .connect(deployer)
       .mint(
         await deployer.getAddress(),
-        liquidityProviderSendAmount
+        liquidityProviderSendAmount,
+        modifiedGasPrice
       )
     await tx.wait()
     await waitAfterTransaction()
   }
 
   logger.log('approving L1 canonical token')
+  modifiedGasPrice = await getModifiedGasPrice(ethers, l1ChainId)
   tx = await l1_canonicalToken
     .connect(deployer)
     .approve(
       l1_bridge.address,
-      liquidityProviderSendAmount
+      liquidityProviderSendAmount,
+      modifiedGasPrice
     )
   await tx.wait()
   await waitAfterTransaction()
@@ -314,6 +335,7 @@ export async function setupL1 (config: Config) {
   const relayerFee: BigNumber = BigNumber.from('0')
 
   logger.log('sending token to L2')
+  modifiedGasPrice = await getModifiedGasPrice(ethers, l1ChainId)
   tx = await l1_bridge
     .connect(deployer)
     .sendToL2(
@@ -323,7 +345,8 @@ export async function setupL1 (config: Config) {
       amountOutMin,
       deadline,
       ZERO_ADDRESS,
-      relayerFee
+      relayerFee,
+      modifiedGasPrice
     )
   await tx.wait()
   await waitAfterTransaction()

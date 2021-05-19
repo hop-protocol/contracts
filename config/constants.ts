@@ -110,8 +110,8 @@ export const DEFAULT_SWAP_ADMIN_FEE: string = '0'
 export const DEFAULT_SWAP_WITHDRAWAL_FEE: string = '0'
 
 export const POLYGON_RPC_ENDPOINTS: any = {
-  MAINNET: 'https://rpc-mainnet.maticvigil.com/',
-  GOERLI: 'https://rpc-mumbai.matic.today'
+  MAINNET: 'https://polygon.rpc.hop.exchange',
+  GOERLI: 'https://mumbai.rpc.hop.exchange'
 }
 
 export const FX_ROOT_ADDRESSES: any = {
@@ -214,4 +214,9 @@ export const COMMON_SYMBOLS: { [key: string]: string } = {
   USDC: 'USDC',
   WBTC: 'WBTC',
   TST: 'TST'
+}
+
+export const GAS_PRICE_MULTIPLIERS: { [key: string]: number } = {
+  MAINNET: 1.2,
+  TESTNET: 10
 }

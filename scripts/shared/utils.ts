@@ -13,11 +13,13 @@ import {
   isChainIdOptimism,
   isChainIdArbitrum,
   isChainIdXDai,
-  isChainIdPolygon
+  isChainIdPolygon,
+  isChainIdMainnet
 } from '../../config/utils'
 
 import {
   CHAIN_IDS,
+  GAS_PRICE_MULTIPLIERS,
   ZERO_ADDRESS
 } from '../../config/constants'
 
@@ -238,9 +240,12 @@ export const sendChainSpecificBridgeDeposit = async (
   amount: BigNumber,
   l1_tokenBridge: Contract,
   l1_canonicalToken: Contract,
-  l2_canonicalToken: Contract
+  l2_canonicalToken: Contract,
+  modifiedGasPrice: { [key: string]: BigNumber } | undefined = undefined
+
 ) => {
   let tx
+  modifiedGasPrice = modifiedGasPrice || {}
   if (isChainIdOptimism(chainId)) {
     tx = await l1_tokenBridge
       .connect(sender)
@@ -249,7 +254,7 @@ export const sendChainSpecificBridgeDeposit = async (
         l2_canonicalToken.address,
         await sender.getAddress(),
         amount,
-        { gasLimit: 5000000 }
+        modifiedGasPrice
       )
   } else if (isChainIdArbitrum(chainId)) {
     tx = await l1_tokenBridge
@@ -261,7 +266,8 @@ export const sendChainSpecificBridgeDeposit = async (
         '0',
         '1000000000000000000',
         '0',
-        '0x'
+        '0x',
+        modifiedGasPrice
       )
   } else if (isChainIdXDai(chainId)) {
     tx = await l1_tokenBridge
@@ -269,7 +275,8 @@ export const sendChainSpecificBridgeDeposit = async (
       .relayTokens(
         l1_canonicalToken.address,
         await sender.getAddress(),
-        amount
+        amount,
+        modifiedGasPrice
       )
   } else if (isChainIdPolygon(chainId)) {
     const encodedAmount = ethersUtils.defaultAbiCoder.encode(['uint256'], [amount])
@@ -278,7 +285,8 @@ export const sendChainSpecificBridgeDeposit = async (
       .depositFor(
         await sender.getAddress(),
         l1_canonicalToken.address,
-        encodedAmount
+        encodedAmount,
+        modifiedGasPrice
       )
   } else {
     throw new Error(`Unsupported chain ID "${chainId}"`)
@@ -420,4 +428,18 @@ export const getTokenSymbolLetterCase = (tokenSymbol: string): string => {
   else if (tokenSymbol.toLowerCase() === 'sbtc') return 'sBTC'
   else if (tokenSymbol.toLowerCase() === 'usdc') return 'USDC'
   else if (tokenSymbol.toLowerCase() === 'wbtc') return 'WBTC'
+}
+
+export const getModifiedGasPrice = async (ethers, l1ChainId: BigNumber) => {
+  let gasPriceMultiplier: number
+  if (isChainIdMainnet(l1ChainId)) {
+    gasPriceMultiplier = GAS_PRICE_MULTIPLIERS.MAINNET
+  } else {
+    gasPriceMultiplier = GAS_PRICE_MULTIPLIERS.TESTNET
+  }
+
+  const gasPrice: BigNumber = (await ethers.provider.getGasPrice()).mul(gasPriceMultiplier)
+  return {
+    gasPrice
+  }
 }

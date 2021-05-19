@@ -13,6 +13,7 @@ import {
   updateConfigFile,
   readConfigFile,
   waitAfterTransaction,
+  getModifiedGasPrice,
   Logger
 } from '../shared/utils'
 
@@ -67,7 +68,8 @@ export async function deployL1 (config: Config) {
     .deploy(
       l1CanonicalTokenAddress,
       [bonderAddress],
-      await governance.getAddress()
+      await governance.getAddress(),
+      await getModifiedGasPrice(ethers, l1ChainId)
     )
   await waitAfterTransaction(l1_bridge)
 
