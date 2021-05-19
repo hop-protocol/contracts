@@ -459,8 +459,13 @@ export const getLpSendAmount = (
       amount = ethersUtils.parseUnits('2', 18)
     }
   } else {
-    amount = LIQUIDITY_PROVIDER_INITIAL_BALANCE
+    if (tokenSymbol.toLowerCase() === COMMON_SYMBOLS.USDC.toLowerCase()) {
+      amount = ethersUtils.parseUnits('1000', 6)
+    } else {
+      amount = LIQUIDITY_PROVIDER_INITIAL_BALANCE
+    }
   }
 
+  console.log(amount)
   return amount
 }

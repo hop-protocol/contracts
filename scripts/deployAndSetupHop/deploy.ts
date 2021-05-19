@@ -192,8 +192,8 @@ function setNetworkParams (
     l2HBridgeTokenDecimals,
     l2SwapLpTokenName,
     l2SwapLpTokenSymbol,
-    liquidityProviderSendAmount,
-    liquidityProviderAmmAmount,
+    liquidityProviderSendAmount: liquidityProviderSendAmount.toString(),
+    liquidityProviderAmmAmount: liquidityProviderAmmAmount.toString(),
     bonderAddress
   }
 

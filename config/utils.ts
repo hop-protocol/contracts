@@ -15,6 +15,9 @@ import {
   ERC20_PREDICATE_ADDRESSES,
   ERC20_MINTABLE_PREDICATE_ADDRESSES
 } from './constants'
+import {
+  goerliNetworkData
+} from './networks/index'
 
 export const getMessengerWrapperDefaults = (
   l1ChainId: BigNumber,
@@ -275,7 +278,7 @@ export const getPolygonPredicateContract = (l1ChainId: BigNumber, tokenAddress: 
     return getPolygonErc20PredicateAddress(l1ChainId)
   } else {
     // Polygon's testnet USDC non-mintable but all others are
-    const polygonUSDCTestnetAddress: string = '0x7326510Cf9Ae0397dbBaF37FABba54f0A7b8D100'
+    const polygonUSDCTestnetAddress: string = goerliNetworkData.mumbai.tokens.USDC.l1CanonicalTokenAddress
     if (tokenAddress === polygonUSDCTestnetAddress) {
       return getPolygonErc20PredicateAddress(l1ChainId)
     } else {
