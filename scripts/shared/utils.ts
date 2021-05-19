@@ -20,7 +20,9 @@ import {
 import {
   CHAIN_IDS,
   GAS_PRICE_MULTIPLIERS,
-  ZERO_ADDRESS
+  ZERO_ADDRESS,
+  LIQUIDITY_PROVIDER_INITIAL_BALANCE,
+  COMMON_SYMBOLS
 } from '../../config/constants'
 
 import {
@@ -442,4 +444,23 @@ export const getModifiedGasPrice = async (ethers, l1ChainId: BigNumber) => {
   return {
     gasPrice
   }
+}
+
+export const getLpSendAmount = (
+  l1NetworkName: string,
+  tokenSymbol: string
+): BigNumber => {
+  let amount: BigNumber
+
+  if (l1NetworkName === 'mainnet') {
+    if (tokenSymbol.toLowerCase() === COMMON_SYMBOLS.USDC.toLowerCase()) {
+      amount = ethersUtils.parseUnits('2', 6)
+    } else {
+      amount = ethersUtils.parseUnits('2', 18)
+    }
+  } else {
+    amount = LIQUIDITY_PROVIDER_INITIAL_BALANCE
+  }
+
+  return amount
 }

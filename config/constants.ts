@@ -59,12 +59,6 @@ export const LIQUIDITY_PROVIDER_INITIAL_BALANCE: BigNumber = BigNumber.from(
 export const LIQUIDITY_PROVIDER_AMM_AMOUNT: BigNumber = LIQUIDITY_PROVIDER_INITIAL_BALANCE.div(
   2
 )
-export const LIQUIDITY_PROVIDER_INITIAL_BALANCE_USDC: BigNumber = BigNumber.from(
-  '1000000000'
-)
-export const LIQUIDITY_PROVIDER_AMM_AMOUNT_USDC: BigNumber = LIQUIDITY_PROVIDER_INITIAL_BALANCE_USDC.div(
-  2
-)
 
 export const BONDER_INITIAL_BALANCE: BigNumber = BigNumber.from(
   parseEther('10000')

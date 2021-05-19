@@ -1,11 +1,13 @@
 require('dotenv').config()
 import prompt from 'prompt'
+import { BigNumber } from 'ethers'
 import {
   readConfigFile,
   updateConfigFile,
   execScript,
   getNetworkDataByNetworkName,
   getTokenSymbolLetterCase,
+  getLpSendAmount,
   Logger
 } from '../shared/utils'
 import { ZERO_ADDRESS } from '../../config/constants'
@@ -149,6 +151,9 @@ function setNetworkParams (
 ) {
   const { l1BridgeAddress } = readConfigFile()
 
+  const liquidityProviderSendAmount: BigNumber = getLpSendAmount(l1NetworkName, tokenSymbol)
+  const liquidityProviderAmmAmount: BigNumber = liquidityProviderSendAmount.div(2)
+
   const expectedTokenSymbolLetterCase: string = getTokenSymbolLetterCase(tokenSymbol)
   const networkData: NetworkData = getNetworkDataByNetworkName(l1NetworkName)
 
@@ -169,9 +174,7 @@ function setNetworkParams (
     l2HBridgeTokenSymbol,
     l2HBridgeTokenDecimals,
     l2SwapLpTokenName,
-    l2SwapLpTokenSymbol,
-    liquidityProviderSendAmount,
-    liquidityProviderAmmAmount
+    l2SwapLpTokenSymbol
   } = tokens[expectedTokenSymbolLetterCase]
 
   const data = {
