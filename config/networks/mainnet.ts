@@ -20,14 +20,14 @@ export const networkData: NetworkData = {
     l2MessengerAddress: ZERO_ADDRESS,
     l1TokenBridgeAddress: '0xA0c68C638235ee32657e8f720a23ceC1bFc77C77',
     tokens: {
-      DAI: {
-        l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.MAINNET.DAI,
-        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.POLYGON.DAI,
-        ...DEFAULT_NETWORK_DATA.DAI
+      USDC: {
+        l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.MAINNET.USDC,
+        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.POLYGON.USDC,
+        ...DEFAULT_NETWORK_DATA.USDC
       },
     }
   },
-  XDAI: {
+  xdai: {
     l2NetworkName: 'xdai',
     l1ChainId,
     l2ChainId: CHAIN_IDS.XDAI.XDAI.toString(),
@@ -36,10 +36,10 @@ export const networkData: NetworkData = {
     l2MessengerAddress: '0x75Df5AF045d91108662D8080fD1FEFAd6aA0bb59',
     l1TokenBridgeAddress: '0x88ad09518695c6c3712AC10a214bE5109a655671',
     tokens: {
-      DAI: {
-        l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.MAINNET.DAI,
-        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.XDAI.DAI,
-        ...DEFAULT_NETWORK_DATA.DAI
+      USDC: {
+        l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.MAINNET.USDC,
+        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.XDAI.USDC,
+        ...DEFAULT_NETWORK_DATA.USDC
       }
     }
   }
