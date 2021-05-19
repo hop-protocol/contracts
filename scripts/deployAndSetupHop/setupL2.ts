@@ -185,7 +185,7 @@ export async function setupL2 (config: Config) {
     l2CanonicalBridgeAddress = postDeploymentAddresses.l2TokenBridgeAddress
   }
   logger.log(`
-    l1Bridge: '${postDeploymentAddresses.l1BridgeAddress}
+    l1Bridge: '${postDeploymentAddresses.l1BridgeAddress}'
     ---------------------------
     l1CanonicalBridge: '${postDeploymentAddresses.l1TokenBridgeAddress}',
     l1MessengerWrapper: '${postDeploymentAddresses.l1MessengerWrapperAddress}',
