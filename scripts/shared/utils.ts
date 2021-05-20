@@ -38,7 +38,7 @@ export const getContractFactories = async (
 ) => {
 
   const L1_MockERC20: ContractFactory = await ethers.getContractFactory(
-    'contracts/test/MockERC20.sol:MockERC20',
+    'contracts/test/MockMockERC20.sol:MockMockERC20',
     { signer }
   )
   const L1_Bridge: ContractFactory = await ethers.getContractFactory(
@@ -46,7 +46,7 @@ export const getContractFactories = async (
     { signer }
   )
   const L2_MockERC20: ContractFactory = await ethers.getContractFactory(
-    'contracts/test/MockERC20.sol:MockERC20',
+    'contracts/test/MockMockERC20.sol:MockMockERC20',
     { signer }
   )
   const L2_HopBridgeToken: ContractFactory = await ethers.getContractFactory(

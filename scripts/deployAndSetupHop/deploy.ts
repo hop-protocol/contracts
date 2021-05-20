@@ -44,8 +44,8 @@ async function main () {
   setNetworkParams(l1NetworkName, l2NetworkName, tokenSymbol, bonderAddress)
   scripts.push(
     `hardhat run ${basePath}/deployL2.ts --network ${l2NetworkName}`,
-    `hardhat run ${basePath}/setupL1.ts --network ${l1NetworkName}`,
-    `hardhat run ${basePath}/setupL2.ts --network ${l2NetworkName}`,
+    // `hardhat run ${basePath}/setupL1.ts --network ${l1NetworkName}`,
+    // `hardhat run ${basePath}/setupL2.ts --network ${l2NetworkName}`,
   )
 
   for (let i = 0; i < scripts.length; i++) {
@@ -197,7 +197,6 @@ function setNetworkParams (
     bonderAddress
   }
 
-  console.log('data: ', data)
   updateConfigFile(data)
 }
 
