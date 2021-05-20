@@ -3,7 +3,6 @@ import { DEFAULT_NETWORK_DATA } from './defaultNetworkData'
 
 import {
   CHAIN_IDS,
-  ZERO_ADDRESS,
   L1_CANONICAL_TOKEN_ADDRESSES,
   L2_CANONICAL_TOKEN_ADDRESSES,
 } from '../constants'

@@ -169,7 +169,7 @@ npm run deploy
 # Deploy L2
 npm run patch-oz
 [Comment out Setup L1 and Setup L2 scripts in deploy.ts]
-TARGET=ovm npm run deploy
+npm run deploy
 > kovan
 > optimism
 > usdc
