@@ -197,7 +197,7 @@ function setNetworkParams (
     bonderAddress
   }
 
-  console.log('data: ', data)
+  console.log('data:', data)
   updateConfigFile(data)
 }
 

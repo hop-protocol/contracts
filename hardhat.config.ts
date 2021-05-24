@@ -4,7 +4,8 @@ import '@nomiclabs/hardhat-ethers'
 import '@nomiclabs/hardhat-waffle'
 import "@nomiclabs/hardhat-etherscan";
 
-import '@eth-optimism/plugins/hardhat/compiler'
+// import '@eth-optimism/plugins/hardhat/compiler'
+import "@eth-optimism/hardhat-ovm"
 
 import 'hardhat-abi-exporter'
 
@@ -57,7 +58,8 @@ export default {
       gasPrice: 0,
       gas: 9000000,
       chainId: CHAIN_IDS.OPTIMISM.HOP_TESTNET.toNumber(),
-      timeout: 480e3
+      timeout: 480e3,
+      ovm: true
     },
     xdai: {
       url: process.env.RPC_ENDPOINT_XDAI,
