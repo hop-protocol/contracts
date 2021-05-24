@@ -53,7 +53,7 @@ export default {
       timeout: 480e3
     },
     optimism: {
-      url: 'https://kovan.optimism.io',
+      url: process.env.RPC_ENDPOINT_OPTIMISM,
       accounts: desiredAccounts,
       gasPrice: 0,
       gas: 9000000,
