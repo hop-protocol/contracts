@@ -107,7 +107,6 @@ export async function deployL2 (config: Config) {
   let l2_messengerProxy: Contract
 
   // Instantiate the wallets
-  logger.log('AAA', await ethers.provider.ready)
   accounts = await ethers.getSigners()
   deployer = accounts[0]
   governance = accounts[1]
@@ -154,8 +153,7 @@ export async function deployL2 (config: Config) {
   l2_hopBridgeToken = await L2_HopBridgeToken.deploy(
     l2HBridgeTokenName,
     l2HBridgeTokenSymbol,
-    l2HBridgeTokenDecimals,
-    { gasLimit: 8999999 }
+    l2HBridgeTokenDecimals
   )
   await waitAfterTransaction(l2_hopBridgeToken, ethers)
 

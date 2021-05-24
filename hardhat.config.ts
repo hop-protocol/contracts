@@ -55,13 +55,10 @@ export default {
     optimism: {
       url: 'https://kovan.optimism.io',
       accounts: desiredAccounts,
-      // accounts: {
-      //   mnemonic: 'test test test test test test test test test test test junk'
-      // },
       gasPrice: 0,
-      // gas: 9000000,
+      gas: 9000000,
       chainId: CHAIN_IDS.OPTIMISM.HOP_TESTNET.toNumber(),
-      // timeout: 480e3,
+      timeout: 480e3,
       ovm: true
     },
     xdai: {
