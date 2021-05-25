@@ -48,7 +48,7 @@ describe('XDai Messenger Wrapper', () => {
     const expectedL1MessengerAddress: string = l1_messenger.address
     const expectedDefaultGasLimit: number = 1000000
     const expectedL2ChainId: string = ethersUtils.hexZeroPad(l2ChainId.toHexString(), 32)
-    const expectedAmbBridge: string = getXDaiAmbAddresses(true)
+    const expectedAmbBridge: string = getXDaiAmbAddresses(l1ChainId)
 
     const l1BridgeAddress: string = await l1_messengerWrapper.l1BridgeAddress()
     const l2BridgeAddress: string = await l1_messengerWrapper.l2BridgeAddress()

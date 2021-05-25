@@ -13,7 +13,8 @@ import {
   FX_CHILD_ADDRESSES,
   POLYGON_RPC_ENDPOINTS,
   ERC20_PREDICATE_ADDRESSES,
-  ERC20_MINTABLE_PREDICATE_ADDRESSES
+  ERC20_MINTABLE_PREDICATE_ADDRESSES,
+  AMB_PROXY_ADDRESSES
 } from './constants'
 import {
   goerliNetworkData
@@ -58,8 +59,7 @@ export const getMessengerWrapperDefaults = (
     )
   } else if (isChainIdXDai(l2ChainId)) {
     const gasLimit: number = 1000000
-    const isAmbL1: boolean = true
-    const ambAddress: string = getXDaiAmbAddresses(isAmbL1)
+    const ambAddress: string = getXDaiAmbAddresses(l1ChainId)
 
     data.push(
       ...defaults,
@@ -215,13 +215,14 @@ export const isChainIdL1 = (chainId: BigNumber): boolean => {
   return false
 }
 
-export const getXDaiAmbAddresses = (isAmbL1: boolean): string => {
-  const kovanAmbAddress: string = '0xFe446bEF1DbF7AFE24E81e05BC8B271C1BA9a560'
-  const sokolAmbAddress: string = '0xFe446bEF1DbF7AFE24E81e05BC8B271C1BA9a560'
-  if (isAmbL1) {
-    return kovanAmbAddress
+export const getXDaiAmbAddresses = (l1ChainId: BigNumber): string => {
+  if (isChainIdMainnet(l1ChainId)) {
+    return AMB_PROXY_ADDRESSES.MAINNET
+  } else if (isChainIdKovan(l1ChainId)) {
+    return AMB_PROXY_ADDRESSES.KOVAN
+  } else {
+    throw new Error('Invalid Chain ID')
   }
-  return sokolAmbAddress
 }
 
 // Create an array of strings for each supported chain ID
