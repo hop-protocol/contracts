@@ -1,8 +1,8 @@
 require('dotenv').config()
 import hre from 'hardhat'
+import { getNetworkDataByNetworkName } from '../shared/utils'
 
 const ethers = hre.ethers
-// const l2ethers = hre.l2ethers
 
 async function main () {
   console.log('network:', await ethers.provider.getNetwork())
@@ -10,23 +10,29 @@ async function main () {
   const signer = (await ethers.getSigners())[0]
   console.log('signer:', await signer.getAddress())
 
-  // const L2_TokenBridge = await ethers.getContractFactory('Arbitrum_L2_ERC20_Bridge', { // Arbitrum
-  const L2_TokenBridge = await ethers.getContractFactory('OVM_L2_ERC20_Bridge', { // Optimism
-    signer: (await ethers.getSigners())[0]
-  })
+  const l1NetworkName = 'kovan'
+  const l2NetworkName = 'optimism'
 
-  const l2_messenger = {
-    // address: '0x0000000000000000000000000000000000000064' // Arbitrum
-    address: '0x4200000000000000000000000000000000000007' // Optimism
+  let L2_TokenBridge
+  if (l2NetworkName === 'optimism') {
+    L2_TokenBridge = await ethers.getContractFactory('OVM_L2_ERC20_Bridge', {
+      signer: (await ethers.getSigners())[0]
+    })
+  } else if (l2NetworkName === 'arbitrum') {
+    L2_TokenBridge = await ethers.getContractFactory('Arbitrum_L2_ERC20_Bridge', {
+      signer: (await ethers.getSigners())[0]
+    })
+
   }
 
-  const l1_tokenBridge = {
-    address: '0xf8099DD44375Fdbb70D286af0fFCd46bA4B193dF'
-  }
+  const networkData = getNetworkDataByNetworkName(l1NetworkName)
+  const { l2MessengerAddress, l1TokenBridgeAddress } = networkData[l2NetworkName]
+  console.log(l2MessengerAddress)
+  console.log(l1TokenBridgeAddress)
 
   const l2_tokenBridge = await L2_TokenBridge.deploy(
-    l2_messenger.address,
-    l1_tokenBridge.address
+    l2MessengerAddress,
+    l1TokenBridgeAddress
   )
 
   await l2_tokenBridge.deployed()

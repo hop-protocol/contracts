@@ -161,10 +161,13 @@ Because Optimism does not support the OpenZeppelin contracts out of the box, the
 ```
 # Deploy L1
 rm package-lock.json && rm -rf node_modules && rm -rf cache && rm -rf artifacts && npm i
+[Comment out Deploy L2, Setup L1, and Setup L2 in deploy.ts]
 npm run deploy
 > kovan
 > optimism
 > usdc
+> <bonder_address>
+> true
 
 # Deploy L2
 npm run patch-oz
@@ -173,15 +176,31 @@ npm run deploy
 > kovan
 > optimism
 > usdc
+> <bonder_address>
+> false
 
-# Setup L1 and setup L2
+# Setup L1
 rm -rf node_modules/@openzeppelin && rm -rf cache && rm -rf artifacts && npm i
 [Comment out Deploy L2 script in deploy.ts]
-[Comment in Setup L1 and Setup L2 scripts in deploy.ts]
+[Comment in Setup L1 scripts in deploy.ts]
 npm run deploy
 > kovan
 > optimism
 > usdc
+> <bonder_address>
+> false
+
+# Setup L1Setup L2
+npm run patch-oz
+[Comment out Setup L1 script in deploy.ts]
+[Comment in Setup L2 scripts in deploy.ts]
+npm run deploy
+> kovan
+> optimism
+> usdc
+> <bonder_address>
+> false
+
 ```
 
 ## FAQ

@@ -66,10 +66,10 @@ export const networkData: NetworkData = {
     l2NetworkName: 'optimism',
     l1ChainId,
     l2ChainId: CHAIN_IDS.OPTIMISM.HOP_TESTNET.toString(),
-    l1MessengerAddress: '0x48062eD9b6488EC41c4CfbF2f568D7773819d8C9',
-    l2TokenBridgeAddress: '0x82784078a7a8A1697BcCe5E07896C6a553846Bd5',
+    l1MessengerAddress: '0x78b88FD62FBdBf67b9C5C6528CF84E9d30BB28e0',
+    l2TokenBridgeAddress: '0x7B2ab06D22Cd230102215532928f60770376a2B3',
     l2MessengerAddress: '0x4200000000000000000000000000000000000007',
-    l1TokenBridgeAddress: '0xf8099DD44375Fdbb70D286af0fFCd46bA4B193dF',
+    l1TokenBridgeAddress: '0xC48528a44f2D961D179D69434645E54ac85732a1',
     tokens: {
       DAI: {
         l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.KOVAN.DAI,

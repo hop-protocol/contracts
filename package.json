@@ -32,6 +32,7 @@
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.2",
+    "@nomiclabs/hardhat-etherscan": "2.1.1",
     "@nomiclabs/hardhat-waffle": "^2.0.1",
     "@types/chai": "^4.2.14",
     "@types/mocha": "^8.0.3",
@@ -47,7 +48,7 @@
   },
   "dependencies": {
     "@eth-optimism/contracts": "^0.1.11",
-    "@eth-optimism/hardhat-ovm": "^0.2.0",
+    "@eth-optimism/hardhat-ovm": "0.0.0-202142517154",
     "@maticnetwork/pos-portal": "^1.5.0",
     "@openzeppelin/contracts": "=3.4.1",
     "@openzeppelin/contracts-upgradeable": "^3.4.1",

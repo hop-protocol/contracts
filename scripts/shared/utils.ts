@@ -466,6 +466,5 @@ export const getLpSendAmount = (
     }
   }
 
-  console.log(amount)
   return amount
 }
