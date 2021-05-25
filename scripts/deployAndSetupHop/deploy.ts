@@ -23,13 +23,15 @@ async function main () {
   let tokenSymbol: string
   let bonderAddress: string
   let isL1BridgeDeploy: boolean
+  let optimismDeploymentStep: number
 
   ;({
     l1NetworkName,
     l2NetworkName,
     tokenSymbol,
     bonderAddress,
-    isL1BridgeDeploy
+    isL1BridgeDeploy,
+    optimismDeploymentStep
   } = await getPrompts())
 
   validateInput(l1NetworkName, l2NetworkName, tokenSymbol, bonderAddress)
@@ -42,11 +44,23 @@ async function main () {
   }
 
   setNetworkParams(l1NetworkName, l2NetworkName, tokenSymbol, bonderAddress)
-  scripts.push(
-    `hardhat run ${basePath}/deployL2.ts --network ${l2NetworkName}`,
-    `hardhat run ${basePath}/setupL1.ts --network ${l1NetworkName}`,
-    `hardhat run ${basePath}/setupL2.ts --network ${l2NetworkName}`,
-  )
+
+  const deployL2Cmd = `hardhat run ${basePath}/deployL2.ts --network ${l2NetworkName}`
+  const setupL1Cmd = `hardhat run ${basePath}/setupL1.ts --network ${l1NetworkName}`
+  const setupL2Cmd = `hardhat run ${basePath}/setupL2.ts --network ${l2NetworkName}`
+  if (optimismDeploymentStep === 0) {
+    scripts.push(
+      deployL2Cmd,
+      setupL1Cmd,
+      setupL2Cmd
+    )
+  } else if (optimismDeploymentStep === 1) {
+    scripts.push(deployL2Cmd)
+  } else if (optimismDeploymentStep === 2) {
+    scripts.push(setupL1Cmd)
+  } else if (optimismDeploymentStep === 3) {
+    scripts.push(setupL2Cmd)
+  }
 
   for (let i = 0; i < scripts.length; i++) {
     const script = scripts[i]
@@ -64,26 +78,37 @@ async function getPrompts () {
 
   const res = await prompt.get([{
     name: 'l1NetworkName',
+    description: 'L1 Network Name:',
     type: 'string',
     required: true,
   }, {
     name: 'l2NetworkName',
+    description: 'L2 Network Name:',
     type: 'string',
     required: true
   }, {
     name: 'tokenSymbol',
+    description: 'Token Symbol:',
     type: 'string',
     required: true
   }, {
     name: 'bonderAddress',
+    description: 'Bonder Address:',
     type: 'string',
     required: true,
     default: ZERO_ADDRESS
   }, {
     name: 'isL1BridgeDeploy',
+    description: 'Is L1 Bridge Deploy:',
     type: 'boolean',
     required: true,
     default: false
+  }, {
+    name: 'optimismDeploymentStep',
+    description: 'Optimism Deployment Step (0 if not Optimism) (1, 2, or 3)',
+    type: 'number',
+    required: true,
+    default: 0
   }])
 
   const l1NetworkName: string = (res.l1NetworkName as string).toLowerCase()
@@ -91,13 +116,15 @@ async function getPrompts () {
   const tokenSymbol: string = (res.tokenSymbol as string).toLowerCase()
   const bonderAddress: string = (res.bonderAddress as string)
   const isL1BridgeDeploy: boolean = res.isL1BridgeDeploy as boolean
+  const optimismDeploymentStep: number = res.optimismDeploymentStep as number
 
   return {
     l1NetworkName,
     l2NetworkName,
     tokenSymbol,
     bonderAddress,
-    isL1BridgeDeploy
+    isL1BridgeDeploy,
+    optimismDeploymentStep
   }
 }
 

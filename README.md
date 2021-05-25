@@ -168,38 +168,37 @@ npm run deploy
 > usdc
 > <bonder_address>
 > true
+> 0
 
 # Deploy L2
 npm run patch-oz
-[Comment out Setup L1 and Setup L2 scripts in deploy.ts]
 npm run deploy
 > kovan
 > optimism
 > usdc
 > <bonder_address>
 > false
+> 1
 
 # Setup L1
 rm -rf node_modules/@openzeppelin && rm -rf cache && rm -rf artifacts && npm i
-[Comment out Deploy L2 script in deploy.ts]
-[Comment in Setup L1 scripts in deploy.ts]
 npm run deploy
 > kovan
 > optimism
 > usdc
 > <bonder_address>
 > false
+> 2
 
 # Setup L1Setup L2
 npm run patch-oz
-[Comment out Setup L1 script in deploy.ts]
-[Comment in Setup L2 scripts in deploy.ts]
 npm run deploy
 > kovan
 > optimism
 > usdc
 > <bonder_address>
 > false
+> 3
 
 ```
 
