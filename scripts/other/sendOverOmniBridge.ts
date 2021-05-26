@@ -1,7 +1,7 @@
 require('dotenv').config()
 import { ethers } from 'hardhat'
 import { BigNumber, Signer, Contract, ContractFactory } from 'ethers'
-import { parseEther } from 'ethers/lib/utils'
+import { parseUnits } from 'ethers/lib/utils'
 
 import { CHAIN_IDS } from '../../config/constants'
 import {
@@ -16,14 +16,23 @@ import {
 async function main () {
   // Addresses
   const l1_tokenBridgeAddress: string = '0xA960d095470f7509955d5402e36d9DB984B5C8E2'
-  const l1_canonicalTokenAddress: string = '0x1E1a556D2166A006e662864D376e8DD249087150'
-  const l2_canonicalTokenAddress: string = '0x94490EF228D4aBD189694f86D1684D972431380b'
+  const l1_canonicalTokenAddress: string = '0x436e3FfB93A4763575E5C0F6b3c97D5489E050da'
+  const l2_canonicalTokenAddress: string = '0x6D2d8B29d92cab87a273e872FcC4650A64116283'
 
-  // Token Send Values
-  const numLoops: number = 100
+  // USDC
+  // const l1_tokenBridgeAddress: string = '0xA960d095470f7509955d5402e36d9DB984B5C8E2'
+  // const l1_canonicalTokenAddress: string = '0xA46d09fd4B7961aE16D33122660f43726cB1Ff36'
+  // const l2_canonicalTokenAddress: string = '0x3b0977b9e563F63F219019616BBD12cB1cdFF527'
+
+  // Values to Change
+  const tokenDecimals: number = 6
+  const shouldMintMax: boolean = false
+  const shouldApproveMax: boolean = true
+  const numLoops: number = 1000
+
+  // Values to not change
   const maxSendAmountEth: BigNumber = BigNumber.from('10000')
-  const amount: BigNumber = BigNumber.from(parseEther(maxSendAmountEth.toString()))
-  const shouldMintAndApproveMax: boolean = true
+  const amount: BigNumber = BigNumber.from(parseUnits(maxSendAmountEth.toString(), tokenDecimals))
   const mintAndApproveMaxAmount: BigNumber = amount.mul(numLoops)
 
   // Chain Ids
@@ -39,62 +48,77 @@ async function main () {
 
   // Signers
   const signers: Signer[] = await ethers.getSigners()
-  const deployer: Signer = signers[0]
-  const liquidityProvider: Signer = deployer
+  const sender: Signer = signers[0]
 
   ;({
     L1_MockERC20,
     L1_TokenBridge,
-  } = await getContractFactories(l2_chainId, deployer, ethers))
+  } = await getContractFactories(l2_chainId, sender, ethers))
 
   // Attach already deployed contracts
   l1_tokenBridge = L1_TokenBridge.attach(l1_tokenBridgeAddress)
   l1_canonicalToken = L1_MockERC20.attach(l1_canonicalTokenAddress)
   l2_canonicalToken = L1_MockERC20.attach(l2_canonicalTokenAddress)
 
-  if (shouldMintAndApproveMax) {
-    await mintAndApproveMax(
-      l1_tokenBridge,
+  if (shouldMintMax) {
+    await mintMax(
       l1_canonicalToken,
-      deployer,
-      liquidityProvider,
+      sender,
       mintAndApproveMaxAmount
     )
   }
 
+  if (shouldApproveMax) {
+    await approveMax(
+      l1_tokenBridge,
+      l1_canonicalToken,
+      sender,
+      mintAndApproveMaxAmount
+    )
+  }
+
+  let amountSent: BigNumber = BigNumber.from('0')
+  const ten: BigNumber = BigNumber.from('10')
   for (let i = 0; i < numLoops; i++) {
     console.log('Iteration Number:', i)
+    console.log('Amount Sent:', amountSent.div(ten.pow(tokenDecimals)).toString())
 
     await sendChainSpecificBridgeDeposit(
       l2_chainId,
-      liquidityProvider,
+      sender,
       amount,
       l1_tokenBridge,
       l1_canonicalToken,
       l2_canonicalToken
     )
-    await waitAfterTransaction()
+
+    amountSent = amountSent.add(amount)
   }
 }
 
-async function mintAndApproveMax(
-  l1_tokenBridge: Contract,
+async function mintMax(
   l1_canonicalToken: Contract,
-  deployer: Signer,
-  liquidityProvider: Signer,
+  sender: Signer,
   amount: BigNumber
 ) {
   let tx = await l1_canonicalToken
-    .connect(deployer)
+    .connect(sender)
     .mint(
-      await liquidityProvider.getAddress(),
+      await sender.getAddress(),
       amount
     )
   await tx.wait()
   await waitAfterTransaction()
+}
 
-  tx = await l1_canonicalToken
-    .connect(liquidityProvider)
+async function approveMax(
+  l1_tokenBridge: Contract,
+  l1_canonicalToken: Contract,
+  sender: Signer,
+  amount: BigNumber
+) {
+  let tx = await l1_canonicalToken
+    .connect(sender)
     .approve(l1_tokenBridge.address, amount)
   await tx.wait()
   await waitAfterTransaction()

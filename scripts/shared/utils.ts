@@ -294,7 +294,7 @@ export const sendChainSpecificBridgeDeposit = async (
     throw new Error(`Unsupported chain ID "${chainId}"`)
   }
 
-    await tx.wait()
+  await tx.wait()
 }
 
 const configFilepath = path.resolve(__dirname, '../deployAndSetupHop/deploy_config.json')
