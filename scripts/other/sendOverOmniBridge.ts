@@ -15,17 +15,19 @@ import {
 // $ npx hardhat run scripts/other/sendOverOmniBridge.ts --network kovan
 async function main () {
   // Addresses
-  const l1_tokenBridgeAddress: string = '0xA960d095470f7509955d5402e36d9DB984B5C8E2'
-  const l1_canonicalTokenAddress: string = '0x436e3FfB93A4763575E5C0F6b3c97D5489E050da'
-  const l2_canonicalTokenAddress: string = '0x6D2d8B29d92cab87a273e872FcC4650A64116283'
+  // DAI
+  // const l1_tokenBridgeAddress: string = '0xA960d095470f7509955d5402e36d9DB984B5C8E2'
+  // const l1_canonicalTokenAddress: string = '0x436e3FfB93A4763575E5C0F6b3c97D5489E050da'
+  // const l2_canonicalTokenAddress: string = '0x6D2d8B29d92cab87a273e872FcC4650A64116283'
+  // const tokenDecimals: number = 18
 
   // USDC
-  // const l1_tokenBridgeAddress: string = '0xA960d095470f7509955d5402e36d9DB984B5C8E2'
-  // const l1_canonicalTokenAddress: string = '0xA46d09fd4B7961aE16D33122660f43726cB1Ff36'
-  // const l2_canonicalTokenAddress: string = '0x3b0977b9e563F63F219019616BBD12cB1cdFF527'
+  const l1_tokenBridgeAddress: string = '0xA960d095470f7509955d5402e36d9DB984B5C8E2'
+  const l1_canonicalTokenAddress: string = '0xA46d09fd4B7961aE16D33122660f43726cB1Ff36'
+  const l2_canonicalTokenAddress: string = '0x3b0977b9e563F63F219019616BBD12cB1cdFF527'
+  const tokenDecimals: number = 6
 
   // Values to Change
-  const tokenDecimals: number = 6
   const shouldMintMax: boolean = false
   const shouldApproveMax: boolean = true
   const numLoops: number = 1000
