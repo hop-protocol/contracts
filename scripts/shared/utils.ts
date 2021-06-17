@@ -440,7 +440,9 @@ export const getModifiedGasPrice = async (ethers, l1ChainId: BigNumber) => {
     gasPriceMultiplier = GAS_PRICE_MULTIPLIERS.TESTNET
   }
 
-  const gasPrice: BigNumber = (await ethers.provider.getGasPrice()).mul(gasPriceMultiplier)
+  const tempMultiplier = 100
+  const wholeGasPriceMultiplier = gasPriceMultiplier * tempMultiplier
+  const gasPrice: BigNumber = (await ethers.provider.getGasPrice()).mul(wholeGasPriceMultiplier).div(tempMultiplier)
   return {
     gasPrice
   }

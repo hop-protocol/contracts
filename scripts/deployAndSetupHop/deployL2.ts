@@ -207,7 +207,9 @@ export async function deployL2 (config: Config) {
     await tx.wait()
     await waitAfterTransaction()
 
-    // setFxRootTunnel should be called here but the L1 Messenger Wrapper must be deployed first
+    // Technically, setFxRootTunnel should be called here but we cannot do so because
+    // we need the address of the L1 Messenger Wrapper. Because of this, we call setFxRootTunnel
+    // in setupL1.
   }
 
   const l2HopBridgeTokenAddress: string = l2_hopBridgeToken.address

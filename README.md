@@ -190,7 +190,7 @@ npm run deploy
 > false
 > 2
 
-# Setup L1Setup L2
+# Setup L2
 npm run patch-oz
 npm run deploy
 > kovan

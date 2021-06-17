@@ -216,6 +216,6 @@ export const COMMON_SYMBOLS: { [key: string]: string } = {
 }
 
 export const GAS_PRICE_MULTIPLIERS: { [key: string]: number } = {
-  MAINNET: 1.2,
+  MAINNET: 1.5,
   TESTNET: 10
 }

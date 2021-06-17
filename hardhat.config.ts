@@ -17,7 +17,7 @@ const desiredAccounts: string[] = [
 ]
 
 const isOptimizerEnabled: boolean = true
-const numOptimizerRuns: number = 1
+const numOptimizerRuns: number = 50000
 
 // You have to export an object to set up your config
 // This object can have the following optional entries:
@@ -56,7 +56,6 @@ export default {
       url: process.env.RPC_ENDPOINT_OPTIMISM,
       accounts: desiredAccounts,
       gasPrice: 0,
-      gas: 9000000,
       chainId: CHAIN_IDS.OPTIMISM.HOP_TESTNET.toNumber(),
       timeout: 480e3,
       ovm: true
