@@ -55,6 +55,15 @@ abstract contract L2_Bridge is Bridge {
         uint256 deadline
     );
 
+    event TransferFromL1Completed (
+        address indexed recipient,
+        uint256 amount,
+        uint256 amountOutMin,
+        uint256 deadline,
+        address indexed relayer,
+        uint256 relayerFee
+    );
+
     modifier onlyL1Bridge {
         _verifySender(l1BridgeCaller);
         _;
@@ -192,6 +201,15 @@ abstract contract L2_Bridge is Bridge {
         nonReentrant
     {
         _distribute(recipient, amount, amountOutMin, deadline, relayer, relayerFee);
+
+        emit TransferFromL1Completed(
+            recipient,
+            amount,
+            amountOutMin,
+            deadline,
+            relayer,
+            relayerFee
+        );
     }
 
     /**
