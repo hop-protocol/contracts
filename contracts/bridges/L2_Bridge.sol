@@ -39,6 +39,7 @@ abstract contract L2_Bridge is Bridge {
     bytes32 private immutable NONCE_DOMAIN_SEPARATOR;
 
     event TransfersCommitted (
+        uint256 indexed destinationChainId,
         bytes32 indexed rootHash,
         uint256 totalAmount,
         uint256 rootCommittedAt
@@ -46,13 +47,23 @@ abstract contract L2_Bridge is Bridge {
 
     event TransferSent (
         bytes32 indexed transferId,
+        uint256 indexed chainId,
         address indexed recipient,
         uint256 amount,
-        bytes32 indexed transferNonce,
+        bytes32 transferNonce,
         uint256 bonderFee,
         uint256 index,
         uint256 amountOutMin,
         uint256 deadline
+    );
+
+    event TransferFromL1Completed (
+        address indexed recipient,
+        uint256 amount,
+        uint256 amountOutMin,
+        uint256 deadline,
+        address indexed relayer,
+        uint256 relayerFee
     );
 
     modifier onlyL1Bridge {
@@ -145,6 +156,7 @@ abstract contract L2_Bridge is Bridge {
 
         emit TransferSent(
             transferId,
+            chainId,
             recipient,
             amount,
             transferNonce,
@@ -192,6 +204,15 @@ abstract contract L2_Bridge is Bridge {
         nonReentrant
     {
         _distribute(recipient, amount, amountOutMin, deadline, relayer, relayerFee);
+
+        emit TransferFromL1Completed(
+            recipient,
+            amount,
+            amountOutMin,
+            deadline,
+            relayer,
+            relayerFee
+        );
     }
 
     /**
@@ -253,7 +274,7 @@ abstract contract L2_Bridge is Bridge {
         uint256 totalAmount = pendingAmountForChainId[destinationChainId];
         uint256 rootCommittedAt = block.timestamp;
 
-        emit TransfersCommitted(rootHash, totalAmount, rootCommittedAt);
+        emit TransfersCommitted(destinationChainId, rootHash, totalAmount, rootCommittedAt);
 
         bytes memory confirmTransferRootMessage = abi.encodeWithSignature(
             "confirmTransferRoot(uint256,bytes32,uint256,uint256,uint256)",

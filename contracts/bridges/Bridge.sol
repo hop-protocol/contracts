@@ -168,7 +168,7 @@ abstract contract Bridge is Accounting {
      * swap is intended. (only used to calculate `transferId` in this function)
      * @param rootHash The Merkle root of the TransferRoot
      * @param transferRootTotalAmount The total amount being transferred in a TransferRoot
-     * @param tansferIdTreeIndex The index of the transferId in the Merkle tree
+     * @param transferIdTreeIndex The index of the transferId in the Merkle tree
      * @param siblings The siblings of the transferId in the Merkle tree
      * @param totalLeaves The total number of leaves in the Merkle tree
      */
@@ -181,7 +181,7 @@ abstract contract Bridge is Accounting {
         uint256 deadline,
         bytes32 rootHash,
         uint256 transferRootTotalAmount,
-        uint256 tansferIdTreeIndex,
+        uint256 transferIdTreeIndex,
         bytes32[] calldata siblings,
         uint256 totalLeaves
     )
@@ -201,7 +201,7 @@ abstract contract Bridge is Accounting {
         require(
             rootHash.verify(
                 transferId,
-                tansferIdTreeIndex,
+                transferIdTreeIndex,
                 siblings,
                 totalLeaves
             )
@@ -252,7 +252,7 @@ abstract contract Bridge is Accounting {
      * @param transferId The Transfer's unique identifier
      * @param rootHash The Merkle root of the TransferRoot
      * @param transferRootTotalAmount The total amount being transferred in a TransferRoot
-     * @param tansferIdTreeIndex The index of the transferId in the Merkle tree
+     * @param transferIdTreeIndex The index of the transferId in the Merkle tree
      * @param siblings The siblings of the transferId in the Merkle tree
      * @param totalLeaves The total number of leaves in the Merkle tree
      */
@@ -261,7 +261,7 @@ abstract contract Bridge is Accounting {
         bytes32 transferId,
         bytes32 rootHash,
         uint256 transferRootTotalAmount,
-        uint256 tansferIdTreeIndex,
+        uint256 transferIdTreeIndex,
         bytes32[] calldata siblings,
         uint256 totalLeaves
     )
@@ -270,7 +270,7 @@ abstract contract Bridge is Accounting {
         require(
             rootHash.verify(
                 transferId,
-                tansferIdTreeIndex,
+                transferIdTreeIndex,
                 siblings,
                 totalLeaves
             )

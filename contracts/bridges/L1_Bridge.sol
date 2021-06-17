@@ -43,6 +43,16 @@ abstract contract L1_Bridge is Bridge {
 
     /* ========== Events ========== */
 
+    event TransferSentToL2(
+        uint256 indexed chainId,
+        address indexed recipient,
+        uint256 amount,
+        uint256 amountOutMin,
+        uint256 deadline,
+        address indexed relayer,
+        uint256 relayerFee
+    );
+
     event TransferRootBonded (
         bytes32 indexed root,
         uint256 amount
@@ -128,6 +138,16 @@ abstract contract L1_Bridge is Bridge {
 
         chainBalance[chainId] = chainBalance[chainId].add(amount);
         messengerWrapper.sendCrossDomainMessage(message);
+
+        emit TransferSentToL2(
+            chainId,
+            recipient,
+            amount,
+            amountOutMin,
+            deadline,
+            relayer,
+            relayerFee
+        );
     }
 
     /* ========== TransferRoot Functions ========== */
@@ -223,6 +243,8 @@ abstract contract L1_Bridge is Bridge {
             // Set L1 TransferRoot
             _setTransferRoot(rootHash, totalAmount);
         } else {
+            chainBalance[chainId] = chainBalance[chainId].add(totalAmount);
+
             IMessengerWrapper messengerWrapper = crossDomainMessengerWrappers[chainId];
             require(messengerWrapper != IMessengerWrapper(0), "L1_BRG: chainId not supported");
 
