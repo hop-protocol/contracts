@@ -223,6 +223,8 @@ abstract contract L1_Bridge is Bridge {
             // Set L1 TransferRoot
             _setTransferRoot(rootHash, totalAmount);
         } else {
+            chainBalance[chainId] = chainBalance[chainId].add(totalAmount);
+
             IMessengerWrapper messengerWrapper = crossDomainMessengerWrappers[chainId];
             require(messengerWrapper != IMessengerWrapper(0), "L1_BRG: chainId not supported");
 
