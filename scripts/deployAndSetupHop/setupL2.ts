@@ -178,15 +178,17 @@ export async function setupL2 (config: Config) {
   
   // Match output with addresses package
   const postDeploymentAddresses = readConfigFile()
+  let l1FxBaseRootTunnel: string
   let l2CanonicalBridgeAddress: string
   if (isChainIdPolygon(l2ChainId)) {
+    l1FxBaseRootTunnel = postDeploymentAddresses.l1MessengerWrapperAddress
     l2CanonicalBridgeAddress = postDeploymentAddresses.l2CanonicalTokenAddress
   } else {
+    l1FxBaseRootTunnel = ''
     l2CanonicalBridgeAddress = postDeploymentAddresses.l2TokenBridgeAddress
   }
   logger.log(`
     l1Bridge: '${postDeploymentAddresses.l1BridgeAddress}'
-    ---------------------------
     l1CanonicalBridge: '${postDeploymentAddresses.l1TokenBridgeAddress}',
     l1MessengerWrapper: '${postDeploymentAddresses.l1MessengerWrapperAddress}',
     l2CanonicalBridge: '${l2CanonicalBridgeAddress}',
@@ -196,6 +198,7 @@ export async function setupL2 (config: Config) {
     l2AmmWrapper: '${postDeploymentAddresses.l2AmmWrapperAddress}',
     l2SaddleSwap: '${postDeploymentAddresses.l2SwapAddress}',
     l2SaddleLpToken: '${postDeploymentAddresses.l2LpTokenAddress}',
+    l1FxBaseRootTunnel: '${l1FxBaseRootTunnel}',
   `)
 }
 
