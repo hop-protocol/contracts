@@ -1094,7 +1094,7 @@ describe('L1_Bridge', () => {
         TIMESTAMP_VARIANCE
       )
       expect(await l1_bridge.chainBalance(l22ChainId)).to.eq(
-        LIQUIDITY_PROVIDER_AMM_AMOUNT.add(INITIAL_BONDED_AMOUNT)
+        LIQUIDITY_PROVIDER_AMM_AMOUNT.add(INITIAL_BONDED_AMOUNT).add(l2Transfer.amount)
       )
 
       const nextMessage = await l22_messenger.nextMessage()
@@ -2159,12 +2159,12 @@ describe('L1_Bridge', () => {
 
   describe('settleBondedWithdrawal', async () => {
     it('Should not settle a bonded withdrawal an invalid transfer proof', async () => {
-      const expectedErrorMsg: string = 'L2_BRG: Invalid transfer proof'
+      const expectedErrorMsg: string = 'BRG: Invalid transfer proof'
       const transferId: string = ARBITRARY_ROOT_HASH
       const rootHash: string = ARBITRARY_ROOT_HASH
       const proof: string[] = [ARBITRARY_ROOT_HASH]
       const transferIdTreeIndex = 0
-      const totalLeaves = 1
+      const totalLeaves = 2
 
       await expect(
         l1_bridge
@@ -3905,6 +3905,8 @@ describe('L1_Bridge', () => {
       const tree: MerkleTree = getNewMerkleTree([transferId])
       const transferRootHash: Buffer = tree.getRoot()
       const proof: Buffer[] = tree.getProof(transferId)
+      const transferIdTreeIndex = 0
+      const totalLeaves = 1
 
       await l1_bridge
         .connect(bonder)
@@ -3942,7 +3944,9 @@ describe('L1_Bridge', () => {
           transfer.deadline,
           transferRootHash,
           transfer.amount,
-          proof
+          transferIdTreeIndex,
+          proof,
+          totalLeaves
         )
 
       // Validate state after transaction
