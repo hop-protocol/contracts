@@ -2163,6 +2163,8 @@ describe('L1_Bridge', () => {
       const transferId: string = ARBITRARY_ROOT_HASH
       const rootHash: string = ARBITRARY_ROOT_HASH
       const proof: string[] = [ARBITRARY_ROOT_HASH]
+      const transferIdTreeIndex = 0
+      const totalLeaves = 1
 
       await expect(
         l1_bridge
@@ -2172,7 +2174,9 @@ describe('L1_Bridge', () => {
             transferId,
             rootHash,
             transfer.amount,
-            proof
+            transferIdTreeIndex,
+            proof,
+            totalLeaves
           )
       ).to.be.revertedWith(expectedErrorMsg)
     })
@@ -2216,6 +2220,8 @@ describe('L1_Bridge', () => {
       const { rootHash } = getRootHashFromTransferId(transferId)
       const tree: MerkleTree = getNewMerkleTree([transferId])
       const proof: Buffer[] = tree.getProof(transferId)
+      const transferIdTreeIndex = 0
+      const totalLeaves = 1
 
       await expect(
         l1_bridge
@@ -2225,7 +2231,9 @@ describe('L1_Bridge', () => {
             transferId,
             rootHash,
             transfer.amount,
-            proof
+            transferIdTreeIndex,
+            proof,
+            totalLeaves
           )
       ).to.be.revertedWith(expectedErrorMsg)
     })

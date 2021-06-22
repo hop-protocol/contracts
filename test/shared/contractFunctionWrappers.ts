@@ -463,6 +463,8 @@ export const executeBridgeSettleBondedWithdrawal = async (
   const { rootHash } = getRootHashFromTransferId(transferId)
   const tree: MerkleTree = getNewMerkleTree([transferId])
   const proof: Buffer[] = tree.getProof(transferId)
+  const transferIdTreeIndex = 0
+  const totalLeaves = 1
 
   // Get state before transaction
   const bondedAmountBefore: BigNumber = await destinationBridge.getCredit(
@@ -477,7 +479,9 @@ export const executeBridgeSettleBondedWithdrawal = async (
       transferId,
       rootHash,
       transfer.amount,
-      proof
+      transferIdTreeIndex,
+      proof,
+      totalLeaves
     )
 
   // Validate state after transaction
