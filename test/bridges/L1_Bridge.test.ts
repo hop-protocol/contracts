@@ -3793,7 +3793,7 @@ describe('L1_Bridge', () => {
       const transfersCommittedEvent = await l2_bridge.queryFilter(
         l2_bridge.filters.TransfersCommitted()
       )
-      const rootHash: string = transfersCommittedEvent[0].args[0]
+      const rootHash: string = transfersCommittedEvent[0].args.rootHash
 
       // Bond with the same root hash but a lower amount
       const customTransfer: Transfer = new Transfer(transfer)
@@ -3853,7 +3853,7 @@ describe('L1_Bridge', () => {
       const transfersCommittedEvent = await l2_bridge.queryFilter(
         l2_bridge.filters.TransfersCommitted()
       )
-      const rootHash: string = transfersCommittedEvent[0].args[0]
+      const rootHash: string = transfersCommittedEvent[0].args.rootHash
 
       // Bond with the same root hash but a lower amount
       const customTransfer: Transfer = new Transfer(transfer)
