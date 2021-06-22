@@ -124,7 +124,8 @@ describe('Bridge', () => {
    */
 
   it('Should not allow a user to withdrawal because of an invalid proof', async () => {
-    const transfer: Transfer = transfers[0]
+    const transferIdTreeIndex = 0
+    const transfer: Transfer = transfers[transferIdTreeIndex]
     const arbitraryProof: string[] = [ARBITRARY_ROOT_HASH, ARBITRARY_ROOT_HASH]
 
     const expectedErrorMsg: string = 'BRG: Invalid transfer proof'
@@ -139,13 +140,16 @@ describe('Bridge', () => {
         transfer.deadline,
         ARBITRARY_ROOT_HASH,
         transfer.amount,
-        arbitraryProof
+        transferIdTreeIndex,
+        arbitraryProof,
+        transfers.length
       )
     ).to.be.revertedWith(expectedErrorMsg)
   })
 
   it('Should not allow a user to withdrawal because the transfer root is not found', async () => {
-    const transfer: Transfer = transfers[0]
+    const transferIdTreeIndex = 0
+    const transfer: Transfer = transfers[transferIdTreeIndex]
 
     // Set up transfer
     transfer.chainId = await mockBridge.getChainId()
@@ -157,10 +161,14 @@ describe('Bridge', () => {
       BigNumber.from('0'),
       transfer.chainId
     )
+    const transferIdPromises = transfers.map( _transfer =>
+      _transfer.getTransferId(transferNonce)
+    )
+    const transferIds = await Promise.all(transferIdPromises)
     const transferId: Buffer = await transfer.getTransferId(transferNonce)
-    const tree: MerkleTree = getNewMerkleTree([transferId])
+    const tree: MerkleTree = getNewMerkleTree(transferIds)
     const transferRootHash: Buffer = tree.getRoot()
-    const proof: Buffer[] = tree.getProof(transferId)
+    const proof: Buffer[] = tree.getProof(transferId).map(i => i.data)
 
     const expectedErrorMsg: string = 'BRG: Transfer root not found'
 
@@ -174,7 +182,9 @@ describe('Bridge', () => {
         transfer.deadline,
         transferRootHash,
         transfer.amount,
-        proof
+        transferIdTreeIndex,
+        proof,
+        transfers.length
       )
     ).to.be.revertedWith(expectedErrorMsg)
   })

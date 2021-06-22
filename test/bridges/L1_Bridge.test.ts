@@ -2253,6 +2253,8 @@ describe('L1_Bridge', () => {
     it('Should not be able to withdraw with a bad proof', async () => {
       const expectedErrorMsg: string = 'BRG: Invalid transfer proof'
       const invalidProof: string[] = [ARBITRARY_TRANSFER_NONCE]
+      const transferIdTreeIndex = 0
+      const totalLeaves = 2
       await expect(
         l1_bridge
           .connect(bonder)
@@ -2265,7 +2267,9 @@ describe('L1_Bridge', () => {
             transfer.deadline,
             ARBITRARY_ROOT_HASH,
             transfer.amount,
-            invalidProof
+            transferIdTreeIndex,
+            invalidProof,
+            totalLeaves
           )
       ).to.be.revertedWith(expectedErrorMsg)
     })
@@ -2296,7 +2300,7 @@ describe('L1_Bridge', () => {
       const transfersCommittedEvent = await l2_bridge.queryFilter(
         l2_bridge.filters.TransfersCommitted()
       )
-      const rootHash: string = transfersCommittedEvent[0].args[0]
+      const rootHash: string = transfersCommittedEvent[0].args.rootHash
 
       // Bond with the same root hash but a lower amount
       await l1_bridge
@@ -2308,6 +2312,8 @@ describe('L1_Bridge', () => {
       const tree: MerkleTree = getNewMerkleTree([transferId])
       const transferRootHash: Buffer = tree.getRoot()
       const proof: Buffer[] = tree.getProof(transferId)
+      const transferIdTreeIndex = 0
+      const totalLeaves = 1
 
       const timeToWait: number = 11 * SECONDS_IN_A_DAY
       await increaseTime(timeToWait)
@@ -2325,12 +2331,13 @@ describe('L1_Bridge', () => {
             transfer.deadline,
             transferRootHash,
             transfer.amount.div(2),
-            proof
+            transferIdTreeIndex,
+            proof,
+            totalLeaves
           )
       ).to.be.revertedWith(expectedErrorMsg)
     })
   })
-
 
   describe('confirmTransferRoot', async () => {
     it('Should not allow a transfer root to be confirmed by anybody except the L2_Bridge', async () => {

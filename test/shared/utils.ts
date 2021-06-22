@@ -424,7 +424,7 @@ export const getTransferNonceFromEvent = async (
   const transfersSentEvent = await l2_bridge.queryFilter(
     l2_bridge.filters.TransferSent()
   )
-  return transfersSentEvent[transferIndex.toNumber()].topics[3]
+  return transfersSentEvent[transferIndex.toNumber()].args.transferNonce
 }
 
 export const getTransferNonce = (

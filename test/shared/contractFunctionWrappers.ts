@@ -844,13 +844,14 @@ export const executeL2BridgeSend = async (
     await sourceBridge.queryFilter(sourceBridge.filters.TransferSent())
   )[transferIndex.toNumber()]
   const transferSentArgs = transfersSentEvent.args
-  expect(transferSentArgs[0]).to.eq(
+  expect(transferSentArgs.transferId).to.eq(
     '0x' + expectedPendingTransferHash.toString('hex')
   )
-  expect(transferSentArgs[1]).to.eq(await transfer.recipient.getAddress())
-  expect(transferSentArgs[2]).to.eq(transfer.amount)
-  expect(transferSentArgs[3]).to.eq(transferNonce)
-  expect(transferSentArgs[4]).to.eq(transfer.bonderFee)
+  expect(transferSentArgs.chainId).to.eq(transfer.chainId)
+  expect(transferSentArgs.recipient).to.eq(await transfer.recipient.getAddress())
+  expect(transferSentArgs.amount).to.eq(transfer.amount)
+  expect(transferSentArgs.transferNonce).to.eq(transferNonce)
+  expect(transferSentArgs.bonderFee).to.eq(transfer.bonderFee)
 }
 
 export const executeL2AmmWrapperSwapAndSend = async (
