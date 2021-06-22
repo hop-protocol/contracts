@@ -261,6 +261,8 @@ export const executeBridgeWithdraw = async (
   const tree: MerkleTree = getNewMerkleTree([transferId])
   const transferRootHash: Buffer = tree.getRoot()
   const proof: Buffer[] = tree.getProof(transferId)
+  const transferIdTreeIndex = 0
+  const totalLeaves = 1
 
   const { rootHash } = getRootHashFromTransferId(transferId)
 
@@ -299,7 +301,9 @@ export const executeBridgeWithdraw = async (
       deadline,
       transferRootHash,
       transfer.amount,
-      proof
+      transferIdTreeIndex,
+      proof,
+      totalLeaves
     )
 
   // Validate state after transaction
@@ -916,10 +920,11 @@ export const executeL2AmmWrapperSwapAndSend = async (
   expect(transferSentArgs[0]).to.eq(
     '0x' + expectedPendingTransferHash.toString('hex')
   )
-  expect(transferSentArgs[1]).to.eq(await transfer.recipient.getAddress())
-  expect(transferSentArgs[2]).to.eq(transferAfterSlippage.amount)
-  expect(transferSentArgs[3]).to.eq(transferNonce)
-  expect(transferSentArgs[4]).to.eq(transfer.bonderFee)
+  expect(transferSentArgs.chainId).to.eq(transfer.chainId)
+  expect(transferSentArgs.recipient).to.eq(await transfer.recipient.getAddress())
+  expect(transferSentArgs.amount).to.eq(transferAfterSlippage.amount)
+  expect(transferSentArgs.transferNonce).to.eq(transferNonce)
+  expect(transferSentArgs.bonderFee).to.eq(transfer.bonderFee)
 }
 
 export const executeL2AmmWrapperAttemptSwap = async (
@@ -1073,8 +1078,8 @@ export const executeL2BridgeCommitTransfers = async (
   )
 
   const transfersCommittedArgs = transfersCommittedEvent[transfersCommittedEvent.length - 1].args
-  expect(transfersCommittedArgs[0]).to.eq(expectedMerkleTree.getHexRoot())
-  const pendingChainAmounts = transfersCommittedArgs[1]
+  expect(transfersCommittedArgs.rootHash).to.eq(expectedMerkleTree.getHexRoot())
+  const pendingChainAmounts = transfersCommittedArgs.totalAmount
   expect(pendingChainAmounts).to.eq(expectedPendingAmountForChainId)
 }
 
