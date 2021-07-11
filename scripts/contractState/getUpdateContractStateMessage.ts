@@ -55,6 +55,7 @@ async function main () {
   console.log('Message data:', messageToSend)
   console.log('Address to call is the `l1_messenger` on all networks except Polygon/Mumbai where it is `l1_messengerWrapper`')
   console.log('See executeCanonicalMessengerSendMessage() for additional params')
+  console.log('xDai messenger is labeled l1Amb in the addresses package')
 }
 
 const getPromptRes = async() => {
