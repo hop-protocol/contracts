@@ -126,7 +126,7 @@ const getOptimismContractFactories = async (
   ethers: any
 ) => {
   const L1_TokenBridge: ContractFactory = await ethers.getContractFactory(
-    'contracts/test/optimism/mockOVM_L1_ERC20_Bridge.sol:OVM_L1_ERC20_Bridge',
+    'contracts/test/optimism/mockOVM_L1StandardBridge.sol:mockOVM_L1StandardBridge',
     { signer }
   )
   const L1_Messenger: ContractFactory = await ethers.getContractFactory(
