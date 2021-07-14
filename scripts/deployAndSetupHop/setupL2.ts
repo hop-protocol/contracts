@@ -14,7 +14,8 @@ import {
 } from '../shared/utils'
 import {
   isChainIdArbitrum,
-  isChainIdPolygon
+  isChainIdPolygon,
+  isChainIdOptimism
 } from '../../config/utils'
 
 import {
@@ -157,6 +158,8 @@ export async function setupL2 (config: Config) {
     addLiquidityParams.push(overrides)
   } else if (isChainIdArbitrum(l2ChainId)) {
     addLiquidityParams.push({ gasLimit: 100000000 })
+  } else if (isChainIdOptimism(l2ChainId)) {
+    addLiquidityParams.push({ gasLimit: 10000000 })
   }
 
   logger.log('adding liquidity to L2 amm')

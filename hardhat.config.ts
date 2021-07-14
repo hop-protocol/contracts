@@ -2,7 +2,7 @@ require('dotenv').config()
 
 import '@nomiclabs/hardhat-ethers'
 import '@nomiclabs/hardhat-waffle'
-import "@nomiclabs/hardhat-etherscan";
+import '@nomiclabs/hardhat-etherscan'
 
 // import '@eth-optimism/plugins/hardhat/compiler'
 import "@eth-optimism/hardhat-ovm"
@@ -17,7 +17,9 @@ const desiredAccounts: string[] = [
 ]
 
 const isOptimizerEnabled: boolean = true
-const numOptimizerRuns: number = 50000
+// 50k for normal, 1 for Optimism
+const numOptimizerRuns: number = 1
+// const numOptimizerRuns: number = 50000
 
 // You have to export an object to set up your config
 // This object can have the following optional entries:
@@ -52,11 +54,21 @@ export default {
       chainId: CHAIN_IDS.ARBITRUM.TESTNET_4.toNumber(),
       timeout: 480e3
     },
-    optimism: {
-      url: process.env.RPC_ENDPOINT_OPTIMISM,
+    optimism_mainnet: {
+      url: process.env.RPC_ENDPOINT_OPTIMISM_MAINNET,
       accounts: desiredAccounts,
-      gasPrice: 0,
-      chainId: CHAIN_IDS.OPTIMISM.HOP_TESTNET.toNumber(),
+      gasPrice: 15000000,
+      // gasPrice: 10000000000,
+      chainId: CHAIN_IDS.OPTIMISM.OPTIMISM_MAINNET.toNumber(),
+      timeout: 480e3,
+      ovm: true
+    },
+    optimism_testnet: {
+      url: process.env.RPC_ENDPOINT_OPTIMISM_TESTNET,
+      accounts: desiredAccounts,
+      gasPrice: 15000000,
+      // gasPrice: 10000000000,
+      chainId: CHAIN_IDS.OPTIMISM.OPTIMISM_TESTNET.toNumber(),
       timeout: 480e3,
       ovm: true
     },

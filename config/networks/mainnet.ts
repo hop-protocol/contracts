@@ -42,5 +42,21 @@ export const networkData: NetworkData = {
         ...DEFAULT_NETWORK_DATA.USDC
       }
     }
+  },
+  optimism: {
+    l2NetworkName: 'optimism',
+    l1ChainId,
+    l2ChainId: CHAIN_IDS.OPTIMISM.OPTIMISM_MAINNET.toString(),
+    l1MessengerAddress: '0x25ace71c97B33Cc4729CF772ae268934F7ab5fA1',
+    l2TokenBridgeAddress: 'TODO',
+    l2MessengerAddress: '0x4200000000000000000000000000000000000007',
+    l1TokenBridgeAddress: 'TODO',
+    tokens: {
+      USDC: {
+        l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.MAINNET.USDC,
+        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.OPTIMISM_MAINNET.USDC,
+        ...DEFAULT_NETWORK_DATA.USDC
+      }
+    }
   }
 }

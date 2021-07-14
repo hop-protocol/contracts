@@ -65,35 +65,35 @@ export const networkData: NetworkData = {
   optimism: {
     l2NetworkName: 'optimism',
     l1ChainId,
-    l2ChainId: CHAIN_IDS.OPTIMISM.HOP_TESTNET.toString(),
-    l1MessengerAddress: '0x78b88FD62FBdBf67b9C5C6528CF84E9d30BB28e0',
-    l2TokenBridgeAddress: '0x7B2ab06D22Cd230102215532928f60770376a2B3',
+    l2ChainId: CHAIN_IDS.OPTIMISM.OPTIMISM_TESTNET.toString(),
+    l1MessengerAddress: '0x4361d0F75A0186C05f971c566dC6bEa5957483fD',
+    l2TokenBridgeAddress: '0x3B88CAb5A989C8AF0931ed171dbF7427BEb2df9A',
     l2MessengerAddress: '0x4200000000000000000000000000000000000007',
-    l1TokenBridgeAddress: '0xC48528a44f2D961D179D69434645E54ac85732a1',
+    l1TokenBridgeAddress: '0x531984eEccac4c5e6ABb5439c02d5861110bdA43',
     tokens: {
       DAI: {
         l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.KOVAN.DAI,
-        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.OPTIMISM.KOVAN.DAI,
+        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.OPTIMISM_TESTNET.KOVAN.DAI,
         ...DEFAULT_NETWORK_DATA.DAI
       },
       sETH: {
         l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.KOVAN.sETH,
-        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.OPTIMISM.KOVAN.sETH,
+        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.OPTIMISM_TESTNET.KOVAN.sETH,
         ...DEFAULT_NETWORK_DATA.sETH
       },
       sBTC: {
         l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.KOVAN.sBTC,
-        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.OPTIMISM.KOVAN.sBTC,
+        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.OPTIMISM_TESTNET.KOVAN.sBTC,
         ...DEFAULT_NETWORK_DATA.sBTC
       },
       USDC: {
         l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.KOVAN.USDC,
-        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.OPTIMISM.KOVAN.USDC,
+        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.OPTIMISM_TESTNET.KOVAN.USDC,
         ...DEFAULT_NETWORK_DATA.USDC
       },
       WBTC: {
         l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.KOVAN.WBTC,
-        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.OPTIMISM.KOVAN.WBTC,
+        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.OPTIMISM_TESTNET.KOVAN.WBTC,
         ...DEFAULT_NETWORK_DATA.WBTC
       }
     }

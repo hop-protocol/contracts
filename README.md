@@ -204,6 +204,10 @@ npm run deploy
 
 ## Event Signatures
 
+### Accounting
+`Stake(address,uint256)`: 0xebedb8b3c678666e7f36970bc8f57abf6d8fa2e828c0da91ea5b75bf68ed101a
+`Unstake(address,uint256)`: 0x85082129d87b2fe11527cb1b3b7a520aeb5aa6913f88a3d8757fe40d1db02fdd
+
 ### Bridge
 `Withdrew(bytes32,address,uint256,bytes32)`: TODO
 `WithdrawalBonded(bytes32,uint256)`: 0x0c3d250c7831051e78aa6a56679e590374c7c424415ffe4aa474491def2fe705

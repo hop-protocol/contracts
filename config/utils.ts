@@ -130,9 +130,8 @@ export const getL2BridgeDefaults = (
 
 export const isChainIdOptimism = (chainId: BigNumber): boolean => {
   if (
-    chainId.eq(CHAIN_IDS.OPTIMISM.TESTNET_1) ||
-    chainId.eq(CHAIN_IDS.OPTIMISM.SYNTHETIX_DEMO) ||
-    chainId.eq(CHAIN_IDS.OPTIMISM.HOP_TESTNET)
+    chainId.eq(CHAIN_IDS.OPTIMISM.OPTIMISM_TESTNET) ||
+    chainId.eq(CHAIN_IDS.OPTIMISM.OPTIMISM_MAINNET)
   ) {
     return true
   }

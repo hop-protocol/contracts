@@ -27,7 +27,7 @@ describe('Accounting', () => {
     beforeAllSnapshotId = await takeSnapshot()
 
     l1ChainId = CHAIN_IDS.ETHEREUM.KOVAN
-    l2ChainId = CHAIN_IDS.OPTIMISM.TESTNET_1
+    l2ChainId = CHAIN_IDS.OPTIMISM.OPTIMISM_TESTNET
     _fixture = await fixture(l1ChainId, l2ChainId)
     await setUpDefaults(_fixture)
     ;({ bonder, user, governance, otherUser, mockAccounting } = _fixture)

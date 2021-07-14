@@ -8,9 +8,8 @@ export const CHAIN_IDS: any = {
     KOVAN: BigNumber.from('42')
   },
   OPTIMISM: {
-    SYNTHETIX_DEMO: BigNumber.from('10'),
-    TESTNET_1: BigNumber.from('420'),
-    HOP_TESTNET: BigNumber.from('69')
+    OPTIMISM_TESTNET: BigNumber.from('69'),
+    OPTIMISM_MAINNET: BigNumber.from('10'),
   },
   ARBITRUM: {
     TESTNET_2: BigNumber.from('152709604825713'),
@@ -189,7 +188,10 @@ export const L2_CANONICAL_TOKEN_ADDRESSES: any = {
     USDC: '0x3b0977b9e563F63F219019616BBD12cB1cdFF527',
     WBTC: '0x94490EF228D4aBD189694f86D1684D972431380b'
   },
-  OPTIMISM: {
+  OPTIMISM_MAINNET: {
+    USDC: 'TODO',
+  },
+  OPTIMISM_TESTNET: {
     KOVAN: {
       DAI: '0xFB6528eFbEe8B900CeBf2c4Cf709b1EF36D46A60',
       sETH: 'TODO',
