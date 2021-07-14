@@ -249,13 +249,16 @@ export const sendChainSpecificBridgeDeposit = async (
   let tx
   modifiedGasPrice = modifiedGasPrice || {}
   if (isChainIdOptimism(chainId)) {
+    const l2GasForTransfer = BigNumber.from('2000000')
+    const calldata = '0x'
     tx = await l1_tokenBridge
       .connect(sender)
       .deposit(
         l1_canonicalToken.address,
         l2_canonicalToken.address,
-        await sender.getAddress(),
         amount,
+        l2GasForTransfer,
+        calldata,
         modifiedGasPrice
       )
   } else if (isChainIdArbitrum(chainId)) {
