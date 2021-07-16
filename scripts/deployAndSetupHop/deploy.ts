@@ -23,6 +23,7 @@ async function main () {
   let tokenSymbol: string
   let bonderAddress: string
   let isL1BridgeDeploy: boolean
+  let l2CanonicalTokenIsEth: boolean
   let optimismDeploymentStep: number
 
   ;({
@@ -31,6 +32,7 @@ async function main () {
     tokenSymbol,
     bonderAddress,
     isL1BridgeDeploy,
+    l2CanonicalTokenIsEth,
     optimismDeploymentStep
   } = await getPrompts())
 
@@ -43,8 +45,9 @@ async function main () {
     scripts.push(`hardhat run ${basePath}/deployL1.ts --network ${l1NetworkName}`)
   }
 
-  setNetworkParams(l1NetworkName, l2NetworkName, tokenSymbol, bonderAddress)
+  setNetworkParams(l1NetworkName, l2NetworkName, tokenSymbol, bonderAddress, l2CanonicalTokenIsEth)
 
+  l2NetworkName = handleCustomL2NetworkName(l1NetworkName, l2NetworkName)
   const deployL2Cmd = `hardhat run ${basePath}/deployL2.ts --network ${l2NetworkName}`
   const setupL1Cmd = `hardhat run ${basePath}/setupL1.ts --network ${l1NetworkName}`
   const setupL2Cmd = `hardhat run ${basePath}/setupL2.ts --network ${l2NetworkName}`
@@ -104,6 +107,12 @@ async function getPrompts () {
     required: true,
     default: false
   }, {
+    name: 'l2CanonicalTokenIsEth',
+    description: 'Is the l2 canonical token a native asset',
+    type: 'boolean',
+    required: true,
+    default: false
+  }, {
     name: 'optimismDeploymentStep',
     description: 'Optimism Deployment Step (0 if not Optimism) (1, 2, or 3)',
     type: 'number',
@@ -116,6 +125,7 @@ async function getPrompts () {
   const tokenSymbol: string = (res.tokenSymbol as string).toLowerCase()
   const bonderAddress: string = (res.bonderAddress as string)
   const isL1BridgeDeploy: boolean = res.isL1BridgeDeploy as boolean
+  const l2CanonicalTokenIsEth: boolean = res.l2CanonicalTokenIsEth as boolean
   const optimismDeploymentStep: number = res.optimismDeploymentStep as number
 
   return {
@@ -124,6 +134,7 @@ async function getPrompts () {
     tokenSymbol,
     bonderAddress,
     isL1BridgeDeploy,
+    l2CanonicalTokenIsEth,
     optimismDeploymentStep
   }
 }
@@ -174,7 +185,8 @@ function setNetworkParams (
   l1NetworkName: string,
   l2NetworkName: string,
   tokenSymbol: string,
-  bonderAddress: string
+  bonderAddress: string,
+  l2CanonicalTokenIsEth: boolean
 ) {
   const { l1BridgeAddress } = readConfigFile()
 
@@ -221,11 +233,26 @@ function setNetworkParams (
     l2SwapLpTokenSymbol,
     liquidityProviderSendAmount: liquidityProviderSendAmount.toString(),
     liquidityProviderAmmAmount: liquidityProviderAmmAmount.toString(),
-    bonderAddress
+    bonderAddress,
+    l2CanonicalTokenIsEth
   }
 
   console.log('data:', data)
   updateConfigFile(data)
+}
+
+function handleCustomL2NetworkName(l1NetworkName: string, l2NetworkName: string) {
+  if (l2NetworkName === 'optimism') {
+    if (l1NetworkName === 'mainnet') {
+      return 'optimism_mainnet'
+    } else if (l1NetworkName === 'kovan') {
+      return l2NetworkName = 'optimism_testnet'
+    } else {
+      throw new Error('Unknown L1 network name')
+    }
+  }
+
+  return l2NetworkName
 }
 
 main()

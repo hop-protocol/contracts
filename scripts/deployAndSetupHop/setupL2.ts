@@ -34,6 +34,7 @@ interface Config {
   l2BridgeAddress: string
   l2SwapAddress: string
   liquidityProviderAmmAmount: BigNumber
+  l2CanonicalTokenIsEth: boolean
 }
 
 export async function setupL2 (config: Config) {
@@ -46,7 +47,8 @@ export async function setupL2 (config: Config) {
     l2HopBridgeTokenAddress,
     l2BridgeAddress,
     l2SwapAddress,
-    liquidityProviderAmmAmount
+    liquidityProviderAmmAmount,
+    l2CanonicalTokenIsEth
   } = config
 
   logger.log(`config:
@@ -56,7 +58,8 @@ export async function setupL2 (config: Config) {
             l2HopBridgeTokenAddress: ${l2HopBridgeTokenAddress}
             l2BridgeAddress: ${l2BridgeAddress}
             l2SwapAddress: ${l2SwapAddress}
-            liquidityProviderAmmAmount: ${liquidityProviderAmmAmount}`
+            liquidityProviderAmmAmount: ${liquidityProviderAmmAmount},
+            l2CanonicalTokenIsEth: ${l2CanonicalTokenIsEth}`
             )
 
   l1ChainId = BigNumber.from(l1ChainId)
@@ -122,11 +125,25 @@ export async function setupL2 (config: Config) {
     l2ChainId,
     l2_canonicalToken,
     l2_hopBridgeToken,
-    l2_bridge
+    l2_bridge,
+    l2CanonicalTokenIsEth
   )
 
   logger.log('L2 state verified')
+
   // Set up Amm
+  if (l2CanonicalTokenIsEth) {
+    const gasLimit = overrides.gasLimit
+    const depositTx = {
+      to: l2_canonicalToken.address,
+      value: liquidityProviderAmmAmount,
+      gasLimit
+    }
+    tx = await deployer.sendTransaction(depositTx)
+    await tx.wait()
+    await waitAfterTransaction()
+  }
+
   let approvalParams: any[] = [
     l2_swap.address,
     liquidityProviderAmmAmount
@@ -210,7 +227,8 @@ const waitForL2StateVerification = async (
   l2ChainId: BigNumber,
   l2_canonicalToken: Contract,
   l2_hopBridgeToken: Contract,
-  l2_bridge: Contract
+  l2_bridge: Contract,
+  l2CanonicalTokenIsEth: boolean
 ) => {
   let checkCount: number = 0
   let isStateSet: boolean = false
@@ -235,10 +253,16 @@ const waitForL2StateVerification = async (
     )
 
     // Validate that the Hop Bridge Token balance has been updated
-    const canonicalTokenBalance: BigNumber = await l2_canonicalToken.balanceOf(
-      await account.getAddress(),
-      overrides
-    )
+    let canonicalTokenBalance: BigNumber
+    if (l2CanonicalTokenIsEth) {
+      canonicalTokenBalance = await account.getBalance()
+    } else {
+      canonicalTokenBalance = await l2_canonicalToken.balanceOf(
+        await account.getAddress(),
+        overrides
+      )
+    }
+
     const hopBridgeTokenBalance: BigNumber = await l2_hopBridgeToken.balanceOf(
       await account.getAddress(),
       overrides
@@ -273,7 +297,8 @@ if (require.main === module) {
     l2HopBridgeTokenAddress,
     l2BridgeAddress,
     l2SwapAddress,
-    liquidityProviderAmmAmount
+    liquidityProviderAmmAmount,
+    l2CanonicalTokenIsEth
   } = readConfigFile()
   setupL2({
     l1ChainId,
@@ -282,7 +307,8 @@ if (require.main === module) {
     l2HopBridgeTokenAddress,
     l2BridgeAddress,
     l2SwapAddress,
-    liquidityProviderAmmAmount
+    liquidityProviderAmmAmount,
+    l2CanonicalTokenIsEth
   })
     .then(() => {
       process.exit(0)

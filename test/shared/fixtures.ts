@@ -214,6 +214,7 @@ export async function fixture (
     DEFAULT_SWAP_WITHDRAWAL_FEE
   )
 
+  // TODO: automate this
   const l2CanonicalTokenName = await l2_canonicalToken.symbol()
   const l2CanonicalTokenIsEth: boolean = l2CanonicalTokenName === 'WETH'
   const l2_ammWrapper = await L2_AmmWrapper.deploy(

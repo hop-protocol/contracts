@@ -40,7 +40,6 @@ interface Config {
   l1ChainId: BigNumber
   l2ChainId: BigNumber
   l1BridgeAddress: string
-  l1MessengerWrapperAddress: string
   l2CanonicalTokenAddress: string
   l2MessengerAddress: string
   l2HBridgeTokenName: string
@@ -49,6 +48,7 @@ interface Config {
   l2SwapLpTokenName: string
   l2SwapLpTokenSymbol: string
   bonderAddress: string
+  l2CanonicalTokenIsEth: boolean
 }
 
 export async function deployL2 (config: Config) {
@@ -58,7 +58,6 @@ export async function deployL2 (config: Config) {
     l1ChainId,
     l2ChainId,
     l1BridgeAddress,
-    l1MessengerWrapperAddress,
     l2CanonicalTokenAddress,
     l2MessengerAddress,
     l2HBridgeTokenName,
@@ -66,20 +65,22 @@ export async function deployL2 (config: Config) {
     l2HBridgeTokenDecimals,
     l2SwapLpTokenName,
     l2SwapLpTokenSymbol,
-    bonderAddress
+    bonderAddress,
+    l2CanonicalTokenIsEth
   } = config
 
   logger.log(`config:
             l1ChainId: ${l1ChainId}
             l2ChainId: ${l2ChainId}
             l1BridgeAddress: ${l1BridgeAddress}
-            l1MessengerWrapperAddress: ${l1MessengerWrapperAddress}
             l2CanonicalTokenAddress: ${l2CanonicalTokenAddress}
             l2MessengerAddress: ${l2MessengerAddress}
             l2HBridgeTokenName: ${l2HBridgeTokenName}
             l2HBridgeTokenSymbol: ${l2HBridgeTokenSymbol}
             l2HBridgeTokenDecimals: ${l2HBridgeTokenDecimals}
-            bonderAddress: ${bonderAddress}`)
+            bonderAddress: ${bonderAddress},
+            l2CanonicalTokenIsEth: ${l2CanonicalTokenIsEth}`
+            )
 
   l1ChainId = BigNumber.from(l1ChainId)
   l2ChainId = BigNumber.from(l2ChainId)
@@ -185,7 +186,8 @@ export async function deployL2 (config: Config) {
     l2_swap,
     l2_ammWrapper,
     l2MessengerAddress,
-    l2MessengerProxyAddress
+    l2MessengerProxyAddress,
+    l2CanonicalTokenIsEth
   ))
 
   logger.log('deploying network specific contracts')
@@ -338,7 +340,8 @@ const deployBridge = async (
   l2_swap: Contract,
   l2_ammWrapper: Contract,
   l2MessengerAddress: string,
-  l2MessengerProxyAddress: string
+  l2MessengerProxyAddress: string,
+  l2CanonicalTokenIsEth: boolean
 ) => {
   // NOTE: Adding more CHAIN_IDs here will push the OVM deployment over the contract size limit
   //       If additional CHAIN_IDs must be added, do so after the deployment.
@@ -357,8 +360,6 @@ const deployBridge = async (
   l2_bridge = await L2_Bridge.connect(deployer).deploy(...l2BridgeDeploymentParams)
   await waitAfterTransaction(l2_bridge, ethers)
 
-  const l2CanonicalTokenName = await l2_canonicalToken.symbol(overrides)
-  const l2CanonicalTokenIsEth: boolean = l2CanonicalTokenName === 'WETH'
   l2_ammWrapper = await L2_AmmWrapper.connect(deployer).deploy(
     l2_bridge.address,
     l2_canonicalToken.address,
@@ -379,7 +380,6 @@ if (require.main === module) {
     l1ChainId,
     l2ChainId,
     l1BridgeAddress,
-    l1MessengerWrapperAddress,
     l2CanonicalTokenAddress,
     l2MessengerAddress,
     l2HBridgeTokenName,
@@ -387,13 +387,13 @@ if (require.main === module) {
     l2HBridgeTokenDecimals,
     l2SwapLpTokenName,
     l2SwapLpTokenSymbol,
-    bonderAddress
+    bonderAddress,
+    l2CanonicalTokenIsEth
   } = readConfigFile()
   deployL2({
     l1ChainId,
     l2ChainId,
     l1BridgeAddress,
-    l1MessengerWrapperAddress,
     l2CanonicalTokenAddress,
     l2MessengerAddress,
     l2HBridgeTokenName,
@@ -401,7 +401,8 @@ if (require.main === module) {
     l2HBridgeTokenDecimals,
     l2SwapLpTokenName,
     l2SwapLpTokenSymbol,
-    bonderAddress
+    bonderAddress,
+    l2CanonicalTokenIsEth
   })
     .then(() => {
       process.exit(0)
