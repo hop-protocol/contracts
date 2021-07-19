@@ -6,6 +6,13 @@ export const DEFAULT_NETWORK_DATA = {
     l2SwapLpTokenName: 'Hop DAI LP Token',
     l2SwapLpTokenSymbol: 'HOP-LP-DAI'
   },
+  USDT: {
+    l2HBridgeTokenName: 'Tether USD Hop Token',
+    l2HBridgeTokenSymbol: 'hUSDT',
+    l2HBridgeTokenDecimals: 6,
+    l2SwapLpTokenName: 'Hop USDT LP Token',
+    l2SwapLpTokenSymbol: 'HOP-LP-USDT'
+  },
   sETH: {
     l2HBridgeTokenName: 'Synth sETH Hop Token',
     l2HBridgeTokenSymbol: 'hsETH',
