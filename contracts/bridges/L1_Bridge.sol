@@ -24,7 +24,7 @@ abstract contract L1_Bridge is Bridge {
 
     /* ========== State ========== */
 
-    mapping(bytes32 => uint256) public transferRootCommittedAt;
+    mapping(uint256 => mapping(bytes32 => uint256)) public transferRootCommittedAt;
     mapping(bytes32 => TransferBond) public transferBonds;
     mapping(uint256 => mapping(address => uint256)) public timeSlotToAmountBonded;
     mapping(uint256 => uint256) public chainBalance;
@@ -176,7 +176,7 @@ abstract contract L1_Bridge is Bridge {
         requirePositiveBalance
     {
         bytes32 transferRootId = getTransferRootId(rootHash, totalAmount);
-        require(transferRootCommittedAt[transferRootId] == 0, "L1_BRG: TransferRoot has already been confirmed");
+        require(transferRootCommittedAt[destinationChainId][transferRootId] == 0, "L1_BRG: TransferRoot has already been confirmed");
         require(transferBonds[transferRootId].createdAt == 0, "L1_BRG: TransferRoot has already been bonded");
 
         uint256 currentTimeSlot = getTimeSlot(block.timestamp);
@@ -217,9 +217,9 @@ abstract contract L1_Bridge is Bridge {
         onlyL2Bridge(originChainId)
     {
         bytes32 transferRootId = getTransferRootId(rootHash, totalAmount);
-        require(transferRootCommittedAt[transferRootId] == 0, "L1_BRG: TransferRoot already confirmed");
+        require(transferRootCommittedAt[destinationChainId][transferRootId] == 0, "L1_BRG: TransferRoot already confirmed");
         require(rootCommittedAt > 0, "L1_BRG: rootCommittedAt must be greater than 0");
-        transferRootCommittedAt[transferRootId] = rootCommittedAt;
+        transferRootCommittedAt[destinationChainId][transferRootId] = rootCommittedAt;
         chainBalance[originChainId] = chainBalance[originChainId].sub(totalAmount, "L1_BRG: Amount exceeds chainBalance. This indicates a layer-2 failure.");
 
         // If the TransferRoot was never bonded, distribute the TransferRoot.
@@ -265,11 +265,11 @@ abstract contract L1_Bridge is Bridge {
      * @param rootHash The Merkle root of the TransferRoot Merkle tree
      * @param originalAmount The total amount bonded for this TransferRoot
      */
-    function challengeTransferBond(bytes32 rootHash, uint256 originalAmount) external payable {
+    function challengeTransferBond(bytes32 rootHash, uint256 originalAmount, uint256 destinationChainId) external payable {
         bytes32 transferRootId = getTransferRootId(rootHash, originalAmount);
         TransferBond storage transferBond = transferBonds[transferRootId];
 
-        require(transferRootCommittedAt[transferRootId] == 0, "L1_BRG: TransferRoot has already been confirmed");
+        require(transferRootCommittedAt[destinationChainId][transferRootId] == 0, "L1_BRG: TransferRoot has already been confirmed");
         require(transferBond.createdAt != 0, "L1_BRG: TransferRoot has not been bonded");
         uint256 challengePeriodEnd = transferBond.createdAt.add(challengePeriod);
         require(challengePeriodEnd >= block.timestamp, "L1_BRG: TransferRoot cannot be challenged after challenge period");
@@ -298,7 +298,7 @@ abstract contract L1_Bridge is Bridge {
      * @param rootHash The Merkle root of the TransferRoot Merkle tree
      * @param originalAmount The total amount originally bonded for this TransferRoot
      */
-    function resolveChallenge(bytes32 rootHash, uint256 originalAmount) external {
+    function resolveChallenge(bytes32 rootHash, uint256 originalAmount, uint256 destinationChainId) external {
         bytes32 transferRootId = getTransferRootId(rootHash, originalAmount);
         TransferBond storage transferBond = transferBonds[transferRootId];
 
@@ -309,10 +309,10 @@ abstract contract L1_Bridge is Bridge {
 
         uint256 challengeStakeAmount = getChallengeAmountForTransferAmount(originalAmount);
 
-        if (transferRootCommittedAt[transferRootId] > 0) {
+        if (transferRootCommittedAt[destinationChainId][transferRootId] > 0) {
             // Invalid challenge
 
-            if (transferBond.createdAt > transferRootCommittedAt[transferRootId].add(minTransferRootBondDelay)) {
+            if (transferBond.createdAt > transferRootCommittedAt[destinationChainId][transferRootId].add(minTransferRootBondDelay)) {
                 // Credit the bonder back with the bond amount plus the challenger's stake
                 _addCredit(transferBond.bonder, getBondForTransferAmount(originalAmount).add(challengeStakeAmount));
             } else {
