@@ -143,7 +143,7 @@ export async function deployL2 (config: Config) {
   if (isChainIdPolygon(l2ChainId)) {
     logger.log('deploying Polygon messenger proxy')
     const fxChild: string = getPolygonFxChildAddress(l1ChainId)
-    l2_messengerProxy = await L2_MessengerProxy.deploy(fxChild)
+    l2_messengerProxy = await L2_MessengerProxy.deploy(fxChild, overrides)
     await waitAfterTransaction(l2_messengerProxy, ethers)
 
     l2MessengerAddress = l2_messengerProxy.address
@@ -154,7 +154,8 @@ export async function deployL2 (config: Config) {
   l2_hopBridgeToken = await L2_HopBridgeToken.deploy(
     l2HBridgeTokenName,
     l2HBridgeTokenSymbol,
-    l2HBridgeTokenDecimals
+    l2HBridgeTokenDecimals,
+    overrides
   )
   await waitAfterTransaction(l2_hopBridgeToken, ethers)
 
@@ -267,7 +268,7 @@ const deployAmm = async (
 
   // Deploy AMM contracts
   const L2_SwapContractFactory: ContractFactory = await deployL2SwapLibs(deployer, ethers)
-  const l2_swap = await L2_SwapContractFactory.deploy()
+  const l2_swap = await L2_SwapContractFactory.deploy(overrides)
   await waitAfterTransaction(l2_swap, ethers)
 
   let initializeParams: any[] = [
@@ -299,7 +300,7 @@ const deployL2SwapLibs = async (
   ethers: any
 ) => {
   const L2_MathUtils: ContractFactory = await ethers.getContractFactory('MathUtils', { signer })
-  const l2_mathUtils = await L2_MathUtils.deploy()
+  const l2_mathUtils = await L2_MathUtils.deploy(overrides)
   await waitAfterTransaction(l2_mathUtils, ethers)
 
   const L2_SwapUtils = await ethers.getContractFactory(
@@ -311,7 +312,7 @@ const deployL2SwapLibs = async (
     }
   )
 
-  const l2_swapUtils = await L2_SwapUtils.deploy()
+  const l2_swapUtils = await L2_SwapUtils.deploy(overrides)
   await waitAfterTransaction(l2_swapUtils, ethers)
 
   return await ethers.getContractFactory(
@@ -357,7 +358,7 @@ const deployBridge = async (
     l1ChainId
   )
 
-  l2_bridge = await L2_Bridge.connect(deployer).deploy(...l2BridgeDeploymentParams)
+  l2_bridge = await L2_Bridge.connect(deployer).deploy(...l2BridgeDeploymentParams, overrides)
   await waitAfterTransaction(l2_bridge, ethers)
 
   l2_ammWrapper = await L2_AmmWrapper.connect(deployer).deploy(
@@ -365,7 +366,8 @@ const deployBridge = async (
     l2_canonicalToken.address,
     l2CanonicalTokenIsEth,
     l2_hopBridgeToken.address,
-    l2_swap.address
+    l2_swap.address,
+    overrides
   )
   await waitAfterTransaction(l2_ammWrapper, ethers)
 

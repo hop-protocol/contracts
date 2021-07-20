@@ -88,7 +88,8 @@ export const DEFAULT_TIME_TO_WAIT: number = 0
 export const TIMESTAMP_VARIANCE: number = 1000000
 
 export const DEFAULT_ETHERS_OVERRIDES = {
-  gasLimit: 2500000
+  gasLimit: 2500000,
+  gasPrice: 10000000000
 }
 
 export const C_TO_H_SWAP_INDICES: string[] = ['0', '1']
