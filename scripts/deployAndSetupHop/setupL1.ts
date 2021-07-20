@@ -174,6 +174,10 @@ export async function setupL1 (config: Config) {
     l1_messenger = L1_MessengerWrapper.attach(l1_messenger.address)
     l2_messengerProxy = L2_MessengerProxy.attach(l2MessengerProxyAddress)
 
+    logger.log(
+      `IMPORTANT: this tx will fail if it is being called a second time (i.e. restarting a deployment halfway through).`,
+      `The value can only be set once.`
+    )
     await updatePolygonState(l1ChainId, l1_messengerWrapper, l2_messengerProxy)
   }
 
@@ -336,8 +340,8 @@ export async function setupL1 (config: Config) {
 
   logger.log('sending token to L2')
   logger.log(
-    `IF THIS TRANSACTION FAILS: it may be because you are using a patched OZ. Reinstall node modules & redeploy the L1 bridge.`,
-    `A failed transaction here will not show any internal calls and use very little gas.`
+    `IMPORTANT: if this transaction fails, it may be because you are using a patched OZ. Reinstall node modules &`,
+    `redeploy the L1 bridge. A failed transaction here will not show any internal calls and use very little gas.`
   )
   modifiedGasPrice = await getModifiedGasPrice(ethers, l1ChainId)
   tx = await l1_bridge
@@ -382,7 +386,7 @@ const updatePolygonState = async (
   }
 
   const transaction = await l2EthersWallet.sendTransaction(setFxRootTunnelTransaction)
-  transaction.wait()
+  return transaction.wait()
 }
 
 if (require.main === module) {

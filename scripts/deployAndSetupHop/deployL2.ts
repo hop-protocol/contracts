@@ -167,7 +167,8 @@ export async function deployL2 (config: Config) {
     l2_canonicalToken,
     l2_hopBridgeToken,
     l2SwapLpTokenName,
-    l2SwapLpTokenSymbol
+    l2SwapLpTokenSymbol,
+    logger
   ))
 
   logger.log('deploying L2 bridge and L2 amm wrapper')
@@ -254,7 +255,8 @@ const deployAmm = async (
   l2_canonicalToken: Contract,
   l2_hopBridgeToken: Contract,
   l2SwapLpTokenName: string,
-  l2SwapLpTokenSymbol: string
+  l2SwapLpTokenSymbol: string,
+  logger: any
 ) => {
 
   let decimalParams: any[] = []
@@ -267,7 +269,8 @@ const deployAmm = async (
   const l2HopBridgeTokenDecimals = await l2_hopBridgeToken.decimals(...decimalParams)
 
   // Deploy AMM contracts
-  const L2_SwapContractFactory: ContractFactory = await deployL2SwapLibs(deployer, ethers)
+  logger.log('Deploying L2 Swap Libs')
+  const L2_SwapContractFactory: ContractFactory = await deployL2SwapLibs(deployer, ethers, logger)
   const l2_swap = await L2_SwapContractFactory.deploy(overrides)
   await waitAfterTransaction(l2_swap, ethers)
 
@@ -286,6 +289,7 @@ const deployAmm = async (
     initializeParams.push(overrides)
   }
 
+  logger.log('Initializing Swap')
   const tx = await l2_swap.initialize(...initializeParams)
   await tx.wait()
   await waitAfterTransaction()
@@ -297,9 +301,11 @@ const deployAmm = async (
 
 const deployL2SwapLibs = async (
   signer: Signer,
-  ethers: any
+  ethers: any,
+  logger: any
 ) => {
   const L2_MathUtils: ContractFactory = await ethers.getContractFactory('MathUtils', { signer })
+  logger.log('Deploying L2 Math Utils')
   const l2_mathUtils = await L2_MathUtils.deploy(overrides)
   await waitAfterTransaction(l2_mathUtils, ethers)
 
@@ -312,6 +318,8 @@ const deployL2SwapLibs = async (
     }
   )
 
+  logger.log('Deploying L2 Swap Utils')
+  logger.log('IMPORTANT: This transaction needs 4.5 million gas to be deployed on Polygon')
   const l2_swapUtils = await L2_SwapUtils.deploy(overrides)
   await waitAfterTransaction(l2_swapUtils, ethers)
 
