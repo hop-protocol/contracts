@@ -18,8 +18,8 @@ const desiredAccounts: string[] = [
 
 const isOptimizerEnabled: boolean = true
 // 50k for normal, 1 for Optimism
-const numOptimizerRuns: number = 1
-// const numOptimizerRuns: number = 50000
+// const numOptimizerRuns: number = 1
+const numOptimizerRuns: number = 50000
 
 // You have to export an object to set up your config
 // This object can have the following optional entries:

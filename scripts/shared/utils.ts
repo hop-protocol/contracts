@@ -433,6 +433,10 @@ export const getTokenSymbolLetterCase = (tokenSymbol: string): string => {
   else if (tokenSymbol.toLowerCase() === 'sbtc') return 'sBTC'
   else if (tokenSymbol.toLowerCase() === 'usdc') return 'USDC'
   else if (tokenSymbol.toLowerCase() === 'wbtc') return 'WBTC'
+  else if (tokenSymbol.toLowerCase() === 'usdt') return 'USDT'
+  else {
+    throw new Error ('Invalid token symbol getter')
+  }
 }
 
 export const getModifiedGasPrice = async (ethers, l1ChainId: BigNumber) => {
@@ -458,13 +462,19 @@ export const getLpSendAmount = (
   let amount: BigNumber
 
   if (l1NetworkName === 'mainnet') {
-    if (tokenSymbol.toLowerCase() === COMMON_SYMBOLS.USDC.toLowerCase()) {
+    if (
+      tokenSymbol.toLowerCase() === COMMON_SYMBOLS.USDC.toLowerCase() ||
+      tokenSymbol.toLowerCase() === COMMON_SYMBOLS.USDT.toLowerCase()
+    ) {
       amount = ethersUtils.parseUnits('2', 6)
     } else {
       amount = ethersUtils.parseUnits('2', 18)
     }
   } else {
-    if (tokenSymbol.toLowerCase() === COMMON_SYMBOLS.USDC.toLowerCase()) {
+    if (
+      tokenSymbol.toLowerCase() === COMMON_SYMBOLS.USDC.toLowerCase(),
+      tokenSymbol.toLowerCase() === COMMON_SYMBOLS.USDT.toLowerCase()
+    ) {
       amount = ethersUtils.parseUnits('1000', 6)
     } else {
       amount = LIQUIDITY_PROVIDER_INITIAL_BALANCE

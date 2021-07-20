@@ -193,6 +193,7 @@ export const L2_CANONICAL_TOKEN_ADDRESSES: any = {
   },
   OPTIMISM_MAINNET: {
     USDC: 'TODO',
+    USDT: 'TODO'
   },
   OPTIMISM_TESTNET: {
     KOVAN: {
@@ -213,6 +214,7 @@ export const L2_CANONICAL_TOKEN_ADDRESSES: any = {
 
 export const COMMON_SYMBOLS: { [key: string]: string } = {
   DAI: 'DAI',
+  USDT: 'USDT',
   sETH: 'sETH',
   sBTC: 'sBTC',
   USDC: 'USDC',
