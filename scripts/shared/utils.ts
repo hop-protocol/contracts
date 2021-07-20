@@ -454,32 +454,3 @@ export const getModifiedGasPrice = async (ethers, l1ChainId: BigNumber) => {
     gasPrice
   }
 }
-
-export const getLpSendAmount = (
-  l1NetworkName: string,
-  tokenSymbol: string
-): BigNumber => {
-  let amount: BigNumber
-
-  if (l1NetworkName === 'mainnet') {
-    if (
-      tokenSymbol.toLowerCase() === COMMON_SYMBOLS.USDC.toLowerCase() ||
-      tokenSymbol.toLowerCase() === COMMON_SYMBOLS.USDT.toLowerCase()
-    ) {
-      amount = ethersUtils.parseUnits('2', 6)
-    } else {
-      amount = ethersUtils.parseUnits('2', 18)
-    }
-  } else {
-    if (
-      tokenSymbol.toLowerCase() === COMMON_SYMBOLS.USDC.toLowerCase(),
-      tokenSymbol.toLowerCase() === COMMON_SYMBOLS.USDT.toLowerCase()
-    ) {
-      amount = ethersUtils.parseUnits('1000', 6)
-    } else {
-      amount = LIQUIDITY_PROVIDER_INITIAL_BALANCE
-    }
-  }
-
-  return amount
-}

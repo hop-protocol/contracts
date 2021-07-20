@@ -25,4 +25,5 @@ type TokenDetails = {
   l2HBridgeTokenDecimals: number
   l2SwapLpTokenName: string
   l2SwapLpTokenSymbol: string
+  liquidityProviderSendAmount: string
 }
