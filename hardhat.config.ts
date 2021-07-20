@@ -191,6 +191,9 @@ export default {
   },
   mocha: {
     timeout: 40000
+  },
+  etherscan: {
+    apiKey: process.env.ETHERSCAN_API_KEY
   }
   // abiExporter: {
   //   path: './data/abi',
