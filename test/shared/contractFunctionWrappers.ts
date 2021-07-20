@@ -568,6 +568,7 @@ export const executeL1BridgeChallengeTransferBond = async (
   l1_bridge: Contract,
   l2_bridge: Contract,
   amount: BigNumber,
+  chainId: BigNumber,
   bonder: Signer,
   challenger: Signer,
   transfer: Transfer,
@@ -604,7 +605,7 @@ export const executeL1BridgeChallengeTransferBond = async (
   await l1_canonicalToken
     .connect(challenger)
     .approve(l1_bridge.address, challengeAmount)
-  await l1_bridge.connect(challenger).challengeTransferBond(rootHash, amount)
+  await l1_bridge.connect(challenger).challengeTransferBond(rootHash, amount, chainId)
 
   // Validate state after transaction
   await expectBalanceOf(
@@ -652,7 +653,8 @@ export const executeL1BridgeResolveChallenge = async (
   transfer: Transfer,
   shouldResolveSuccessfully: boolean,
   didBonderWaitMinTransferRootTime: boolean = true,
-  customTransferNonce: string | null = null
+  customTransferNonce: string | null = null,
+  customChainId: BigNumber | null = null
 ) => {
   let transferNonce: string
   if (customTransferNonce) {
@@ -679,8 +681,11 @@ export const executeL1BridgeResolveChallenge = async (
     await challenger.getAddress()
   )
 
+  // Add a custom chainId for non-happy path tests
+  const chainIdToUse = customChainId || transfer.chainId
+
   // Perform transaction
-  await l1_bridge.resolveChallenge(rootHash, amount)
+  await l1_bridge.resolveChallenge(rootHash, amount, chainIdToUse)
 
   // Validate state after transaction
   const transferBond: number = await l1_bridge.transferBonds(transferRootId)

@@ -386,6 +386,7 @@ describe('L1_Bridge', () => {
       transfer.amount
     )
     const transferRootCommittedAt: BigNumber = await l1_bridge.transferRootCommittedAt(
+      transfer.chainId,
       transferRootId
     )
     const transferBondByTransferRootId = await l1_bridge.transferBonds(
@@ -462,6 +463,7 @@ describe('L1_Bridge', () => {
       transfer.amount
     )
     const transferRootCommittedAt: BigNumber = await l1_bridge.transferRootCommittedAt(
+      transfer.chainId,
       transferRootId
     )
     const transferBondByTransferRootId = await l1_bridge.transferBonds(
@@ -1017,6 +1019,7 @@ describe('L1_Bridge', () => {
         transfer.amount
       )
       const transferRootCommittedAt: BigNumber = await l1_bridge.transferRootCommittedAt(
+        transfer.chainId,
         transferRootId
       )
       const transferRoot = await l1_bridge.getTransferRoot(
@@ -1086,6 +1089,7 @@ describe('L1_Bridge', () => {
         l2Transfer.amount
       )
       const transferRootCommittedAt: BigNumber = await l1_bridge.transferRootCommittedAt(
+        l2Transfer.chainId,
         transferRootId
       )
 
@@ -1154,6 +1158,7 @@ describe('L1_Bridge', () => {
         l1_bridge,
         l2_bridge,
         transfer.amount,
+        transfer.chainId,
         bonder,
         challenger,
         transfer
@@ -1208,6 +1213,7 @@ describe('L1_Bridge', () => {
         l1_bridge,
         l2_bridge,
         l2Transfer.amount,
+        l2Transfer.chainId,
         bonder,
         challenger,
         l2Transfer
@@ -1259,6 +1265,7 @@ describe('L1_Bridge', () => {
         l1_bridge,
         l2_bridge,
         transfer.amount,
+        transfer.chainId,
         bonder,
         challenger,
         transfer
@@ -1330,6 +1337,7 @@ describe('L1_Bridge', () => {
         l1_bridge,
         l2_bridge,
         transfer.amount,
+        transfer.chainId,
         bonder,
         challenger,
         transfer
@@ -1395,6 +1403,7 @@ describe('L1_Bridge', () => {
         l1_bridge,
         l2_bridge,
         transfer.amount,
+        transfer.chainId,
         bonder,
         challenger,
         transfer
@@ -1466,6 +1475,7 @@ describe('L1_Bridge', () => {
         l1_bridge,
         l2_bridge,
         l2Transfer.amount,
+        l2Transfer.chainId,
         bonder,
         challenger,
         l2Transfer
@@ -1542,6 +1552,7 @@ describe('L1_Bridge', () => {
         l1_bridge,
         l2_bridge,
         l2Transfer.amount,
+        l2Transfer.chainId,
         bonder,
         challenger,
         l2Transfer
@@ -1612,6 +1623,7 @@ describe('L1_Bridge', () => {
         l1_bridge,
         l2_bridge,
         l2Transfer.amount,
+        l2Transfer.chainId,
         bonder,
         challenger,
         l2Transfer
@@ -2390,6 +2402,7 @@ describe('L1_Bridge', () => {
         transfer.chainId
       )
       const mimicTransferRootCommittedAt: BigNumber = await l1_bridge.transferRootCommittedAt(
+        mimicDestinationChainId,
         transferId
       )
 
@@ -2552,6 +2565,7 @@ describe('L1_Bridge', () => {
           l1_bridge,
           l2_bridge,
           transfer.amount,
+          transfer.chainId,
           bonder,
           challenger,
           transfer
@@ -2614,6 +2628,7 @@ describe('L1_Bridge', () => {
           l1_bridge,
           l2_bridge,
           transfer.amount,
+          transfer.chainId,
           bonder,
           challenger,
           transfer
@@ -2666,6 +2681,7 @@ describe('L1_Bridge', () => {
         l1_bridge,
         l2_bridge,
         transfer.amount,
+        transfer.chainId,
         bonder,
         challenger,
         transfer
@@ -2677,6 +2693,7 @@ describe('L1_Bridge', () => {
           l1_bridge,
           l2_bridge,
           transfer.amount,
+          transfer.chainId,
           bonder,
           challenger,
           transfer
@@ -2730,7 +2747,7 @@ describe('L1_Bridge', () => {
       await expect(
         l1_bridge
           .connect(challenger)
-          .challengeTransferBond(transferId, transfer.amount)
+          .challengeTransferBond(transferId, transfer.amount, transfer.chainId)
       ).to.be.revertedWith(expectedErrorMsg)
     })
 
@@ -2787,6 +2804,7 @@ describe('L1_Bridge', () => {
           l1_bridge,
           l2_bridge,
           transfer.amount,
+          transfer.chainId,
           bonder,
           challenger,
           transfer
@@ -2845,7 +2863,7 @@ describe('L1_Bridge', () => {
       await expect(
         l1_bridge
           .connect(challenger)
-          .challengeTransferBond(ARBITRARY_ROOT_HASH, transfer.amount)
+          .challengeTransferBond(ARBITRARY_ROOT_HASH, transfer.amount, transfer.chainId)
       ).to.be.revertedWith(expectedErrorMsg)
     })
 
@@ -2897,6 +2915,7 @@ describe('L1_Bridge', () => {
           l1_bridge,
           l2_bridge,
           incorrectAmount,
+          transfer.chainId,
           bonder,
           challenger,
           transfer
@@ -3008,6 +3027,7 @@ describe('L1_Bridge', () => {
         l1_bridge,
         l2_bridge,
         transfer.amount,
+        transfer.chainId,
         bonder,
         challenger,
         transfer
@@ -3078,6 +3098,7 @@ describe('L1_Bridge', () => {
         l1_bridge,
         l2_bridge,
         transfer.amount,
+        transfer.chainId,
         bonder,
         challenger,
         transfer
@@ -3089,7 +3110,7 @@ describe('L1_Bridge', () => {
       await l1_messenger.relayNextMessage()
 
       await expect(
-        l1_bridge.resolveChallenge(ARBITRARY_ROOT_HASH, transfer.amount)
+        l1_bridge.resolveChallenge(ARBITRARY_ROOT_HASH, transfer.amount, transfer.chainId)
       ).to.be.revertedWith(expectedErrorMsg)
     })
 
@@ -3138,6 +3159,7 @@ describe('L1_Bridge', () => {
         l1_bridge,
         l2_bridge,
         transfer.amount,
+        transfer.chainId,
         bonder,
         challenger,
         transfer
@@ -3223,6 +3245,7 @@ describe('L1_Bridge', () => {
         l1_bridge,
         l2_bridge,
         transfer.amount,
+        transfer.chainId,
         bonder,
         challenger,
         transfer
@@ -3295,6 +3318,7 @@ describe('L1_Bridge', () => {
         l1_bridge,
         l2_bridge,
         transfer.amount,
+        transfer.chainId,
         bonder,
         challenger,
         transfer,
@@ -3358,6 +3382,7 @@ describe('L1_Bridge', () => {
         l1_bridge,
         l2_bridge,
         transfer.amount,
+        transfer.chainId,
         bonder,
         challenger,
         transfer,
@@ -3808,14 +3833,18 @@ describe('L1_Bridge', () => {
       await l1_canonicalToken
         .connect(challenger)
         .approve(l1_bridge.address, challengeAmount)
-      await l1_bridge.connect(challenger).challengeTransferBond(rootHash, customTransfer.amount)
+      await l1_bridge.connect(challenger).challengeTransferBond(
+        rootHash,
+        customTransfer.amount,
+        customTransfer.chainId
+      )
 
       // Message is relayed and proves the bonder wrong
       const timeToWait: number = 11 * SECONDS_IN_A_DAY
       await increaseTime(timeToWait)
       await l1_messenger.relayNextMessage()
 
-      await l1_bridge.resolveChallenge(rootHash, customTransfer.amount)
+      await l1_bridge.resolveChallenge(rootHash, customTransfer.amount, transfer.chainId)
 
       // DEAD address should have tokens because of successful challenge
       const balanceAfter: BigNumber = await l1_canonicalToken.balanceOf(
@@ -3868,14 +3897,18 @@ describe('L1_Bridge', () => {
       await l1_canonicalToken
         .connect(challenger)
         .approve(l1_bridge.address, challengeAmount)
-      await l1_bridge.connect(challenger).challengeTransferBond(rootHash, customTransfer.amount)
+      await l1_bridge.connect(challenger).challengeTransferBond(
+        rootHash,
+        customTransfer.amount,
+        customTransfer.chainId
+      )
 
       // Message is relayed and proves the bonder wrong
       const timeToWait: number = 11 * SECONDS_IN_A_DAY
       await increaseTime(timeToWait)
       await l1_messenger.relayNextMessage()
 
-      await l1_bridge.resolveChallenge(rootHash, customTransfer.amount)
+      await l1_bridge.resolveChallenge(rootHash, customTransfer.amount, transfer.chainId)
 
       // DEAD address should have tokens because of successful challenge
       const balanceAfter: BigNumber = await l1_canonicalToken.balanceOf(
@@ -3968,6 +4001,88 @@ describe('L1_Bridge', () => {
       )
       const isTransferIdSpent = await l1_bridge.isTransferIdSpent(transferId)
       expect(isTransferIdSpent).to.eq(true)
+    })
+
+    it('Should send a transaction from L2 to L1, bond withdrawal on L1 with wrong chainId, challenge the transfer bond, and resolve successfully', async () => {
+      await executeL1BridgeSendToL2(
+        l1_canonicalToken,
+        l1_bridge,
+        l2_hopBridgeToken,
+        l2_canonicalToken,
+        l2_messenger,
+        l2_swap,
+        transfer.sender,
+        transfer.recipient,
+        relayer,
+        transfer.amount,
+        transfer.amountOutMin,
+        transfer.deadline,
+        defaultRelayerFee,
+        l2ChainId
+      )
+
+      await executeL2BridgeSend(l2_hopBridgeToken, l2_bridge, transfer)
+
+      await executeBridgeBondWithdrawal(
+        l1_canonicalToken,
+        l1_bridge,
+        l2_bridge,
+        transfer,
+        bonder
+      )
+
+      await executeL2BridgeCommitTransfers(l2_bridge, [transfer], bonder)
+
+      const transferNonce = await getTransferNonceFromEvent(l2_bridge)
+      const transferId: Buffer = await transfer.getTransferId(transferNonce)
+      const { rootHash } = getRootHashFromTransferId(transferId)
+
+      // Perform transaction
+      const incorrectChainId: BigNumber = l22ChainId
+      await l1_bridge
+        .connect(bonder)
+        .bondTransferRoot(rootHash, incorrectChainId, transfer.amount)
+
+      const transferRootId: string = await l1_bridge.getTransferRootId(
+        rootHash,
+        transfer.amount
+      )
+      let bond = await l1_bridge.transferBonds(transferRootId)
+      await executeL1BridgeChallengeTransferBond(
+        l1_canonicalToken,
+        l1_bridge,
+        l2_bridge,
+        transfer.amount,
+        incorrectChainId,
+        bonder,
+        challenger,
+        transfer
+      )
+
+      bond = await l1_bridge.transferBonds(transferRootId)
+
+      const timeToWait: number = 10 * SECONDS_IN_A_DAY
+      await increaseTime(timeToWait)
+      await l1_messenger.relayNextMessage()
+
+      const shouldResolveSuccessfully: boolean = true
+      const didBonderWaitMinTransferRootTime: boolean = false
+      const customTransferNonce = null
+      const customChainId = incorrectChainId
+
+      await executeL1BridgeResolveChallenge(
+        l1_canonicalToken,
+        l1_bridge,
+        l2_bridge,
+        transfer.amount,
+        bonder,
+        challenger,
+        transfer,
+        shouldResolveSuccessfully,
+        didBonderWaitMinTransferRootTime,
+        customTransferNonce,
+        customChainId
+      )
     })
 
     it('Should send a transaction from L1 to L2, bond it, and settle the bonded withdrawal, then call it again with another bonder (but not update state)', async () => {

@@ -12,13 +12,8 @@ describe('Utils test', () => {
 
     let count = BigNumber.from('0')
     for (let i = 0; i < 500; i++) {
-      console.log(i)
-      const transferNonce = utils.getTransferNonce(count, chainId)
-      console.log(transferNonce)
-      console.log(transferNonce === ans)
       count = count.add('1')
     }
     
-    // expect(transferNonce).to.eq(123)
   })
 })
