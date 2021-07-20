@@ -264,6 +264,7 @@ abstract contract L1_Bridge is Bridge {
      * @dev Challenge a TransferRoot believed to be fraudulent
      * @param rootHash The Merkle root of the TransferRoot Merkle tree
      * @param originalAmount The total amount bonded for this TransferRoot
+     * @param destinationChainId The id of the destination chain
      */
     function challengeTransferBond(bytes32 rootHash, uint256 originalAmount, uint256 destinationChainId) external payable {
         bytes32 transferRootId = getTransferRootId(rootHash, originalAmount);
@@ -297,6 +298,7 @@ abstract contract L1_Bridge is Bridge {
      * @dev Resolve a challenge after the `challengeResolutionPeriod` has passed
      * @param rootHash The Merkle root of the TransferRoot Merkle tree
      * @param originalAmount The total amount originally bonded for this TransferRoot
+     * @param destinationChainId The id of the destination chain
      */
     function resolveChallenge(bytes32 rootHash, uint256 originalAmount, uint256 destinationChainId) external {
         bytes32 transferRootId = getTransferRootId(rootHash, originalAmount);
