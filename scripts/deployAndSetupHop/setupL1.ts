@@ -372,10 +372,12 @@ const updatePolygonState = async (
   const l2EthersWallet = new l2Ethers.Wallet(process.env.DEPLOYER_PRIVATE_KEY, l2EthersProvider)
   const polygonTransactionData: string = getSetFxRootTunnelMessage(l1_messengerWrapper.address)
   const gasLimit: number = 100000
+  const gasPrice: number = 10000000000
 
   const setFxRootTunnelTransaction = {
     to: l2_messengerProxy.address,
     gasLimit,
+    gasPrice,
     data: polygonTransactionData
   }
 

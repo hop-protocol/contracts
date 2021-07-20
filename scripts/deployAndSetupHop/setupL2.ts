@@ -108,7 +108,6 @@ export async function setupL2 (config: Config) {
   l2_bridge = L2_Bridge.attach(l2BridgeAddress)
   l2_swap = L2_Swap.attach(l2SwapAddress)
 
-
   /**
    * Setup
    */
@@ -134,10 +133,12 @@ export async function setupL2 (config: Config) {
   // Set up Amm
   if (l2CanonicalTokenIsEth) {
     const gasLimit = overrides.gasLimit
+    const gasPrice = overrides.gasPrice
     const depositTx = {
       to: l2_canonicalToken.address,
       value: liquidityProviderAmmAmount,
-      gasLimit
+      gasLimit,
+      gasPrice
     }
     tx = await deployer.sendTransaction(depositTx)
     await tx.wait()

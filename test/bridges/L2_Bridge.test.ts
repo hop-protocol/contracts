@@ -441,7 +441,7 @@ describe('L2_Bridge', () => {
     })
 
     it('Should get the next transfer nonce', async () => {
-      const expectedNextTransferNonce: string = '0xf90b709f6a3a0ec09fc64b2077b4b90796c32c8eb59a35d956c6760fee752829'
+      const expectedNextTransferNonce: string = '0xa8318a28a1fe6af053ce810a7524c1e62804c5ec4627168b3a8e68dc430b1183'
       const nextTransferNonce = await l2_bridge.getNextTransferNonce()
       expect(nextTransferNonce).to.eq(expectedNextTransferNonce)
     })
