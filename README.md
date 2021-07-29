@@ -228,22 +228,6 @@ npm run deploy
 `TransferFromL1Completed(address,uint256,uint256,uint256,address,uint256)`:  0x320958176930804eb66c2343c7343fc0367dc16249590c0f195783bee199d094
 ## FAQ
 
-- How can I verify the contracts on Etherscan?
-
-  - To do it manually:
-    1. Flatten the contract with `npx hardhat flatten ./contracts/bridges/L1_Bridge.sol > flat.txt`
-    2. Keep one SPDX license at the top of the file. Remove all the others.
-    3. Keep one Solidity pragma and ABIEncoder definition at the top of the file. Remove all others.
-    4. Verify on Etherscan.
-
-- Why can I not interact with a contract I just deployed?
-
-  - It takes a few blocks for transactions to traverse from L1 to other chains. If your contract was deployed on an L2 via an L1 call, you may have to wait a few blocks.
-
-- What is the l2ethers object from hardhat?
-
-  - It is an ethers.js object that is used when creating a contract factory for the OVM. It use OVM bytecode.
-
 - Why are my Optimism contracts not working?
 
   - Optimism adds additional bytecode to your contracts when they are compiled. This may push your contract over the contract size limit. When this happens, your contract deployment mail fail silently (the transaction will succeed but there will be no code at the address). Try removing unused functions from your contracts.
