@@ -7,7 +7,6 @@ import {
   execScript,
   getNetworkDataByNetworkName,
   getTokenSymbolLetterCase,
-  getLpSendAmount,
   Logger
 } from '../shared/utils'
 import { ZERO_ADDRESS } from '../../config/constants'
@@ -190,9 +189,6 @@ function setNetworkParams (
 ) {
   const { l1BridgeAddress } = readConfigFile()
 
-  const liquidityProviderSendAmount: BigNumber = getLpSendAmount(l1NetworkName, tokenSymbol)
-  const liquidityProviderAmmAmount: BigNumber = liquidityProviderSendAmount.div(2)
-
   const expectedTokenSymbolLetterCase: string = getTokenSymbolLetterCase(tokenSymbol)
   const networkData: NetworkData = getNetworkDataByNetworkName(l1NetworkName)
 
@@ -213,8 +209,11 @@ function setNetworkParams (
     l2HBridgeTokenSymbol,
     l2HBridgeTokenDecimals,
     l2SwapLpTokenName,
-    l2SwapLpTokenSymbol
+    l2SwapLpTokenSymbol,
+    liquidityProviderSendAmount
   } = tokens[expectedTokenSymbolLetterCase]
+
+  const liquidityProviderAmmAmount: BigNumber = BigNumber.from(liquidityProviderSendAmount).div(2)
 
   const data = {
     l1ChainId,
@@ -231,7 +230,7 @@ function setNetworkParams (
     l2HBridgeTokenDecimals,
     l2SwapLpTokenName,
     l2SwapLpTokenSymbol,
-    liquidityProviderSendAmount: liquidityProviderSendAmount.toString(),
+    liquidityProviderSendAmount,
     liquidityProviderAmmAmount: liquidityProviderAmmAmount.toString(),
     bonderAddress,
     l2CanonicalTokenIsEth
