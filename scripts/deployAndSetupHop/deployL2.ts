@@ -30,8 +30,7 @@ import {
   DEFAULT_SWAP_A,
   DEFAULT_SWAP_FEE,
   DEFAULT_SWAP_ADMIN_FEE,
-  DEFAULT_SWAP_WITHDRAWAL_FEE,
-  ZERO_ADDRESS
+  DEFAULT_SWAP_WITHDRAWAL_FEE
 } from '../../config/constants'
 
 const logger = Logger('deployL2')

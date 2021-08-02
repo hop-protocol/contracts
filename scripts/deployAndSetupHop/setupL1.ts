@@ -14,7 +14,6 @@ import {
 } from '../shared/utils'
 import {
   getMessengerWrapperDefaults,
-  getPolygonPredicateContract,
   getPolygonRpcEndpoint,
 } from '../../config/utils'
 import {
