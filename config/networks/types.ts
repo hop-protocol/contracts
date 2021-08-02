@@ -9,7 +9,6 @@ type NetworkDetails = {
   l1MessengerAddress: string
   l2TokenBridgeAddress: string
   l2MessengerAddress: string
-  l1TokenBridgeAddress: string
   tokens: Tokens
 }
 

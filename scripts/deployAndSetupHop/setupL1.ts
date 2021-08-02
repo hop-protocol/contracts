@@ -39,7 +39,6 @@ const logger = Logger('setupL1')
 interface Config {
   l1ChainId: BigNumber
   l2ChainId: BigNumber
-  l1TokenBridgeAddress: string
   l1MessengerAddress: string
   l1CanonicalTokenAddress: string
   l1BridgeAddress: string
@@ -56,7 +55,6 @@ export async function setupL1 (config: Config) {
   let {
     l1ChainId,
     l2ChainId,
-    l1TokenBridgeAddress,
     l1MessengerAddress,
     l1CanonicalTokenAddress,
     l1BridgeAddress,
@@ -71,7 +69,6 @@ export async function setupL1 (config: Config) {
             l1ChainId: ${l1ChainId}
             l2ChainId: ${l2ChainId}
             l1MessengerAddress: ${l1MessengerAddress}
-            l1TokenBridgeAddress: ${l1TokenBridgeAddress}
             l1CanonicalTokenAddress: ${l1CanonicalTokenAddress}
             l1BridgeAddress: ${l1BridgeAddress}
             l2CanonicalTokenAddress: ${l2CanonicalTokenAddress}
@@ -133,7 +130,6 @@ export async function setupL1 (config: Config) {
 
   logger.log('attaching deployed contracts')
   // Attach already deployed contracts
-  l1_tokenBridge = L1_TokenBridge.attach(l1TokenBridgeAddress)
   l1_messenger = L1_Messenger.attach(l1MessengerAddress)
   l1_canonicalToken = L1_MockERC20.attach(l1CanonicalTokenAddress)
   l2_canonicalToken = L1_MockERC20.attach(l2CanonicalTokenAddress)
@@ -347,7 +343,6 @@ if (require.main === module) {
   const {
     l1ChainId,
     l2ChainId,
-    l1TokenBridgeAddress,
     l1MessengerAddress,
     l1CanonicalTokenAddress,
     l1BridgeAddress,
@@ -360,7 +355,6 @@ if (require.main === module) {
   setupL1({
     l1ChainId,
     l2ChainId,
-    l1TokenBridgeAddress,
     l1MessengerAddress,
     l1CanonicalTokenAddress,
     l2CanonicalTokenAddress,

@@ -26,13 +26,18 @@ async function main () {
   }
 
   const networkData = getNetworkDataByNetworkName(l1NetworkName)
-  const { l2MessengerAddress, l1TokenBridgeAddress } = networkData[l2NetworkName]
+  const { l2MessengerAddress } = networkData[l2NetworkName]
+  // Get this after deploying the L1 equivalent
+  const l1TokenBridge = ''
+  if (!l1TokenBridge) {
+    throw new Error('Deploy an L1 Token Bridge')
+  }
   console.log(l2MessengerAddress)
-  console.log(l1TokenBridgeAddress)
+  console.log(l1TokenBridge)
 
   const l2_tokenBridge = await L2_TokenBridge.deploy(
     l2MessengerAddress,
-    l1TokenBridgeAddress
+    l1TokenBridge
   )
 
   await l2_tokenBridge.deployed()
