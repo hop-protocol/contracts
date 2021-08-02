@@ -117,6 +117,12 @@ async function getPrompts () {
     type: 'number',
     required: true,
     default: 0
+  }, {
+    name: 'didSendBridgeFunds',
+    description: 'Did you send funds over the native bridge for LP AND convert to wrapped if needed?',
+    type: 'boolean',
+    required: true,
+    default: true
   }])
 
   const l1NetworkName: string = (res.l1NetworkName as string).toLowerCase()
@@ -126,6 +132,7 @@ async function getPrompts () {
   const isL1BridgeDeploy: boolean = res.isL1BridgeDeploy as boolean
   const l2CanonicalTokenIsEth: boolean = res.l2CanonicalTokenIsEth as boolean
   const optimismDeploymentStep: number = res.optimismDeploymentStep as number
+  const didSendBridgeFunds: number = res.didSendBridgeFunds as number
 
   return {
     l1NetworkName,
@@ -134,7 +141,8 @@ async function getPrompts () {
     bonderAddress,
     isL1BridgeDeploy,
     l2CanonicalTokenIsEth,
-    optimismDeploymentStep
+    optimismDeploymentStep,
+    didSendBridgeFunds
   }
 }
 

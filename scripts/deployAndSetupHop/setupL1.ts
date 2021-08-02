@@ -6,7 +6,6 @@ import { BigNumber, ContractFactory, Signer, Contract, providers } from 'ethers'
 
 import {
   getContractFactories,
-  sendChainSpecificBridgeDeposit,
   readConfigFile,
   waitAfterTransaction,
   updateConfigFile,
@@ -259,52 +258,6 @@ export async function setupL1 (config: Config) {
     modifiedGasPrice
   )
   await tx.wait()
-  await waitAfterTransaction()
-
-  // Get canonical token to L2
-  if (!isChainIdMainnet(l1ChainId)) {
-    logger.log('minting L1 canonical token')
-    modifiedGasPrice = await getModifiedGasPrice(ethers, l1ChainId)
-    tx = await l1_canonicalToken
-      .connect(deployer)
-      .mint(
-        await deployer.getAddress(),
-        liquidityProviderSendAmount,
-        modifiedGasPrice
-      )
-    await tx.wait()
-    await waitAfterTransaction()
-  }
-
-  let contractToApprove: string
-  if (isChainIdPolygon(l2ChainId)) {
-    contractToApprove = getPolygonPredicateContract(l1ChainId, l1CanonicalTokenAddress)
-  } else {
-    contractToApprove = l1_tokenBridge.address
-  }
-  logger.log('approving L1 canonical token')
-  modifiedGasPrice = await getModifiedGasPrice(ethers, l1ChainId)
-  tx = await l1_canonicalToken
-    .connect(deployer)
-    .approve(
-      contractToApprove,
-      liquidityProviderSendAmount,
-      modifiedGasPrice
-    )
-  await tx.wait()
-  await waitAfterTransaction()
-
-  logger.log('sending chain specific bridge deposit')
-  modifiedGasPrice = await getModifiedGasPrice(ethers, l1ChainId)
-  await sendChainSpecificBridgeDeposit(
-    l2ChainId,
-    deployer,
-    liquidityProviderSendAmount,
-    l1_tokenBridge,
-    l1_canonicalToken,
-    l2_canonicalToken,
-    modifiedGasPrice
-  )
   await waitAfterTransaction()
 
   // Get hop token on L2
