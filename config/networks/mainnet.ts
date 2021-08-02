@@ -30,6 +30,11 @@ export const networkData: NetworkData = {
         l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.POLYGON.USDT,
         ...DEFAULT_NETWORK_DATA.USDT
       },
+      MATIC: {
+        l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.MAINNET.MATIC,
+        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.POLYGON.MATIC,
+        ...DEFAULT_NETWORK_DATA.MATIC
+      },
     }
   },
   xdai: {
@@ -51,6 +56,11 @@ export const networkData: NetworkData = {
         l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.XDAI.USDT,
         ...DEFAULT_NETWORK_DATA.USDT
       },
+      MATIC: {
+        l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.MAINNET.MATIC,
+        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.XDAI.MATIC,
+        ...DEFAULT_NETWORK_DATA.MATIC
+      },
     }
   },
   optimism: {
@@ -71,7 +81,12 @@ export const networkData: NetworkData = {
         l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.MAINNET.USDT,
         l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.OPTIMISM_MAINNET.USDT,
         ...DEFAULT_NETWORK_DATA.USDT
-      }
+      },
+      MATIC: {
+        l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.MAINNET.MATIC,
+        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.OPTIMISM_MAINNET.MATIC,
+        ...DEFAULT_NETWORK_DATA.MATIC
+      },
     }
   }
 }

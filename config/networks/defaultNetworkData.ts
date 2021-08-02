@@ -46,5 +46,13 @@ export const DEFAULT_NETWORK_DATA = {
     l2SwapLpTokenName: 'Hop WBTC LP Token',
     l2SwapLpTokenSymbol: 'HOP-LP-WBTC',
     liquidityProviderSendAmount: '10000000000000'
+  },
+  MATIC: {
+    l2HBridgeTokenName: 'Matic Token Hop Token',
+    l2HBridgeTokenSymbol: 'hMATIC',
+    l2HBridgeTokenDecimals: 18,
+    l2SwapLpTokenName: 'Hop MATIC LP Token',
+    l2SwapLpTokenSymbol: 'HOP-LP-MATIC',
+    liquidityProviderSendAmount: '1000000000000000000'
   }
 }
