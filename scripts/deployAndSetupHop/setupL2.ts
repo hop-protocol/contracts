@@ -244,7 +244,13 @@ export async function setupL2 (config: Config) {
   let l2CanonicalBridgeAddress: string
   if (isChainIdPolygon(l2ChainId)) {
     l1FxBaseRootTunnel = postDeploymentAddresses.l1MessengerWrapperAddress
-    l2CanonicalBridgeAddress = postDeploymentAddresses.l2CanonicalTokenAddress
+
+    if (l2CanonicalTokenIsEth) {
+      const polygonMaticWithdrawalAddress = '0x0000000000000000000000000000000000001010'
+      l2CanonicalBridgeAddress = polygonMaticWithdrawalAddress
+    } else {
+      l2CanonicalBridgeAddress = postDeploymentAddresses.l2CanonicalTokenAddress
+    }
   } else {
     l1FxBaseRootTunnel = ''
     l2CanonicalBridgeAddress = postDeploymentAddresses.l2TokenBridgeAddress
