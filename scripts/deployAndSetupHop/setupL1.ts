@@ -364,6 +364,7 @@ export async function setupL1 (config: Config) {
   })
 
   logger.log('L1 Setup Complete')
+  logger.log(`L1 Messenger Wrapper: ${l1_messengerWrapper.address}`)
 }
 
 const updatePolygonState = async (
