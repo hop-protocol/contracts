@@ -35,20 +35,22 @@ abstract contract L2_Bridge is Bridge {
     mapping(uint256 => uint256) public pendingAmountForChainId;
     mapping(uint256 => uint256) public lastCommitTimeForChainId;
     uint256 public transferNonceIncrementer;
+    uint256 public rootIndex;
 
     bytes32 private immutable NONCE_DOMAIN_SEPARATOR;
 
     event TransfersCommitted (
         uint256 indexed destinationChainId,
         bytes32 indexed rootHash,
+        uint256 indexed rootIndex,
         uint256 totalAmount,
         uint256 rootCommittedAt
     );
 
     event TransferSent (
-        bytes32 indexed transferId,
         uint256 indexed chainId,
-        address indexed recipient,
+        uint256 indexed rootIndex,
+        address recipient,
         uint256 amount,
         bytes32 transferNonce,
         uint256 bonderFee,
@@ -155,8 +157,8 @@ abstract contract L2_Bridge is Bridge {
         pendingAmountForChainId[chainId] = pendingAmountForChainId[chainId].add(amount);
 
         emit TransferSent(
-            transferId,
             chainId,
+            rootIndex,
             recipient,
             amount,
             transferNonce,
@@ -274,7 +276,15 @@ abstract contract L2_Bridge is Bridge {
         uint256 totalAmount = pendingAmountForChainId[destinationChainId];
         uint256 rootCommittedAt = block.timestamp;
 
-        emit TransfersCommitted(destinationChainId, rootHash, totalAmount, rootCommittedAt);
+        emit TransfersCommitted(
+            destinationChainId,
+            rootHash,
+            rootIndex,
+            totalAmount,
+            rootCommittedAt
+        );
+
+        rootIndex++;
 
         bytes memory confirmTransferRootMessage = abi.encodeWithSignature(
             "confirmTransferRoot(uint256,bytes32,uint256,uint256,uint256)",
