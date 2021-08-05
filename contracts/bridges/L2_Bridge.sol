@@ -9,7 +9,10 @@ import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import "./Bridge.sol";
 import "./HopBridgeToken.sol";
 import "../libraries/Lib_MerkleTree.sol";
-import "./L2_AmmWrapper.sol";
+
+interface I_L2_AmmWrapper {
+    function attemptSwap(address recipient, uint256 amount, uint256 amountOutMin, uint256 deadline) external;
+}
 
 /**
  * @dev The L2_Bridge is responsible for aggregating pending Transfers into TransferRoots. Each newly
@@ -24,7 +27,7 @@ abstract contract L2_Bridge is Bridge {
     HopBridgeToken public immutable hToken;
     address public l1BridgeAddress;
     address public l1BridgeCaller;
-    L2_AmmWrapper public ammWrapper;
+    I_L2_AmmWrapper public ammWrapper;
     mapping(uint256 => bool) public activeChainIds;
     uint256 public minimumForceCommitDelay = 4 hours;
     uint256 public maxPendingTransfers = 128;
@@ -335,7 +338,7 @@ abstract contract L2_Bridge is Bridge {
         l1Governance = _l1Governance;
     }
 
-    function setAmmWrapper(L2_AmmWrapper _ammWrapper) external onlyGovernance {
+    function setAmmWrapper(I_L2_AmmWrapper _ammWrapper) external onlyGovernance {
         ammWrapper = _ammWrapper;
     }
 
