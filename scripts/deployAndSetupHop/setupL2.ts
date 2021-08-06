@@ -21,7 +21,7 @@ import {
 import {
   DEFAULT_DEADLINE,
   ZERO_ADDRESS,
-  DEFAULT_ETHERS_OVERRIDES as overrides
+  DEFAULT_ETHERS_OVERRIDES
 } from '../../config/constants'
 
 const logger = Logger('setupL2')
@@ -108,6 +108,11 @@ export async function setupL2 (config: Config) {
   l2_bridge = L2_Bridge.attach(l2BridgeAddress)
   l2_swap = L2_Swap.attach(l2SwapAddress)
 
+  let overrides = {}
+  if (!isChainIdOptimism(l2ChainId)) {
+    overrides = DEFAULT_ETHERS_OVERRIDES
+  }
+
   /**
    * Setup
    */
@@ -176,8 +181,6 @@ export async function setupL2 (config: Config) {
     addLiquidityParams.push(overrides)
   } else if (isChainIdArbitrum(l2ChainId)) {
     addLiquidityParams.push({ gasLimit: 100000000 })
-  } else if (isChainIdOptimism(l2ChainId)) {
-    addLiquidityParams.push({ gasLimit: 10000000 })
   }
 
   logger.log('adding liquidity to L2 amm')
@@ -221,8 +224,6 @@ export async function setupL2 (config: Config) {
     removeLiquidityParams.push(overrides)
   } else if (isChainIdArbitrum(l2ChainId)) {
     removeLiquidityParams.push({ gasLimit: 100000000 })
-  } else if (isChainIdOptimism(l2ChainId)) {
-    removeLiquidityParams.push({ gasLimit: 10000000 })
   }
 
   logger.log('removing liquidity from L2 amm')

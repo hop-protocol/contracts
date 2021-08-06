@@ -20,13 +20,14 @@ import {
 
 import {
   isChainIdPolygon,
+  isChainIdOptimism,
   getPolygonFxChildAddress,
   getL2BridgeDefaults
 } from '../../config/utils'
 
 import {
   CHAIN_IDS,
-  DEFAULT_ETHERS_OVERRIDES as overrides,
+  DEFAULT_ETHERS_OVERRIDES,
   DEFAULT_SWAP_A,
   DEFAULT_SWAP_FEE,
   DEFAULT_SWAP_ADMIN_FEE,
@@ -132,6 +133,12 @@ export async function deployL2 (config: Config) {
   // Attach already deployed contracts
   l1_bridge = L1_Bridge.attach(l1BridgeAddress)
   l2_canonicalToken = L2_MockERC20.attach(l2CanonicalTokenAddress)
+
+
+  let overrides = {}
+  if (!isChainIdOptimism(l2ChainId)) {
+    overrides = DEFAULT_ETHERS_OVERRIDES
+  }
 
   /**
    * Deployments
