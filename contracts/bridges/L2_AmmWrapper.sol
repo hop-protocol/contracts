@@ -33,6 +33,8 @@ contract L2_AmmWrapper {
         exchangeAddress = _exchangeAddress;
     }
 
+    receive() external payable {}
+
     /// @notice amount is the amount the user wants to send plus the Bonder fee
     function swapAndSend(
         uint256 chainId,
