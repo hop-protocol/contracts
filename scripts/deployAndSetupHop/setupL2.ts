@@ -25,6 +25,7 @@ import {
 } from '../../config/constants'
 
 const logger = Logger('setupL2')
+let overrides: any = {}
 
 interface Config {
   l1ChainId: BigNumber
@@ -108,7 +109,6 @@ export async function setupL2 (config: Config) {
   l2_bridge = L2_Bridge.attach(l2BridgeAddress)
   l2_swap = L2_Swap.attach(l2SwapAddress)
 
-  let overrides = {}
   if (!isChainIdOptimism(l2ChainId)) {
     overrides = DEFAULT_ETHERS_OVERRIDES
   }
@@ -137,8 +137,8 @@ export async function setupL2 (config: Config) {
 
   // Set up Amm
   if (l2CanonicalTokenIsEth) {
-    const gasLimit = overrides.gasLimit
-    const gasPrice = overrides.gasPrice
+    const gasLimit = DEFAULT_ETHERS_OVERRIDES.gasLimit
+    const gasPrice = DEFAULT_ETHERS_OVERRIDES.gasPrice
     const depositTx = {
       to: l2_canonicalToken.address,
       value: liquidityProviderAmmAmount,

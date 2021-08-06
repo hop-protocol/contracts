@@ -87,7 +87,11 @@ export const SECONDS_IN_A_WEEK: number = 7 * SECONDS_IN_A_DAY
 export const DEFAULT_TIME_TO_WAIT: number = 0
 export const TIMESTAMP_VARIANCE: number = 1000000
 
-export const DEFAULT_ETHERS_OVERRIDES = {
+interface Overrides {
+  gasLimit: number
+  gasPrice: number
+}
+export const DEFAULT_ETHERS_OVERRIDES: Overrides = {
   gasLimit: 4500000,
   gasPrice: 10000000000
 }

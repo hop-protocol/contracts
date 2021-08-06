@@ -35,6 +35,7 @@ import {
 } from '../../config/constants'
 
 const logger = Logger('deployL2')
+let overrides = {}
 
 interface Config {
   l1ChainId: BigNumber
@@ -50,6 +51,7 @@ interface Config {
   bonderAddress: string
   l2CanonicalTokenIsEth: boolean
 }
+
 
 export async function deployL2 (config: Config) {
   logger.log('deploy L2')
@@ -135,7 +137,6 @@ export async function deployL2 (config: Config) {
   l2_canonicalToken = L2_MockERC20.attach(l2CanonicalTokenAddress)
 
 
-  let overrides = {}
   if (!isChainIdOptimism(l2ChainId)) {
     overrides = DEFAULT_ETHERS_OVERRIDES
   }
