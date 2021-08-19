@@ -26,8 +26,20 @@ export const CHAIN_IDS: any = {
   }
 }
 
+const CHAIN_IDS_TO_ACTIVATE: any = {
+  ETHEREUM: {
+    MAINNET: BigNumber.from('1')
+  },
+  XDAI: {
+    XDAI: BigNumber.from('100')
+  },
+  POLYGON: {
+    POLYGON: BigNumber.from('137')
+  }
+}
+
 export const ALL_SUPPORTED_CHAIN_IDS: string[] = (Object.values(
-  CHAIN_IDS
+  CHAIN_IDS_TO_ACTIVATE
 ) as any[]).reduce((a: any[], b: any) => [...a, ...Object.values(b)], [])
 
 export const ZERO_ADDRESS: string = '0x0000000000000000000000000000000000000000'
@@ -190,8 +202,8 @@ export const L2_CANONICAL_TOKEN_ADDRESSES: any = {
     WBTC: '0x94490EF228D4aBD189694f86D1684D972431380b'
   },
   OPTIMISM_MAINNET: {
-    USDC: 'TODO',
-    USDT: 'TODO',
+    USDC: '0x7F5c764cBc14f9669B88837ca1490cCa17c31607',
+    USDT: '0x94b008aA00579c1307B0EF2c499aD98a8ce58e58',
     MATIC: 'TODO'
   },
   OPTIMISM_TESTNET: {

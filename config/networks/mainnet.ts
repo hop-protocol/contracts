@@ -66,7 +66,7 @@ export const networkData: NetworkData = {
     l1ChainId,
     l2ChainId: CHAIN_IDS.OPTIMISM.OPTIMISM_MAINNET.toString(),
     l1MessengerAddress: '0x25ace71c97B33Cc4729CF772ae268934F7ab5fA1',
-    l2TokenBridgeAddress: 'TODO',
+    l2TokenBridgeAddress: '0x4200000000000000000000000000000000000010',
     l2MessengerAddress: '0x4200000000000000000000000000000000000007',
     tokens: {
       USDC: {
