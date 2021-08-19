@@ -21,7 +21,8 @@ import {
 import {
   DEFAULT_DEADLINE,
   ZERO_ADDRESS,
-  DEFAULT_ETHERS_OVERRIDES
+  DEFAULT_ETHERS_OVERRIDES,
+  ALL_SUPPORTED_CHAIN_IDS
 } from '../../config/constants'
 
 const logger = Logger('setupL2')
@@ -126,7 +127,6 @@ export async function setupL2 (config: Config) {
   // Some chains take a while to send state from L1 -> L2. Wait until the state have been fully sent.
   await waitForL2StateVerification(
     deployer,
-    l2ChainId,
     l2_canonicalToken,
     l2_hopBridgeToken,
     l2_bridge,
@@ -272,7 +272,6 @@ export async function setupL2 (config: Config) {
 
 const waitForL2StateVerification = async (
   account: Signer,
-  l2ChainId: BigNumber,
   l2_canonicalToken: Contract,
   l2_hopBridgeToken: Contract,
   l2_bridge: Contract,
@@ -280,6 +279,7 @@ const waitForL2StateVerification = async (
 ) => {
   let checkCount: number = 0
   let isStateSet: boolean = false
+  const supportedChainIds: BigNumber[] = ALL_SUPPORTED_CHAIN_IDS
 
   while (!isStateSet) {
     // Note: Mumbai can take up to 75 checks
@@ -290,10 +290,16 @@ const waitForL2StateVerification = async (
     }
 
     // Validate that the chainIds have been added
-    const isChainIdSupported: boolean = await l2_bridge.activeChainIds(
-      l2ChainId,
-      overrides
-    )
+    let areChainIdsSupported: boolean = true
+    for (let i = 0; i < supportedChainIds.length; i++){
+      const isChainIdSupported: boolean = await l2_bridge.activeChainIds(
+        supportedChainIds[i],
+        overrides
+      )
+      if (!isChainIdSupported) {
+        areChainIdsSupported = false
+      }
+    }
 
     // Validate that the Amm wrapper address has been set
     const ammWrapperAddress: string = await l2_bridge.ammWrapper(
@@ -317,12 +323,12 @@ const waitForL2StateVerification = async (
     )
 
     if (
-      !isChainIdSupported ||
+      !areChainIdsSupported ||
       ammWrapperAddress === ZERO_ADDRESS ||
       canonicalTokenBalance.eq(0) ||
       hopBridgeTokenBalance.eq(0)
     ) {
-      logger.log('isChainIdSupported:', isChainIdSupported)
+      logger.log('isChainIdSupported:', areChainIdsSupported)
       logger.log('ammWrapperAddress:', ammWrapperAddress)
       logger.log('canonicalTokenBalance:', canonicalTokenBalance.toString())
       logger.log('hopBridgeTokenBalance:', hopBridgeTokenBalance.toString())

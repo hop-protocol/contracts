@@ -38,7 +38,7 @@ const CHAIN_IDS_TO_ACTIVATE: any = {
   }
 }
 
-export const ALL_SUPPORTED_CHAIN_IDS: string[] = (Object.values(
+export const ALL_SUPPORTED_CHAIN_IDS: BigNumber[] = (Object.values(
   CHAIN_IDS_TO_ACTIVATE
 ) as any[]).reduce((a: any[], b: any) => [...a, ...Object.values(b)], [])
 

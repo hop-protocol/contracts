@@ -56,6 +56,7 @@ async function main () {
   console.log('Address to call is the `l1_messenger` on all networks except Polygon/Mumbai where it is `l1_messengerWrapper`')
   console.log('See executeCanonicalMessengerSendMessage() for additional params')
   console.log('xDai messenger is labeled l1Amb in the addresses package')
+  console.log('Optimism messenger is the Proxy__OVM_L1CrossDomainMessenger in their addresses repository')
 }
 
 const getPromptRes = async() => {
