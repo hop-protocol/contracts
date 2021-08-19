@@ -101,7 +101,7 @@ async function getPrompts () {
     default: ZERO_ADDRESS
   }, {
     name: 'isL1BridgeDeploy',
-    description: 'Is L1 Bridge Deploy:',
+    description: 'Is this an L1 Bridge Deployment:',
     type: 'boolean',
     required: true,
     default: false
