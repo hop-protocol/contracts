@@ -50,7 +50,7 @@ abstract contract L2_Bridge is Bridge {
     event TransferSent (
         uint256 indexed chainId,
         uint256 indexed rootIndex,
-        address recipient,
+        address indexed recipient,
         uint256 amount,
         bytes32 transferNonce,
         uint256 bonderFee,
