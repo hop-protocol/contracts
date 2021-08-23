@@ -288,8 +288,9 @@ export async function setupL1 (config: Config) {
 
   logger.log('sending token to L2')
   logger.log(
-    `IMPORTANT: if this transaction fails, it may be because you are using a patched OZ. Reinstall node modules &`,
-    `redeploy the L1 bridge. A failed transaction here will not show any internal calls and use very little gas.`
+    `IMPORTANT: if this transaction fails, it may be one of two things. (1) You are using a patched OZ. Reinstall`,
+    `node modules & redeploy the L1 bridge. A failed transaction here will not show any internal calls and use very`,
+    `little gas. (2) The L1 deployer does not have tokens to send over the bridge.`
   )
   modifiedGasPrice = await getModifiedGasPrice(ethers, l1ChainId)
   tx = await l1_bridge
