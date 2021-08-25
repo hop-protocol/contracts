@@ -6,7 +6,6 @@ import { BigNumber, ContractFactory, Signer, Contract, providers } from 'ethers'
 
 import {
   getContractFactories,
-  sendChainSpecificBridgeDeposit,
   readConfigFile,
   waitAfterTransaction,
   updateConfigFile,
@@ -15,7 +14,6 @@ import {
 } from '../shared/utils'
 import {
   getMessengerWrapperDefaults,
-  getPolygonPredicateContract,
   getPolygonRpcEndpoint,
 } from '../../config/utils'
 import {
@@ -40,7 +38,6 @@ const logger = Logger('setupL1')
 interface Config {
   l1ChainId: BigNumber
   l2ChainId: BigNumber
-  l1TokenBridgeAddress: string
   l1MessengerAddress: string
   l1CanonicalTokenAddress: string
   l1BridgeAddress: string
@@ -57,7 +54,6 @@ export async function setupL1 (config: Config) {
   let {
     l1ChainId,
     l2ChainId,
-    l1TokenBridgeAddress,
     l1MessengerAddress,
     l1CanonicalTokenAddress,
     l1BridgeAddress,
@@ -72,7 +68,6 @@ export async function setupL1 (config: Config) {
             l1ChainId: ${l1ChainId}
             l2ChainId: ${l2ChainId}
             l1MessengerAddress: ${l1MessengerAddress}
-            l1TokenBridgeAddress: ${l1TokenBridgeAddress}
             l1CanonicalTokenAddress: ${l1CanonicalTokenAddress}
             l1BridgeAddress: ${l1BridgeAddress}
             l2CanonicalTokenAddress: ${l2CanonicalTokenAddress}
@@ -134,7 +129,6 @@ export async function setupL1 (config: Config) {
 
   logger.log('attaching deployed contracts')
   // Attach already deployed contracts
-  l1_tokenBridge = L1_TokenBridge.attach(l1TokenBridgeAddress)
   l1_messenger = L1_Messenger.attach(l1MessengerAddress)
   l1_canonicalToken = L1_MockERC20.attach(l1CanonicalTokenAddress)
   l2_canonicalToken = L1_MockERC20.attach(l2CanonicalTokenAddress)
@@ -261,52 +255,6 @@ export async function setupL1 (config: Config) {
   await tx.wait()
   await waitAfterTransaction()
 
-  // Get canonical token to L2
-  if (!isChainIdMainnet(l1ChainId)) {
-    logger.log('minting L1 canonical token')
-    modifiedGasPrice = await getModifiedGasPrice(ethers, l1ChainId)
-    tx = await l1_canonicalToken
-      .connect(deployer)
-      .mint(
-        await deployer.getAddress(),
-        liquidityProviderSendAmount,
-        modifiedGasPrice
-      )
-    await tx.wait()
-    await waitAfterTransaction()
-  }
-
-  let contractToApprove: string
-  if (isChainIdPolygon(l2ChainId)) {
-    contractToApprove = getPolygonPredicateContract(l1ChainId, l1CanonicalTokenAddress)
-  } else {
-    contractToApprove = l1_tokenBridge.address
-  }
-  logger.log('approving L1 canonical token')
-  modifiedGasPrice = await getModifiedGasPrice(ethers, l1ChainId)
-  tx = await l1_canonicalToken
-    .connect(deployer)
-    .approve(
-      contractToApprove,
-      liquidityProviderSendAmount,
-      modifiedGasPrice
-    )
-  await tx.wait()
-  await waitAfterTransaction()
-
-  logger.log('sending chain specific bridge deposit')
-  modifiedGasPrice = await getModifiedGasPrice(ethers, l1ChainId)
-  await sendChainSpecificBridgeDeposit(
-    l2ChainId,
-    deployer,
-    liquidityProviderSendAmount,
-    l1_tokenBridge,
-    l1_canonicalToken,
-    l2_canonicalToken,
-    modifiedGasPrice
-  )
-  await waitAfterTransaction()
-
   // Get hop token on L2
   if (!isChainIdMainnet(l1ChainId)) {
     logger.log('minting L1 canonical token')
@@ -340,8 +288,9 @@ export async function setupL1 (config: Config) {
 
   logger.log('sending token to L2')
   logger.log(
-    `IMPORTANT: if this transaction fails, it may be because you are using a patched OZ. Reinstall node modules &`,
-    `redeploy the L1 bridge. A failed transaction here will not show any internal calls and use very little gas.`
+    `IMPORTANT: if this transaction fails, it may be one of two things. (1) You are using a patched OZ. Reinstall`,
+    `node modules & redeploy the L1 bridge. A failed transaction here will not show any internal calls and use very`,
+    `little gas. (2) The L1 deployer does not have tokens to send over the bridge.`
   )
   modifiedGasPrice = await getModifiedGasPrice(ethers, l1ChainId)
   tx = await l1_bridge
@@ -364,6 +313,7 @@ export async function setupL1 (config: Config) {
   })
 
   logger.log('L1 Setup Complete')
+  logger.log(`L1 Messenger Wrapper: ${l1_messengerWrapper.address}`)
 }
 
 const updatePolygonState = async (
@@ -393,7 +343,6 @@ if (require.main === module) {
   const {
     l1ChainId,
     l2ChainId,
-    l1TokenBridgeAddress,
     l1MessengerAddress,
     l1CanonicalTokenAddress,
     l1BridgeAddress,
@@ -406,7 +355,6 @@ if (require.main === module) {
   setupL1({
     l1ChainId,
     l2ChainId,
-    l1TokenBridgeAddress,
     l1MessengerAddress,
     l1CanonicalTokenAddress,
     l2CanonicalTokenAddress,

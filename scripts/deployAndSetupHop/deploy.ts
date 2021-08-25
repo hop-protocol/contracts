@@ -23,7 +23,7 @@ async function main () {
   let bonderAddress: string
   let isL1BridgeDeploy: boolean
   let l2CanonicalTokenIsEth: boolean
-  let optimismDeploymentStep: number
+  let deploymentStep: number
 
   ;({
     l1NetworkName,
@@ -32,7 +32,7 @@ async function main () {
     bonderAddress,
     isL1BridgeDeploy,
     l2CanonicalTokenIsEth,
-    optimismDeploymentStep
+    deploymentStep 
   } = await getPrompts())
 
   validateInput(l1NetworkName, l2NetworkName, tokenSymbol, bonderAddress)
@@ -50,17 +50,17 @@ async function main () {
   const deployL2Cmd = `hardhat run ${basePath}/deployL2.ts --network ${l2NetworkName}`
   const setupL1Cmd = `hardhat run ${basePath}/setupL1.ts --network ${l1NetworkName}`
   const setupL2Cmd = `hardhat run ${basePath}/setupL2.ts --network ${l2NetworkName}`
-  if (optimismDeploymentStep === 0) {
+  if (deploymentStep === 0) {
     scripts.push(
       deployL2Cmd,
       setupL1Cmd,
       setupL2Cmd
     )
-  } else if (optimismDeploymentStep === 1) {
+  } else if (deploymentStep === 1) {
     scripts.push(deployL2Cmd)
-  } else if (optimismDeploymentStep === 2) {
+  } else if (deploymentStep === 2) {
     scripts.push(setupL1Cmd)
-  } else if (optimismDeploymentStep === 3) {
+  } else if (deploymentStep === 3) {
     scripts.push(setupL2Cmd)
   }
 
@@ -101,7 +101,7 @@ async function getPrompts () {
     default: ZERO_ADDRESS
   }, {
     name: 'isL1BridgeDeploy',
-    description: 'Is L1 Bridge Deploy:',
+    description: 'Is this an L1 Bridge Deployment:',
     type: 'boolean',
     required: true,
     default: false
@@ -112,11 +112,17 @@ async function getPrompts () {
     required: true,
     default: false
   }, {
-    name: 'optimismDeploymentStep',
-    description: 'Optimism Deployment Step (0 if not Optimism) (1, 2, or 3)',
+    name: 'deploymentStep',
+    description: 'Deployment Step (0 for all) (0, 1, 2, or 3)',
     type: 'number',
     required: true,
     default: 0
+  }, {
+    name: 'didSendBridgeFunds',
+    description: 'Did you send funds over the native bridge for LP AND convert to wrapped if needed?',
+    type: 'boolean',
+    required: true,
+    default: true
   }])
 
   const l1NetworkName: string = (res.l1NetworkName as string).toLowerCase()
@@ -125,7 +131,8 @@ async function getPrompts () {
   const bonderAddress: string = (res.bonderAddress as string)
   const isL1BridgeDeploy: boolean = res.isL1BridgeDeploy as boolean
   const l2CanonicalTokenIsEth: boolean = res.l2CanonicalTokenIsEth as boolean
-  const optimismDeploymentStep: number = res.optimismDeploymentStep as number
+  const deploymentStep: number = res.deploymentStep as number
+  const didSendBridgeFunds: number = res.didSendBridgeFunds as number
 
   return {
     l1NetworkName,
@@ -134,7 +141,8 @@ async function getPrompts () {
     bonderAddress,
     isL1BridgeDeploy,
     l2CanonicalTokenIsEth,
-    optimismDeploymentStep
+    deploymentStep,
+    didSendBridgeFunds
   }
 }
 
@@ -198,7 +206,6 @@ function setNetworkParams (
     l1MessengerAddress,
     l2TokenBridgeAddress,
     l2MessengerAddress,
-    l1TokenBridgeAddress,
     tokens
   } = networkData[l2NetworkName]
 
@@ -222,7 +229,6 @@ function setNetworkParams (
     l1MessengerAddress,
     l2TokenBridgeAddress,
     l2MessengerAddress,
-    l1TokenBridgeAddress,
     l1CanonicalTokenAddress,
     l2CanonicalTokenAddress,
     l2HBridgeTokenName,

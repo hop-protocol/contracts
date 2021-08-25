@@ -12,8 +12,6 @@ import {
   FX_ROOT_ADDRESSES,
   FX_CHILD_ADDRESSES,
   POLYGON_RPC_ENDPOINTS,
-  ERC20_PREDICATE_ADDRESSES,
-  ERC20_MINTABLE_PREDICATE_ADDRESSES,
   AMB_PROXY_ADDRESSES
 } from './constants'
 import {
@@ -268,40 +266,6 @@ export const getPolygonFxChildAddress = (l1ChainId: BigNumber): string => {
     return FX_CHILD_ADDRESSES.MAINNET
   } else if (isChainIdGoerli(l1ChainId)) {
     return FX_CHILD_ADDRESSES.GOERLI
-  } else {
-    throw new Error('Invalid Chain ID')
-  }
-}
-
-export const getPolygonPredicateContract = (l1ChainId: BigNumber, tokenAddress: string): string => {
-  if (isChainIdMainnet(l1ChainId)) {
-    return getPolygonErc20PredicateAddress(l1ChainId)
-  } else {
-    // Polygon's testnet USDC non-mintable but all others are
-    const polygonUSDCTestnetAddress: string = goerliNetworkData.mumbai.tokens.USDC.l1CanonicalTokenAddress
-    if (tokenAddress === polygonUSDCTestnetAddress) {
-      return getPolygonErc20PredicateAddress(l1ChainId)
-    } else {
-      return getPolygonMintableErc20PredicateAddress(l1ChainId)
-    }
-  }
-}
-
-const getPolygonErc20PredicateAddress = (l1ChainId: BigNumber): string => {
-  if (isChainIdMainnet(l1ChainId)) {
-    return ERC20_PREDICATE_ADDRESSES.MAINNET
-  } else if (isChainIdGoerli(l1ChainId)) {
-    return ERC20_PREDICATE_ADDRESSES.GOERLI
-  } else {
-    throw new Error('Invalid Chain ID')
-  }
-}
-
-const getPolygonMintableErc20PredicateAddress = (l1ChainId: BigNumber): string => {
-  if (isChainIdMainnet(l1ChainId)) {
-    return ERC20_MINTABLE_PREDICATE_ADDRESSES.MAINNET
-  } else if (isChainIdGoerli(l1ChainId)) {
-    return ERC20_MINTABLE_PREDICATE_ADDRESSES.GOERLI
   } else {
     throw new Error('Invalid Chain ID')
   }

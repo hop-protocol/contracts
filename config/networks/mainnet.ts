@@ -18,7 +18,6 @@ export const networkData: NetworkData = {
     l1MessengerAddress: ZERO_ADDRESS,
     l2TokenBridgeAddress: ZERO_ADDRESS,
     l2MessengerAddress: ZERO_ADDRESS,
-    l1TokenBridgeAddress: '0xA0c68C638235ee32657e8f720a23ceC1bFc77C77',
     tokens: {
       USDC: {
         l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.MAINNET.USDC,
@@ -30,6 +29,11 @@ export const networkData: NetworkData = {
         l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.POLYGON.USDT,
         ...DEFAULT_NETWORK_DATA.USDT
       },
+      MATIC: {
+        l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.MAINNET.MATIC,
+        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.POLYGON.MATIC,
+        ...DEFAULT_NETWORK_DATA.MATIC
+      },
     }
   },
   xdai: {
@@ -39,7 +43,6 @@ export const networkData: NetworkData = {
     l1MessengerAddress: '0x4C36d2919e407f0Cc2Ee3c993ccF8ac26d9CE64e',
     l2TokenBridgeAddress: '0xf6A78083ca3e2a662D6dd1703c939c8aCE2e268d',
     l2MessengerAddress: '0x75Df5AF045d91108662D8080fD1FEFAd6aA0bb59',
-    l1TokenBridgeAddress: '0x88ad09518695c6c3712AC10a214bE5109a655671',
     tokens: {
       USDC: {
         l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.MAINNET.USDC,
@@ -51,6 +54,11 @@ export const networkData: NetworkData = {
         l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.XDAI.USDT,
         ...DEFAULT_NETWORK_DATA.USDT
       },
+      MATIC: {
+        l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.MAINNET.MATIC,
+        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.XDAI.MATIC,
+        ...DEFAULT_NETWORK_DATA.MATIC
+      },
     }
   },
   optimism: {
@@ -58,9 +66,8 @@ export const networkData: NetworkData = {
     l1ChainId,
     l2ChainId: CHAIN_IDS.OPTIMISM.OPTIMISM_MAINNET.toString(),
     l1MessengerAddress: '0x25ace71c97B33Cc4729CF772ae268934F7ab5fA1',
-    l2TokenBridgeAddress: 'TODO',
+    l2TokenBridgeAddress: '0x4200000000000000000000000000000000000010',
     l2MessengerAddress: '0x4200000000000000000000000000000000000007',
-    l1TokenBridgeAddress: 'TODO',
     tokens: {
       USDC: {
         l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.MAINNET.USDC,
@@ -71,7 +78,12 @@ export const networkData: NetworkData = {
         l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.MAINNET.USDT,
         l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.OPTIMISM_MAINNET.USDT,
         ...DEFAULT_NETWORK_DATA.USDT
-      }
+      },
+      MATIC: {
+        l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.MAINNET.MATIC,
+        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.OPTIMISM_MAINNET.MATIC,
+        ...DEFAULT_NETWORK_DATA.MATIC
+      },
     }
   }
 }

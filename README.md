@@ -163,43 +163,18 @@ Because Optimism does not support the OpenZeppelin contracts out of the box, the
 rm package-lock.json && rm -rf node_modules && rm -rf cache && rm -rf artifacts && npm i
 [Comment out Deploy L2, Setup L1, and Setup L2 in deploy.ts]
 npm run deploy
-> kovan
-> optimism
-> usdc
-> <bonder_address>
-> true
-> 0
 
 # Deploy L2
 npm run patch-oz
 npm run deploy
-> kovan
-> optimism
-> usdc
-> <bonder_address>
-> false
-> 1
 
 # Setup L1
 rm -rf node_modules/@openzeppelin && rm -rf cache && rm -rf artifacts && npm i
 npm run deploy
-> kovan
-> optimism
-> usdc
-> <bonder_address>
-> false
-> 2
 
 # Setup L2
 npm run patch-oz
 npm run deploy
-> kovan
-> optimism
-> usdc
-> <bonder_address>
-> false
-> 3
-
 ```
 
 ## Event Signatures
@@ -207,6 +182,8 @@ npm run deploy
 ### Accounting
 `Stake(address,uint256)`: 0xebedb8b3c678666e7f36970bc8f57abf6d8fa2e828c0da91ea5b75bf68ed101a
 `Unstake(address,uint256)`: 0x85082129d87b2fe11527cb1b3b7a520aeb5aa6913f88a3d8757fe40d1db02fdd
+`BonderAdded(address)`: 0x2cec73b7434d3b91198ad1a618f63e6a0761ce281af5ec9ec76606d948d03e23
+`BonderRemoved(address)`: 0x4234ba611d325b3ba434c4e1b037967b955b1274d4185ee9847b7491111a48ff
 
 ### Bridge
 `Withdrew(bytes32,address,uint256,bytes32)`: 0x9475cdbde5fc71fe2ccd413c82878ee54d061b9f74f9e2e1a03ff1178821502c

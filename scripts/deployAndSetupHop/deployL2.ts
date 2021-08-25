@@ -20,21 +20,22 @@ import {
 
 import {
   isChainIdPolygon,
+  isChainIdOptimism,
   getPolygonFxChildAddress,
   getL2BridgeDefaults
 } from '../../config/utils'
 
 import {
   CHAIN_IDS,
-  DEFAULT_ETHERS_OVERRIDES as overrides,
+  DEFAULT_ETHERS_OVERRIDES,
   DEFAULT_SWAP_A,
   DEFAULT_SWAP_FEE,
   DEFAULT_SWAP_ADMIN_FEE,
-  DEFAULT_SWAP_WITHDRAWAL_FEE,
-  ZERO_ADDRESS
+  DEFAULT_SWAP_WITHDRAWAL_FEE
 } from '../../config/constants'
 
 const logger = Logger('deployL2')
+let overrides = {}
 
 interface Config {
   l1ChainId: BigNumber
@@ -50,6 +51,7 @@ interface Config {
   bonderAddress: string
   l2CanonicalTokenIsEth: boolean
 }
+
 
 export async function deployL2 (config: Config) {
   logger.log('deploy L2')
@@ -134,6 +136,11 @@ export async function deployL2 (config: Config) {
   l1_bridge = L1_Bridge.attach(l1BridgeAddress)
   l2_canonicalToken = L2_MockERC20.attach(l2CanonicalTokenAddress)
 
+
+  if (!isChainIdOptimism(l2ChainId)) {
+    overrides = DEFAULT_ETHERS_OVERRIDES
+  }
+
   /**
    * Deployments
    */
@@ -189,7 +196,8 @@ export async function deployL2 (config: Config) {
     l2_ammWrapper,
     l2MessengerAddress,
     l2MessengerProxyAddress,
-    l2CanonicalTokenIsEth
+    l2CanonicalTokenIsEth,
+    logger
   ))
 
   logger.log('deploying network specific contracts')
@@ -271,6 +279,7 @@ const deployAmm = async (
   // Deploy AMM contracts
   logger.log('Deploying L2 Swap Libs')
   const L2_SwapContractFactory: ContractFactory = await deployL2SwapLibs(deployer, ethers, logger)
+  logger.log('Deploying L2 Swap')
   const l2_swap = await L2_SwapContractFactory.deploy(overrides)
   await waitAfterTransaction(l2_swap, ethers)
 
@@ -350,7 +359,8 @@ const deployBridge = async (
   l2_ammWrapper: Contract,
   l2MessengerAddress: string,
   l2MessengerProxyAddress: string,
-  l2CanonicalTokenIsEth: boolean
+  l2CanonicalTokenIsEth: boolean,
+  logger: any
 ) => {
   // NOTE: Adding more CHAIN_IDs here will push the OVM deployment over the contract size limit
   //       If additional CHAIN_IDs must be added, do so after the deployment.
@@ -366,9 +376,11 @@ const deployBridge = async (
     l1ChainId
   )
 
+  logger.log('Deploying L2 Bridge')
   l2_bridge = await L2_Bridge.connect(deployer).deploy(...l2BridgeDeploymentParams, overrides)
   await waitAfterTransaction(l2_bridge, ethers)
 
+  logger.log('Deploying L2 AMM Wrapper')
   l2_ammWrapper = await L2_AmmWrapper.connect(deployer).deploy(
     l2_bridge.address,
     l2_canonicalToken.address,

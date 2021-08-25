@@ -15,6 +15,5 @@ describe('Utils test', () => {
       count = count.add('1')
     }
     
-    // expect(transferNonce).to.eq(123)
   })
 })

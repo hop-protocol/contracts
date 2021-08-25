@@ -21,10 +21,12 @@ import {
 import {
   DEFAULT_DEADLINE,
   ZERO_ADDRESS,
-  DEFAULT_ETHERS_OVERRIDES as overrides
+  DEFAULT_ETHERS_OVERRIDES,
+  ALL_SUPPORTED_CHAIN_IDS
 } from '../../config/constants'
 
 const logger = Logger('setupL2')
+let overrides: any = {}
 
 interface Config {
   l1ChainId: BigNumber
@@ -108,6 +110,10 @@ export async function setupL2 (config: Config) {
   l2_bridge = L2_Bridge.attach(l2BridgeAddress)
   l2_swap = L2_Swap.attach(l2SwapAddress)
 
+  if (!isChainIdOptimism(l2ChainId)) {
+    overrides = DEFAULT_ETHERS_OVERRIDES
+  }
+
   /**
    * Setup
    */
@@ -121,7 +127,6 @@ export async function setupL2 (config: Config) {
   // Some chains take a while to send state from L1 -> L2. Wait until the state have been fully sent.
   await waitForL2StateVerification(
     deployer,
-    l2ChainId,
     l2_canonicalToken,
     l2_hopBridgeToken,
     l2_bridge,
@@ -132,8 +137,8 @@ export async function setupL2 (config: Config) {
 
   // Set up Amm
   if (l2CanonicalTokenIsEth) {
-    const gasLimit = overrides.gasLimit
-    const gasPrice = overrides.gasPrice
+    const gasLimit = DEFAULT_ETHERS_OVERRIDES.gasLimit
+    const gasPrice = DEFAULT_ETHERS_OVERRIDES.gasPrice
     const depositTx = {
       to: l2_canonicalToken.address,
       value: liquidityProviderAmmAmount,
@@ -176,8 +181,6 @@ export async function setupL2 (config: Config) {
     addLiquidityParams.push(overrides)
   } else if (isChainIdArbitrum(l2ChainId)) {
     addLiquidityParams.push({ gasLimit: 100000000 })
-  } else if (isChainIdOptimism(l2ChainId)) {
-    addLiquidityParams.push({ gasLimit: 10000000 })
   }
 
   logger.log('adding liquidity to L2 amm')
@@ -191,19 +194,39 @@ export async function setupL2 (config: Config) {
   const res = await l2_swap.swapStorage(overrides)
   const lpTokenAddress = res[7]
 
-  
   const lpToken = L2_MockERC20.attach(lpTokenAddress)
   const lpTokenAmount = await lpToken.balanceOf(
     await deployer.getAddress(),
     overrides
   )
+
+  approvalParams = [
+    l2_swap.address,
+    lpTokenAmount
+  ]
+  if (doesNeedExplicitGasLimit(l2ChainId)) {
+    approvalParams.push(overrides)
+  }
+
+  logger.log('approving L2 Swap LP token')
+  tx = await lpToken
+    .connect(deployer)
+    .approve(...approvalParams)
+  await tx.wait()
+  await waitAfterTransaction()
+
   let removeLiquidityParams: any[] = [
     lpTokenAmount,
     ['0', '0'],
     DEFAULT_DEADLINE
   ]
+  if (doesNeedExplicitGasLimit(l2ChainId)) {
+    removeLiquidityParams.push(overrides)
+  } else if (isChainIdArbitrum(l2ChainId)) {
+    removeLiquidityParams.push({ gasLimit: 100000000 })
+  }
 
-  logger.log('removing liquidity to L2 amm')
+  logger.log('removing liquidity from L2 amm')
   tx = await l2_swap
     .connect(deployer)
     .removeLiquidity(...removeLiquidityParams)
@@ -222,14 +245,19 @@ export async function setupL2 (config: Config) {
   let l2CanonicalBridgeAddress: string
   if (isChainIdPolygon(l2ChainId)) {
     l1FxBaseRootTunnel = postDeploymentAddresses.l1MessengerWrapperAddress
-    l2CanonicalBridgeAddress = postDeploymentAddresses.l2CanonicalTokenAddress
+
+    if (l2CanonicalTokenIsEth) {
+      const polygonMaticWithdrawalAddress = '0x0000000000000000000000000000000000001010'
+      l2CanonicalBridgeAddress = polygonMaticWithdrawalAddress
+    } else {
+      l2CanonicalBridgeAddress = postDeploymentAddresses.l2CanonicalTokenAddress
+    }
   } else {
     l1FxBaseRootTunnel = ''
     l2CanonicalBridgeAddress = postDeploymentAddresses.l2TokenBridgeAddress
   }
   logger.log(`
     l1Bridge: '${postDeploymentAddresses.l1BridgeAddress}'
-    l1CanonicalBridge: '${postDeploymentAddresses.l1TokenBridgeAddress}',
     l1MessengerWrapper: '${postDeploymentAddresses.l1MessengerWrapperAddress}',
     l2CanonicalBridge: '${l2CanonicalBridgeAddress}',
     l2CanonicalToken: '${postDeploymentAddresses.l2CanonicalTokenAddress}',
@@ -244,7 +272,6 @@ export async function setupL2 (config: Config) {
 
 const waitForL2StateVerification = async (
   account: Signer,
-  l2ChainId: BigNumber,
   l2_canonicalToken: Contract,
   l2_hopBridgeToken: Contract,
   l2_bridge: Contract,
@@ -252,6 +279,7 @@ const waitForL2StateVerification = async (
 ) => {
   let checkCount: number = 0
   let isStateSet: boolean = false
+  const supportedChainIds: BigNumber[] = ALL_SUPPORTED_CHAIN_IDS
 
   while (!isStateSet) {
     // Note: Mumbai can take up to 75 checks
@@ -262,10 +290,16 @@ const waitForL2StateVerification = async (
     }
 
     // Validate that the chainIds have been added
-    const isChainIdSupported: boolean = await l2_bridge.activeChainIds(
-      l2ChainId,
-      overrides
-    )
+    let areChainIdsSupported: boolean = true
+    for (let i = 0; i < supportedChainIds.length; i++){
+      const isChainIdSupported: boolean = await l2_bridge.activeChainIds(
+        supportedChainIds[i],
+        overrides
+      )
+      if (!isChainIdSupported) {
+        areChainIdsSupported = false
+      }
+    }
 
     // Validate that the Amm wrapper address has been set
     const ammWrapperAddress: string = await l2_bridge.ammWrapper(
@@ -289,12 +323,12 @@ const waitForL2StateVerification = async (
     )
 
     if (
-      !isChainIdSupported ||
+      !areChainIdsSupported ||
       ammWrapperAddress === ZERO_ADDRESS ||
       canonicalTokenBalance.eq(0) ||
       hopBridgeTokenBalance.eq(0)
     ) {
-      logger.log('isChainIdSupported:', isChainIdSupported)
+      logger.log('isChainIdSupported:', areChainIdsSupported)
       logger.log('ammWrapperAddress:', ammWrapperAddress)
       logger.log('canonicalTokenBalance:', canonicalTokenBalance.toString())
       logger.log('hopBridgeTokenBalance:', hopBridgeTokenBalance.toString())

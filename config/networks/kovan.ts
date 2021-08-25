@@ -17,7 +17,6 @@ export const networkData: NetworkData = {
     l1MessengerAddress: '0xFe446bEF1DbF7AFE24E81e05BC8B271C1BA9a560',
     l2TokenBridgeAddress: '0x40CdfF886715A4012fAD0219D15C98bB149AeF0e',
     l2MessengerAddress: '0xFe446bEF1DbF7AFE24E81e05BC8B271C1BA9a560',
-    l1TokenBridgeAddress: '0xA960d095470f7509955d5402e36d9DB984B5C8E2',
     tokens: {
       DAI: {
         l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.KOVAN.DAI,
@@ -53,7 +52,6 @@ export const networkData: NetworkData = {
     l1MessengerAddress: '0xD71d47AD1b63981E9dB8e4A78C0b30170da8a601',
     l2TokenBridgeAddress: '0xE49CCf3e19d847f8FF4d6962684A3242abF63f07',
     l2MessengerAddress: '0x0000000000000000000000000000000000000064',
-    l1TokenBridgeAddress: '0x2948ac43e4aff448f6af0f7a11f18bb6062dd271',
     tokens: {
       DAI: {
         l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.KOVAN.DAI,
@@ -69,7 +67,6 @@ export const networkData: NetworkData = {
     l1MessengerAddress: '0x4361d0F75A0186C05f971c566dC6bEa5957483fD',
     l2TokenBridgeAddress: '0x3B88CAb5A989C8AF0931ed171dbF7427BEb2df9A',
     l2MessengerAddress: '0x4200000000000000000000000000000000000007',
-    l1TokenBridgeAddress: '0x531984eEccac4c5e6ABb5439c02d5861110bdA43',
     tokens: {
       DAI: {
         l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.KOVAN.DAI,
