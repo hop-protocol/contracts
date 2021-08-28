@@ -33,6 +33,8 @@ contract L2_ArbitrumBridge is L2_Bridge {
         messenger = _messenger;
     }
 
+    receive() external payable {}
+
     function _sendCrossDomainMessage(bytes memory message) internal override {
         messenger.sendTxToL1(
             l1BridgeAddress,
@@ -41,9 +43,7 @@ contract L2_ArbitrumBridge is L2_Bridge {
     }
 
     function _verifySender(address expectedSender) internal override {
-        // ToDo: verify sender with Arbitrum L2 messenger
-        // sender should be l1BridgeAddress
-        // See https://github.com/OffchainLabs/arbitrum/blob/new-rollup/packages/arb-bridge-peripherals/contracts/tokenbridge/arbitrum/ArbTokenBridge.sol#L107
+        require(msg.sender == expectedSender, "L2_ARB_BRG: Caller is not the expected sender");
     }
 
     /**
@@ -52,5 +52,10 @@ contract L2_ArbitrumBridge is L2_Bridge {
      */
     function setMessenger(IArbSys _messenger) external onlyGovernance {
         messenger = _messenger;
+    }
+
+    function withdrawEth(address _recipient) onlyGovernance {
+        (bool success, ) = _recipient.call{value: amount}(new bytes(0));
+        require(success, 'L2_ARB_BRG: ETH transfer failed');
     }
 }

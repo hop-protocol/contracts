@@ -40,13 +40,11 @@ export const getMessengerWrapperDefaults = (
   if (isChainIdArbitrum(l2ChainId)) {
     const gasLimit: number = DEFAULT_MESSENGER_WRAPPER_GAS_LIMIT
     const gasPrice: number = DEFAULT_MESSENGER_WRAPPER_GAS_PRICE
-    const callValue: number = DEFAULT_MESSENGER_WRAPPER_CALL_VALUE
 
     data.push(
       ...defaults,
       gasLimit,
-      gasPrice,
-      callValue
+      gasPrice
     )
   } else if (isChainIdOptimism(l2ChainId)) {
     const gasLimit: number = DEFAULT_MESSENGER_WRAPPER_GAS_LIMIT
@@ -269,4 +267,12 @@ export const getPolygonFxChildAddress = (l1ChainId: BigNumber): string => {
   } else {
     throw new Error('Invalid Chain ID')
   }
+}
+
+export const generateArbitrumVerificationAddress = (address: string): string => {
+  const addressBn: BigNumber = BigNumber.from(address)
+  const modifier: string = '0x1111000000000000000000000000000000001111'
+  const modifierBn: BigNumber = BigNumber.from(modifier)
+  const boundary: BigNumber = BigNumber.from('0x10000000000000000000000000000000000000000')
+  return ((addressBn.add(modifierBn)).mod(boundary)).toHexString()
 }

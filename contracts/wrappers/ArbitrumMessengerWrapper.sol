@@ -16,28 +16,25 @@ import "./MessengerWrapper.sol";
 
 contract ArbitrumMessengerWrapper is MessengerWrapper {
 
-    IInbox public arbInbox;
+    IInbox public immutable l1MessengerAddress;
     uint256 public immutable defaultGasPrice;
-    uint256 public immutable defaultCallValue;
     address public immutable l2BridgeAddress;
     uint256 public immutable defaultGasLimit;
+    uint256 public immutable defaultSubMessageType = 1;
 
     constructor(
         address _l1BridgeAddress,
         address _l2BridgeAddress,
-        IInbox _arbInbox,
+        IInbox _l1MessengerAddress,
         uint256 _defaultGasLimit,
         uint256 _defaultGasPrice,
-        uint256 _defaultCallValue
     )
         public
         MessengerWrapper(_l1BridgeAddress)
     {
         l2BridgeAddress = _l2BridgeAddress;
-        arbInbox = _arbInbox;
         defaultGasLimit = _defaultGasLimit;
         defaultGasPrice = _defaultGasPrice;
-        defaultCallValue = _defaultCallValue;
     }
 
     /** 
@@ -45,21 +42,24 @@ contract ArbitrumMessengerWrapper is MessengerWrapper {
      * @param _calldata The data that l2BridgeAddress will be called with
      */
     function sendCrossDomainMessage(bytes memory _calldata) public override onlyL1Bridge {
-        uint256 maxSubmissionCost = defaultGasLimit * defaultGasPrice;
-        arbInbox.createRetryableTicket(
-            l2BridgeAddress,
+        bytes memory subMessage = abi.encode(
+            defaultGasLimit,
+            defaultGasPrice,
+            uint256(l2BridgeAddress),
             0,
-            0,
-            tx.origin,
-            address(0),
-            100000000000,
-            0,
-            _calldata
+            _callData
+        );
+        bytes memory prefixedSubMessage = abi.encodePacked(
+            defaultSubMessageType,
+            subMessage
+        );
+        l1MessengerAddress.sendL2Message(
+            prefixedSubMessage
         );
     }
 
     function verifySender(address l1BridgeCaller, bytes memory /*_data*/) public override {
-        IBridge arbBridge = arbInbox.bridge();
+        IBridge arbBridge = l1MessengerAddress.bridge();
         IOutbox outbox = IOutbox(arbBridge.activeOutbox());
 
         require(l1BridgeCaller == address(outbox), "ARB_MSG_WPR: Caller is not outbox");
