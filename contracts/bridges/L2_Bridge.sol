@@ -56,7 +56,8 @@ abstract contract L2_Bridge is Bridge {
         uint256 bonderFee,
         uint256 index,
         uint256 amountOutMin,
-        uint256 deadline
+        uint256 deadline,
+        address bonder
     );
 
     event TransferFromL1Completed (
@@ -112,6 +113,8 @@ abstract contract L2_Bridge is Bridge {
      * AMM market. 0 if no swap is intended.
      * @param deadline The deadline for swapping in the destination AMM market. 0 if no
      * swap is intended.
+     * @param bonder The bonder that should bond the transfer at the destination. This is not enforced by the
+     * bridge contracts.
      */
     function send(
         uint256 chainId,
@@ -119,17 +122,21 @@ abstract contract L2_Bridge is Bridge {
         uint256 amount,
         uint256 bonderFee,
         uint256 amountOutMin,
-        uint256 deadline
+        uint256 deadline,
+        address bonder
     )
         external
     {
         require(amount > 0, "L2_BRG: Must transfer a non-zero amount");
         require(amount >= bonderFee, "L2_BRG: Bonder fee cannot exceed amount");
         require(activeChainIds[chainId], "L2_BRG: chainId is not supported");
-        uint256 minBonderFeeRelative = amount.mul(minBonderBps).div(10000);
-        // Get the max of minBonderFeeRelative and minBonderFeeAbsolute
-        uint256 minBonderFee = minBonderFeeRelative > minBonderFeeAbsolute ? minBonderFeeRelative : minBonderFeeAbsolute;
-        require(bonderFee >= minBonderFee, "L2_BRG: bonderFee must meet minimum requirements");
+
+        {
+            uint256 minBonderFeeRelative = amount.mul(minBonderBps).div(10000);
+            // Get the max of minBonderFeeRelative and minBonderFeeAbsolute
+            uint256 minBonderFee = minBonderFeeRelative > minBonderFeeAbsolute ? minBonderFeeRelative : minBonderFeeAbsolute;
+            require(bonderFee >= minBonderFee, "L2_BRG: bonderFee must meet minimum requirements");
+        }
 
         bytes32[] storage pendingTransfers = pendingTransferIdsForChainId[chainId];
 
@@ -165,7 +172,8 @@ abstract contract L2_Bridge is Bridge {
             bonderFee,
             transferIndex,
             amountOutMin,
-            deadline
+            deadline,
+            bonder
         );
     }
 
