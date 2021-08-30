@@ -15,7 +15,7 @@ contract Mock_L2_OptimismBridge is L2_OptimismBridge {
         HopBridgeToken hToken,
         address l1BridgeAddress,
         uint256[] memory activeChainIds,
-        address[] memory bonders,
+        IBonderRegistry registry,
         uint32 defaultGasLimit
     )
         public
@@ -25,7 +25,7 @@ contract Mock_L2_OptimismBridge is L2_OptimismBridge {
             hToken,
             l1BridgeAddress,
             activeChainIds,
-            bonders,
+            registry,
             defaultGasLimit
         )
     {

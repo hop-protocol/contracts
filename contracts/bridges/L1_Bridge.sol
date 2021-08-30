@@ -85,7 +85,7 @@ abstract contract L1_Bridge is Bridge {
         _;
     }
 
-    constructor (address[] memory bonders, address _governance) public Bridge(bonders) {
+    constructor (IBonderRegistry _registry, address _governance) public Bridge(_registry) {
         governance = _governance;
     }
 
@@ -314,9 +314,12 @@ abstract contract L1_Bridge is Bridge {
         if (transferRootCommittedAt[destinationChainId][transferRootId] > 0) {
             // Invalid challenge
 
+            // Credit the bonder back with the bond amount
+            _subDebit(transferBond.bonder, getBondForTransferAmount(originalAmount));
+
             if (transferBond.createdAt > transferRootCommittedAt[destinationChainId][transferRootId].add(minTransferRootBondDelay)) {
-                // Credit the bonder back with the bond amount plus the challenger's stake
-                _addCredit(transferBond.bonder, getBondForTransferAmount(originalAmount).add(challengeStakeAmount));
+                // Credit the bonder the challenger's stake
+                _addCredit(transferBond.bonder, challengeStakeAmount);
             } else {
                 // If the TransferRoot was bonded before it was committed, the challenger and Bonder
                 // get their stake back. This discourages Bonders from tricking challengers into
@@ -325,8 +328,6 @@ abstract contract L1_Bridge is Bridge {
 
                 // Return the challenger's stake
                 _addCredit(transferBond.challenger, challengeStakeAmount);
-                // Credit the bonder back with the bond amount
-                _addCredit(transferBond.bonder, getBondForTransferAmount(originalAmount));
             }
         } else {
             // Valid challenge

@@ -79,10 +79,10 @@ abstract contract L2_Bridge is Bridge {
         HopBridgeToken _hToken,
         address _l1BridgeAddress,
         uint256[] memory _activeChainIds,
-        address[] memory bonders
+        IBonderRegistry registry
     )
         public
-        Bridge(bonders)
+        Bridge(registry)
     {
         l1Governance = _l1Governance;
         hToken = _hToken;

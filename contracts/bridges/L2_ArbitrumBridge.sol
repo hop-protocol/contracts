@@ -19,7 +19,7 @@ contract L2_ArbitrumBridge is L2_Bridge {
         HopBridgeToken hToken,
         address l1BridgeAddress,
         uint256[] memory activeChainIds,
-        address[] memory bonders
+        IBonderRegistry registry
     )
         public
         L2_Bridge(
@@ -27,7 +27,7 @@ contract L2_ArbitrumBridge is L2_Bridge {
             hToken,
             l1BridgeAddress,
             activeChainIds,
-            bonders
+            registry
         )
     {
         messenger = _messenger;

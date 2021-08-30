@@ -17,7 +17,7 @@ contract Mock_L2_PolygonBridge is L2_PolygonBridge {
         HopBridgeToken hToken,
         address l1BridgeAddress,
         uint256[] memory supportedChainIds,
-        address[] memory bonders
+        IBonderRegistry registry
     )
         public
         L2_PolygonBridge(
@@ -26,7 +26,7 @@ contract Mock_L2_PolygonBridge is L2_PolygonBridge {
             hToken,
             l1BridgeAddress,
             supportedChainIds,
-            bonders
+            registry
         )
     {
         chainId = _chainId;

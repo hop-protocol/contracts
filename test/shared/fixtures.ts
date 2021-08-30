@@ -69,6 +69,9 @@ export async function fixture (
   const L1_MessengerWrapper = await ethers.getContractFactory(
     l1_messengerWrapperArtifact
   )
+  const L1_Registry = await ethers.getContractFactory(
+    'contracts/bridges/BonderRegistry.sol:BonderRegistry'
+  )
   const L2_HopBridgeToken = await ethers.getContractFactory(
     'contracts/bridges/HopBridgeToken.sol:HopBridgeToken'
   )
@@ -153,12 +156,15 @@ export async function fixture (
     l1_messenger.address
   )
 
+  // Deploy registry
+  const registry = await L1_Registry.deploy()
+
   // Deploy Hop L1 contracts
   let l1_bridge: Contract
   if (l1AlreadySetOpts?.l1BridgeAddress) {
     l1_bridge = L1_Bridge.attach(l1AlreadySetOpts.l1BridgeAddress)
   } else {
-    l1_bridge = await L1_Bridge.deploy(l1_canonicalToken.address, [await bonder.getAddress()], await governance.getAddress())
+    l1_bridge = await L1_Bridge.deploy(l1_canonicalToken.address, registry.address, await governance.getAddress())
   }
 
   // Deploy Hop bridge token
@@ -180,7 +186,7 @@ export async function fixture (
     l2_hopBridgeToken.address,
     l1_bridge.address,
     ALL_SUPPORTED_CHAIN_IDS,
-    [await bonder.getAddress()],
+    registry.address,
     l1ChainId
   )
   // NOTE: Deployments of the Mock bridge require the first param to be the L2 Chain Id
@@ -226,10 +232,9 @@ export async function fixture (
   )
 
   // Mocks
-  const mockAccounting = await MockAccounting.deploy([
-    await bonder.getAddress()
-  ])
-  const mockBridge = await MockBridge.deploy([await bonder.getAddress()])
+  const mockAccounting = await MockAccounting.deploy(registry.address)
+
+  const mockBridge = await MockBridge.deploy(registry.address)
 
   // Transfers
   const genericTransfer = {

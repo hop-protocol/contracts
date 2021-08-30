@@ -88,7 +88,7 @@ export const getL2BridgeDefaults = (
   l2HopBridgeTokenAddress: string,
   l1BridgeAddress: string,
   activeChainIds: string[],
-  bonderAddresses: string[],
+  registryAddress: string,
   l1ChainId: BigNumber
 ): IGetL2BridgeDefaults[] => {
   let defaults: IGetL2BridgeDefaults[] = []
@@ -116,7 +116,7 @@ export const getL2BridgeDefaults = (
     l2HopBridgeTokenAddress,
     l1BridgeAddress,
     activeChainIds,
-    bonderAddresses
+    registryAddress
   )
 
   if (additionalData.length !== 0) {
