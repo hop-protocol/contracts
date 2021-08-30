@@ -790,7 +790,7 @@ export const executeL2BridgeSend = async (
   sourceHopBridgeToken: Contract,
   sourceBridge: Contract,
   transfer: Transfer,
-  transferIndex: BigNumber = BigNumber.from('0')
+  transferIndex?: BigNumber
 ) => {
   // Get state before transaction
   const bridgeTotalSupplyBefore: BigNumber = await sourceHopBridgeToken.totalSupply()
@@ -800,6 +800,7 @@ export const executeL2BridgeSend = async (
   const pendingAmountBefore: BigNumber = await sourceBridge.pendingAmountForChainId(
     transfer.chainId
   )
+  transferIndex = transferIndex ? transferIndex : await sourceBridge.transferNonceIncrementer()
   const maxPendingTransfers = await sourceBridge.maxPendingTransfers()
   let transferWillCommitTransfers = false
   try {
@@ -821,6 +822,7 @@ export const executeL2BridgeSend = async (
 
   // Perform transaction
   // Validate state after transaction
+  const rootIndex = await sourceBridge.rootIndex()
   const bridgeTotalSupplyAfter: BigNumber = await sourceHopBridgeToken.totalSupply()
   expect(bridgeTotalSupplyAfter).to.eq(
     bridgeTotalSupplyBefore.sub(transfer.amount)
@@ -836,9 +838,6 @@ export const executeL2BridgeSend = async (
     sourceBridge,
     transferIndex
   )
-  const expectedPendingTransferHash: Buffer = await transfer.getTransferId(
-    transferNonce
-  )
 
   const pendingAmount: BigNumber = await sourceBridge.pendingAmountForChainId(
     transfer.chainId
@@ -853,14 +852,15 @@ export const executeL2BridgeSend = async (
   }
   expect(pendingAmount).to.eq(expectedPendingAmount)
 
-  const transfersSentEvent = (
+  const transfersSentEvents = (
     await sourceBridge.queryFilter(sourceBridge.filters.TransferSent())
-  )[transferIndex.toNumber()]
-  const transferSentArgs = transfersSentEvent.args
-  expect(transferSentArgs.transferId).to.eq(
-    '0x' + expectedPendingTransferHash.toString('hex')
   )
+  
+  const transfersSentEvent = transfersSentEvents[transferIndex.toNumber()]
+
+  const transferSentArgs = transfersSentEvent.args
   expect(transferSentArgs.chainId).to.eq(transfer.chainId)
+  expect(transferSentArgs.rootIndex).to.eq(rootIndex)
   expect(transferSentArgs.recipient).to.eq(await transfer.recipient.getAddress())
   expect(transferSentArgs.amount).to.eq(transfer.amount)
   expect(transferSentArgs.transferNonce).to.eq(transferNonce)
@@ -882,6 +882,7 @@ export const executeL2AmmWrapperSwapAndSend = async (
     ...C_TO_H_SWAP_INDICES,
     transfer.amount
   )
+  const rootIndex = await sourceBridge.rootIndex()
 
   // Perform transaction
   await sourceCanonicalToken
@@ -926,10 +927,9 @@ export const executeL2AmmWrapperSwapAndSend = async (
     await sourceBridge.queryFilter(sourceBridge.filters.TransferSent())
   )[0]
   const transferSentArgs = transfersSentEvent.args
-  expect(transferSentArgs[0]).to.eq(
-    '0x' + expectedPendingTransferHash.toString('hex')
-  )
+
   expect(transferSentArgs.chainId).to.eq(transfer.chainId)
+  expect(transferSentArgs.rootIndex).to.eq(rootIndex)
   expect(transferSentArgs.recipient).to.eq(await transfer.recipient.getAddress())
   expect(transferSentArgs.amount).to.eq(transferAfterSlippage.amount)
   expect(transferSentArgs.transferNonce).to.eq(transferNonce)
