@@ -239,7 +239,8 @@ export async function fixture (
     amountOutMin: BigNumber.from('0'),
     destinationAmountOutMin: BigNumber.from('0'),
     destinationDeadline: BigNumber.from('0'),
-    amountAfterSwap: BigNumber.from('0')
+    amountAfterSwap: BigNumber.from('0'),
+    bonder
   }
 
   const transfers: Transfer[] = [

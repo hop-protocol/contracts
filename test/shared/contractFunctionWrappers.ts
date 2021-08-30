@@ -27,7 +27,8 @@ import {
   TIMESTAMP_VARIANCE,
   DEAD_ADDRESS,
   H_TO_C_SWAP_INDICES,
-  C_TO_H_SWAP_INDICES
+  C_TO_H_SWAP_INDICES,
+  ZERO_ADDRESS
 } from '../../config/constants'
 
 /**
@@ -808,6 +809,8 @@ export const executeL2BridgeSend = async (
     transferWillCommitTransfers = true
   } catch (e) {}
 
+  const bonderAddress = (await transfer.bonder?.getAddress()) ?? ZERO_ADDRESS
+
   // Perform transaction
   await sourceBridge
     .connect(transfer.sender)
@@ -817,7 +820,8 @@ export const executeL2BridgeSend = async (
       transfer.amount,
       transfer.bonderFee,
       transfer.amountOutMin,
-      transfer.deadline
+      transfer.deadline,
+      bonderAddress
     )
 
   // Perform transaction
@@ -883,6 +887,7 @@ export const executeL2AmmWrapperSwapAndSend = async (
     transfer.amount
   )
   const rootIndex = await sourceBridge.rootIndex()
+  const bonderAddress = (await transfer.bonder?.getAddress()) ?? ZERO_ADDRESS
 
   // Perform transaction
   await sourceCanonicalToken
@@ -898,7 +903,8 @@ export const executeL2AmmWrapperSwapAndSend = async (
       transfer.amountOutMin,
       transfer.deadline,
       transfer.destinationAmountOutMin,
-      transfer.destinationDeadline
+      transfer.destinationDeadline,
+      bonderAddress
     )
 
   // Validate state after transaction
