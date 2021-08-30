@@ -37,14 +37,6 @@ abstract contract Accounting is ReentrancyGuard {
         uint256 amount
     );
 
-    event BonderAdded (
-        address indexed newBonder
-    );
-
-    event BonderRemoved (
-        address indexed previousBonder
-    );
-
     /* ========== Modifiers ========== */
 
     modifier onlyBonder {
