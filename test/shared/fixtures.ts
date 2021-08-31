@@ -157,14 +157,14 @@ export async function fixture (
   )
 
   // Deploy registry
-  const registry = await L1_Registry.deploy()
+  const l1_registry = await L1_Registry.connect(governance).deploy([await bonder.getAddress()])
 
   // Deploy Hop L1 contracts
   let l1_bridge: Contract
   if (l1AlreadySetOpts?.l1BridgeAddress) {
     l1_bridge = L1_Bridge.attach(l1AlreadySetOpts.l1BridgeAddress)
   } else {
-    l1_bridge = await L1_Bridge.deploy(l1_canonicalToken.address, registry.address, await governance.getAddress())
+    l1_bridge = await L1_Bridge.deploy(l1_canonicalToken.address, l1_registry.address, await governance.getAddress())
   }
 
   // Deploy Hop bridge token
@@ -186,7 +186,7 @@ export async function fixture (
     l2_hopBridgeToken.address,
     l1_bridge.address,
     ALL_SUPPORTED_CHAIN_IDS,
-    registry.address,
+    l1_registry.address,
     l1ChainId
   )
   // NOTE: Deployments of the Mock bridge require the first param to be the L2 Chain Id
@@ -232,9 +232,9 @@ export async function fixture (
   )
 
   // Mocks
-  const mockAccounting = await MockAccounting.deploy(registry.address)
+  const mockAccounting = await MockAccounting.deploy(l1_registry.address)
 
-  const mockBridge = await MockBridge.deploy(registry.address)
+  const mockBridge = await MockBridge.deploy(l1_registry.address)
 
   // Transfers
   const genericTransfer = {
@@ -310,6 +310,7 @@ export async function fixture (
     l1_messenger,
     l1_messengerWrapper,
     l1_bridge,
+    l1_registry,
     l2_messenger,
     l2_messengerProxy,
     l2_hopBridgeToken,

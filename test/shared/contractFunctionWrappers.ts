@@ -492,7 +492,7 @@ export const executeBridgeSettleBondedWithdrawal = async (
     transfer.amount
   )
   const credit = await destinationBridge.getCredit(await bonder.getAddress())
-  const expectedCredit: BigNumber = bondedAmountBefore.add(transfer.amount)
+  const expectedCredit: BigNumber = bondedAmountBefore
   expect(transferRoot[0]).to.eq(transfer.amount)
   expect(transferRoot[1]).to.eq(transfer.amount)
   expect(transferRoot[2].toNumber()).to.be.closeTo(
@@ -554,7 +554,7 @@ export const executeBridgeSettleBondedWithdrawals = async (
     totalTransferAmount
   )
   const credit = await sourceBridge.getCredit(await bonder.getAddress())
-  const expectedCredit: BigNumber = bondedAmountBefore.add(totalTransferAmount)
+  const expectedCredit: BigNumber = bondedAmountBefore
   expect(transferRoot[0]).to.eq(totalTransferAmount)
   expect(transferRoot[1]).to.eq(totalTransferAmount)
   expect(transferRoot[2].toNumber()).to.be.closeTo(
@@ -696,7 +696,7 @@ export const executeL1BridgeResolveChallenge = async (
 
   if (!shouldResolveSuccessfully) {
     expect(transferBond[5]).to.eq(true)
-    let expectedCredit: BigNumber = creditBefore.add(bondAmount)
+    let expectedCredit: BigNumber = creditBefore
     if (didBonderWaitMinTransferRootTime) {
       expectedCredit = expectedCredit.add(challengeAmount)
     } else {
