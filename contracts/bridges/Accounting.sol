@@ -123,6 +123,14 @@ abstract contract Accounting is ReentrancyGuard {
         return _registry;
     }
 
+    /**
+     * @dev Get the Bonder's credit minus total debit
+     * @return The Bonder's available credit
+     */
+    function getAvailableCredit(address bonder) external view returns (uint256) {
+        return _credit[bonder].sub(getDebitAndAdditionalDebit(bonder));
+    }
+
     /* ========== External Config Management Setters ========== */
 
     /**
