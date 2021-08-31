@@ -3,6 +3,8 @@
 pragma solidity 0.6.12;
 pragma experimental ABIEncoderV2;
 
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import "./Bridge.sol";
 import "../interfaces/IMessengerWrapper.sol";
 
@@ -12,6 +14,7 @@ import "../interfaces/IMessengerWrapper.sol";
  */
 
 abstract contract L1_Bridge is Bridge {
+    using SafeERC20 for IERC20;
 
     struct TransferBond {
         address bonder;
@@ -22,8 +25,13 @@ abstract contract L1_Bridge is Bridge {
         bool challengeResolved;
     }
 
+    /* ========== Constants ========== */
+
+    address constant ETH_ADDRESS = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
+
     /* ========== State ========== */
 
+    address public immutable token;
     mapping(uint256 => mapping(bytes32 => uint256)) public transferRootCommittedAt;
     mapping(bytes32 => TransferBond) public transferBonds;
     mapping(uint256 => mapping(address => uint256)) public timeSlotToAmountBonded;
@@ -85,8 +93,16 @@ abstract contract L1_Bridge is Bridge {
         _;
     }
 
-    constructor (IBonderRegistry _registry, address _governance) public Bridge(_registry) {
+    constructor (
+        IBonderRegistry _registry,
+        address _governance,
+        address _token
+    )
+        public
+        Bridge(_registry)
+    {
         governance = _governance;
+        token = _token;
     }
 
     /* ========== Send Functions ========== */
@@ -137,7 +153,14 @@ abstract contract L1_Bridge is Bridge {
         );
 
         chainBalance[chainId] = chainBalance[chainId].add(amount);
-        messengerWrapper.sendCrossDomainMessage(message);
+
+        uint256 forwardedValue;
+        if (token == ETH_ADDRESS) {
+            forwardedValue = msg.value.sub(amount);
+        } else {
+            forwardedValue = msg.value;
+        }
+        messengerWrapper.sendCrossDomainMessage{value: forwardedValue}(message);
 
         emit TransferSentToL2(
             chainId,
@@ -356,6 +379,25 @@ abstract contract L1_Bridge is Bridge {
 
     function _requireIsGovernance() internal override {
         require(governance == msg.sender, "L1_BRG: Caller is not the owner");
+    }
+
+    /* ========== Override Functions ========== */
+
+    function _transferFromBridge(address recipient, uint256 amount) internal override {
+        if (token == ETH_ADDRESS) {
+            (bool success, ) = recipient.call{value: amount}(new bytes(0));
+            require(success, 'L1_ETH_BRG: ETH transfer failed');
+        } else {
+            IERC20(token).safeTransfer(recipient, amount);
+        }
+    }
+
+    function _transferToBridge(address from, uint256 amount) internal override {
+        if (token == ETH_ADDRESS) {
+            require(msg.value >= amount, "L1_ETH_BRG: Value is less than amount");
+        } else {
+            IERC20(token).safeTransferFrom(from, address(this), amount);
+        }
     }
 
     /* ========== External Config Management Setters ========== */
