@@ -58,7 +58,7 @@ export async function fixture (
     'contracts/test/Mock_L1_CanonicalBridge.sol:Mock_L1_CanonicalBridge'
   )
   const L1_Bridge = await ethers.getContractFactory(
-    'contracts/test/Mock_L1_ERC20_Bridge.sol:Mock_L1_ERC20_Bridge'
+    'contracts/test/Mock_L1_Bridge.sol:Mock_L1_Bridge'
   )
   const L2_Bridge = await ethers.getContractFactory(
     `contracts/test/${l2_bridgeArtifact}`
@@ -164,7 +164,7 @@ export async function fixture (
   if (l1AlreadySetOpts?.l1BridgeAddress) {
     l1_bridge = L1_Bridge.attach(l1AlreadySetOpts.l1BridgeAddress)
   } else {
-    l1_bridge = await L1_Bridge.deploy(l1_canonicalToken.address, l1_registry.address, await governance.getAddress())
+    l1_bridge = await L1_Bridge.deploy(l1_registry.address, await governance.getAddress(), l1_canonicalToken.address)
   }
 
   // Deploy Hop bridge token
