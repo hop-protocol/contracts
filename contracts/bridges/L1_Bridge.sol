@@ -63,7 +63,8 @@ abstract contract L1_Bridge is Bridge {
 
     event TransferRootBonded (
         bytes32 indexed root,
-        uint256 amount
+        uint256 amount,
+        uint256 destinationChainid
     );
 
     event TransferRootConfirmed(
@@ -217,7 +218,7 @@ abstract contract L1_Bridge is Bridge {
 
         _distributeTransferRoot(rootHash, destinationChainId, totalAmount);
 
-        emit TransferRootBonded(rootHash, totalAmount);
+        emit TransferRootBonded(rootHash, totalAmount, destinationChainId);
     }
 
     /**
