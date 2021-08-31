@@ -34,7 +34,8 @@ abstract contract Bridge is Accounting {
 
     event WithdrawalBonded(
         bytes32 indexed transferId,
-        uint256 amount
+        uint256 amount,
+        address bonder
     );
 
     event WithdrawalBondSettled(
@@ -373,7 +374,7 @@ abstract contract Bridge is Accounting {
         _addDebit(msg.sender, amount);
         _bondedWithdrawalAmounts[msg.sender][transferId] = amount;
 
-        emit WithdrawalBonded(transferId, amount);
+        emit WithdrawalBonded(transferId, amount, msg.sender);
     }
 
     /* ========== Private Functions ========== */
