@@ -7,7 +7,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract BonderRegistry is IBonderRegistry, Ownable {
 
-    mapping(address => bool) isBonder;
+    mapping(address => bool) public isBonder;
 
     event BonderAdded (
         address indexed newBonder
