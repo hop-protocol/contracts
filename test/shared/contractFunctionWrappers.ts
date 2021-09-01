@@ -798,14 +798,15 @@ export const executeL2BridgeSend = async (
   const senderBalanceBefore: BigNumber = await sourceHopBridgeToken.balanceOf(
     await transfer.sender.getAddress()
   )
-  const pendingAmountBefore: BigNumber = await sourceBridge.pendingAmountForChainId(
-    transfer.chainId
+  const pendingAmountBefore: BigNumber = await sourceBridge.pendingAmount(
+    transfer.chainId,
+    await transfer.bonder.getAddress()
   )
   transferIndex = transferIndex ? transferIndex : await sourceBridge.transferNonceIncrementer()
   const maxPendingTransfers = await sourceBridge.maxPendingTransfers()
   let transferWillCommitTransfers = false
   try {
-    await sourceBridge.pendingTransferIdsForChainId(transfer.chainId, maxPendingTransfers.sub(1))
+    await sourceBridge.pendingTransferIds(transfer.chainId, await transfer.bonder.getAddress(), maxPendingTransfers.sub(1))
     transferWillCommitTransfers = true
   } catch (e) {}
 
@@ -826,7 +827,7 @@ export const executeL2BridgeSend = async (
 
   // Perform transaction
   // Validate state after transaction
-  const rootIndex = await sourceBridge.rootIndex()
+  const rootIndex = await sourceBridge.rootIndex(transfer.chainId, bonderAddress)
   const bridgeTotalSupplyAfter: BigNumber = await sourceHopBridgeToken.totalSupply()
   expect(bridgeTotalSupplyAfter).to.eq(
     bridgeTotalSupplyBefore.sub(transfer.amount)
@@ -843,8 +844,9 @@ export const executeL2BridgeSend = async (
     transferIndex
   )
 
-  const pendingAmount: BigNumber = await sourceBridge.pendingAmountForChainId(
-    transfer.chainId
+  const pendingAmount: BigNumber = await sourceBridge.pendingAmount(
+    transfer.chainId,
+    await transfer.bonder.getAddress()
   )
   let expectedPendingAmount: BigNumber
   if(transferWillCommitTransfers) {
@@ -886,7 +888,7 @@ export const executeL2AmmWrapperSwapAndSend = async (
     ...C_TO_H_SWAP_INDICES,
     transfer.amount
   )
-  const rootIndex = await sourceBridge.rootIndex()
+  const rootIndex = await sourceBridge.rootIndex(transfer.chainId, await transfer.bonder.getAddress())
   const bonderAddress = (await transfer.bonder?.getAddress()) ?? ZERO_ADDRESS
 
   // Perform transaction
@@ -924,8 +926,9 @@ export const executeL2AmmWrapperSwapAndSend = async (
     isSwapAndSend
   )
 
-  const pendingAmount = await sourceBridge.pendingAmountForChainId(
-    transfer.chainId
+  const pendingAmount = await sourceBridge.pendingAmount(
+    transfer.chainId,
+    await transfer.bonder.getAddress()
   )
 
   expect(pendingAmount).to.eq(transferAfterSlippage.amount)
@@ -1012,7 +1015,7 @@ export const executeL2BridgeCommitTransfers = async (
   // Get state before transaction
   const destinationChainId: BigNumber = transfers[0].chainId
   const numTransfers: BigNumber = BigNumber.from(transfers.length)
-  let expectedPendingAmountForChainId: BigNumber = BigNumber.from('0')
+  let expectedPendingAmount: BigNumber = BigNumber.from('0')
 
   for (let i = 0; i < numTransfers.toNumber(); i++) {
     // All transfers passed in here should have the same chainId
@@ -1023,38 +1026,41 @@ export const executeL2BridgeCommitTransfers = async (
       BigNumber.from(i).add(startingIndex)
     )
 
-    const pendingTransferIdsForChainId: string = await l2_bridge.pendingTransferIdsForChainId(
+    const pendingTransferIds: string = await l2_bridge.pendingTransferIds(
       destinationChainId,
+      await transfers[i].bonder.getAddress(),
       i
     )
 
-    const expectedPendingTransferIdsForChainId: string = await transfers[i].getTransferIdHex(
+    const expectedPendingTransferIds: string = await transfers[i].getTransferIdHex(
       transferNonce,
       didSwapAndSend
     )
 
-    expect(pendingTransferIdsForChainId).to.eq(
-      expectedPendingTransferIdsForChainId
+    expect(pendingTransferIds).to.eq(
+      expectedPendingTransferIds
     )
 
-    expectedPendingAmountForChainId = expectedPendingAmountForChainId.add(transfers[i].amount)
+    expectedPendingAmount = expectedPendingAmount.add(transfers[i].amount)
   }
 
-  let pendingAmountForChainId: BigNumber = await l2_bridge.pendingAmountForChainId(
-    transfers[0].chainId
+  let pendingAmount: BigNumber = await l2_bridge.pendingAmount(
+    transfers[0].chainId,
+    await transfers[0].bonder.getAddress()
   )
 
-  expect(pendingAmountForChainId).to.eq(expectedPendingAmountForChainId)
+  expect(pendingAmount).to.eq(expectedPendingAmount)
 
   // Perform transaction
-  await l2_bridge.connect(bonder).commitTransfers(destinationChainId)
+  await l2_bridge.connect(bonder).commitTransfers(destinationChainId, await transfers[0].bonder.getAddress())
 
   // Validate state after transaction
-  const lastCommitTimeForChainId: BigNumber = await l2_bridge.lastCommitTimeForChainId(
-    destinationChainId
+  const lastCommitTime: BigNumber = await l2_bridge.lastCommitTime(
+    destinationChainId,
+    await transfers[0].bonder.getAddress()
   )
   const currentTime: number = Math.floor(Date.now() / 1000)
-  expect(lastCommitTimeForChainId.toNumber()).to.be.closeTo(
+  expect(lastCommitTime.toNumber()).to.be.closeTo(
     currentTime,
     TIMESTAMP_VARIANCE
   )
@@ -1062,7 +1068,11 @@ export const executeL2BridgeCommitTransfers = async (
   const expectedErrorMsg: string =
     'VM Exception while processing transaction: invalid opcode'
   try {
-    await l2_bridge.pendingTransferIdsForChainId(destinationChainId, 0)
+    await l2_bridge.pendingTransferIds(
+      destinationChainId, 
+      await bonder.getAddress(),
+      0
+    )
     throw new Error(
       'There should not be a pending transfer ID for chainId in this slot.'
     )
@@ -1071,10 +1081,11 @@ export const executeL2BridgeCommitTransfers = async (
   }
 
   // Verify state post-transaction
-  pendingAmountForChainId = await l2_bridge.pendingAmountForChainId(
-    destinationChainId  
+  pendingAmount = await l2_bridge.pendingAmount(
+    destinationChainId,
+    await bonder.getAddress()
   )
-  expect(pendingAmountForChainId).to.eq('0')
+  expect(pendingAmount).to.eq('0')
 
   let transferIds: Buffer[] = []
   for (let i = 0; i < numTransfers.toNumber(); i++) {
@@ -1095,7 +1106,7 @@ export const executeL2BridgeCommitTransfers = async (
   const transfersCommittedArgs = transfersCommittedEvent[transfersCommittedEvent.length - 1].args
   expect(transfersCommittedArgs.rootHash).to.eq(expectedMerkleTree.getHexRoot())
   const pendingChainAmounts = transfersCommittedArgs.totalAmount
-  expect(pendingChainAmounts).to.eq(expectedPendingAmountForChainId)
+  expect(pendingChainAmounts).to.eq(expectedPendingAmount)
 }
 
 export const executeL2BridgeBondWithdrawalAndDistribute = async (

@@ -38,8 +38,8 @@ const CHAIN_IDS_TO_ACTIVATE: any = {
   }
 }
 
-export const ALL_SUPPORTED_CHAIN_IDS: BigNumber[] = (Object.values(
-  CHAIN_IDS_TO_ACTIVATE
+export const ALL_SUPPORTED_CHAIN_IDS: string[] = (Object.values(
+  CHAIN_IDS
 ) as any[]).reduce((a: any[], b: any) => [...a, ...Object.values(b)], [])
 
 export const ZERO_ADDRESS: string = '0x0000000000000000000000000000000000000000'
