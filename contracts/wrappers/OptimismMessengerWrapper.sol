@@ -35,7 +35,7 @@ contract OptimismMessengerWrapper is MessengerWrapper {
      * @dev Sends a message to the l2BridgeAddress from layer-1
      * @param _calldata The data that l2BridgeAddress will be called with
      */
-    function sendCrossDomainMessage(bytes memory _calldata) public override onlyL1Bridge {
+    function sendCrossDomainMessage(bytes memory _calldata) public payable override onlyL1Bridge {
         l1MessengerAddress.sendMessage(
             l2BridgeAddress,
             _calldata,

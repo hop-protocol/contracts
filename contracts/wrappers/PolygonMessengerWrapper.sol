@@ -32,7 +32,7 @@ contract PolygonMessengerWrapper is FxBaseRootTunnel, MessengerWrapper {
      * @param _calldata The data that l2MessengerProxy will be called with
      * @notice The msg.sender is sent to the L2_PolygonMessengerProxy and checked there.
      */
-    function sendCrossDomainMessage(bytes memory _calldata) public override {
+    function sendCrossDomainMessage(bytes memory _calldata) public payable override {
         _sendMessageToChild(
             abi.encode(msg.sender, _calldata)
         );

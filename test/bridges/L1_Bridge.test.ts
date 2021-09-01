@@ -499,7 +499,7 @@ describe('L1_Bridge', () => {
     })
 
     it('Should set the collateral token address and the bonder address in the constructor', async () => {
-      const collateralTokenAddress = await l1_bridge.l1CanonicalToken()
+      const collateralTokenAddress = await l1_bridge.token()
       const isBonder = await l1_bridge.getIsBonder(await bonder.getAddress())
       expect(collateralTokenAddress).to.eq(l1_canonicalToken.address)
       expect(isBonder).to.eq(true)
