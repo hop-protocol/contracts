@@ -29,7 +29,7 @@ abstract contract L2_Bridge is Bridge {
     address public l1BridgeCaller;
     I_L2_AmmWrapper public ammWrapper;
     mapping(uint256 => bool) public activeChainIds;
-    uint256 public minimumForceCommitDelay = 4 hours;
+    uint256 public minimumForceCommitDelay = 1 days;
     uint256 public maxPendingTransfers = 128;
     uint256 public minBonderBps = 2;
     uint256 public minBonderFeeAbsolute = 0;
@@ -190,10 +190,11 @@ abstract contract L2_Bridge is Bridge {
      * @dev Aggregates all pending Transfers to the `destinationChainId` and sends them to the
      * L1_Bridge as a TransferRoot.
      * @param destinationChainId The chainId of the TransferRoot's destination chain
+     * @param bonder The bonder whose transfer root is being committed
      */
     function commitTransfers(uint256 destinationChainId, address bonder) external {
         uint256 minForceCommitTime = lastCommitTime[destinationChainId][bonder].add(minimumForceCommitDelay);
-        require(minForceCommitTime < block.timestamp || getIsBonder(msg.sender), "L2_BRG: Only Bonder can commit before min delay");
+        require(bonder == msg.sender || minForceCommitTime < block.timestamp, "L2_BRG: Only Bonder can commit before min delay");
 
         _commitTransfers(destinationChainId, bonder);
     }
