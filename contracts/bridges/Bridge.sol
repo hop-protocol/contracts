@@ -62,7 +62,7 @@ abstract contract Bridge is Accounting {
 
     uint256 constant RESCUE_DELAY = 8 weeks;
 
-    constructor(address[] memory bonders) public Accounting(bonders) {}
+    constructor(IBonderRegistry _registry) public Accounting(_registry) {}
 
     /* ========== Public Getters ========== */
 
@@ -282,7 +282,7 @@ abstract contract Bridge is Accounting {
 
         _bondedWithdrawalAmounts[bonder][transferId] = 0;
         _addToAmountWithdrawn(transferRootId, amount);
-        _addCredit(bonder, amount);
+        _subDebit(bonder, amount);
 
         emit WithdrawalBondSettled(bonder, transferId, rootHash);
     }
@@ -314,7 +314,7 @@ abstract contract Bridge is Accounting {
         }
 
         _addToAmountWithdrawn(transferRootId, totalBondsSettled);
-        _addCredit(bonder, totalBondsSettled);
+        _subDebit(bonder, totalBondsSettled);
 
         emit MultipleWithdrawalsSettled(bonder, rootHash, totalBondsSettled);
     }

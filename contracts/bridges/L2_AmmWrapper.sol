@@ -44,7 +44,8 @@ contract L2_AmmWrapper {
         uint256 amountOutMin,
         uint256 deadline,
         uint256 destinationAmountOutMin,
-        uint256 destinationDeadline
+        uint256 destinationDeadline,
+        address bonder
     )
         public
         payable
@@ -67,7 +68,15 @@ contract L2_AmmWrapper {
             deadline
         );
 
-        bridge.send(chainId, recipient, swapAmount, bonderFee, destinationAmountOutMin, destinationDeadline);
+        bridge.send(
+            chainId,
+            recipient,
+            swapAmount,
+            bonderFee,
+            destinationAmountOutMin,
+            destinationDeadline,
+            bonder
+        );
     }
 
     function attemptSwap(

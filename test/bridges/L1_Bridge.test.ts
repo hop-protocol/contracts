@@ -71,6 +71,7 @@ describe('L1_Bridge', () => {
   let l1_canonicalToken: Contract
   let l1_bridge: Contract
   let l1_messenger: Contract
+  let l1_registry: Contract
   let l2_canonicalToken: Contract
   let l2_hopBridgeToken: Contract
   let l2_bridge: Contract
@@ -112,6 +113,7 @@ describe('L1_Bridge', () => {
       l1_canonicalToken,
       l1_bridge,
       l1_messenger,
+      l1_registry,
       l2_canonicalToken,
       l2_hopBridgeToken,
       l2_bridge,
@@ -1921,7 +1923,7 @@ describe('L1_Bridge', () => {
 
   describe('bondTransferRoot', async () => {
     it('Should not allow a transfer root to be bonded unless it is called by the bonder', async () => {
-      const expectedErrorMsg: string = 'ACT: Caller is not bonder'
+      const expectedErrorMsg: string = 'ACT: Caller is not registered bonder'
 
       // const transferNonce = await getTransferNonceFromEvent(l2_bridge)
       const transferNonce = await l2_bridge.getNextTransferNonce()
@@ -4124,7 +4126,7 @@ describe('L1_Bridge', () => {
         bonder
       )
 
-      await l1_bridge.connect(governance).addBonder(await otherUser.getAddress())
+      await l1_registry.connect(governance).addBonder(await otherUser.getAddress())
 
       const transferNonce: string = await getTransferNonceFromEvent(l2_bridge)
       const transferId: Buffer = await transfer.getTransferId(transferNonce)

@@ -19,6 +19,7 @@ describe('Accounting', () => {
   let otherUser: Signer
 
   let mockAccounting: Contract
+  let l1_registry: Contract
 
   let beforeAllSnapshotId: string
   let snapshotId: string
@@ -30,7 +31,7 @@ describe('Accounting', () => {
     l2ChainId = CHAIN_IDS.OPTIMISM.OPTIMISM_TESTNET
     _fixture = await fixture(l1ChainId, l2ChainId)
     await setUpDefaults(_fixture)
-    ;({ bonder, user, governance, otherUser, mockAccounting } = _fixture)
+    ;({ bonder, user, governance, otherUser, mockAccounting, l1_registry } = _fixture)
   })
 
   after(async () => {
@@ -48,11 +49,6 @@ describe('Accounting', () => {
   /**
    * Happy Path
    */
-
-  it('Should get the correct bonder address', async () => {
-    const isBonder = await mockAccounting.getIsBonder(await bonder.getAddress())
-    expect(true).to.eq(isBonder)
-  })
 
   it('Should get the correct credit', async () => {
     const expectedCredit: BigNumber = BigNumber.from(0)
@@ -76,31 +72,6 @@ describe('Accounting', () => {
       await bonder.getAddress()
     )
     expect(debit).to.eq(expectedDebit)
-  })
-
-  it('Should add a new bonder', async () => {
-    let isBonder: boolean = await mockAccounting.getIsBonder(ONE_ADDRESS)
-    expect(isBonder).to.eq(false)
-
-    await mockAccounting.connect(governance).addBonder(ONE_ADDRESS)
-
-    isBonder = await mockAccounting.getIsBonder(ONE_ADDRESS)
-    expect(isBonder).to.eq(true)
-  })
-
-  it('Should add a new bonder then remove them', async () => {
-    let isBonder: boolean = await mockAccounting.getIsBonder(ONE_ADDRESS)
-    expect(isBonder).to.eq(false)
-
-    await mockAccounting.connect(governance).addBonder(ONE_ADDRESS)
-
-    isBonder = await mockAccounting.getIsBonder(ONE_ADDRESS)
-    expect(isBonder).to.eq(true)
-
-    await mockAccounting.connect(governance).removeBonder(ONE_ADDRESS)
-
-    isBonder = await mockAccounting.getIsBonder(ONE_ADDRESS)
-    expect(isBonder).to.eq(false)
   })
 
   it('Should stake and increase the credit', async () => {
@@ -146,9 +117,9 @@ describe('Accounting', () => {
     debit = await mockAccounting.getDebitAndAdditionalDebit(
       await bonder.getAddress()
     )
-    expect(credit).to.eq(stakeAmount)
-    expect(rawDebit).to.eq(stakeAmount)
-    expect(debit).to.eq(stakeAmount)
+    expect(credit).to.eq(0)
+    expect(rawDebit).to.eq(0)
+    expect(debit).to.eq(0)
 
     await mockAccounting.stake(await bonder.getAddress(), stakeAmount.mul(2))
     credit = await mockAccounting.getCredit(await bonder.getAddress())
@@ -156,9 +127,9 @@ describe('Accounting', () => {
     debit = await mockAccounting.getDebitAndAdditionalDebit(
       await bonder.getAddress()
     )
-    expect(credit).to.eq(stakeAmount.mul(3))
-    expect(rawDebit).to.eq(stakeAmount)
-    expect(debit).to.eq(stakeAmount)
+    expect(credit).to.eq(stakeAmount.mul(2))
+    expect(rawDebit).to.eq(0)
+    expect(debit).to.eq(0)
 
     await mockAccounting.connect(bonder).unstake(stakeAmount)
     credit = await mockAccounting.getCredit(await bonder.getAddress())
@@ -166,16 +137,16 @@ describe('Accounting', () => {
     debit = await mockAccounting.getDebitAndAdditionalDebit(
       await bonder.getAddress()
     )
-    expect(credit).to.eq(stakeAmount.mul(3))
-    expect(rawDebit).to.eq(stakeAmount.mul(2))
-    expect(debit).to.eq(stakeAmount.mul(2))
+    expect(credit).to.eq(stakeAmount)
+    expect(rawDebit).to.eq(0)
+    expect(debit).to.eq(0)
   })
 
   it('Should add a bonder, stake to increase the credit with both bonders, and subsequently unstake to increase the debit with both bonders', async () => {
     const otherBonder: Signer = governance
     const stakeAmount: BigNumber = BigNumber.from(10)
 
-    await mockAccounting.connect(governance).addBonder(await otherBonder.getAddress())
+    await l1_registry.connect(governance).addBonder(await otherBonder.getAddress())
 
     await mockAccounting.stake(await bonder.getAddress(), stakeAmount)
     let credit = await mockAccounting.getCredit(await bonder.getAddress())
@@ -203,9 +174,9 @@ describe('Accounting', () => {
     debit = await mockAccounting.getDebitAndAdditionalDebit(
       await bonder.getAddress()
     )
-    expect(credit).to.eq(stakeAmount)
-    expect(rawDebit).to.eq(stakeAmount)
-    expect(debit).to.eq(stakeAmount)
+    expect(credit).to.eq(0)
+    expect(rawDebit).to.eq(0)
+    expect(debit).to.eq(0)
 
     await mockAccounting.connect(otherBonder).unstake(stakeAmount)
     credit = await mockAccounting.getCredit(await otherBonder.getAddress())
@@ -213,9 +184,9 @@ describe('Accounting', () => {
     debit = await mockAccounting.getDebitAndAdditionalDebit(
       await otherBonder.getAddress()
     )
-    expect(credit).to.eq(stakeAmount)
-    expect(rawDebit).to.eq(stakeAmount)
-    expect(debit).to.eq(stakeAmount)
+    expect(credit).to.eq(0)
+    expect(rawDebit).to.eq(0)
+    expect(debit).to.eq(0)
   })
 
   it('Should stake many times with different users and then unstake', async () => {
@@ -246,9 +217,9 @@ describe('Accounting', () => {
     debit = await mockAccounting.getDebitAndAdditionalDebit(
       await bonder.getAddress()
     )
-    expect(credit).to.eq(stakeAmount.mul(3))
-    expect(rawDebit).to.eq(stakeAmount.mul(3))
-    expect(debit).to.eq(stakeAmount.mul(3))
+    expect(credit).to.eq(0)
+    expect(rawDebit).to.eq(0)
+    expect(debit).to.eq(0)
   })
 
   it('Should allow anyone to unstake', async () => {
@@ -261,39 +232,6 @@ describe('Accounting', () => {
   /**
    * Non-Happy Path
    */
-
-  it('Should not allow a higher debit than credit', async () => {
-    const expectedErrorMsg: string = 'ACT: Not enough available credit'
-    const stakeAmount: BigNumber = BigNumber.from(10)
-
-    await expect(
-      mockAccounting.connect(bonder).unstake(stakeAmount)
-    ).to.be.revertedWith(expectedErrorMsg)
-  })
-
-  it('Should not allow someone to stake on a non-bonder address', async () => {
-    const expectedErrorMsg: string =
-      'VM Exception while processing transaction: revert ACT: Address is not bonder'
-    const stakeAmount: BigNumber = BigNumber.from(10)
-
-    await expect(
-      mockAccounting.stake(ONE_ADDRESS, stakeAmount)
-    ).to.be.revertedWith(expectedErrorMsg)
-  })
-
-  it('Should not allow someone to add a bonder that already exists', async () => {
-    const expectedErrorMsg: string = 'ACT: Address is already bonder'
-    await expect(
-      mockAccounting.connect(governance).addBonder(await bonder.getAddress())
-    ).to.be.revertedWith(expectedErrorMsg)
-  })
-
-  it('Should not allow someone to remove a bonder that does not exists', async () => {
-    const expectedErrorMsg: string = 'ACT: Address is not bonder'
-    await expect(
-      mockAccounting.connect(governance).removeBonder(ONE_ADDRESS)
-    ).to.be.revertedWith(expectedErrorMsg)
-  })
 
   it('Should not allow an arbitrary address to add a bonder', async () => {
     // This cannot be tested here, as `_requireIsGovernance()` is virtual in Accounting.sol

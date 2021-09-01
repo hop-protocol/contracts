@@ -27,7 +27,8 @@ import {
   TIMESTAMP_VARIANCE,
   DEAD_ADDRESS,
   H_TO_C_SWAP_INDICES,
-  C_TO_H_SWAP_INDICES
+  C_TO_H_SWAP_INDICES,
+  ZERO_ADDRESS
 } from '../../config/constants'
 
 /**
@@ -491,7 +492,7 @@ export const executeBridgeSettleBondedWithdrawal = async (
     transfer.amount
   )
   const credit = await destinationBridge.getCredit(await bonder.getAddress())
-  const expectedCredit: BigNumber = bondedAmountBefore.add(transfer.amount)
+  const expectedCredit: BigNumber = bondedAmountBefore
   expect(transferRoot[0]).to.eq(transfer.amount)
   expect(transferRoot[1]).to.eq(transfer.amount)
   expect(transferRoot[2].toNumber()).to.be.closeTo(
@@ -553,7 +554,7 @@ export const executeBridgeSettleBondedWithdrawals = async (
     totalTransferAmount
   )
   const credit = await sourceBridge.getCredit(await bonder.getAddress())
-  const expectedCredit: BigNumber = bondedAmountBefore.add(totalTransferAmount)
+  const expectedCredit: BigNumber = bondedAmountBefore
   expect(transferRoot[0]).to.eq(totalTransferAmount)
   expect(transferRoot[1]).to.eq(totalTransferAmount)
   expect(transferRoot[2].toNumber()).to.be.closeTo(
@@ -695,7 +696,7 @@ export const executeL1BridgeResolveChallenge = async (
 
   if (!shouldResolveSuccessfully) {
     expect(transferBond[5]).to.eq(true)
-    let expectedCredit: BigNumber = creditBefore.add(bondAmount)
+    let expectedCredit: BigNumber = creditBefore
     if (didBonderWaitMinTransferRootTime) {
       expectedCredit = expectedCredit.add(challengeAmount)
     } else {
@@ -808,6 +809,8 @@ export const executeL2BridgeSend = async (
     transferWillCommitTransfers = true
   } catch (e) {}
 
+  const bonderAddress = (await transfer.bonder?.getAddress()) ?? ZERO_ADDRESS
+
   // Perform transaction
   await sourceBridge
     .connect(transfer.sender)
@@ -817,7 +820,8 @@ export const executeL2BridgeSend = async (
       transfer.amount,
       transfer.bonderFee,
       transfer.amountOutMin,
-      transfer.deadline
+      transfer.deadline,
+      bonderAddress
     )
 
   // Perform transaction
@@ -883,6 +887,7 @@ export const executeL2AmmWrapperSwapAndSend = async (
     transfer.amount
   )
   const rootIndex = await sourceBridge.rootIndex()
+  const bonderAddress = (await transfer.bonder?.getAddress()) ?? ZERO_ADDRESS
 
   // Perform transaction
   await sourceCanonicalToken
@@ -898,7 +903,8 @@ export const executeL2AmmWrapperSwapAndSend = async (
       transfer.amountOutMin,
       transfer.deadline,
       transfer.destinationAmountOutMin,
-      transfer.destinationDeadline
+      transfer.destinationDeadline,
+      bonderAddress
     )
 
   // Validate state after transaction

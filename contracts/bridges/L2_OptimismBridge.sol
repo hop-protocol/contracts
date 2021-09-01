@@ -20,7 +20,7 @@ contract L2_OptimismBridge is L2_Bridge {
         HopBridgeToken hToken,
         address l1BridgeAddress,
         uint256[] memory activeChainIds,
-        address[] memory bonders,
+        IBonderRegistry registry,
         uint32 _defaultGasLimit
     )
         public
@@ -29,7 +29,7 @@ contract L2_OptimismBridge is L2_Bridge {
             hToken,
             l1BridgeAddress,
             activeChainIds,
-            bonders
+            registry
         )
     {
         messenger = _messenger;

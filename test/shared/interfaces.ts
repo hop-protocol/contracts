@@ -41,6 +41,7 @@ export interface IFixture {
   l1_messenger: Contract
   l1_bridge: Contract
   l1_messengerWrapper: Contract
+  l1_registry: Contract
 
   // L2
   l2_canonicalToken: Contract

@@ -7,7 +7,7 @@ import "../bridges/L1_ETH_Bridge.sol";
 
 contract Mock_L1_ETH_Bridge is L1_ETH_Bridge {
 
-    constructor (address[] memory _bonders, address _governance) public L1_ETH_Bridge(_bonders, _governance) {}
+    constructor (IBonderRegistry registry, address _governance) public L1_ETH_Bridge(registry, _governance) {}
 
     function getChainId() public override view returns (uint256) {
         return 1;

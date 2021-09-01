@@ -368,6 +368,8 @@ describe('L2_AmmWrapper', () => {
         l2ChainId
       )
 
+      const bonderAddress = (await transfer.bonder?.getAddress()) ?? ZERO_ADDRESS
+
       await expect(
         l2_ammWrapper
           .connect(transfer.sender)
@@ -379,7 +381,8 @@ describe('L2_AmmWrapper', () => {
             transfer.amountOutMin,
             transfer.deadline,
             transfer.destinationAmountOutMin,
-            transfer.destinationDeadline
+            transfer.destinationDeadline,
+            bonderAddress
           )
       ).to.be.revertedWith(expectedErrorMsg)
     })

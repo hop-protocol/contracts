@@ -11,6 +11,7 @@ export type TransferProps = {
   destinationAmountOutMin?: ethers.BigNumber
   destinationDeadline?: ethers.BigNumber
   amountAfterSwap?: ethers.BigNumber
+  bonder?: ethers.Signer
 }
 
 export default class Transfer {
@@ -24,6 +25,7 @@ export default class Transfer {
   destinationAmountOutMin?: ethers.BigNumber
   destinationDeadline?: ethers.BigNumber
   amountAfterSwap?: ethers.BigNumber
+  bonder?: ethers.Signer
 
   constructor (props: TransferProps) {
     this.chainId = props.chainId
@@ -36,6 +38,7 @@ export default class Transfer {
     this.destinationAmountOutMin = props.destinationAmountOutMin
     this.destinationDeadline = props.destinationDeadline
     this.amountAfterSwap = props.amountAfterSwap
+    this.bonder = props.bonder
   }
 
   async getTransferId (

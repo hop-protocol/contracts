@@ -22,7 +22,7 @@ contract L2_XDaiBridge is L2_Bridge {
         HopBridgeToken hToken,
         address l1BridgeAddress,
         uint256[] memory activeChainIds,
-        address[] memory bonders,
+        IBonderRegistry registry,
         uint256 _l1ChainId,
         uint256 _defaultGasLimit
     )
@@ -32,7 +32,7 @@ contract L2_XDaiBridge is L2_Bridge {
             hToken,
             l1BridgeAddress,
             activeChainIds,
-            bonders
+            registry
         )
     {
         messenger = _messenger;

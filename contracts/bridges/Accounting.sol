@@ -5,6 +5,7 @@ pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import "../interfaces/IBonderRegistry.sol";
 
 /**
  * @dev Accounting is an abstract contract that encapsulates the most critical logic in the Hop contracts.
@@ -21,7 +22,7 @@ import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 abstract contract Accounting is ReentrancyGuard {
     using SafeMath for uint256;
 
-    mapping(address => bool) private _isBonder;
+    IBonderRegistry private _registry;
 
     mapping(address => uint256) private _credit;
     mapping(address => uint256) private _debit;
@@ -36,18 +37,10 @@ abstract contract Accounting is ReentrancyGuard {
         uint256 amount
     );
 
-    event BonderAdded (
-        address indexed newBonder
-    );
-
-    event BonderRemoved (
-        address indexed previousBonder
-    );
-
     /* ========== Modifiers ========== */
 
     modifier onlyBonder {
-        require(_isBonder[msg.sender], "ACT: Caller is not bonder");
+        require(getIsBonder(msg.sender), "ACT: Caller is not registered bonder");
         _;
     }
 
@@ -63,12 +56,8 @@ abstract contract Accounting is ReentrancyGuard {
     }
 
     /// @dev Sets the Bonder addresses
-    constructor(address[] memory bonders) public {
-        for (uint256 i = 0; i < bonders.length; i++) {
-            require(_isBonder[bonders[i]] == false, "ACT: Cannot add duplicate bonder");
-            _isBonder[bonders[i]] = true;
-            emit BonderAdded(bonders[i]);
-        }
+    constructor(IBonderRegistry registry) public {
+        _registry = registry;
     }
 
     /* ========== Virtual functions ========== */
@@ -96,7 +85,7 @@ abstract contract Accounting is ReentrancyGuard {
      * @return true if address is a Bonder
      */
     function getIsBonder(address maybeBonder) public view returns (bool) {
-        return _isBonder[maybeBonder];
+        return _registry.isBonderAllowed(maybeBonder, _credit[maybeBonder]);
     }
 
     /**
@@ -126,6 +115,25 @@ abstract contract Accounting is ReentrancyGuard {
         return _debit[bonder].add(_additionalDebit(bonder));
     }
 
+    /**
+     * @dev Get the Bonder registry address
+     * @return The Bonder registry address
+     */
+    function getRegistry() external view returns (IBonderRegistry) {
+        return _registry;
+    }
+
+    /* ========== External Config Management Setters ========== */
+
+    /**
+     * @dev Set the Bonder registry address
+     * @param registry The new Bonder registry address
+     */
+    function setRegistry(IBonderRegistry registry) external onlyGovernance {
+        require(registry != IBonderRegistry(0), "L1_BRG: _registry cannot be address(0)");
+        _registry = registry;
+    }
+
     /* ========== Bonder external functions ========== */
 
     /** 
@@ -134,9 +142,8 @@ abstract contract Accounting is ReentrancyGuard {
      * @param amount The amount being staked
      */
     function stake(address bonder, uint256 amount) external payable nonReentrant {
-        require(_isBonder[bonder] == true, "ACT: Address is not bonder");
         _transferToBridge(msg.sender, amount);
-        _addCredit(bonder, amount);
+        _credit[bonder] = _credit[bonder].add(amount);
 
         emit Stake(bonder, amount);
     }
@@ -146,32 +153,10 @@ abstract contract Accounting is ReentrancyGuard {
      * @param amount The amount being unstaked
      */
     function unstake(uint256 amount) external requirePositiveBalance nonReentrant {
-        _addDebit(msg.sender, amount);
+        _credit[msg.sender] = _credit[msg.sender].sub(amount);
         _transferFromBridge(msg.sender, amount);
 
         emit Unstake(msg.sender, amount);
-    }
-
-    /**
-     * @dev Add Bonder to allowlist
-     * @param bonder The address being added as a Bonder
-     */
-    function addBonder(address bonder) external onlyGovernance {
-        require(_isBonder[bonder] == false, "ACT: Address is already bonder");
-        _isBonder[bonder] = true;
-
-        emit BonderAdded(bonder);
-    }
-
-    /**
-     * @dev Remove Bonder from allowlist
-     * @param bonder The address being removed as a Bonder
-     */
-    function removeBonder(address bonder) external onlyGovernance {
-        require(_isBonder[bonder] == true, "ACT: Address is not bonder");
-        _isBonder[bonder] = false;
-
-        emit BonderRemoved(bonder);
     }
 
     /* ========== Internal functions ========== */
@@ -182,5 +167,9 @@ abstract contract Accounting is ReentrancyGuard {
 
     function _addDebit(address bonder, uint256 amount) internal {
         _debit[bonder] = _debit[bonder].add(amount);
+    }
+
+    function _subDebit(address bonder, uint256 amount) internal {
+        _debit[bonder] = _debit[bonder].sub(amount);
     }
 }
