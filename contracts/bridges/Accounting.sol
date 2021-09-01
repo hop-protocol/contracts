@@ -22,7 +22,7 @@ import "../interfaces/IBonderRegistry.sol";
 abstract contract Accounting is ReentrancyGuard {
     using SafeMath for uint256;
 
-    IBonderRegistry registry;
+    IBonderRegistry private _registry;
 
     mapping(address => uint256) private _credit;
     mapping(address => uint256) private _debit;
@@ -56,8 +56,8 @@ abstract contract Accounting is ReentrancyGuard {
     }
 
     /// @dev Sets the Bonder addresses
-    constructor(IBonderRegistry _registry) public {
-        registry = _registry;
+    constructor(IBonderRegistry registry) public {
+        _registry = registry;
     }
 
     /* ========== Virtual functions ========== */
@@ -85,7 +85,7 @@ abstract contract Accounting is ReentrancyGuard {
      * @return true if address is a Bonder
      */
     function getIsBonder(address maybeBonder) public view returns (bool) {
-        return registry.isBonderAllowed(maybeBonder, _credit[maybeBonder]);
+        return _registry.isBonderAllowed(maybeBonder, _credit[maybeBonder]);
     }
 
     /**
@@ -115,11 +115,23 @@ abstract contract Accounting is ReentrancyGuard {
         return _debit[bonder].add(_additionalDebit(bonder));
     }
 
+    /**
+     * @dev Get the Bonder registry address
+     * @return The Bonder registry address
+     */
+    function getRegistry() external view returns (IBonderRegistry) {
+        return _registry;
+    }
+
     /* ========== External Config Management Setters ========== */
 
-    function setRegistry(IBonderRegistry _registry) external onlyGovernance {
-        require(_registry != IBonderRegistry(0), "L1_BRG: _registry cannot be address(0)");
-        registry = _registry;
+    /**
+     * @dev Set the Bonder registry address
+     * @param registry The new Bonder registry address
+     */
+    function setRegistry(IBonderRegistry registry) external onlyGovernance {
+        require(registry != IBonderRegistry(0), "L1_BRG: _registry cannot be address(0)");
+        _registry = registry;
     }
 
     /* ========== Bonder external functions ========== */
