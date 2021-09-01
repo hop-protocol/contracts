@@ -40,7 +40,7 @@ abstract contract L2_Bridge is Bridge {
     mapping(uint256 => mapping(address => uint256)) public pendingAmount;
     // destnation chain Id -> bonder address -> last commit time
     mapping(uint256 => mapping(address => uint256)) public lastCommitTime;
-    // destnation chain Id -> bonder address -> last commit time
+    // destnation chain Id -> bonder address -> root index
     mapping(uint256 => mapping(address => uint256)) public rootIndex;
 
     uint256 public transferNonceIncrementer;
