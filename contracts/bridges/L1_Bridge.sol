@@ -156,7 +156,7 @@ abstract contract L1_Bridge is Bridge {
 
         uint256 forwardedValue;
         if (token == ETH_ADDRESS) {
-            forwardedValue = msg.value.sub(amount);
+            forwardedValue = msg.value.sub(amount, "L1_BRG: Value is less than amount");
         } else {
             forwardedValue = msg.value;
         }
