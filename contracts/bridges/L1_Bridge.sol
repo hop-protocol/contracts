@@ -63,7 +63,8 @@ abstract contract L1_Bridge is Bridge {
 
     event TransferRootBonded (
         bytes32 indexed root,
-        uint256 amount
+        uint256 amount,
+        uint256 destinationChainid
     );
 
     event TransferRootConfirmed(
@@ -156,7 +157,7 @@ abstract contract L1_Bridge is Bridge {
 
         uint256 forwardedValue;
         if (token == ETH_ADDRESS) {
-            forwardedValue = msg.value.sub(amount);
+            forwardedValue = msg.value.sub(amount, "L1_BRG: Value is less than amount");
         } else {
             forwardedValue = msg.value;
         }
@@ -217,7 +218,7 @@ abstract contract L1_Bridge is Bridge {
 
         _distributeTransferRoot(rootHash, destinationChainId, totalAmount);
 
-        emit TransferRootBonded(rootHash, totalAmount);
+        emit TransferRootBonded(rootHash, totalAmount, destinationChainId);
     }
 
     /**

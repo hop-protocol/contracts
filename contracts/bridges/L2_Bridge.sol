@@ -188,7 +188,6 @@ abstract contract L2_Bridge is Bridge {
     function commitTransfers(uint256 destinationChainId) external {
         uint256 minForceCommitTime = lastCommitTimeForChainId[destinationChainId].add(minimumForceCommitDelay);
         require(minForceCommitTime < block.timestamp || getIsBonder(msg.sender), "L2_BRG: Only Bonder can commit before min delay");
-        lastCommitTimeForChainId[destinationChainId] = block.timestamp;
 
         _commitTransfers(destinationChainId);
     }
@@ -295,6 +294,7 @@ abstract contract L2_Bridge is Bridge {
             rootCommittedAt
         );
 
+        lastCommitTimeForChainId[destinationChainId] = block.timestamp;
         rootIndex++;
 
         bytes memory confirmTransferRootMessage = abi.encodeWithSignature(
