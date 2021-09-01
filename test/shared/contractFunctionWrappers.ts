@@ -20,7 +20,8 @@ import {
   isChainIdArbitrum,
   isChainIdXDai,
   isChainIdPolygon,
-  isChainIdL1
+  isChainIdL1,
+  generateArbitrumAliasAddress
 } from '../../config/utils'
 import {
   CHAIN_IDS,
@@ -71,24 +72,26 @@ export const executeCanonicalMessengerSendMessage = async (
   modifiedGasPrice = modifiedGasPrice || {}
 
   if (isChainIdArbitrum(l2ChainId)) {
-    const amount: BigNumber = BigNumber.from('0')
-    const maxSubmissionCost: BigNumber = BigNumber.from('0')
-    const maxGas: BigNumber = BigNumber.from('100000000000')
-    const gasPriceBid: BigNumber = BigNumber.from('0')
+    const senderAddressAlias: string = generateArbitrumAliasAddress(await sender.getAddress())
+    const destinationAddress: string = l2_bridge.address
+    const callValue: BigNumber = BigNumber.from('0')
+    const excessFeeRefundAddress: string = senderAddressAlias
+    const callValueRefundAddress: string = senderAddressAlias
+    const maxSubmissionCost: BigNumber = BigNumber.from('61980393341')
+    const maxGas: BigNumber = BigNumber.from('20000000')
+    const gasPriceBid: BigNumber = BigNumber.from('559047150')
+    const data: string = message
     const arbitrumParams: any[] = [
-      l2_bridge.address,
-      amount,
+      destinationAddress,
+      callValue,
       maxSubmissionCost,
-      await sender.getAddress(),
-      await sender.getAddress(),
+      excessFeeRefundAddress,
+      callValueRefundAddress,
       maxGas,
       gasPriceBid,
-      message
+      data
     ]
-
-    tx = await l1_messenger
-      .connect(sender)
-      .createRetryableTicket(...arbitrumParams, modifiedGasPrice);
+    tx = await l1_messenger.connect(sender).createRetryableTicket(...arbitrumParams)
   } else if (isChainIdOptimism(l2ChainId)) {
     const optimismGasLimit: BigNumber = BigNumber.from('5000000')
     const optimismParams: any[] = [l2_bridge.address, message, optimismGasLimit]

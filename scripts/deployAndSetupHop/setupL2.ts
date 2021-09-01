@@ -15,7 +15,7 @@ import {
 import {
   isChainIdArbitrum,
   isChainIdPolygon,
-  isChainIdOptimism
+  doesChainIdNeedToEstimateGas
 } from '../../config/utils'
 
 import {
@@ -110,7 +110,7 @@ export async function setupL2 (config: Config) {
   l2_bridge = L2_Bridge.attach(l2BridgeAddress)
   l2_swap = L2_Swap.attach(l2SwapAddress)
 
-  if (!isChainIdOptimism(l2ChainId)) {
+  if (doesChainIdNeedToEstimateGas(l2ChainId)) {
     overrides = DEFAULT_ETHERS_OVERRIDES
   }
 

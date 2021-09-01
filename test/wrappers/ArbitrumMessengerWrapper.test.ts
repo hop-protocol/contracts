@@ -29,7 +29,7 @@ describe('Arbitrum Messenger Wrapper', () => {
 
   beforeEach(async () => {
     l1ChainId = CHAIN_IDS.ETHEREUM.KOVAN
-    l2ChainId = CHAIN_IDS.ARBITRUM.TESTNET_4
+    l2ChainId = CHAIN_IDS.ARBITRUM.ARBITRUM_TESTNET
 
     _fixture = await fixture(l1ChainId, l2ChainId)
     await setUpDefaults(_fixture)

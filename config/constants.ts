@@ -4,6 +4,7 @@ import { parseEther } from 'ethers/lib/utils'
 export const CHAIN_IDS: any = {
   ETHEREUM: {
     MAINNET: BigNumber.from('1'),
+    RINKEBY: BigNumber.from('4'),
     GOERLI: BigNumber.from('5'),
     KOVAN: BigNumber.from('42')
   },
@@ -12,9 +13,8 @@ export const CHAIN_IDS: any = {
     OPTIMISM_MAINNET: BigNumber.from('10'),
   },
   ARBITRUM: {
-    TESTNET_2: BigNumber.from('152709604825713'),
-    TESTNET_3: BigNumber.from('79377087078960'),
-    TESTNET_4: BigNumber.from('212984383488152')
+    ARBITRUM_TESTNET: BigNumber.from('421611'),
+    ARBITRUM_MAINNET: BigNumber.from('42161')
   },
   XDAI: {
     XDAI: BigNumber.from('100'),
@@ -173,6 +173,9 @@ export const L1_CANONICAL_TOKEN_ADDRESSES: any = {
     sBTC: '0x7a4f56B0Dd21d730604A266245a0067b97605DAE',
     USDC: '0xA46d09fd4B7961aE16D33122660f43726cB1Ff36',
     WBTC: '0x1E1a556D2166A006e662864D376e8DD249087150'
+  },
+  RINKEBY: {
+    DAI: '0x5592EC0cfb4dbc12D3aB100b257153436a1f0FEa'
   }
 }
 
@@ -219,7 +222,7 @@ export const L2_CANONICAL_TOKEN_ADDRESSES: any = {
     }
   },
   ARBITRUM: {
-    DAI: '0xFa226E8B73Acaafeb29fEcd601afBEC8b1208986'
+    DAI: '0x5364Dc963c402aAF150700f38a8ef52C1D7D7F14'
   }
 }
 

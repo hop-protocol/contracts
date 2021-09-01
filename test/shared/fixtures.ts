@@ -251,7 +251,7 @@ export async function fixture (
       ...genericTransfer
     }),
     new Transfer({
-      chainId: CHAIN_IDS.ARBITRUM.TESTNET_4,
+      chainId: CHAIN_IDS.ARBITRUM.ARBITRUM_TESTNET,
       sender: user,
       recipient: user,
       deadline: DEFAULT_DEADLINE,
@@ -265,7 +265,7 @@ export async function fixture (
       ...genericTransfer
     }),
     new Transfer({
-      chainId: CHAIN_IDS.ARBITRUM.TESTNET_4,
+      chainId: CHAIN_IDS.ARBITRUM.ARBITRUM_TESTNET,
       sender: user,
       recipient: user,
       deadline: DEFAULT_DEADLINE,

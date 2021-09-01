@@ -20,9 +20,9 @@ import {
 
 import {
   isChainIdPolygon,
-  isChainIdOptimism,
   getPolygonFxChildAddress,
-  getL2BridgeDefaults
+  getL2BridgeDefaults,
+  doesChainIdNeedToEstimateGas
 } from '../../config/utils'
 
 import {
@@ -137,7 +137,7 @@ export async function deployL2 (config: Config) {
   l2_canonicalToken = L2_MockERC20.attach(l2CanonicalTokenAddress)
 
 
-  if (!isChainIdOptimism(l2ChainId)) {
+  if (!doesChainIdNeedToEstimateGas(l2ChainId)) {
     overrides = DEFAULT_ETHERS_OVERRIDES
   }
 

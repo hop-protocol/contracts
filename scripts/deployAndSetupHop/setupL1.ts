@@ -15,6 +15,7 @@ import {
 import {
   getMessengerWrapperDefaults,
   getPolygonRpcEndpoint,
+  generateArbitrumAliasAddress
 } from '../../config/utils'
 import {
   ALL_SUPPORTED_CHAIN_IDS,
@@ -22,7 +23,8 @@ import {
 } from '../../config/constants'
 import {
   isChainIdMainnet,
-  isChainIdPolygon
+  isChainIdPolygon,
+  isChainIdArbitrum,
 } from '../../config/utils'
 
 import {
@@ -87,7 +89,6 @@ export async function setupL1 (config: Config) {
 
   // Factories
   let L1_MockERC20: ContractFactory
-  let L1_TokenBridge: ContractFactory
   let L1_Bridge: ContractFactory
   let L1_MessengerWrapper: ContractFactory
   let L1_Messenger: ContractFactory
@@ -96,7 +97,6 @@ export async function setupL1 (config: Config) {
 
   // Contracts
   let l1_canonicalToken: Contract
-  let l1_tokenBridge: Contract
   let l1_messengerWrapper: Contract
   let l1_bridge: Contract
   let l1_messenger: Contract
@@ -119,7 +119,6 @@ export async function setupL1 (config: Config) {
   // Get the contract Factories
   ;({
     L1_MockERC20,
-    L1_TokenBridge,
     L1_Bridge,
     L1_Messenger,
     L1_MessengerWrapper,
@@ -194,6 +193,8 @@ export async function setupL1 (config: Config) {
   let setL1BridgeCallerParams: string
   if (isChainIdPolygon(l2ChainId)) {
     setL1BridgeCallerParams = l1_bridge.address
+  } else if (isChainIdArbitrum(l2ChainId)) {
+    setL1BridgeCallerParams = generateArbitrumAliasAddress(l1_messengerWrapper.address)
   } else {
     setL1BridgeCallerParams = l1_messengerWrapper.address
   }

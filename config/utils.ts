@@ -95,7 +95,7 @@ export const getL2BridgeDefaults = (
   let additionalData = []
 
   if (isChainIdArbitrum(chainId)) {
-    // No additional data needed
+    governanceAddress = generateArbitrumAliasAddress(governanceAddress)
   } else if (isChainIdOptimism(chainId)) {
     const defaultGasLimit = DEFAULT_L2_BRIDGE_GAS_LIMIT
     additionalData.push(defaultGasLimit)
@@ -137,9 +137,8 @@ export const isChainIdOptimism = (chainId: BigNumber): boolean => {
 
 export const isChainIdArbitrum = (chainId: BigNumber): boolean => {
   if (
-    chainId.eq(CHAIN_IDS.ARBITRUM.TESTNET_2) ||
-    chainId.eq(CHAIN_IDS.ARBITRUM.TESTNET_3) ||
-    chainId.eq(CHAIN_IDS.ARBITRUM.TESTNET_4)
+    chainId.eq(CHAIN_IDS.ARBITRUM.ARBITRUM_TESTNET) ||
+    chainId.eq(CHAIN_IDS.ARBITRUM.ARBITRUM_MAINNET)
   ) {
     return true
   }
@@ -269,10 +268,14 @@ export const getPolygonFxChildAddress = (l1ChainId: BigNumber): string => {
   }
 }
 
-export const generateArbitrumVerificationAddress = (address: string): string => {
+export const generateArbitrumAliasAddress = (address: string): string => {
   const addressBn: BigNumber = BigNumber.from(address)
-  const modifier: string = '0x1111000000000000000000000000000000001111'
-  const modifierBn: BigNumber = BigNumber.from(modifier)
+  const aliasMask: string = '0x1111000000000000000000000000000000001111'
+  const aliasMaskBn: BigNumber = BigNumber.from(aliasMask)
   const boundary: BigNumber = BigNumber.from('0x10000000000000000000000000000000000000000')
-  return ((addressBn.add(modifierBn)).mod(boundary)).toHexString()
+  return ((addressBn.add(aliasMaskBn)).mod(boundary)).toHexString()
+}
+
+export const doesChainIdNeedToEstimateGas = (l2ChainId: BigNumber): boolean => {
+  return isChainIdPolygon(l2ChainId) || isChainIdArbitrum(l2ChainId)
 }

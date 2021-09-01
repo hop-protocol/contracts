@@ -47,11 +47,23 @@ export default {
       accounts: desiredAccounts,
       chainId: CHAIN_IDS.ETHEREUM.GOERLI.toNumber()
     },
-    arbitrum: {
-      url: process.env.RPC_ENDPOINT_ARBITRUM,
+    rinkeby: {
+      url: process.env.RPC_ENDPOINT_RINKEBY,
+      accounts: desiredAccounts,
+      chainId: CHAIN_IDS.ETHEREUM.RINKEBY.toNumber()
+    },
+    arbitrum_mainnet: {
+      url: process.env.RPC_ENDPOINT_ARBITRUM_MAINNET,
       accounts: desiredAccounts,
       gasPrice: 0,
-      chainId: CHAIN_IDS.ARBITRUM.TESTNET_4.toNumber(),
+      chainId: CHAIN_IDS.ARBITRUM.ARBITRUM_MAINNET.toNumber(),
+      timeout: 480e3
+    },
+    arbitrum_testnet: {
+      url: process.env.RPC_ENDPOINT_ARBITRUM_TESTNET,
+      accounts: desiredAccounts,
+      gasPrice: 0,
+      chainId: CHAIN_IDS.ARBITRUM.ARBITRUM_TESTNET.toNumber(),
       timeout: 480e3
     },
     optimism_mainnet: {

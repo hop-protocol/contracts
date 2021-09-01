@@ -247,11 +247,11 @@ function setNetworkParams (
 }
 
 function handleCustomL2NetworkName(l1NetworkName: string, l2NetworkName: string) {
-  if (l2NetworkName === 'optimism') {
+  if (l2NetworkName === 'optimism' || l2NetworkName === 'arbitrum') {
     if (l1NetworkName === 'mainnet') {
-      return 'optimism_mainnet'
-    } else if (l1NetworkName === 'kovan') {
-      return l2NetworkName = 'optimism_testnet'
+      return `${l2NetworkName}_mainnet`
+    } else if (l1NetworkName === 'kovan' || l1NetworkName === 'rinkeby') {
+      return `${l2NetworkName}_testnet`
     } else {
       throw new Error('Unknown L1 network name')
     }

@@ -45,21 +45,6 @@ export const networkData: NetworkData = {
       }
     }
   },
-  arbitrum: {
-    l2NetworkName: 'arbitrum',
-    l1ChainId,
-    l2ChainId: CHAIN_IDS.ARBITRUM.TESTNET_4.toString(),
-    l1MessengerAddress: '0xD71d47AD1b63981E9dB8e4A78C0b30170da8a601',
-    l2TokenBridgeAddress: '0xE49CCf3e19d847f8FF4d6962684A3242abF63f07',
-    l2MessengerAddress: '0x0000000000000000000000000000000000000064',
-    tokens: {
-      DAI: {
-        l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.KOVAN.DAI,
-        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.ARBITRUM.DAI,
-        ...DEFAULT_NETWORK_DATA.DAI
-      }
-    }
-  },
   optimism: {
     l2NetworkName: 'optimism',
     l1ChainId,

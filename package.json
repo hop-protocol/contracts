@@ -25,9 +25,9 @@
     "setup:l2-optimism-canonical-bridge": "hardhat run scripts/deployAndSetupHop/optimism-canonical-bridge/setupL2.ts --network optimism",
     "check-l2-bridge-bytecode-size": "cat artifacts/contracts/bridges/L2_OptimismBridge.sol/L2_OptimismBridge.ovm.json | jq -r '.deployedBytecode' | wc -c",
     "deploy:l1-kovan:erc20": "hardhat run scripts/erc20/deploy.ts --network kovan",
+    "deploy:l1-rinkeby:erc20": "hardhat run scripts/erc20/deploy.ts --network rinkeby",
     "deploy:l1-goerli:erc20": "hardhat run scripts/erc20/deploy.ts --network goerli",
     "deploy:l2-optimism:erc20": "hardhat run scripts/erc20/deploy.ts --network optimism",
-    "deploy:l2-arbitrum:erc20": "hardhat run scripts/erc20/deploy.ts --network arbitrum",
     "update-contract-state": "hardhat run scripts/contractState/getUpdateContractStateMessage.ts"
   },
   "devDependencies": {

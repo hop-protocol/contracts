@@ -28,7 +28,8 @@ import {
 import {
   mainnetNetworkData,
   goerliNetworkData,
-  kovanNetworkData
+  kovanNetworkData,
+  rinkebyNetworkData
 } from '../../config/networks/index'
 
 export const getContractFactories = async (
@@ -69,13 +70,11 @@ export const getContractFactories = async (
   )
   const L2_AmmWrapper: ContractFactory = await ethers.getContractFactory('L2_AmmWrapper', { signer })
 
-  let L1_TokenBridge: ContractFactory
   let L1_Messenger: ContractFactory
   let L1_MessengerWrapper: ContractFactory
   let L2_Bridge: ContractFactory
   let L2_MessengerProxy: ContractFactory
   ;({
-    L1_TokenBridge,
     L1_Messenger,
     L1_MessengerWrapper,
     L2_Bridge,
@@ -84,7 +83,6 @@ export const getContractFactories = async (
 
   return {
     L1_MockERC20,
-    L1_TokenBridge,
     L1_Bridge,
     L1_MessengerWrapper,
     L1_Messenger,
@@ -112,7 +110,6 @@ const getNetworkSpecificFactories = async (
     return getPolygonContractFactories(signer, ethers)
   } else {
     return {
-      L1_TokenBridge: null,
       L1_Messenger: null,
       L1_MessengerWrapper: null,
       L2_Bridge: null,
@@ -125,10 +122,6 @@ const getOptimismContractFactories = async (
   signer: Signer,
   ethers: any
 ) => {
-  const L1_TokenBridge: ContractFactory = await ethers.getContractFactory(
-    'contracts/test/optimism/mockOVM_L1StandardBridge.sol:mockOVM_L1StandardBridge',
-    { signer }
-  )
   const L1_Messenger: ContractFactory = await ethers.getContractFactory(
     'contracts/test/optimism/mockOVM_CrossDomainMessenger.sol:mockOVM_CrossDomainMessenger',
     { signer }
@@ -143,7 +136,6 @@ const getOptimismContractFactories = async (
   )
 
   return {
-    L1_TokenBridge,
     L1_Messenger,
     L1_MessengerWrapper,
     L2_Bridge,
@@ -152,12 +144,8 @@ const getOptimismContractFactories = async (
 }
 
 const getArbitrumContractFactories = async (signer: Signer, ethers: any) => {
-  const L1_TokenBridge: ContractFactory = await ethers.getContractFactory(
-    'contracts/interfaces/arbitrum/bridges/IEthERC20Bridge.sol:IEthERC20Bridge',
-    { signer }
-  )
   const L1_Messenger: ContractFactory = await ethers.getContractFactory(
-    'contracts/interfaces/arbitrum/messengers/IInbox.sol:IInbox',
+    'contracts/test/arbitrum/mockArbitrum_Inbox.sol:mockArbitrum_Inbox',
     { signer }
   )
   const L1_MessengerWrapper: ContractFactory = await ethers.getContractFactory(
@@ -170,7 +158,6 @@ const getArbitrumContractFactories = async (signer: Signer, ethers: any) => {
   )
 
   return {
-    L1_TokenBridge,
     L1_Messenger,
     L1_MessengerWrapper,
     L2_Bridge,
@@ -179,10 +166,6 @@ const getArbitrumContractFactories = async (signer: Signer, ethers: any) => {
 }
 
 const getXDaiContractFactories = async (signer: Signer, ethers: any) => {
-  const L1_TokenBridge: ContractFactory = await ethers.getContractFactory(
-    'contracts/test/xDai/MockForeignOmniBridge.sol:MockForeignOmniBridge',
-    { signer }
-  )
   const L1_Messenger: ContractFactory = await ethers.getContractFactory(
     'contracts/test/xDai/Mock_L1_xDaiMessenger.sol:Mock_L1_xDaiMessenger',
     { signer }
@@ -197,7 +180,6 @@ const getXDaiContractFactories = async (signer: Signer, ethers: any) => {
   )
 
   return {
-    L1_TokenBridge,
     L1_Messenger,
     L1_MessengerWrapper,
     L2_Bridge,
@@ -206,10 +188,6 @@ const getXDaiContractFactories = async (signer: Signer, ethers: any) => {
 }
 
 const getPolygonContractFactories = async (signer: Signer, ethers: any) => {
-  const L1_TokenBridge: ContractFactory = await ethers.getContractFactory(
-    'contracts/test/polygon/MockRootChainManager.sol:MockRootChainManager',
-    { signer }
-  )
   const L1_Messenger: ContractFactory = await ethers.getContractFactory(
     'contracts/test/polygon/Mock_L1_PolygonMessenger.sol:Mock_L1_PolygonMessenger',
     { signer }
@@ -228,76 +206,11 @@ const getPolygonContractFactories = async (signer: Signer, ethers: any) => {
   )
 
   return {
-    L1_TokenBridge,
     L1_Messenger,
     L1_MessengerWrapper,
     L2_Bridge,
     L2_MessengerProxy
   }
-}
-
-export const sendChainSpecificBridgeDeposit = async (
-  chainId: BigNumber,
-  sender: Signer,
-  amount: BigNumber,
-  l1_tokenBridge: Contract,
-  l1_canonicalToken: Contract,
-  l2_canonicalToken: Contract,
-  modifiedGasPrice: { [key: string]: BigNumber } | undefined = undefined
-
-) => {
-  let tx
-  modifiedGasPrice = modifiedGasPrice || {}
-  if (isChainIdOptimism(chainId)) {
-    const l2GasForTransfer = BigNumber.from('2000000')
-    const calldata = '0x'
-    tx = await l1_tokenBridge
-      .connect(sender)
-      .deposit(
-        l1_canonicalToken.address,
-        l2_canonicalToken.address,
-        amount,
-        l2GasForTransfer,
-        calldata,
-        modifiedGasPrice
-      )
-  } else if (isChainIdArbitrum(chainId)) {
-    tx = await l1_tokenBridge
-      .connect(sender)
-      .depositAsERC20(
-        l1_canonicalToken.address,
-        await sender.getAddress(),
-        amount,
-        '0',
-        '1000000000000000000',
-        '0',
-        '0x',
-        modifiedGasPrice
-      )
-  } else if (isChainIdXDai(chainId)) {
-    tx = await l1_tokenBridge
-      .connect(sender)
-      .relayTokens(
-        l1_canonicalToken.address,
-        await sender.getAddress(),
-        amount,
-        modifiedGasPrice
-      )
-  } else if (isChainIdPolygon(chainId)) {
-    const encodedAmount = ethersUtils.defaultAbiCoder.encode(['uint256'], [amount])
-    tx = await l1_tokenBridge
-      .connect(sender)
-      .depositFor(
-        await sender.getAddress(),
-        l1_canonicalToken.address,
-        encodedAmount,
-        modifiedGasPrice
-      )
-  } else {
-    throw new Error(`Unsupported chain ID "${chainId}"`)
-  }
-
-  await tx.wait()
 }
 
 const configFilepath = path.resolve(__dirname, '../deployAndSetupHop/deploy_config.json')
@@ -340,6 +253,8 @@ export const getNetworkDataByNetworkName = (networkName: string) => {
     return goerliNetworkData
   } else if (networkName === 'kovan') {
     return kovanNetworkData
+  } else if (networkName === 'rinkeby') {
+    return rinkebyNetworkData
   } else {
     throw new Error('Invalid network name')
   }

@@ -17,24 +17,32 @@ import "./MessengerWrapper.sol";
 contract ArbitrumMessengerWrapper is MessengerWrapper {
 
     IInbox public immutable l1MessengerAddress;
-    uint256 public immutable defaultGasPrice;
-    address public immutable l2BridgeAddress;
-    uint256 public immutable defaultGasLimit;
-    uint256 public immutable defaultSubMessageType = 1;
+    address public l2BridgeAddress;
+    uint256 public maxSubmissionCost;
+    address public l1MessengerWrapperAlias;
+    uint256 public maxGas;
+    uint256 public gasPriceBid;
+
 
     constructor(
         address _l1BridgeAddress,
         address _l2BridgeAddress,
         IInbox _l1MessengerAddress,
-        uint256 _defaultGasLimit,
-        uint256 _defaultGasPrice,
+        uint256 _maxSubmissionCost,
+        address _l1MessengerWrapperAlias,
+        uint256 _maxGas,
+        uint256 _gasPriceBid
+        
     )
         public
         MessengerWrapper(_l1BridgeAddress)
     {
         l2BridgeAddress = _l2BridgeAddress;
-        defaultGasLimit = _defaultGasLimit;
-        defaultGasPrice = _defaultGasPrice;
+        l1MessengerAddress = _l1MessengerAddress;
+        maxSubmissionCost = _maxSubmissionCost;
+        l1MessengerWrapperAlias = _l1MessengerWrapperAlias;
+        maxGas = _maxGas;
+        gasPriceBid = _defaultGasPrice;
     }
 
     /** 
@@ -42,19 +50,15 @@ contract ArbitrumMessengerWrapper is MessengerWrapper {
      * @param _calldata The data that l2BridgeAddress will be called with
      */
     function sendCrossDomainMessage(bytes memory _calldata) public override onlyL1Bridge {
-        bytes memory subMessage = abi.encode(
-            defaultGasLimit,
-            defaultGasPrice,
-            uint256(l2BridgeAddress),
+        l1MessengerAddress.createRetryableTicket(
+            l2BridgeAddress,
             0,
-            _callData
-        );
-        bytes memory prefixedSubMessage = abi.encodePacked(
-            defaultSubMessageType,
-            subMessage
-        );
-        l1MessengerAddress.sendL2Message(
-            prefixedSubMessage
+            maxSubmissionCost,
+            l1MessengerWrapperAlias,
+            l1MessengerWrapperAlias,
+            maxGas,
+            gasPriceBid,
+            _calldata
         );
     }
 
@@ -65,5 +69,29 @@ contract ArbitrumMessengerWrapper is MessengerWrapper {
         require(l1BridgeCaller == address(outbox), "ARB_MSG_WPR: Caller is not outbox");
         // Verify that sender is l2BridgeAddress
         require(outbox.l2ToL1Sender() == l2BridgeAddress, "ARB_MSG_WPR: Invalid cross-domain sender");
+    }
+
+    // TODO: Add setters for createRetryableTicketParams
+
+    function claimL2Funds(
+        address _recipient,
+        address _recipientAlias,
+        uint256 _l2CallValue,
+        uint256 _maxSubmissionCost,
+        uint256 _maxGas
+    )
+        public
+        onlyGovernance
+    {
+        l1MessengerAddress.createRetryableTicket(
+            _recipientAlias,
+            _l2CallValue,
+            _maxSubmissionCost,
+            _recipient,
+            _recipient,
+            _maxGas,
+            gasPriceBid,
+            ""
+        );
     }
 }
