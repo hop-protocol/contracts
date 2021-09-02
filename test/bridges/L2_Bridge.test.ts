@@ -63,7 +63,7 @@ import {
   DEFAULT_RELAYER_FEE
 } from '../../config/constants'
 
-describe.only('L2_Bridge', () => {
+describe('L2_Bridge', () => {
   let _fixture: IFixture
   let l1ChainId: BigNumber
   let l2ChainId: BigNumber
@@ -190,22 +190,19 @@ describe.only('L2_Bridge', () => {
 
   it('Should set the correct values in the constructor', async () => {
     const expectedL1GovernanceAddress: string = await governance.getAddress()
-    const expectedL1BridgeAddress: string = l1_bridge.address
     const expectedIsChainIdSupported: boolean = true
     const expectedIsBonder: boolean = true
     const expectedName: string = DEFAULT_H_BRIDGE_TOKEN_NAME
     const expectedSymbol: string = DEFAULT_H_BRIDGE_TOKEN_SYMBOL
     const expectedDecimals: number = DEFAULT_H_BRIDGE_TOKEN_DECIMALS
 
-    const l1GovernanceAddress = await l2_bridge.l1Governance()
-    const l1BridgeAddress = await l2_bridge.l1BridgeAddress()
+    const l1GovernanceAddress = await l2_bridge.owner()
     const isBonder = await l2_bridge.getIsBonder(await bonder.getAddress())
     const name: string = await l2_hopBridgeToken.name()
     const symbol: string = await l2_hopBridgeToken.symbol()
     const decimals: number = await l2_hopBridgeToken.decimals()
 
     expect(expectedL1GovernanceAddress).to.eq(l1GovernanceAddress)
-    expect(expectedL1BridgeAddress).to.eq(l1BridgeAddress)
     expect(expectedIsBonder).to.eq(isBonder)
     expect(expectedName).to.eq(name)
     expect(expectedSymbol).to.eq(symbol)
@@ -220,98 +217,44 @@ describe.only('L2_Bridge', () => {
   })
 
   describe('setters and getters', async () => {
-    it('Should set the l1 governance address arbitrarily', async () => {
+    it('Should set the l1 owner address arbitrarily', async () => {
       const expectedGovernanceAddress: string = ONE_ADDRESS
 
-      const message: string = getSetL1GovernanceMessage(
+      await l2_bridge.connect(governance).transferOwnership(
         expectedGovernanceAddress
       )
-      await executeCanonicalMessengerSendMessage(
-        l1_messenger,
-        l1_messengerWrapper,
-        l2_bridge,
-        l2_messenger,
-        governance,
-        message,
-        l2ChainId
-      )
 
-      const governanceAddress: string = await l2_bridge.l1Governance()
+      const governanceAddress: string = await l2_bridge.owner()
       expect(governanceAddress).to.eq(expectedGovernanceAddress)
     })
 
     it('Should set the amm wrapper address arbitrarily', async () => {
       const expectedAmmWrapperAddress: string = ONE_ADDRESS
 
-      const message: string = getSetAmmWrapperMessage(
+      await l2_bridge.connect(governance).setAmmWrapper(
         expectedAmmWrapperAddress
-      )
-      await executeCanonicalMessengerSendMessage(
-        l1_messenger,
-        l1_messengerWrapper,
-        l2_bridge,
-        l2_messenger,
-        governance,
-        message,
-        l2ChainId
       )
 
       const exchangeAddress: string = await l2_bridge.ammWrapper()
       expect(exchangeAddress).to.eq(expectedAmmWrapperAddress)
     })
 
-    it('Should set the L1 bridge address arbitrarily', async () => {
-      const expectedL1BridgeAddress: string = ONE_ADDRESS
+    it('Should set the L1 bridge connector arbitrarily', async () => {
+      const expectedL1BridgeConnectorAddress: string = ONE_ADDRESS
 
-      const message: string = getSetL1BridgeConnectorMessage(
-        expectedL1BridgeAddress
-      )
-      await executeCanonicalMessengerSendMessage(
-        l1_messenger,
-        l1_messengerWrapper,
-        l2_bridge,
-        l2_messenger,
-        governance,
-        message,
-        l2ChainId
+      await l2_bridge.connect(governance).setL1BridgeConnector(
+        expectedL1BridgeConnectorAddress
       )
 
-      const l1BridgeAddress: string = await l2_bridge.l1BridgeAddress()
-      expect(l1BridgeAddress).to.eq(expectedL1BridgeAddress)
-    })
-
-    it('Should set the L1 messenger wrapper address arbitrarily', async () => {
-      const expectedL1Caller: string = ONE_ADDRESS
-
-      const message: string = getSetL1CallerMessage(
-        expectedL1Caller
-      )
-      await executeCanonicalMessengerSendMessage(
-        l1_messenger,
-        l1_messengerWrapper,
-        l2_bridge,
-        l2_messenger,
-        governance,
-        message,
-        l2ChainId
-      )
-
-      const l1Caller: string = await l2_bridge.l1Caller()
-      expect(l1Caller).to.eq(expectedL1Caller)
+      const l1BridgeAddress: string = await l2_bridge.l1BridgeConnector()
+      expect(l1BridgeAddress).to.eq(expectedL1BridgeConnectorAddress)
     })
 
     it('Should add support for a new chainId', async () => {
       const newChainId: BigNumber[] = [BigNumber.from('13371337')]
 
-      const message: string = getAddActiveChainIdsMessage(newChainId)
-      await executeCanonicalMessengerSendMessage(
-        l1_messenger,
-        l1_messengerWrapper,
-        l2_bridge,
-        l2_messenger,
-        governance,
-        message,
-        l2ChainId
+      await l2_bridge.connect(governance).addActiveChainIds(
+        newChainId
       )
 
       const isChainIdSupported: boolean = await l2_bridge.activeChainIds(
@@ -323,15 +266,8 @@ describe.only('L2_Bridge', () => {
     it('Should add support for a new chainId then remove it', async () => {
       const newChainId: BigNumber[] = [BigNumber.from('13371337')]
 
-      let message: string = getAddActiveChainIdsMessage(newChainId)
-      await executeCanonicalMessengerSendMessage(
-        l1_messenger,
-        l1_messengerWrapper,
-        l2_bridge,
-        l2_messenger,
-        governance,
-        message,
-        l2ChainId
+      await l2_bridge.connect(governance).addActiveChainIds(
+        newChainId
       )
 
       let isChainIdSupported: boolean = await l2_bridge.activeChainIds(
@@ -339,15 +275,8 @@ describe.only('L2_Bridge', () => {
       )
       expect(isChainIdSupported).to.eq(true)
 
-      message = getRemoveActiveChainIdsMessage(newChainId)
-      await executeCanonicalMessengerSendMessage(
-        l1_messenger,
-        l1_messengerWrapper,
-        l2_bridge,
-        l2_messenger,
-        governance,
-        message,
-        l2ChainId
+      await l2_bridge.connect(governance).removeActiveChainIds(
+        newChainId
       )
 
       isChainIdSupported = await l2_bridge.activeChainIds(newChainId[0])
@@ -357,17 +286,8 @@ describe.only('L2_Bridge', () => {
     it('Should set the minimum force commit delay arbitrarily', async () => {
       const expectedMinimumForceCommitDelay: BigNumber = BigNumber.from('123')
 
-      const message: string = getSetMinimumForceCommitDelayMessage(
+      await l2_bridge.connect(governance).setMinimumForceCommitDelay(
         expectedMinimumForceCommitDelay
-      )
-      await executeCanonicalMessengerSendMessage(
-        l1_messenger,
-        l1_messengerWrapper,
-        l2_bridge,
-        l2_messenger,
-        governance,
-        message,
-        l2ChainId
       )
 
       const minimumForceCommitDelay: BigNumber = await l2_bridge.minimumForceCommitDelay()
@@ -377,17 +297,8 @@ describe.only('L2_Bridge', () => {
     it('Should set the max pending transfers arbitrarily', async () => {
       const expectedMaxPendingTransfers: BigNumber = BigNumber.from('123')
 
-      const message: string = getSetMaxPendingTransfersMessage(
+      await l2_bridge.connect(governance).setMaxPendingTransfers(
         expectedMaxPendingTransfers
-      )
-      await executeCanonicalMessengerSendMessage(
-        l1_messenger,
-        l1_messengerWrapper,
-        l2_bridge,
-        l2_messenger,
-        governance,
-        message,
-        l2ChainId
       )
 
       const maxPendingTransfers: BigNumber = await l2_bridge.maxPendingTransfers()
@@ -399,17 +310,8 @@ describe.only('L2_Bridge', () => {
       expect(hopBridgeTokenOwner).to.eq(l2_bridge.address)
 
       const newOwner: Signer = user
-      const message: string = getSetHopBridgeTokenOwnerMessage(
+      await l2_bridge.connect(governance).setHopBridgeTokenOwner(
         await newOwner.getAddress()
-      )
-      await executeCanonicalMessengerSendMessage(
-        l1_messenger,
-        l1_messengerWrapper,
-        l2_bridge,
-        l2_messenger,
-        governance,
-        message,
-        l2ChainId
       )
 
       hopBridgeTokenOwner = await l2_hopBridgeToken.owner()
@@ -420,18 +322,9 @@ describe.only('L2_Bridge', () => {
       const expectedMinBonderBps: BigNumber = BigNumber.from('123')
       const expectedMinBonderFeeAbsolute: BigNumber = BigNumber.from('73317331')
 
-      const message: string = getSetMinimumBonderFeeRequirementsMessage(
+      await l2_bridge.connect(governance).setMinimumBonderFeeRequirements(
         expectedMinBonderBps,
         expectedMinBonderFeeAbsolute
-      )
-      await executeCanonicalMessengerSendMessage(
-        l1_messenger,
-        l1_messengerWrapper,
-        l2_bridge,
-        l2_messenger,
-        governance,
-        message,
-        l2ChainId
       )
 
       const minBonderBps = await l2_bridge.minBonderBps()
@@ -692,28 +585,19 @@ describe.only('L2_Bridge', () => {
    */
 
   describe('setters', async () => {
-    it('Should not allow an arbitrary address to set the amm wrapper address arbitrarily', async () => {
-      const expectedErrorMsg: string = 'L2_OVM_BRG: Invalid cross-domain sender'
+    it('Should not allow an arbitrary address to set the owner address arbitrarily', async () => {
+      const expectedErrorMsg: string = 'Ownable: caller is not the owner'
       const expectedL1GovernanceAddress: string = ONE_ADDRESS
 
-      const message: string = getSetL1GovernanceMessage(
-        expectedL1GovernanceAddress
-      )
       await expect(
-        await executeCanonicalMessengerSendMessage(
-          l1_messenger,
-          l1_messengerWrapper,
-          l2_bridge,
-          l2_messenger,
-          user,
-          message,
-          l2ChainId
+        l2_bridge.connect(user).transferOwnership(
+          expectedL1GovernanceAddress
         )
       ).to.be.revertedWith(expectedErrorMsg)
     })
 
     it('Should not allow an arbitrary address to set the amm wrapper address arbitrarily', async () => {
-      const expectedErrorMsg: string = 'L2_OVM_BRG: Invalid cross-domain sender'
+      const expectedErrorMsg: string = 'Ownable: caller is not the owner'
       const expectedAmmWrapperAddress: string = ONE_ADDRESS
 
       const message: string = getSetAmmWrapperMessage(
@@ -733,7 +617,7 @@ describe.only('L2_Bridge', () => {
     })
 
     it('Should not allow an arbitrary address to set the L1 bridge address arbitrarily', async () => {
-      const expectedErrorMsg: string = 'L2_OVM_BRG: Invalid cross-domain sender'
+      const expectedErrorMsg: string = 'Ownable: caller is not the owner'
       const expectedL1BridgeAddress: string = ONE_ADDRESS
 
       const message: string = getSetL1BridgeConnectorMessage(
@@ -752,28 +636,8 @@ describe.only('L2_Bridge', () => {
       ).to.be.revertedWith(expectedErrorMsg)
     })
 
-    it('Should not allow an arbitrary address to set the L1 messenger wrapper address arbitrarily', async () => {
-      const expectedErrorMsg: string = 'L2_OVM_BRG: Invalid cross-domain sender'
-      const expectedL1Caller: string = ONE_ADDRESS
-
-      const message: string = getSetL1CallerMessage(
-        expectedL1Caller
-      )
-      await expect(
-        executeCanonicalMessengerSendMessage(
-          l1_messenger,
-          l1_messengerWrapper,
-          l2_bridge,
-          l2_messenger,
-          user,
-          message,
-          l2ChainId
-        )
-      ).to.be.revertedWith(expectedErrorMsg)
-    })
-
     it('Should not allow an arbitrary address to add support for a new chainId', async () => {
-      const expectedErrorMsg: string = 'L2_OVM_BRG: Invalid cross-domain sender'
+      const expectedErrorMsg: string = 'Ownable: caller is not the owner'
       const newChainId: BigNumber[] = [BigNumber.from('13371337')]
 
       const message: string = getAddActiveChainIdsMessage(newChainId)
@@ -791,18 +655,11 @@ describe.only('L2_Bridge', () => {
     })
 
     it('Should not allow an arbitrary address to remove support for a new chainId', async () => {
-      const expectedErrorMsg: string = 'L2_OVM_BRG: Invalid cross-domain sender'
+      const expectedErrorMsg: string = 'Ownable: caller is not the owner'
       const newChainId: BigNumber[] = [BigNumber.from('13371337')]
 
-      let message: string = getAddActiveChainIdsMessage(newChainId)
-      await executeCanonicalMessengerSendMessage(
-        l1_messenger,
-        l1_messengerWrapper,
-        l2_bridge,
-        l2_messenger,
-        governance,
-        message,
-        l2ChainId
+      await l2_bridge.connect(governance).addActiveChainIds(
+        newChainId
       )
 
       let isChainIdSupported: boolean = await l2_bridge.activeChainIds(
@@ -810,7 +667,7 @@ describe.only('L2_Bridge', () => {
       )
       expect(isChainIdSupported).to.eq(true)
 
-      message = getRemoveActiveChainIdsMessage(newChainId)
+      let message = getRemoveActiveChainIdsMessage(newChainId)
       await expect(
         executeCanonicalMessengerSendMessage(
           l1_messenger,
@@ -825,7 +682,7 @@ describe.only('L2_Bridge', () => {
     })
 
     it('Should not allow an arbitrary address to set the minimum force commit delay arbitrarily', async () => {
-      const expectedErrorMsg: string = 'L2_OVM_BRG: Invalid cross-domain sender'
+      const expectedErrorMsg: string = 'Ownable: caller is not the owner'
       const expectedMinimumForceCommitDelay: BigNumber = BigNumber.from('123')
 
       const message: string = getSetMinimumForceCommitDelayMessage(
@@ -845,7 +702,7 @@ describe.only('L2_Bridge', () => {
     })
 
     it('Should not allow an arbitrary address to set the max pending transfers arbitrarily', async () => {
-      const expectedErrorMsg: string = 'L2_OVM_BRG: Invalid cross-domain sender'
+      const expectedErrorMsg: string = 'Ownable: caller is not the owner'
       const expectedMaxPendingTransfers: BigNumber = BigNumber.from('123')
 
       const message: string = getSetMaxPendingTransfersMessage(
@@ -865,7 +722,7 @@ describe.only('L2_Bridge', () => {
     })
 
     it('Should not allow an arbitrary address to set a new owner of the HopBridgeToken', async () => {
-      const expectedErrorMsg: string = 'L2_OVM_BRG: Invalid cross-domain sender'
+      const expectedErrorMsg: string = 'Ownable: caller is not the owner'
       let hopBridgeTokenOwner: string = await l2_hopBridgeToken.owner()
       expect(hopBridgeTokenOwner).to.eq(l2_bridge.address)
 
@@ -887,7 +744,7 @@ describe.only('L2_Bridge', () => {
     })
 
     it('Should not allow an arbitrary address to set the minimum bonder fee requirements', async () => {
-      const expectedErrorMsg: string = 'L2_OVM_BRG: Invalid cross-domain sender'
+      const expectedErrorMsg: string = 'Ownable: caller is not the owner'
       const expectedMinBonderBps: BigNumber = BigNumber.from('13371337')
       const expectedMinBonderFeeAbsolute: BigNumber = BigNumber.from('73317331')
 
@@ -913,19 +770,10 @@ describe.only('L2_Bridge', () => {
       const expectedMinBonderBps: BigNumber = BigNumber.from('13371337')
       const expectedMinBonderFeeAbsolute: BigNumber = BigNumber.from('73317331')
 
-      const message: string = getSetMinimumBonderFeeRequirementsMessage(
-        expectedMinBonderBps,
-        expectedMinBonderFeeAbsolute
-      )
       await expect(
-        executeCanonicalMessengerSendMessage(
-          l1_messenger,
-          l1_messengerWrapper,
-          l2_bridge,
-          l2_messenger,
-          governance,
-          message,
-          l2ChainId
+        l2_bridge.connect(governance).setMinimumBonderFeeRequirements(
+          expectedMinBonderBps,
+          expectedMinBonderFeeAbsolute
         )
       ).to.be.revertedWith(expectedErrorMsg)
     })
@@ -1192,7 +1040,7 @@ describe.only('L2_Bridge', () => {
   describe('setTransferRoot', async () => {
     it('Should not set a transfer root if it is set by an arbitrary address', async () => {
       const expectedErrorMsg: string =
-        'L2_OVM_BRG: Caller is not the expected sender'
+        'L2_BRG: xDomain caller must be L1 Bridge'
 
       const totalAmount: BigNumber = BigNumber.from('0')
       await expect(
@@ -1353,19 +1201,9 @@ describe.only('L2_Bridge', () => {
     const minBonderBps: BigNumber = BigNumber.from('0')
     const minBonderFeeAbsolute: BigNumber = BigNumber.from('1')
 
-    const message: string = getSetMinimumBonderFeeRequirementsMessage(
+    await l2_bridge.connect(governance).setMinimumBonderFeeRequirements(
       minBonderBps,
       minBonderFeeAbsolute 
-    )
-
-    await executeCanonicalMessengerSendMessage(
-      l1_messenger,
-      l1_messengerWrapper,
-      l2_bridge,
-      l2_messenger,
-      governance,
-      message,
-      l2ChainId
     )
 
     const customTransfer: Transfer = new Transfer(transfer)
@@ -1409,19 +1247,9 @@ describe.only('L2_Bridge', () => {
     const minBonderBps: BigNumber = BigNumber.from('0')
     const minBonderFeeAbsolute: BigNumber = transfer.amount
 
-    const message: string = getSetMinimumBonderFeeRequirementsMessage(
+    await l2_bridge.connect(governance).setMinimumBonderFeeRequirements(
       minBonderBps,
       minBonderFeeAbsolute 
-    )
-
-    await executeCanonicalMessengerSendMessage(
-      l1_messenger,
-      l1_messengerWrapper,
-      l2_bridge,
-      l2_messenger,
-      governance,
-      message,
-      l2ChainId
     )
 
     const customTransfer: Transfer = new Transfer(transfer)
@@ -1465,19 +1293,9 @@ describe.only('L2_Bridge', () => {
     const minBonderBps: BigNumber = BigNumber.from('0')
     const minBonderFeeAbsolute: BigNumber = BigNumber.from('0')
 
-    const message: string = getSetMinimumBonderFeeRequirementsMessage(
+    await l2_bridge.connect(governance).setMinimumBonderFeeRequirements(
       minBonderBps,
       minBonderFeeAbsolute 
-    )
-
-    await executeCanonicalMessengerSendMessage(
-      l1_messenger,
-      l1_messengerWrapper,
-      l2_bridge,
-      l2_messenger,
-      governance,
-      message,
-      l2ChainId
     )
 
     const customTransfer: Transfer = new Transfer(l2Transfer)
@@ -1520,19 +1338,9 @@ describe.only('L2_Bridge', () => {
     const minBonderBps: BigNumber = BigNumber.from('0')
     const minBonderFeeAbsolute: BigNumber = BigNumber.from('1')
 
-    const message: string = getSetMinimumBonderFeeRequirementsMessage(
+    await l2_bridge.connect(governance).setMinimumBonderFeeRequirements(
       minBonderBps,
       minBonderFeeAbsolute 
-    )
-
-    await executeCanonicalMessengerSendMessage(
-      l1_messenger,
-      l1_messengerWrapper,
-      l2_bridge,
-      l2_messenger,
-      governance,
-      message,
-      l2ChainId
     )
 
     const customTransfer: Transfer = new Transfer(l2Transfer)
@@ -1575,19 +1383,9 @@ describe.only('L2_Bridge', () => {
     const minBonderBps: BigNumber = BigNumber.from('0')
     const minBonderFeeAbsolute: BigNumber = transfer.amount
 
-    const message: string = getSetMinimumBonderFeeRequirementsMessage(
+    await l2_bridge.connect(governance).setMinimumBonderFeeRequirements(
       minBonderBps,
       minBonderFeeAbsolute 
-    )
-
-    await executeCanonicalMessengerSendMessage(
-      l1_messenger,
-      l1_messengerWrapper,
-      l2_bridge,
-      l2_messenger,
-      governance,
-      message,
-      l2ChainId
     )
 
     const customTransfer: Transfer = new Transfer(l2Transfer)
@@ -1630,19 +1428,9 @@ describe.only('L2_Bridge', () => {
     const minBonderBps: BigNumber = BigNumber.from('0')
     const minBonderFeeAbsolute: BigNumber = BigNumber.from('0')
 
-    const message: string = getSetMinimumBonderFeeRequirementsMessage(
+    await l2_bridge.connect(governance).setMinimumBonderFeeRequirements(
       minBonderBps,
       minBonderFeeAbsolute 
-    )
-
-    await executeCanonicalMessengerSendMessage(
-      l1_messenger,
-      l1_messengerWrapper,
-      l2_bridge,
-      l2_messenger,
-      governance,
-      message,
-      l2ChainId
     )
 
     const customTransfer: Transfer = new Transfer(l2Transfer)
@@ -1685,19 +1473,9 @@ describe.only('L2_Bridge', () => {
     const minBonderBps: BigNumber = BigNumber.from('0')
     const minBonderFeeAbsolute: BigNumber = BigNumber.from('1')
 
-    const message: string = getSetMinimumBonderFeeRequirementsMessage(
+    await l2_bridge.connect(governance).setMinimumBonderFeeRequirements(
       minBonderBps,
       minBonderFeeAbsolute 
-    )
-
-    await executeCanonicalMessengerSendMessage(
-      l1_messenger,
-      l1_messengerWrapper,
-      l2_bridge,
-      l2_messenger,
-      governance,
-      message,
-      l2ChainId
     )
 
     const customTransfer: Transfer = new Transfer(l2Transfer)
@@ -1740,19 +1518,9 @@ describe.only('L2_Bridge', () => {
     const minBonderBps: BigNumber = BigNumber.from('0')
     const minBonderFeeAbsolute: BigNumber = l2Transfer.amount
 
-    const message: string = getSetMinimumBonderFeeRequirementsMessage(
+    await l2_bridge.connect(governance).setMinimumBonderFeeRequirements(
       minBonderBps,
       minBonderFeeAbsolute 
-    )
-
-    await executeCanonicalMessengerSendMessage(
-      l1_messenger,
-      l1_messengerWrapper,
-      l2_bridge,
-      l2_messenger,
-      governance,
-      message,
-      l2ChainId
     )
 
     const customTransfer: Transfer = new Transfer(l2Transfer)
@@ -1794,15 +1562,8 @@ describe.only('L2_Bridge', () => {
   it('Should send a transaction, deactivate the receiving chain, bond the transfer, and commit a transfer by the bonder at any time', async () => {
     await executeL2BridgeSend(l2_hopBridgeToken, l2_bridge, transfer)
 
-    const message: string = getRemoveActiveChainIdsMessage([transfer.chainId])
-    await executeCanonicalMessengerSendMessage(
-      l1_messenger,
-      l1_messengerWrapper,
-      l2_bridge,
-      l2_messenger,
-      governance,
-      message,
-      l2ChainId
+    await l2_bridge.connect(governance).removeActiveChainIds(
+      [transfer.chainId]
     )
 
     const isChainIdSupported: boolean = await l2_bridge.activeChainIds(transfer.chainId)
