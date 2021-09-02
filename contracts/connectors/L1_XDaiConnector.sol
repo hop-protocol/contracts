@@ -37,11 +37,11 @@ contract L1_XDaiConnector is Connector {
     }
 
     function _verifySender() internal override {
-        require(l1MessengerAddress.messageSender() == xDomainAddress, "L2_XDAI_BRG: Invalid cross-domain sender");
-        require(msg.sender == address(l1MessengerAddress), "L2_XDAI_BRG: Caller is not the expected sender");
+        require(msg.sender == address(l1MessengerAddress), "L2_XDAI_CNR: Caller is not the expected sender");
+        require(l1MessengerAddress.messageSender() == xDomainAddress, "L2_XDAI_CNR: Invalid cross-domain sender");
 
         // With the xDai AMB, it is best practice to also check the source chainId
         // https://docs.tokenbridge.net/amb-bridge/how-to-develop-xchain-apps-by-amb#receive-a-method-call-from-the-amb-bridge
-        require(l1MessengerAddress.messageSourceChainId() == l2ChainId, "L2_XDAI_BRG: Invalid source Chain ID");
+        require(l1MessengerAddress.messageSourceChainId() == l2ChainId, "L2_XDAI_CNR: Invalid source Chain ID");
     }
 }

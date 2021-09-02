@@ -34,16 +34,18 @@ export const getMessengerWrapperDefaults = (
   ]
 
   if (isChainIdArbitrum(l2ChainId)) {
-    const gasLimit: number = DEFAULT_MESSENGER_WRAPPER_GAS_LIMIT
-    const gasPrice: number = DEFAULT_MESSENGER_WRAPPER_GAS_PRICE
-    const callValue: number = DEFAULT_MESSENGER_WRAPPER_CALL_VALUE
+    // const gasLimit: number = DEFAULT_MESSENGER_WRAPPER_GAS_LIMIT
+    // const gasPrice: number = DEFAULT_MESSENGER_WRAPPER_GAS_PRICE
+    // const callValue: number = DEFAULT_MESSENGER_WRAPPER_CALL_VALUE
 
-    data.push(
-      ...defaults,
-      gasLimit,
-      gasPrice,
-      callValue
-    )
+    // data.push(
+    //   ...defaults,
+    //   gasLimit,
+    //   gasPrice,
+    //   callValue
+    // )
+
+    return [l1BridgeAddress]
   } else if (isChainIdOptimism(l2ChainId)) {
     const gasLimit: number = DEFAULT_MESSENGER_WRAPPER_GAS_LIMIT
 
