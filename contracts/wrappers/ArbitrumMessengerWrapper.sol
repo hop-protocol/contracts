@@ -16,22 +16,28 @@ import "./MessengerWrapper.sol";
 
 contract ArbitrumMessengerWrapper is MessengerWrapper {
 
+    modifier onlyGovernance {
+        require(governance == msg.sender, "ARB_MSG_WPR: Caller is not governance");
+        _;
+    }
+
     IInbox public immutable l1MessengerAddress;
     address public l2BridgeAddress;
     uint256 public maxSubmissionCost;
     address public l1MessengerWrapperAlias;
     uint256 public maxGas;
     uint256 public gasPriceBid;
-
+    address public governance;
+    uint160 constant offset = uint160(0x1111000000000000000000000000000000001111);
 
     constructor(
         address _l1BridgeAddress,
         address _l2BridgeAddress,
         IInbox _l1MessengerAddress,
         uint256 _maxSubmissionCost,
-        address _l1MessengerWrapperAlias,
         uint256 _maxGas,
-        uint256 _gasPriceBid
+        uint256 _gasPriceBid,
+        address _governance
         
     )
         public
@@ -40,9 +46,10 @@ contract ArbitrumMessengerWrapper is MessengerWrapper {
         l2BridgeAddress = _l2BridgeAddress;
         l1MessengerAddress = _l1MessengerAddress;
         maxSubmissionCost = _maxSubmissionCost;
-        l1MessengerWrapperAlias = _l1MessengerWrapperAlias;
+        l1MessengerWrapperAlias = applyL1ToL2Alias(address(this));
         maxGas = _maxGas;
-        gasPriceBid = _defaultGasPrice;
+        gasPriceBid = _gasPriceBid;
+        governance = _governance;
     }
 
     /** 
@@ -63,35 +70,68 @@ contract ArbitrumMessengerWrapper is MessengerWrapper {
     }
 
     function verifySender(address l1BridgeCaller, bytes memory /*_data*/) public override {
+        // Reference: https://github.com/OffchainLabs/arbitrum/blob/5c06d89daf8fa6088bcdba292ffa6ed0c72afab2/packages/arb-bridge-peripherals/contracts/tokenbridge/ethereum/L1ArbitrumMessenger.sol#L89
         IBridge arbBridge = l1MessengerAddress.bridge();
         IOutbox outbox = IOutbox(arbBridge.activeOutbox());
+        address l2ToL1Sender = outbox.l2ToL1Sender();
 
         require(l1BridgeCaller == address(outbox), "ARB_MSG_WPR: Caller is not outbox");
-        // Verify that sender is l2BridgeAddress
-        require(outbox.l2ToL1Sender() == l2BridgeAddress, "ARB_MSG_WPR: Invalid cross-domain sender");
+        require(l2ToL1Sender == l2BridgeAddress, "ARB_MSG_WPR: Invalid cross-domain sender");
     }
 
-    // TODO: Add setters for createRetryableTicketParams
-
+    /**
+     * @dev Claim funds that exist on the l2 messenger wrapper alias address
+     * @notice Do not use state variables here as this is to be used when passing in precise values
+     */
     function claimL2Funds(
         address _recipient,
-        address _recipientAlias,
         uint256 _l2CallValue,
         uint256 _maxSubmissionCost,
-        uint256 _maxGas
+        uint256 _maxGas,
+        uint256 _gasPriceBid
     )
         public
         onlyGovernance
     {
         l1MessengerAddress.createRetryableTicket(
-            _recipientAlias,
+            _recipient,
             _l2CallValue,
             _maxSubmissionCost,
             _recipient,
             _recipient,
             _maxGas,
-            gasPriceBid,
+            _gasPriceBid,
             ""
         );
+    }
+
+    /// @notice Utility function that converts the msg.sender viewed in the L2 to the
+    /// address in the L1 that submitted a tx to the inbox
+    /// @param l1Address L2 address as viewed in msg.sender
+    /// @return The address in the L1 that triggered the tx to L2
+    function applyL1ToL2Alias(address l1Address) internal pure returns (address) {
+        return address(uint160(l1Address) + offset);
+    }
+
+    /* ========== External Config Management Functions ========== */
+
+    function setMaxSubmissionCost(uint256 _newMaxSubmissionCost) external onlyGovernance {
+        maxSubmissionCost = _newMaxSubmissionCost;
+    }
+
+    function setL1MessengerWrapperAlias(address _newL1MessengerWrapperAlias) external onlyGovernance {
+        l1MessengerWrapperAlias = _newL1MessengerWrapperAlias;
+    }
+
+    function setMaxGas(uint256 _newMaxGas) external onlyGovernance {
+        maxGas = _newMaxGas;
+    }
+
+    function setGasPriceBid(uint256 _newGasPriceBid) external onlyGovernance {
+        gasPriceBid = _newGasPriceBid;
+    }
+
+    function setGovernance(address _newGovernance) external onlyGovernance {
+        governance = _newGovernance;
     }
 }
