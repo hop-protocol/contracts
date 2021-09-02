@@ -193,26 +193,30 @@ abstract contract L1_Bridge is Bridge {
         onlyBonder
         requirePositiveBalance
     {
-        bytes32 transferRootId = getTransferRootId(rootHash, totalAmount);
-        require(transferRootCommittedAt[destinationChainId][transferRootId] == 0, "L1_BRG: TransferRoot has already been confirmed");
-        require(transferBonds[transferRootId].createdAt == 0, "L1_BRG: TransferRoot has already been bonded");
+        _bondTransferRoot(rootHash, destinationChainId, totalAmount);
+    }
 
-        uint256 currentTimeSlot = getTimeSlot(block.timestamp);
-        uint256 bondAmount = getBondForTransferAmount(totalAmount);
-        timeSlotToAmountBonded[currentTimeSlot][msg.sender] = timeSlotToAmountBonded[currentTimeSlot][msg.sender].add(bondAmount);
-
-        transferBonds[transferRootId] = TransferBond(
-            msg.sender,
-            block.timestamp,
-            totalAmount,
-            uint256(0),
-            address(0),
-            false
-        );
-
-        _distributeTransferRoot(rootHash, destinationChainId, totalAmount);
-
-        emit TransferRootBonded(rootHash, totalAmount, destinationChainId);
+    /**
+     * @dev Convenience function used by the Bonder to bond a TransferRoot and immediately settle it on L1
+     * @param rootHash The Merkle root of the TransferRoot Merkle tree
+     * @param destinationChainId The id of the destination chain
+     * @param transferIds All transferIds in the TransferRoot in order
+     * @param totalAmount The amount destined for the destination chain
+     */
+    function bondTransferRootAndSettle(
+        bytes32 rootHash,
+        uint256 destinationChainId,
+        // transferIds _must_ be calldata or it will be mutated by Lib_MerkleTree.getMerkleRoot
+        bytes32[] calldata transferIds,
+        uint256 totalAmount
+    )
+        external
+        onlyBonder
+        requirePositiveBalance
+    {
+        require(destinationChainId == getChainId(), "L1_BRG: bondTransferRootAndSettle is for L1 only");
+        _bondTransferRoot(rootHash, destinationChainId, totalAmount);
+        settleBondedWithdrawals(msg.sender, transferIds, totalAmount);
     }
 
     /**
@@ -269,6 +273,35 @@ abstract contract L1_Bridge is Bridge {
             // Set L2 TransferRoot
             L2_Bridge(xDomainConnector).setTransferRoot(rootHash, totalAmount);
         }
+    }
+
+    function _bondTransferRoot(
+        bytes32 rootHash,
+        uint256 destinationChainId,
+        uint256 totalAmount
+    )
+        internal
+    {
+        bytes32 transferRootId = getTransferRootId(rootHash, totalAmount);
+        require(transferRootCommittedAt[destinationChainId][transferRootId] == 0, "L1_BRG: TransferRoot has already been confirmed");
+        require(transferBonds[transferRootId].createdAt == 0, "L1_BRG: TransferRoot has already been bonded");
+
+        uint256 currentTimeSlot = getTimeSlot(block.timestamp);
+        uint256 bondAmount = getBondForTransferAmount(totalAmount);
+        timeSlotToAmountBonded[currentTimeSlot][msg.sender] = timeSlotToAmountBonded[currentTimeSlot][msg.sender].add(bondAmount);
+
+        transferBonds[transferRootId] = TransferBond(
+            msg.sender,
+            block.timestamp,
+            totalAmount,
+            uint256(0),
+            address(0),
+            false
+        );
+
+        _distributeTransferRoot(rootHash, destinationChainId, totalAmount);
+
+        emit TransferRootBonded(rootHash, totalAmount, destinationChainId);
     }
 
     /* ========== External TransferRoot Challenges ========== */

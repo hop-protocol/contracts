@@ -300,11 +300,8 @@ abstract contract Bridge is Accounting {
         bytes32[] calldata transferIds,
         uint256 totalAmount
     )
-        external
+        public
     {
-        bytes32 rootHash = Lib_MerkleTree.getMerkleRoot(transferIds);
-        bytes32 transferRootId = getTransferRootId(rootHash, totalAmount);
-
         uint256 totalBondsSettled = 0;
         for(uint256 i = 0; i < transferIds.length; i++) {
             uint256 transferBondAmount = _bondedWithdrawalAmounts[bonder][transferIds[i]];
@@ -313,6 +310,9 @@ abstract contract Bridge is Accounting {
                 _bondedWithdrawalAmounts[bonder][transferIds[i]] = 0;
             }
         }
+
+        bytes32 rootHash = Lib_MerkleTree.getMerkleRoot(transferIds);
+        bytes32 transferRootId = getTransferRootId(rootHash, totalAmount);
 
         _addToAmountWithdrawn(transferRootId, totalBondsSettled);
         _subDebit(bonder, totalBondsSettled);
