@@ -453,6 +453,86 @@ export const executeL1BridgeBondTransferRoot = async (
   }
 }
 
+export const executeL1BridgeBondTransferRootAndSettle = async (
+  l1_bridge: Contract,
+  l2_bridge: Contract,
+  transfer: Transfer,
+  bonder: Signer,
+  timeIncrease: number,
+  customTransferNonce: string | null = null
+) => {
+  let transferNonce: string
+  if (customTransferNonce) {
+    transferNonce = customTransferNonce
+  } else {
+    transferNonce = await getTransferNonceFromEvent(l2_bridge)
+  }
+  const transferId: Buffer = await transfer.getTransferId(transferNonce)
+  const { rootHash } = getRootHashFromTransferId(transferId)
+
+  // Get state before transaction
+  // A: Rename l1_bridge
+  const bondedAmountBefore: BigNumber = await l1_bridge.getCredit(
+    await bonder.getAddress()
+  )
+
+  // Perform transaction
+  // A: Use arbitrary ids
+  await l1_bridge
+    .connect(bonder)
+    .bondTransferRootAndSettle(
+      rootHash,
+      transfer.chainId,
+      [transferId],
+      transfer.amount
+    )
+
+  // Validate state after transaction
+  const currentTime: number = Math.floor(Date.now() / 1000)
+  const timeSlot: number = await l1_bridge.getTimeSlot(
+    currentTime + timeIncrease
+  )
+  const bondAmount: string = await l1_bridge.getBondForTransferAmount(
+    transfer.amount
+  )
+  const timeSlotToAmountBonded: number = await l1_bridge.timeSlotToAmountBonded(
+    timeSlot,
+    await bonder.getAddress()
+  )
+  const transferBond: number = await l1_bridge.timeSlotToAmountBonded(
+    timeSlot,
+    await bonder.getAddress()
+  )
+  const transferRoot: number = await l1_bridge.getTransferRoot(
+    rootHash,
+    transfer.amount
+  )
+
+  // NOTE: This is going to fail sometimes, as `currentTime` will be different from the expected time, causing a 
+  // timeSlot mismatch
+  expect(timeSlotToAmountBonded).to.eq(bondAmount)
+  expect(transferBond).to.eq(bondAmount)
+
+  expect(transferRoot[0]).to.eq(transfer.amount)
+  expect(transferRoot[1]).to.eq(transfer.amount)
+  expect(transferRoot[2].toNumber()).to.be.closeTo(
+    currentTime,
+    TIMESTAMP_VARIANCE
+  )
+
+  // Validate state after transaction
+  // A: Rename l1_bridge
+  const credit = await l1_bridge.getCredit(await bonder.getAddress())
+  const expectedCredit: BigNumber = bondedAmountBefore
+  expect(transferRoot[0]).to.eq(transfer.amount)
+  expect(transferRoot[1]).to.eq(transfer.amount)
+  expect(transferRoot[2].toNumber()).to.be.closeTo(
+    currentTime,
+    TIMESTAMP_VARIANCE
+  )
+  expect(credit).to.eq(expectedCredit)
+}
+
 export const executeBridgeSettleBondedWithdrawal = async (
   destinationBridge: Contract,
   sourceBridge: Contract,

@@ -29,7 +29,8 @@ import {
   executeL2BridgeSend,
   executeL2BridgeCommitTransfers,
   executeL2BridgeBondWithdrawalAndDistribute,
-  executeL2AmmWrapperSwapAndSend
+  executeL2AmmWrapperSwapAndSend,
+  executeL1BridgeBondTransferRootAndSettle
 } from '../shared/contractFunctionWrappers'
 import { fixture } from '../shared/fixtures'
 import { IFixture } from '../shared/interfaces'
@@ -759,6 +760,47 @@ describe('L1_Bridge', () => {
 
       expect(nextMessage[0]).to.eq(l22_bridgeConnector.address)
       expect(nextMessage[1]).to.eq(expectedMessage)
+    })
+  })
+
+  describe('bondTransferRootAndSettle', async () => {
+    it('Should send a transaction from L2 to L1 and bond the transfer root on L1 and settle', async () => {
+      await executeL1BridgeSendToL2(
+        l1_canonicalToken,
+        l1_bridge,
+        l2_hopBridgeToken,
+        l2_canonicalToken,
+        l2_messenger,
+        l2_swap,
+        transfer.sender,
+        transfer.recipient,
+        relayer,
+        transfer.amount,
+        transfer.amountOutMin,
+        transfer.deadline,
+        defaultRelayerFee,
+        l2ChainId
+      )
+
+      await executeL2BridgeSend(l2_hopBridgeToken, l2_bridge, transfer)
+
+      await executeBridgeBondWithdrawal(
+        l1_canonicalToken,
+        l1_bridge,
+        l2_bridge,
+        transfer,
+        bonder
+      )
+
+      await executeL2BridgeCommitTransfers(l2_bridge, [transfer], bonder)
+
+      await executeL1BridgeBondTransferRootAndSettle(
+        l1_bridge,
+        l2_bridge,
+        transfer,
+        bonder,
+        DEFAULT_TIME_TO_WAIT
+      )
     })
   })
 
@@ -2152,6 +2194,57 @@ describe('L1_Bridge', () => {
 
       await expect(
         executeL1BridgeBondTransferRoot(
+          l1_bridge,
+          l2_bridge,
+          l2Transfer,
+          bonder,
+          DEFAULT_TIME_TO_WAIT
+        )
+      ).to.be.revertedWith(expectedErrorMsg)
+    })
+  })
+
+  describe('bondTransferRootAndSettle', async () => {
+    it('Should not send a transaction from L2 to L2 and bond the transfer root on L1', async () => {
+      const expectedErrorMsg: string = 'L1_BRG: bondTransferRootAndSettle is for L1 only'
+
+      await executeL1BridgeSendToL2(
+        l1_canonicalToken,
+        l1_bridge,
+        l2_hopBridgeToken,
+        l2_canonicalToken,
+        l2_messenger,
+        l2_swap,
+        transfer.sender,
+        transfer.recipient,
+        relayer,
+        transfer.amount,
+        transfer.amountOutMin,
+        transfer.deadline,
+        defaultRelayerFee,
+        l2ChainId
+      )
+
+      await executeL2BridgeSend(l2_hopBridgeToken, l2_bridge, l2Transfer)
+
+      // Bond withdrawal on other L2
+      const actualTransferAmount: BigNumber = l2Transfer.amount
+      await executeL2BridgeBondWithdrawalAndDistribute(
+        l2_bridge,
+        l22_hopBridgeToken,
+        l22_bridge,
+        l22_canonicalToken,
+        l22_swap,
+        l2Transfer,
+        bonder,
+        actualTransferAmount
+      )
+
+      await executeL2BridgeCommitTransfers(l2_bridge, [l2Transfer], bonder)
+
+
+      await expect(
+        executeL1BridgeBondTransferRootAndSettle(
           l1_bridge,
           l2_bridge,
           l2Transfer,
