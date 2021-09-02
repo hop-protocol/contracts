@@ -87,19 +87,10 @@ describe('Hop_Bridge_Token', () => {
     expect(totalSupply).to.be.above(BigNumber.from('0'))
   })
 
-  it.skip('Should allow the owner to mint tokens', async () => {
+  it('Should allow the owner to mint tokens', async () => {
     // Set the owner to a known address for testing purposes
-    const message: string = getSetHopBridgeTokenOwnerMessage(
+    await l2_bridge.connect(governance).setHopBridgeTokenOwner(
       await user.getAddress()
-    )
-    await executeCanonicalMessengerSendMessage(
-      l1_messenger,
-      l1_messengerWrapper,
-      l2_bridge,
-      l2_messenger,
-      governance,
-      message,
-      l2ChainId
     )
 
     const mintAmount: BigNumber = BigNumber.from('13371377')
@@ -121,19 +112,10 @@ describe('Hop_Bridge_Token', () => {
     expect(totalSupplyAfter).to.eq(totalSupplyBefore.add(mintAmount))
   })
 
-  it.skip('Should allow the owner to burn tokens', async () => {
+  it('Should allow the owner to burn tokens', async () => {
     // Set the owner to a known address for testing purposes
-    const message: string = getSetHopBridgeTokenOwnerMessage(
+    await l2_bridge.connect(governance).setHopBridgeTokenOwner(
       await user.getAddress()
-    )
-    await executeCanonicalMessengerSendMessage(
-      l1_messenger,
-      l1_messengerWrapper,
-      l2_bridge,
-      l2_messenger,
-      governance,
-      message,
-      l2ChainId
     )
 
     const mintAmount: BigNumber = BigNumber.from('13371377')
