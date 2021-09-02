@@ -1018,7 +1018,7 @@ describe('L2_Bridge', () => {
 
   describe('distribute', async () => {
     it('Should not allow an arbitrary address to call distribute', async () => {
-      const expectedErrorMsg: string = 'L2_OVM_BRG: Caller is not the expected sender'
+      const expectedErrorMsg: string = 'L2_BRG: xDomain caller must be L1 Bridge'
       await expect(
         l2_bridge
           .connect(transfer.sender)
