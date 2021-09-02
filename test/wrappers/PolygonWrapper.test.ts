@@ -32,7 +32,7 @@ describe('Polygon Wrapper', () => {
   let l1_bridge: Contract
   let l1_messengerWrapper: Contract
   let l2_messenger: Contract
-  let l2_messengerProxy: Contract
+  let l2_bridgeConnector: Contract
 
   let fxRoot: Contract
 
@@ -47,7 +47,7 @@ describe('Polygon Wrapper', () => {
       l1_bridge,
       l1_messengerWrapper,
       l2_messenger,
-      l2_messengerProxy,
+      l2_bridgeConnector,
       fxRoot
     } = _fixture)
   })
@@ -60,7 +60,7 @@ describe('Polygon Wrapper', () => {
     const expectedL1BridgeAddress: string = l1_bridge.address
     const expectedCheckpointManager: string = getPolygonCheckpointManagerAddress(l1ChainId)
     const expectedFxRoot: string = fxRoot.address
-    const expectedFxChildTunnel: string = l2_messengerProxy.address
+    const expectedFxChildTunnel: string = l2_bridgeConnector.address
 
     const l1BridgeAddress: string = await l1_messengerWrapper.l1BridgeAddress()
     const checkpointManager: string = await l1_messengerWrapper.checkpointManager()
@@ -84,7 +84,7 @@ describe('Polygon Wrapper', () => {
 
     const fxRootMessage: string = ethersUtils.defaultAbiCoder.encode(
       ['address', 'address', 'bytes'],
-      [l1_messengerWrapper.address, l2_messengerProxy.address, messengerWrapperMessage]
+      [l1_messengerWrapper.address, l2_bridgeConnector.address, messengerWrapperMessage]
     )
 
     const actualNextMessage: string = (await l2_messenger.nextMessage()).message

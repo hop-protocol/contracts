@@ -101,7 +101,6 @@ export const setUpL1AndL2Messengers = async (fixture: IFixture, setUpL1AndL2Mess
     l1_messenger,
     l1_messengerWrapper,
     l2_messenger,
-    l2_messengerProxy,
     fxRoot,
     fxChild
   } = fixture
@@ -110,17 +109,18 @@ export const setUpL1AndL2Messengers = async (fixture: IFixture, setUpL1AndL2Mess
 
   // Polygon's messenger is the messenger wrapper
   if (isChainIdPolygon(l2ChainId)) {
-    // Set L2 bridge on proxy
-    await l2_messengerProxy.setL2Bridge(l2_bridge.address)
-    await l2_messengerProxy.setFxRootTunnel(l1_messengerWrapper.address)
+    // ToDo: Fix test
+    // // Set L2 bridge on proxy
+    // await l2_messengerProxy.setL2Bridge(l2_bridge.address)
+    // await l2_messengerProxy.setFxRootTunnel(l1_messengerWrapper.address)
 
-    // Set up L1 messenger
-    await fxRoot.setFxChild(fxChild.address)
+    // // Set up L1 messenger
+    // await fxRoot.setFxChild(fxChild.address)
 
-    // Set up L2 messenger
-    await l2_messenger.setPolygonTarget(l1_messengerWrapper.address)
-    await fxChild.setFxRoot(fxRoot.address)
-    await fxChild.setL2Messenger(l2_messenger.address)
+    // // Set up L2 messenger
+    // await l2_messenger.setPolygonTarget(l1_messengerWrapper.address)
+    // await fxChild.setFxRoot(fxRoot.address)
+    // await fxChild.setL2Messenger(l2_messenger.address)
   }
 
   // Set up L1
@@ -139,6 +139,7 @@ export const setUpL1AndL2Bridges = async (fixture: IFixture, opts: any) => {
     l1_messengerWrapper,
     l2_bridge,
     l2_messenger,
+    l2_bridgeConnector,
     l2_ammWrapper
   } = fixture
 
@@ -149,41 +150,9 @@ export const setUpL1AndL2Bridges = async (fixture: IFixture, opts: any) => {
     messengerWrapperChainId,
     l1_messengerWrapper.address
   )
-
   // Set up L2
-  let message: string = getSetL1BridgeConnectorMessage(l1_bridge)
-  await executeCanonicalMessengerSendMessage(
-    l1_messenger,
-    l1_messengerWrapper,
-    l2_bridge,
-    l2_messenger,
-    governance,
-    message,
-    messengerWrapperChainId
-  )
-
-  const contractToUse: Contract = isChainIdPolygon(l2ChainId) ? l1_bridge : l1_messengerWrapper
-  message = getSetL1CallerMessage(contractToUse)
-  await executeCanonicalMessengerSendMessage(
-    l1_messenger,
-    l1_messengerWrapper,
-    l2_bridge,
-    l2_messenger,
-    governance,
-    message,
-    messengerWrapperChainId
-  )
-
-  message = getSetAmmWrapperMessage(l2_ammWrapper)
-  await executeCanonicalMessengerSendMessage(
-    l1_messenger,
-    l1_messengerWrapper,
-    l2_bridge,
-    l2_messenger,
-    governance,
-    message,
-    messengerWrapperChainId
-  )
+  await l2_bridge.connect(governance).setL1BridgeConnector(l2_bridgeConnector.address)
+  await l2_bridge.connect(governance).setAmmWrapper(l2_bridgeConnector.address)
 }
 
 export const distributeCanonicalTokens = async (
@@ -229,6 +198,7 @@ export const setUpBonderStake = async (fixture: IFixture, opts: any) => {
     l2_canonicalToken,
     l2_bridge,
     l2_messenger,
+    l2_bridgeConnector,
     l2_swap
   } = fixture
 
@@ -366,34 +336,34 @@ export const expectBalanceOf = async (
 }
 
 export const getL2SpecificArtifact = (chainId: BigNumber) => {
-  let l2_bridgeArtifact: string
+  let l2_connectorArtifact: string
   let l1_messengerArtifact: string
   let l1_messengerWrapperArtifact: string
 
   if (isChainIdOptimism(chainId)) {
-    l2_bridgeArtifact = 'Mock_L2_OptimismBridge.sol:Mock_L2_OptimismBridge'
+    l2_connectorArtifact = 'L2_OptimismConnector.sol:L2_OptimismConnector'
     l1_messengerArtifact = 'contracts/test/Mock_L1_Messenger.sol:Mock_L1_Messenger'
     l1_messengerWrapperArtifact =
       'contracts/wrappers/OptimismMessengerWrapper.sol:OptimismMessengerWrapper'
   } else if (isChainIdArbitrum(chainId)) {
-    l2_bridgeArtifact = 'Mock_L2_ArbitrumBridge.sol:Mock_L2_ArbitrumBridge'
+    l2_connectorArtifact = 'L2_ArbitrumConnector.sol:L2_ArbitrumConnector'
     l1_messengerArtifact = 'contracts/test/Mock_L1_Messenger.sol:Mock_L1_Messenger'
     l1_messengerWrapperArtifact =
       'contracts/wrappers/ArbitrumMessengerWrapper.sol:ArbitrumMessengerWrapper'
   } else if (isChainIdXDai(chainId)) {
-    l2_bridgeArtifact = 'Mock_L2_XDaiBridge.sol:Mock_L2_XDaiBridge'
+    l2_connectorArtifact = 'L2_XDaiConnector.sol:L2_XDaiConnector'
     l1_messengerArtifact = 'contracts/test/Mock_L1_Messenger.sol:Mock_L1_Messenger'
     l1_messengerWrapperArtifact =
       'contracts/wrappers/XDaiMessengerWrapper.sol:XDaiMessengerWrapper'
   } else if (isChainIdPolygon(chainId)) {
-    l2_bridgeArtifact = 'Mock_L2_PolygonBridge.sol:Mock_L2_PolygonBridge'
+    l2_connectorArtifact = 'L2_PolygonConnector.sol:L2_PolygonConnector'
     l1_messengerArtifact = 'contracts/test/Mock_L1_Messenger.sol:Mock_L1_Messenger'
     l1_messengerWrapperArtifact =
       'contracts/test/MockPolygonMessengerWrapper.sol:MockPolygonMessengerWrapper'
   }
 
   return {
-    l2_bridgeArtifact,
+    l2_connectorArtifact,
     l1_messengerArtifact,
     l1_messengerWrapperArtifact
   }

@@ -17,7 +17,7 @@ contract XDaiMessengerWrapper is MessengerWrapper {
     /// @notice The xDai AMB uses bytes32 for chainId instead of uint256
     bytes32 public l2ChainId;
     address public ambBridge;
-    address public immutable l2BridgeAddress;
+    address public l2BridgeConnectorAddress;
     uint256 public immutable defaultGasLimit;
 
     constructor(
@@ -31,11 +31,19 @@ contract XDaiMessengerWrapper is MessengerWrapper {
         public
         MessengerWrapper(_l1Address)
     {
-        l2BridgeAddress = _l2BridgeAddress;
         l1MessengerAddress = _l1MessengerAddress;
         defaultGasLimit = _defaultGasLimit;
         l2ChainId = bytes32(_l2ChainId);
         ambBridge = _ambBridge;
+    }
+
+    /**
+     * @dev Sets the l2BridgeConnectorAddress
+     * @param _l2BridgeConnectorAddress The new bridge connector address
+     */
+    function setL2BridgeConnectorAddress(address _l2BridgeConnectorAddress) external {
+        require(l2BridgeConnectorAddress == address(0), "MSG_WRPR: Connector address has been set");
+        l2BridgeConnectorAddress = _l2BridgeConnectorAddress;
     }
 
     /**
@@ -44,7 +52,7 @@ contract XDaiMessengerWrapper is MessengerWrapper {
      */
     function sendCrossDomainMessage(bytes memory _calldata) public payable override onlyL1Address {
         l1MessengerAddress.requireToPassMessage(
-            l2BridgeAddress,
+            l2BridgeConnectorAddress,
             _calldata,
             defaultGasLimit
         );
@@ -52,7 +60,7 @@ contract XDaiMessengerWrapper is MessengerWrapper {
 
     /// @notice message data is not needed for message verification with the xDai AMB
     function verifySender(address l1Caller) public override {
-        require(l1MessengerAddress.messageSender() == l2BridgeAddress, "L2_XDAI_BRG: Invalid cross-domain sender");
+        require(l1MessengerAddress.messageSender() == l2BridgeConnectorAddress, "L2_XDAI_BRG: Invalid cross-domain sender");
         require(l1Caller == ambBridge, "L2_XDAI_BRG: Caller is not the expected sender");
 
         // With the xDai AMB, it is best practice to also check the source chainId

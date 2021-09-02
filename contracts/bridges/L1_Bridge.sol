@@ -39,7 +39,6 @@ abstract contract L1_Bridge is Bridge {
 
     /* ========== Config State ========== */
 
-    address public governance;
     mapping(uint256 => IMessengerWrapper) public crossDomainMessengerWrappers;
     mapping(uint256 => bool) public isChainIdPaused;
     uint256 public challengePeriod = 1 days;
@@ -96,13 +95,11 @@ abstract contract L1_Bridge is Bridge {
 
     constructor (
         IBonderRegistry _registry,
-        address _governance,
         address _token
     )
         public
         Bridge(_registry)
     {
-        governance = _governance;
         token = _token;
     }
 
@@ -398,11 +395,6 @@ abstract contract L1_Bridge is Bridge {
     }
 
     /* ========== External Config Management Setters ========== */
-
-    function setGovernance(address _newGovernance) external onlyOwner {
-        require(_newGovernance != address(0), "L1_BRG: _newGovernance cannot be address(0)");
-        governance = _newGovernance;
-    }
 
     function setCrossDomainMessengerWrapper(uint256 chainId, IMessengerWrapper _crossDomainMessengerWrapper) external onlyOwner {
         crossDomainMessengerWrappers[chainId] = _crossDomainMessengerWrapper;

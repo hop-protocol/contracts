@@ -8,7 +8,7 @@ import { IFixture } from './interfaces'
 
 import {
   getMessengerWrapperDefaults,
-  getL2BridgeDefaults
+  getL2ConnectorDefaults
 } from '../../config/utils'
 import {
   IGetL2BridgeDefaults
@@ -28,8 +28,8 @@ import {
   DEFAULT_SWAP_A,
   DEFAULT_SWAP_FEE,
   DEFAULT_SWAP_ADMIN_FEE,
-  DEFAULT_SWAP_WITHDRAWAL_FEE
-
+  DEFAULT_SWAP_WITHDRAWAL_FEE,
+  ZERO_ADDRESS
 } from '../../config/constants'
 
 export async function fixture (
@@ -38,7 +38,7 @@ export async function fixture (
   l1AlreadySetOpts: any = {}
 ): Promise<IFixture> {
   const {
-    l2_bridgeArtifact,
+    l2_connectorArtifact,
     l1_messengerArtifact,
     l1_messengerWrapperArtifact
   } = getL2SpecificArtifact(l2ChainId)
@@ -61,7 +61,10 @@ export async function fixture (
     'contracts/test/Mock_L1_Bridge.sol:Mock_L1_Bridge'
   )
   const L2_Bridge = await ethers.getContractFactory(
-    `contracts/test/${l2_bridgeArtifact}`
+    'contracts/test/Mock_L2_Bridge.sol:Mock_L2_Bridge'
+  )
+  const L2_Connector = await ethers.getContractFactory(
+    `contracts/connectors/${l2_connectorArtifact}`
   )
   const L1_Messenger = await ethers.getContractFactory(
     l1_messengerArtifact
@@ -77,9 +80,6 @@ export async function fixture (
   )
   const L2_Messenger = await ethers.getContractFactory(
     'contracts/test/Mock_L2_Messenger.sol:Mock_L2_Messenger'
-  )
-  const L2_MessengerProxy = await ethers.getContractFactory(
-    'contracts/bridges/L2_PolygonMessengerProxy.sol:L2_PolygonMessengerProxy'
   )
 
   const FxRoot = await ethers.getContractFactory(
@@ -164,7 +164,7 @@ export async function fixture (
   if (l1AlreadySetOpts?.l1BridgeAddress) {
     l1_bridge = L1_Bridge.attach(l1AlreadySetOpts.l1BridgeAddress)
   } else {
-    l1_bridge = await L1_Bridge.deploy(l1_registry.address, await governance.getAddress(), l1_canonicalToken.address)
+    l1_bridge = await L1_Bridge.connect(governance).deploy(l1_registry.address, l1_canonicalToken.address)
   }
 
   // Deploy Hop bridge token
@@ -174,26 +174,16 @@ export async function fixture (
     DEFAULT_H_BRIDGE_TOKEN_DECIMALS
   )
 
-  // Deploy Messenger Proxy
-  const l2_messengerProxy: Contract = await L2_MessengerProxy.deploy(fxChild.address)
-
-  // Deploy Hop L2 contracts
-  let l2BridgeDefaults: IGetL2BridgeDefaults[] = getL2BridgeDefaults(
-    l2ChainId,
-    l2_messenger.address,
-    l2_messengerProxy.address,
-    await governance.getAddress(),
-    l2_hopBridgeToken.address,
-    l1_bridge.address,
-    ALL_SUPPORTED_CHAIN_IDS,
-    l1_registry.address,
-    l1ChainId
-  )
   // NOTE: Deployments of the Mock bridge require the first param to be the L2 Chain Id
-  const l2_bridge = await L2_Bridge.deploy(l2ChainId, ...l2BridgeDefaults)
+  const l2_bridge = await L2_Bridge.connect(governance).deploy(
+    l2ChainId,
+    l2_hopBridgeToken.address,
+    ALL_SUPPORTED_CHAIN_IDS,
+    l1_registry.address
+  )
 
   // Deploy Messenger Wrapper
-  const fxChildTunnelAddress: string = l2_messengerProxy.address
+  const fxChildTunnelAddress: string = ZERO_ADDRESS
   const messengerWrapperDefaults:any[] = getMessengerWrapperDefaults(
     l1ChainId,
     l2ChainId,
@@ -206,6 +196,20 @@ export async function fixture (
   const l1_messengerWrapper = await L1_MessengerWrapper.deploy(
     ...messengerWrapperDefaults
   )
+
+  const l2ConnectorDefaults = getL2ConnectorDefaults(
+    l2ChainId,
+    l1_messengerWrapper.address,
+    l2_bridge.address,
+    l2_messenger.address,
+    l1ChainId,
+    fxChild.address
+  )
+  const l2_bridgeConnector: Contract = await L2_Connector.deploy(
+    ...l2ConnectorDefaults
+  )
+
+  await l1_messengerWrapper.setL2BridgeConnectorAddress(l2_bridgeConnector.address)
 
   // Deploy AMM contracts
   const l2_swap = await L2_Swap.deploy()
@@ -298,7 +302,7 @@ export async function fixture (
     L1_MessengerWrapper,
     L1_Messenger,
     L2_Messenger,
-    L2_MessengerProxy,
+    L2_Connector,
     L2_Swap,
     L2_AmmWrapper,
     FxRoot,
@@ -312,7 +316,7 @@ export async function fixture (
     l1_bridge,
     l1_registry,
     l2_messenger,
-    l2_messengerProxy,
+    l2_bridgeConnector,
     l2_hopBridgeToken,
     l2_bridge,
     l2_canonicalToken,

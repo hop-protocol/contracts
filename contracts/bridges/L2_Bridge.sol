@@ -24,7 +24,6 @@ abstract contract L2_Bridge is Bridge {
     using SafeERC20 for IERC20;
 
     HopBridgeToken public immutable hToken;
-    address public l1GovernanceConnector;
     address public l1BridgeConnector;
     I_L2_AmmWrapper public ammWrapper;
     mapping(uint256 => bool) public activeChainIds;
@@ -84,8 +83,6 @@ abstract contract L2_Bridge is Bridge {
 
     constructor (
         HopBridgeToken _hToken,
-        address _l1GovernanceConnector,
-        address _l1BridgeConnector,
         uint256[] memory _activeChainIds,
         IBonderRegistry registry
     )
@@ -93,8 +90,6 @@ abstract contract L2_Bridge is Bridge {
         Bridge(registry)
     {
         hToken = _hToken;
-        l1GovernanceConnector = _l1GovernanceConnector;
-        l1BridgeConnector = _l1BridgeConnector;
 
         for (uint256 i = 0; i < _activeChainIds.length; i++) {
             activeChainIds[_activeChainIds[i]] = true;

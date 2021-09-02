@@ -91,7 +91,6 @@ describe('L2_Polygon_Messenger_Proxy', () => {
   let l2_messenger: Contract
   let l2_swap: Contract
   let l2_ammWrapper: Contract
-  let l2_messengerProxy: Contract
 
   let transfers: Transfer[]
   let transfer: Transfer
@@ -128,7 +127,6 @@ describe('L2_Polygon_Messenger_Proxy', () => {
       l2_messenger,
       l2_swap,
       l2_ammWrapper,
-      l2_messengerProxy,
       transfers
     } = _fixture)
 
@@ -172,17 +170,6 @@ describe('L2_Polygon_Messenger_Proxy', () => {
   })
 
   /**
-   * Unit tests
-   */
-
-  it('Should set the correct values in the constructor', async () => {
-    const expectedXDomainMessageSenderAddress: string = DEAD_ADDRESS
-    const xDomainMessageSenderAddress: string = await l2_messengerProxy.xDomainMessageSender()
-
-    expect(expectedXDomainMessageSenderAddress).to.eq(xDomainMessageSenderAddress)
-  })
-
-  /**
    * Happy Path
    */
 
@@ -203,28 +190,6 @@ describe('L2_Polygon_Messenger_Proxy', () => {
   /**
    * Non-Happy Path
    */
-
-  it('Should not set the L2 Bridge address because it has already been set', async () => {
-    const expectedErrorMsg: string = 'L2_PLGN_MSG: L2 Bridge already set'
-    await expect(
-      l2_messengerProxy.setL2Bridge(ONE_ADDRESS)
-    ).to.be.revertedWith(expectedErrorMsg)
-  })
-
-  it('Should not send a cross domain message because it was called by an arbitrary address', async () => {
-    const expectedErrorMsg: string = 'L2_PLGN_MSG: Sender must be the L2 Bridge'
-    const arbitraryMessage: string = ethersUtils.defaultAbiCoder.encode(
-      ['address'],
-      [DEAD_ADDRESS]
-    )
-    await expect(
-      l2_messengerProxy
-        .connect(otherUser)
-        .sendCrossDomainMessage(
-          arbitraryMessage
-        )
-    ).to.be.revertedWith(expectedErrorMsg)
-  })
 
   it('Should not allow _processMessageFromRoot to succeed because the transaction fails', async () => {
     const expectedErrorMsg: string = 'L2_PLGN_MSG: Failed to proxy message'

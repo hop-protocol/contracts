@@ -14,21 +14,28 @@ import "./MessengerWrapper.sol";
 contract OptimismMessengerWrapper is MessengerWrapper {
 
     iOVM_L1CrossDomainMessenger public immutable l1MessengerAddress;
-    address public immutable l2BridgeAddress;
     uint256 public immutable defaultGasLimit;
+    address public l2BridgeConnectorAddress;
 
     constructor(
         address _l1Address,
-        address _l2BridgeAddress,
         iOVM_L1CrossDomainMessenger _l1MessengerAddress,
         uint256 _defaultGasLimit
     )
         public
         MessengerWrapper(_l1Address)
     {
-        l2BridgeAddress = _l2BridgeAddress;
         l1MessengerAddress = _l1MessengerAddress;
         defaultGasLimit = _defaultGasLimit;
+    }
+
+    /**
+     * @dev Sets the l2BridgeConnectorAddress
+     * @param _l2BridgeConnectorAddress The new bridge connector address
+     */
+    function setL2BridgeConnectorAddress(address _l2BridgeConnectorAddress) external {
+        require(l2BridgeConnectorAddress == address(0), "MSG_WRPR: Connector address has been set");
+        l2BridgeConnectorAddress = _l2BridgeConnectorAddress;
     }
 
     /** 
@@ -37,7 +44,7 @@ contract OptimismMessengerWrapper is MessengerWrapper {
      */
     function sendCrossDomainMessage(bytes memory _calldata) public payable override onlyL1Address {
         l1MessengerAddress.sendMessage(
-            l2BridgeAddress,
+            l2BridgeConnectorAddress,
             _calldata,
             uint32(defaultGasLimit)
         );
@@ -45,7 +52,7 @@ contract OptimismMessengerWrapper is MessengerWrapper {
 
     function verifySender(address l1Caller) public override {
         require(l1Caller == address(l1MessengerAddress), "OVM_MSG_WPR: Caller is not l1MessengerAddress");
-        // Verify that cross-domain sender is l2BridgeAddress
-        require(l1MessengerAddress.xDomainMessageSender() == l2BridgeAddress, "OVM_MSG_WPR: Invalid cross-domain sender");
+        // Verify that cross-domain sender is l2BridgeConnectorAddress
+        require(l1MessengerAddress.xDomainMessageSender() == l2BridgeConnectorAddress, "OVM_MSG_WPR: Invalid cross-domain sender");
     }
 }
