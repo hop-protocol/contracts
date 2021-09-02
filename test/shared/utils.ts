@@ -101,6 +101,7 @@ export const setUpL1AndL2Messengers = async (fixture: IFixture, setUpL1AndL2Mess
     l1_messenger,
     l1_messengerWrapper,
     l2_messenger,
+    l2_bridgeConnector,
     fxRoot,
     fxChild
   } = fixture
@@ -109,18 +110,17 @@ export const setUpL1AndL2Messengers = async (fixture: IFixture, setUpL1AndL2Mess
 
   // Polygon's messenger is the messenger wrapper
   if (isChainIdPolygon(l2ChainId)) {
-    // ToDo: Fix test
-    // // Set L2 bridge on proxy
-    // await l2_messengerProxy.setL2Bridge(l2_bridge.address)
-    // await l2_messengerProxy.setFxRootTunnel(l1_messengerWrapper.address)
+    // Set L2 bridge on proxy
+    // await l2_bridgeConnector.setL2Bridge(l2_bridge.address)
+    await l2_bridgeConnector.setFxRootTunnel(l1_messengerWrapper.address)
 
-    // // Set up L1 messenger
-    // await fxRoot.setFxChild(fxChild.address)
-
-    // // Set up L2 messenger
-    // await l2_messenger.setPolygonTarget(l1_messengerWrapper.address)
-    // await fxChild.setFxRoot(fxRoot.address)
-    // await fxChild.setL2Messenger(l2_messenger.address)
+    // Set up L1 messenger
+    await fxRoot.setFxChild(fxChild.address)
+    
+    // Set up L2 messenger
+    await l2_messenger.setPolygonTarget(l1_messengerWrapper.address)
+    await fxChild.setFxRoot(fxRoot.address)
+    await fxChild.setL2Messenger(l2_messenger.address)
   }
 
   // Set up L1

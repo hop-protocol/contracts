@@ -58,8 +58,7 @@ export const getMessengerWrapperDefaults = (
     data.push(
       ...defaults,
       gasLimit,
-      l2ChainId.toString(),
-      ambAddress
+      l2ChainId.toString()
     )
   } else if (isChainIdPolygon(l2ChainId)) {
     const checkpointManager: string = getPolygonCheckpointManagerAddress(l1ChainId)

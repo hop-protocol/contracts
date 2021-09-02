@@ -397,19 +397,9 @@ describe('L2_AmmWrapper', () => {
       const minBonderBps: BigNumber = BigNumber.from('0')
       const minBonderFeeAbsolute: BigNumber = transfer.amount
 
-      const message: string = getSetMinimumBonderFeeRequirementsMessage(
+      await l2_bridge.connect(governance).setMinimumBonderFeeRequirements(
         minBonderBps,
-        minBonderFeeAbsolute 
-      )
-
-      await executeCanonicalMessengerSendMessage(
-        l1_messenger,
-        l1_messengerWrapper,
-        l2_bridge,
-        l2_messenger,
-        governance,
-        message,
-        l2ChainId
+        minBonderFeeAbsolute
       )
 
       const customTransfer: Transfer = new Transfer(l2Transfer)
@@ -462,19 +452,9 @@ describe('L2_AmmWrapper', () => {
       const minBonderBps: BigNumber = BigNumber.from('0')
       const minBonderFeeAbsolute: BigNumber = BigNumber.from('0')
 
-      const message: string = getSetMinimumBonderFeeRequirementsMessage(
+      await l2_bridge.connect(governance).setMinimumBonderFeeRequirements(
         minBonderBps,
-        minBonderFeeAbsolute 
-      )
-
-      await executeCanonicalMessengerSendMessage(
-        l1_messenger,
-        l1_messengerWrapper,
-        l2_bridge,
-        l2_messenger,
-        governance,
-        message,
-        l2ChainId
+        minBonderFeeAbsolute
       )
 
       const customTransfer: Transfer = new Transfer(l2Transfer)
@@ -504,19 +484,9 @@ describe('L2_AmmWrapper', () => {
       const minBonderBps: BigNumber = BigNumber.from('0')
       const minBonderFeeAbsolute: BigNumber = transfer.amount.mul(98).div(100)
 
-      const message: string = getSetMinimumBonderFeeRequirementsMessage(
+      await l2_bridge.connect(governance).setMinimumBonderFeeRequirements(
         minBonderBps,
-        minBonderFeeAbsolute 
-      )
-
-      await executeCanonicalMessengerSendMessage(
-        l1_messenger,
-        l1_messengerWrapper,
-        l2_bridge,
-        l2_messenger,
-        governance,
-        message,
-        l2ChainId
+        minBonderFeeAbsolute
       )
 
       const customTransfer: Transfer = new Transfer(l2Transfer)

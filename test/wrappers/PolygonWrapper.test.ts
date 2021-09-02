@@ -62,7 +62,7 @@ describe('Polygon Wrapper', () => {
     const expectedFxRoot: string = fxRoot.address
     const expectedFxChildTunnel: string = l2_bridgeConnector.address
 
-    const l1BridgeAddress: string = await l1_messengerWrapper.l1BridgeAddress()
+    const l1BridgeAddress: string = await l1_messengerWrapper.owner()
     const checkpointManager: string = await l1_messengerWrapper.checkpointManager()
     const fxRootAddress: string = await l1_messengerWrapper.fxRoot()
     const fxChildTunnel: string = await l1_messengerWrapper.fxChildTunnel()

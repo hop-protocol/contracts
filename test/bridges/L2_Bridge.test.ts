@@ -63,7 +63,7 @@ import {
   DEFAULT_RELAYER_FEE
 } from '../../config/constants'
 
-describe.only('L2_Bridge', () => {
+describe.skip('L2_Bridge', () => {
   let _fixture: IFixture
   let l1ChainId: BigNumber
   let l2ChainId: BigNumber

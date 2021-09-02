@@ -8,7 +8,8 @@ import { IFixture } from './interfaces'
 
 import {
   getMessengerWrapperDefaults,
-  getL2ConnectorDefaults
+  getL2ConnectorDefaults,
+  isChainIdPolygon
 } from '../../config/utils'
 import {
   IGetL2BridgeDefaults
@@ -209,8 +210,10 @@ export async function fixture (
     ...l2ConnectorDefaults
   )
 
-  await l1_messengerWrapper.setXDomainAddress(l2_bridgeConnector.address)
-  await l2_bridgeConnector.setXDomainAddress(l1_messengerWrapper.address)
+  if (!isChainIdPolygon(l2ChainId)) {
+    await l1_messengerWrapper.setXDomainAddress(l2_bridgeConnector.address)
+    await l2_bridgeConnector.setXDomainAddress(l1_messengerWrapper.address)
+  }
 
   // Deploy AMM contracts
   const l2_swap = await L2_Swap.deploy()
