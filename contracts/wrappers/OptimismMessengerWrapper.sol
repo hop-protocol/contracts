@@ -18,13 +18,13 @@ contract OptimismMessengerWrapper is MessengerWrapper {
     uint256 public immutable defaultGasLimit;
 
     constructor(
-        address _l1BridgeAddress,
+        address _l1Address,
         address _l2BridgeAddress,
         iOVM_L1CrossDomainMessenger _l1MessengerAddress,
         uint256 _defaultGasLimit
     )
         public
-        MessengerWrapper(_l1BridgeAddress)
+        MessengerWrapper(_l1Address)
     {
         l2BridgeAddress = _l2BridgeAddress;
         l1MessengerAddress = _l1MessengerAddress;
@@ -35,7 +35,7 @@ contract OptimismMessengerWrapper is MessengerWrapper {
      * @dev Sends a message to the l2BridgeAddress from layer-1
      * @param _calldata The data that l2BridgeAddress will be called with
      */
-    function sendCrossDomainMessage(bytes memory _calldata) public payable override onlyL1Bridge {
+    function sendCrossDomainMessage(bytes memory _calldata) public payable override onlyL1Address {
         l1MessengerAddress.sendMessage(
             l2BridgeAddress,
             _calldata,
@@ -43,8 +43,8 @@ contract OptimismMessengerWrapper is MessengerWrapper {
         );
     }
 
-    function verifySender(address l1BridgeCaller, bytes memory /*_data*/) public override {
-        require(l1BridgeCaller == address(l1MessengerAddress), "OVM_MSG_WPR: Caller is not l1MessengerAddress");
+    function verifySender(address l1Caller) public override {
+        require(l1Caller == address(l1MessengerAddress), "OVM_MSG_WPR: Caller is not l1MessengerAddress");
         // Verify that cross-domain sender is l2BridgeAddress
         require(l1MessengerAddress.xDomainMessageSender() == l2BridgeAddress, "OVM_MSG_WPR: Invalid cross-domain sender");
     }

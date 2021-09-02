@@ -26,7 +26,7 @@ import {
 } from '../../config/utils'
 
 import {
-  getSetL1BridgeCallerMessage,
+  getSetL1CallerMessage,
   executeCanonicalMessengerSendMessage,
   getAddActiveChainIdsMessage,
   getSetFxRootTunnelMessage,
@@ -191,14 +191,14 @@ export async function setupL1 (config: Config) {
   await waitAfterTransaction()
 
   // Set up L2 Bridge state (through the L1 Canonical Messenger)
-  let setL1BridgeCallerParams: string
+  let setL1CallerParams: string
   if (isChainIdPolygon(l2ChainId)) {
-    setL1BridgeCallerParams = l1_bridge.address
+    setL1CallerParams = l1_bridge.address
   } else {
-    setL1BridgeCallerParams = l1_messengerWrapper.address
+    setL1CallerParams = l1_messengerWrapper.address
   }
-  let message: string = getSetL1BridgeCallerMessage(
-    setL1BridgeCallerParams
+  let message: string = getSetL1CallerMessage(
+    setL1CallerParams
   )
 
   logger.log('setting L1 messenger wrapper address on L2 bridge')

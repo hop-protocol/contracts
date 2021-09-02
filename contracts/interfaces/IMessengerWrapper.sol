@@ -5,5 +5,5 @@ pragma experimental ABIEncoderV2;
 
 interface IMessengerWrapper {
     function sendCrossDomainMessage(bytes memory _calldata) external payable;
-    function verifySender(address l1BridgeCaller, bytes memory _data) external;
+    function verifySender(address l1Caller) external;
 }

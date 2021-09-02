@@ -21,7 +21,7 @@ contract XDaiMessengerWrapper is MessengerWrapper {
     uint256 public immutable defaultGasLimit;
 
     constructor(
-        address _l1BridgeAddress,
+        address _l1Address,
         address _l2BridgeAddress,
         IArbitraryMessageBridge _l1MessengerAddress,
         uint256 _defaultGasLimit,
@@ -29,7 +29,7 @@ contract XDaiMessengerWrapper is MessengerWrapper {
         address _ambBridge
     )
         public
-        MessengerWrapper(_l1BridgeAddress)
+        MessengerWrapper(_l1Address)
     {
         l2BridgeAddress = _l2BridgeAddress;
         l1MessengerAddress = _l1MessengerAddress;
@@ -42,7 +42,7 @@ contract XDaiMessengerWrapper is MessengerWrapper {
      * @dev Sends a message to the l2BridgeAddress from layer-1
      * @param _calldata The data that l2BridgeAddress will be called with
      */
-    function sendCrossDomainMessage(bytes memory _calldata) public payable override onlyL1Bridge {
+    function sendCrossDomainMessage(bytes memory _calldata) public payable override onlyL1Address {
         l1MessengerAddress.requireToPassMessage(
             l2BridgeAddress,
             _calldata,
@@ -51,9 +51,9 @@ contract XDaiMessengerWrapper is MessengerWrapper {
     }
 
     /// @notice message data is not needed for message verification with the xDai AMB
-    function verifySender(address l1BridgeCaller, bytes memory) public override {
+    function verifySender(address l1Caller) public override {
         require(l1MessengerAddress.messageSender() == l2BridgeAddress, "L2_XDAI_BRG: Invalid cross-domain sender");
-        require(l1BridgeCaller == ambBridge, "L2_XDAI_BRG: Caller is not the expected sender");
+        require(l1Caller == ambBridge, "L2_XDAI_BRG: Caller is not the expected sender");
 
         // With the xDai AMB, it is best practice to also check the source chainId
         // https://docs.tokenbridge.net/amb-bridge/how-to-develop-xchain-apps-by-amb#receive-a-method-call-from-the-amb-bridge

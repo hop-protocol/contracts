@@ -23,7 +23,7 @@ contract ArbitrumMessengerWrapper is MessengerWrapper {
     uint256 public immutable defaultGasLimit;
 
     constructor(
-        address _l1BridgeAddress,
+        address _l1Address,
         address _l2BridgeAddress,
         IInbox _arbInbox,
         uint256 _defaultGasLimit,
@@ -31,7 +31,7 @@ contract ArbitrumMessengerWrapper is MessengerWrapper {
         uint256 _defaultCallValue
     )
         public
-        MessengerWrapper(_l1BridgeAddress)
+        MessengerWrapper(_l1Address)
     {
         l2BridgeAddress = _l2BridgeAddress;
         arbInbox = _arbInbox;
@@ -44,7 +44,7 @@ contract ArbitrumMessengerWrapper is MessengerWrapper {
      * @dev Sends a message to the l2BridgeAddress from layer-1
      * @param _calldata The data that l2BridgeAddress will be called with
      */
-    function sendCrossDomainMessage(bytes memory _calldata) public payable override onlyL1Bridge {
+    function sendCrossDomainMessage(bytes memory _calldata) public payable override onlyL1Address {
         uint256 maxSubmissionCost = defaultGasLimit * defaultGasPrice;
         arbInbox.createRetryableTicket{value: msg.value}(
             l2BridgeAddress,
@@ -58,11 +58,11 @@ contract ArbitrumMessengerWrapper is MessengerWrapper {
         );
     }
 
-    function verifySender(address l1BridgeCaller, bytes memory /*_data*/) public override {
+    function verifySender(address l1Caller) public override {
         IBridge arbBridge = arbInbox.bridge();
         IOutbox outbox = IOutbox(arbBridge.activeOutbox());
 
-        require(l1BridgeCaller == address(outbox), "ARB_MSG_WPR: Caller is not outbox");
+        require(l1Caller == address(outbox), "ARB_MSG_WPR: Caller is not outbox");
         // Verify that sender is l2BridgeAddress
         require(outbox.l2ToL1Sender() == l2BridgeAddress, "ARB_MSG_WPR: Invalid cross-domain sender");
     }

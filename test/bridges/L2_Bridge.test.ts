@@ -30,8 +30,8 @@ import {
   executeL2BridgeBondWithdrawalAndDistribute,
   executeCanonicalMessengerSendMessage,
   getSetAmmWrapperMessage,
-  getSetL1BridgeAddressMessage,
-  getSetL1BridgeCallerMessage,
+  getSetL1BridgeConnectorMessage,
+  getSetL1CallerMessage,
   getAddActiveChainIdsMessage,
   getRemoveActiveChainIdsMessage,
   getSetMinimumForceCommitDelayMessage,
@@ -263,7 +263,7 @@ describe('L2_Bridge', () => {
     it('Should set the L1 bridge address arbitrarily', async () => {
       const expectedL1BridgeAddress: string = ONE_ADDRESS
 
-      const message: string = getSetL1BridgeAddressMessage(
+      const message: string = getSetL1BridgeConnectorMessage(
         expectedL1BridgeAddress
       )
       await executeCanonicalMessengerSendMessage(
@@ -281,10 +281,10 @@ describe('L2_Bridge', () => {
     })
 
     it('Should set the L1 messenger wrapper address arbitrarily', async () => {
-      const expectedL1BridgeCaller: string = ONE_ADDRESS
+      const expectedL1Caller: string = ONE_ADDRESS
 
-      const message: string = getSetL1BridgeCallerMessage(
-        expectedL1BridgeCaller
+      const message: string = getSetL1CallerMessage(
+        expectedL1Caller
       )
       await executeCanonicalMessengerSendMessage(
         l1_messenger,
@@ -296,8 +296,8 @@ describe('L2_Bridge', () => {
         l2ChainId
       )
 
-      const l1BridgeCaller: string = await l2_bridge.l1BridgeCaller()
-      expect(l1BridgeCaller).to.eq(expectedL1BridgeCaller)
+      const l1Caller: string = await l2_bridge.l1Caller()
+      expect(l1Caller).to.eq(expectedL1Caller)
     })
 
     it('Should add support for a new chainId', async () => {
@@ -736,7 +736,7 @@ describe('L2_Bridge', () => {
       const expectedErrorMsg: string = 'L2_OVM_BRG: Invalid cross-domain sender'
       const expectedL1BridgeAddress: string = ONE_ADDRESS
 
-      const message: string = getSetL1BridgeAddressMessage(
+      const message: string = getSetL1BridgeConnectorMessage(
         expectedL1BridgeAddress
       )
       await expect(
@@ -754,10 +754,10 @@ describe('L2_Bridge', () => {
 
     it('Should not allow an arbitrary address to set the L1 messenger wrapper address arbitrarily', async () => {
       const expectedErrorMsg: string = 'L2_OVM_BRG: Invalid cross-domain sender'
-      const expectedL1BridgeCaller: string = ONE_ADDRESS
+      const expectedL1Caller: string = ONE_ADDRESS
 
-      const message: string = getSetL1BridgeCallerMessage(
-        expectedL1BridgeCaller
+      const message: string = getSetL1CallerMessage(
+        expectedL1Caller
       )
       await expect(
         executeCanonicalMessengerSendMessage(

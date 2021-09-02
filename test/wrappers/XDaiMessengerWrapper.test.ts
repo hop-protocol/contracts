@@ -84,14 +84,9 @@ describe('XDai Messenger Wrapper', () => {
 
   it('Should throw because messageSender() is invalid', async () => {
     const expectedErrorMsg: string = 'L2_XDAI_BRG: Invalid cross-domain sender'
-    const arbitraryMessage: string = ethersUtils.defaultAbiCoder.encode(
-      ['address'],
-      [ONE_ADDRESS]
-    )
     await expect(
       l1_messengerWrapper.verifySender(
-        ONE_ADDRESS,
-        arbitraryMessage
+        ONE_ADDRESS
       )
     ).to.be.revertedWith(expectedErrorMsg)
   })

@@ -16,7 +16,7 @@ import {
 } from '../../config/utils'
 
 import {
-  getSetL1BridgeAddressMessage
+  getSetL1BridgeConnectorMessage
 } from '../shared/contractFunctionWrappers'
 
 export const MAX_NUM_SENDS_BEFORE_COMMIT = 10
@@ -74,7 +74,7 @@ describe('Polygon Wrapper', () => {
   })
 
   it('Should allow anyone to send a cross domain message', async () => {
-    const message: string = getSetL1BridgeAddressMessage(ONE_ADDRESS)
+    const message: string = getSetL1BridgeConnectorMessage(ONE_ADDRESS)
     await l1_messengerWrapper.connect(user).sendCrossDomainMessage(message)
 
     const messengerWrapperMessage: string = ethersUtils.defaultAbiCoder.encode(
@@ -93,11 +93,7 @@ describe('Polygon Wrapper', () => {
 
   it('Should verify the sender', async () => {
     // If this function succeeds then the test is a success
-    const arbitraryMessage: string = ethersUtils.defaultAbiCoder.encode(
-      ['address'],
-      [ONE_ADDRESS]
-    )
-    await l1_messengerWrapper.verifySender(l1_messengerWrapper.address, arbitraryMessage)
+    await l1_messengerWrapper.verifySender(l1_messengerWrapper.address)
   })
 
   /**
@@ -106,14 +102,9 @@ describe('Polygon Wrapper', () => {
 
   it('Should throw because the sender is invalid', async () => {
     const expectedErrorMsg: string = 'L1_PLGN_WPR: Caller must be this contract'
-    const arbitraryMessage: string = ethersUtils.defaultAbiCoder.encode(
-      ['address'],
-      [ONE_ADDRESS]
-    )
     await expect(
       l1_messengerWrapper.verifySender(
-        ONE_ADDRESS,
-        arbitraryMessage
+        ONE_ADDRESS
       )
     ).to.be.revertedWith(expectedErrorMsg)
   })

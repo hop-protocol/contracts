@@ -90,7 +90,7 @@ abstract contract L1_Bridge is Bridge {
 
     modifier onlyL2Bridge(uint256 chainId) {
         IMessengerWrapper messengerWrapper = crossDomainMessengerWrappers[chainId];
-        messengerWrapper.verifySender(msg.sender, msg.data);
+        messengerWrapper.verifySender(msg.sender);
         _;
     }
 
@@ -378,10 +378,6 @@ abstract contract L1_Bridge is Bridge {
         return bonded;
     }
 
-    function _requireIsGovernance() internal override {
-        require(governance == msg.sender, "L1_BRG: Caller is not the owner");
-    }
-
     /* ========== Override Functions ========== */
 
     function _transferFromBridge(address recipient, uint256 amount) internal override {
@@ -403,30 +399,30 @@ abstract contract L1_Bridge is Bridge {
 
     /* ========== External Config Management Setters ========== */
 
-    function setGovernance(address _newGovernance) external onlyGovernance {
+    function setGovernance(address _newGovernance) external onlyOwner {
         require(_newGovernance != address(0), "L1_BRG: _newGovernance cannot be address(0)");
         governance = _newGovernance;
     }
 
-    function setCrossDomainMessengerWrapper(uint256 chainId, IMessengerWrapper _crossDomainMessengerWrapper) external onlyGovernance {
+    function setCrossDomainMessengerWrapper(uint256 chainId, IMessengerWrapper _crossDomainMessengerWrapper) external onlyOwner {
         crossDomainMessengerWrappers[chainId] = _crossDomainMessengerWrapper;
     }
 
-    function setChainIdDepositsPaused(uint256 chainId, bool isPaused) external onlyGovernance {
+    function setChainIdDepositsPaused(uint256 chainId, bool isPaused) external onlyOwner {
         isChainIdPaused[chainId] = isPaused;
     }
 
-    function setChallengePeriod(uint256 _challengePeriod) external onlyGovernance {
+    function setChallengePeriod(uint256 _challengePeriod) external onlyOwner {
         require(_challengePeriod % TIME_SLOT_SIZE == 0, "L1_BRG: challengePeriod must be divisible by TIME_SLOT_SIZE");
 
         challengePeriod = _challengePeriod;
     }
 
-    function setChallengeResolutionPeriod(uint256 _challengeResolutionPeriod) external onlyGovernance {
+    function setChallengeResolutionPeriod(uint256 _challengeResolutionPeriod) external onlyOwner {
         challengeResolutionPeriod = _challengeResolutionPeriod;
     }
 
-    function setMinTransferRootBondDelay(uint256 _minTransferRootBondDelay) external onlyGovernance {
+    function setMinTransferRootBondDelay(uint256 _minTransferRootBondDelay) external onlyOwner {
         minTransferRootBondDelay = _minTransferRootBondDelay;
     }
 

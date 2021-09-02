@@ -1204,22 +1204,22 @@ export const getSetL1GovernanceMessage = (l1_governanceAddress: string) => {
   return ethersInterface.encodeFunctionData('setL1Governance', [l1_governanceAddress])
 }
 
-export const getSetL1BridgeAddressMessage = (l1_bridge: Contract | string) => {
+export const getSetL1BridgeConnectorMessage = (l1_bridge: Contract | string) => {
   const address = getAddressFromContractOrString(l1_bridge)
-  const ABI = ['function setL1BridgeAddress(address _l1BridgeAddress)']
+  const ABI = ['function setL1BridgeConnector(address _l1BridgeAddress)']
   const ethersInterface = new ethersUtils.Interface(ABI)
-  return ethersInterface.encodeFunctionData('setL1BridgeAddress', [address])
+  return ethersInterface.encodeFunctionData('setL1BridgeConnector', [address])
 }
 
-export const getSetL1BridgeCallerMessage = (
+export const getSetL1CallerMessage = (
   l1_messengerWrapper: Contract | string
 ) => {
   const address = getAddressFromContractOrString(l1_messengerWrapper)
   const ABI = [
-    'function setL1BridgeCaller(address _l1BridgeCaller)'
+    'function setL1Caller(address _l1Caller)'
   ]
   const ethersInterface = new ethersUtils.Interface(ABI)
-  return ethersInterface.encodeFunctionData('setL1BridgeCaller', [
+  return ethersInterface.encodeFunctionData('setL1Caller', [
     address
   ])
 }

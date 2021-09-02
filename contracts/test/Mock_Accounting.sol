@@ -10,5 +10,4 @@ contract Mock_Accounting is Accounting {
 
     function _transferFromBridge(address _recipient, uint256 _amount) internal override {}
     function _transferToBridge(address _from, uint256 _amount) internal override {}
-    function _requireIsGovernance() internal override {}
 }

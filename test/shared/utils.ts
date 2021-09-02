@@ -25,8 +25,8 @@ import {
   executeCanonicalMessengerSendMessage,
   executeCanonicalBridgeSendTokens,
   executeL1BridgeSendToL2,
-  getSetL1BridgeAddressMessage,
-  getSetL1BridgeCallerMessage,
+  getSetL1BridgeConnectorMessage,
+  getSetL1CallerMessage,
   getSetAmmWrapperMessage
 } from './contractFunctionWrappers'
 
@@ -151,7 +151,7 @@ export const setUpL1AndL2Bridges = async (fixture: IFixture, opts: any) => {
   )
 
   // Set up L2
-  let message: string = getSetL1BridgeAddressMessage(l1_bridge)
+  let message: string = getSetL1BridgeConnectorMessage(l1_bridge)
   await executeCanonicalMessengerSendMessage(
     l1_messenger,
     l1_messengerWrapper,
@@ -163,7 +163,7 @@ export const setUpL1AndL2Bridges = async (fixture: IFixture, opts: any) => {
   )
 
   const contractToUse: Contract = isChainIdPolygon(l2ChainId) ? l1_bridge : l1_messengerWrapper
-  message = getSetL1BridgeCallerMessage(contractToUse)
+  message = getSetL1CallerMessage(contractToUse)
   await executeCanonicalMessengerSendMessage(
     l1_messenger,
     l1_messengerWrapper,
