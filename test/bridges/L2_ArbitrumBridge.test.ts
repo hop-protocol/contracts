@@ -176,7 +176,7 @@ describe.skip('L2_Arbitrum_Bridge', () => {
     const expectedL1BridgeAddress: string = l1_bridge.address
 
     const messengerAddress: string = await l2_bridge.messenger()
-    const l1GovernanceAddress: string = await l2_bridge.l1Governance()
+    const l1GovernanceAddress: string = await l2_bridge.owner()
     const hopBridgeTokenAddress: string = await l2_bridge.hToken()
     const l1BridgeAddress: string = await l2_bridge.l1BridgeAddress()
     const isBonder: string = await l2_bridge.getIsBonder(await bonder.getAddress())

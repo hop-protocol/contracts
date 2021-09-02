@@ -63,7 +63,7 @@ import {
   DEFAULT_RELAYER_FEE
 } from '../../config/constants'
 
-describe('L2_Bridge', () => {
+describe.only('L2_Bridge', () => {
   let _fixture: IFixture
   let l1ChainId: BigNumber
   let l2ChainId: BigNumber
@@ -700,7 +700,7 @@ describe('L2_Bridge', () => {
         expectedL1GovernanceAddress
       )
       await expect(
-        executeCanonicalMessengerSendMessage(
+        await executeCanonicalMessengerSendMessage(
           l1_messenger,
           l1_messengerWrapper,
           l2_bridge,
@@ -1307,19 +1307,9 @@ describe('L2_Bridge', () => {
     const minBonderBps: BigNumber = BigNumber.from('0')
     const minBonderFeeAbsolute: BigNumber = BigNumber.from('0')
 
-    const message: string = getSetMinimumBonderFeeRequirementsMessage(
+    await l2_bridge.connect(governance).setMinimumBonderFeeRequirements(
       minBonderBps,
       minBonderFeeAbsolute 
-    )
-
-    await executeCanonicalMessengerSendMessage(
-      l1_messenger,
-      l1_messengerWrapper,
-      l2_bridge,
-      l2_messenger,
-      governance,
-      message,
-      l2ChainId
     )
 
     const customTransfer: Transfer = new Transfer(transfer)
