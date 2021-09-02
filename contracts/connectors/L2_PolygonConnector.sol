@@ -34,6 +34,6 @@ contract L2_PolygonConnector is FxBaseChildTunnel {
         validateSender(sender)
     {
         (bool success,) = l2Address.call(data);
-        require(success, "L2_PLGN_MSG: Failed to proxy message");
+        require(success, "L2_PGLN_CNR: Failed to proxy message");
     }
 }

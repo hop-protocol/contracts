@@ -18,7 +18,7 @@ abstract contract L2_Connector {
             _verifySender();
 
             (bool success,) = l2Address.call(msg.data);
-            require(success, "L2_ALS: Failed to forward message");
+            require(success, "L2_CNR: Failed to forward message");
         }
     }
 
