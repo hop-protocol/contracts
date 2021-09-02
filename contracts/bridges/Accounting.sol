@@ -9,11 +9,12 @@ import "../interfaces/IBonderRegistry.sol";
 
 /**
  * @dev Accounting is an abstract contract that encapsulates the most critical logic in the Hop contracts.
- * The accounting system works by using two balances that can only increase `_credit` and `_debit`.
- * A bonder's available balance is the total credit minus the total debit. The contract exposes
- * two external functions that allows a bonder to stake and unstake and exposes two internal
- * functions to its child contracts that allow the child contract to add to the credit 
- * and debit balance. In addition, child contracts can override `_additionalDebit` to account
+ * The accounting system works by using two balances, `_credit` and `_debit`. The credit balance is
+ * the amount the bonder has staked and the debit balance is the amount of their stake currently
+ * being used as collateral. A bonder's available balance is the total credit minus the total debit.
+ * The contract exposes two external functions that allows a bonder to stake and unstake and exposes
+ * three internal functions to its child contracts that allow the child contract to update the credit
+ * and debit balances. In addition, child contracts can override `_additionalDebit` to account
  * for any additional debit balance in an alternative way. Lastly, it exposes a modifier,
  * `requirePositiveBalance`, that can be used by child contracts to ensure the bonder does not
  * use more than its available stake.
