@@ -6,7 +6,7 @@ pragma experimental ABIEncoderV2;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import "./Bridge.sol";
-import "../interfaces/IMessengerWrapper.sol";
+import "./L2_Bridge.sol";
 
 /**
  * @dev L1_Bridge is responsible for the bonding and challenging of TransferRoots. All TransferRoots
@@ -39,8 +39,7 @@ abstract contract L1_Bridge is Bridge {
 
     /* ========== Config State ========== */
 
-    address public governance;
-    mapping(uint256 => IMessengerWrapper) public crossDomainMessengerWrappers;
+    mapping(uint256 => address) public xDomainConnectors;
     mapping(uint256 => bool) public isChainIdPaused;
     uint256 public challengePeriod = 1 days;
     uint256 public challengeResolutionPeriod = 10 days;
@@ -89,20 +88,17 @@ abstract contract L1_Bridge is Bridge {
     /* ========== Modifiers ========== */
 
     modifier onlyL2Bridge(uint256 chainId) {
-        IMessengerWrapper messengerWrapper = crossDomainMessengerWrappers[chainId];
-        messengerWrapper.verifySender(msg.sender, msg.data);
+        require(msg.sender == xDomainConnectors[chainId], "L1_BRG: Caller must be bridge connector");
         _;
     }
 
     constructor (
         IBonderRegistry _registry,
-        address _governance,
         address _token
     )
         public
         Bridge(_registry)
     {
-        governance = _governance;
         token = _token;
     }
 
@@ -135,23 +131,13 @@ abstract contract L1_Bridge is Bridge {
         external
         payable
     {
-        IMessengerWrapper messengerWrapper = crossDomainMessengerWrappers[chainId];
-        require(messengerWrapper != IMessengerWrapper(0), "L1_BRG: chainId not supported");
+        address xDomainConnector = xDomainConnectors[chainId];
+        require(xDomainConnector != address(0), "L1_BRG: chainId not supported");
         require(isChainIdPaused[chainId] == false, "L1_BRG: Sends to this chainId are paused");
         require(amount > 0, "L1_BRG: Must transfer a non-zero amount");
         require(amount >= relayerFee, "L1_BRG: Relayer fee cannot exceed amount");
 
         _transferToBridge(msg.sender, amount);
-
-        bytes memory message = abi.encodeWithSignature(
-            "distribute(address,uint256,uint256,uint256,address,uint256)",
-            recipient,
-            amount,
-            amountOutMin,
-            deadline,
-            relayer,
-            relayerFee
-        );
 
         chainBalance[chainId] = chainBalance[chainId].add(amount);
 
@@ -161,7 +147,15 @@ abstract contract L1_Bridge is Bridge {
         } else {
             forwardedValue = msg.value;
         }
-        messengerWrapper.sendCrossDomainMessage{value: forwardedValue}(message);
+
+        L2_Bridge(xDomainConnector).distribute(
+            recipient,
+            amount,
+            amountOutMin,
+            deadline,
+            relayer,
+            relayerFee
+        );
 
         emit TransferSentToL2(
             chainId,
@@ -269,16 +263,11 @@ abstract contract L1_Bridge is Bridge {
         } else {
             chainBalance[chainId] = chainBalance[chainId].add(totalAmount);
 
-            IMessengerWrapper messengerWrapper = crossDomainMessengerWrappers[chainId];
-            require(messengerWrapper != IMessengerWrapper(0), "L1_BRG: chainId not supported");
+            address xDomainConnector = xDomainConnectors[chainId];
+            require(xDomainConnector != address(0), "L1_BRG: chainId not supported");
 
             // Set L2 TransferRoot
-            bytes memory setTransferRootMessage = abi.encodeWithSignature(
-                "setTransferRoot(bytes32,uint256)",
-                rootHash,
-                totalAmount
-            );
-            messengerWrapper.sendCrossDomainMessage(setTransferRootMessage);
+            L2_Bridge(xDomainConnector).setTransferRoot(rootHash, totalAmount);
         }
     }
 
@@ -378,10 +367,6 @@ abstract contract L1_Bridge is Bridge {
         return bonded;
     }
 
-    function _requireIsGovernance() internal override {
-        require(governance == msg.sender, "L1_BRG: Caller is not the owner");
-    }
-
     /* ========== Override Functions ========== */
 
     function _transferFromBridge(address recipient, uint256 amount) internal override {
@@ -403,30 +388,25 @@ abstract contract L1_Bridge is Bridge {
 
     /* ========== External Config Management Setters ========== */
 
-    function setGovernance(address _newGovernance) external onlyGovernance {
-        require(_newGovernance != address(0), "L1_BRG: _newGovernance cannot be address(0)");
-        governance = _newGovernance;
+    function setXDomainConnector(uint256 chainId, address _xDomainConnector) external onlyOwner {
+        xDomainConnectors[chainId] = _xDomainConnector;
     }
 
-    function setCrossDomainMessengerWrapper(uint256 chainId, IMessengerWrapper _crossDomainMessengerWrapper) external onlyGovernance {
-        crossDomainMessengerWrappers[chainId] = _crossDomainMessengerWrapper;
-    }
-
-    function setChainIdDepositsPaused(uint256 chainId, bool isPaused) external onlyGovernance {
+    function setChainIdDepositsPaused(uint256 chainId, bool isPaused) external onlyOwner {
         isChainIdPaused[chainId] = isPaused;
     }
 
-    function setChallengePeriod(uint256 _challengePeriod) external onlyGovernance {
+    function setChallengePeriod(uint256 _challengePeriod) external onlyOwner {
         require(_challengePeriod % TIME_SLOT_SIZE == 0, "L1_BRG: challengePeriod must be divisible by TIME_SLOT_SIZE");
 
         challengePeriod = _challengePeriod;
     }
 
-    function setChallengeResolutionPeriod(uint256 _challengeResolutionPeriod) external onlyGovernance {
+    function setChallengeResolutionPeriod(uint256 _challengeResolutionPeriod) external onlyOwner {
         challengeResolutionPeriod = _challengeResolutionPeriod;
     }
 
-    function setMinTransferRootBondDelay(uint256 _minTransferRootBondDelay) external onlyGovernance {
+    function setMinTransferRootBondDelay(uint256 _minTransferRootBondDelay) external onlyOwner {
         minTransferRootBondDelay = _minTransferRootBondDelay;
     }
 

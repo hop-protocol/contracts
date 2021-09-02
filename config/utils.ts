@@ -1,8 +1,5 @@
 import { BigNumber, utils as ethersUtils } from 'ethers'
 import {
-  IGetL2BridgeDefaults
-} from './interfaces'
-import {
   CHAIN_IDS,
   DEFAULT_MESSENGER_WRAPPER_GAS_LIMIT,
   DEFAULT_MESSENGER_WRAPPER_GAS_PRICE,
@@ -22,7 +19,7 @@ export const getMessengerWrapperDefaults = (
   l1ChainId: BigNumber,
   l2ChainId: BigNumber,
   l1BridgeAddress: string,
-  l2BridgeAddress: string,
+  l2BridgeConnectorAddress: string,
   l1MessengerAddress: string,
   fxChildTunnelAddress: string,
   fxRootAddress: string = undefined
@@ -33,21 +30,22 @@ export const getMessengerWrapperDefaults = (
   // Defaults for most chains
   let defaults: any[] = [
     l1BridgeAddress,
-    l2BridgeAddress,
     l1MessengerAddress
   ]
 
   if (isChainIdArbitrum(l2ChainId)) {
-    const gasLimit: number = DEFAULT_MESSENGER_WRAPPER_GAS_LIMIT
-    const gasPrice: number = DEFAULT_MESSENGER_WRAPPER_GAS_PRICE
-    const callValue: number = DEFAULT_MESSENGER_WRAPPER_CALL_VALUE
+    // const gasLimit: number = DEFAULT_MESSENGER_WRAPPER_GAS_LIMIT
+    // const gasPrice: number = DEFAULT_MESSENGER_WRAPPER_GAS_PRICE
+    // const callValue: number = DEFAULT_MESSENGER_WRAPPER_CALL_VALUE
 
-    data.push(
-      ...defaults,
-      gasLimit,
-      gasPrice,
-      callValue
-    )
+    // data.push(
+    //   ...defaults,
+    //   gasLimit,
+    //   gasPrice,
+    //   callValue
+    // )
+
+    return [l1BridgeAddress]
   } else if (isChainIdOptimism(l2ChainId)) {
     const gasLimit: number = DEFAULT_MESSENGER_WRAPPER_GAS_LIMIT
 
@@ -62,8 +60,7 @@ export const getMessengerWrapperDefaults = (
     data.push(
       ...defaults,
       gasLimit,
-      l2ChainId.toString(),
-      ambAddress
+      l2ChainId.toString()
     )
   } else if (isChainIdPolygon(l2ChainId)) {
     const checkpointManager: string = getPolygonCheckpointManagerAddress(l1ChainId)
@@ -80,47 +77,37 @@ export const getMessengerWrapperDefaults = (
   return data
 }
 
-export const getL2BridgeDefaults = (
+export const getL2ConnectorDefaults = (
   chainId: BigNumber,
+  l1MessengerWrapperAddress: string,
+  l2BridgeAddress: string,
   l2MessengerAddress: string,
-  l2MessengerProxyAddress: string,
-  governanceAddress: string,
-  l2HopBridgeTokenAddress: string,
-  l1BridgeAddress: string,
-  activeChainIds: string[],
-  registryAddress: string,
-  l1ChainId: BigNumber
-): IGetL2BridgeDefaults[] => {
-  let defaults: IGetL2BridgeDefaults[] = []
-
-  let actualL2MessengerAddress: string = l2MessengerAddress
-  let additionalData = []
-
+  l1ChainId: BigNumber,
+  fxChild?: string
+) => {
+  let defaults
   if (isChainIdArbitrum(chainId)) {
-    // No additional data needed
+    defaults = [
+      l2BridgeAddress
+    ]
   } else if (isChainIdOptimism(chainId)) {
-    const defaultGasLimit = DEFAULT_L2_BRIDGE_GAS_LIMIT
-    additionalData.push(defaultGasLimit)
+    defaults = [
+      l2BridgeAddress,
+      l2MessengerAddress,
+      DEFAULT_L2_BRIDGE_GAS_LIMIT
+    ]
   } else if (isChainIdXDai(chainId)) {
-    additionalData.push(
+    defaults = [
+      l2BridgeAddress,
+      l2MessengerAddress,
       l1ChainId,
       DEFAULT_L2_BRIDGE_GAS_LIMIT
-    )
+    ]
   } else if (isChainIdPolygon(chainId)) {
-    actualL2MessengerAddress = l2MessengerProxyAddress
-  }
-
-  defaults.push(
-    actualL2MessengerAddress,
-    governanceAddress,
-    l2HopBridgeTokenAddress,
-    l1BridgeAddress,
-    activeChainIds,
-    registryAddress
-  )
-
-  if (additionalData.length !== 0) {
-    defaults.push(...additionalData)
+    defaults = [
+      l2BridgeAddress,
+      fxChild
+    ]
   }
 
   return defaults

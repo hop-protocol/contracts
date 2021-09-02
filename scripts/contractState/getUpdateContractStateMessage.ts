@@ -7,8 +7,8 @@ import {
   getRemoveBonderMessage,
   getSetL1GovernanceMessage,
   getSetAmmWrapperMessage,
-  getSetL1BridgeAddressMessage,
-  getSetL1BridgeCallerMessage,
+  getSetL1BridgeConnectorMessage,
+  getSetL1CallerMessage,
   getAddActiveChainIdsMessage,
   getRemoveActiveChainIdsMessage,
   getSetMinimumForceCommitDelayMessage,
@@ -26,8 +26,8 @@ const FUNCTIONS = {
   REMOVE_BONDER: 'removeBonder',
   SET_L1_GOVERNANCE: 'setL1Governance',
   SET_AMM_WRAPPER: 'setAmmWrapper',
-  SET_L1_BRIDGE_ADDRESS: 'setL1BridgeAddress',
-  SET_L1_BRIDGE_CALLER: 'setL1BridgeCaller',
+  SET_L1_BRIDGE_ADDRESS: 'setL1BridgeConnector',
+  SET_L1_BRIDGE_CALLER: 'setL1Caller',
   ADD_ACTIVE_CHAIN_IDS: 'addActiveChainIds',
   REMOVE_ACTIVE_CHAIN_IDS: 'removeActiveChainIds',
   SET_MINIMUM_FORCE_COMMIT_DELAY: 'setMinimumForceCommitDelay',
@@ -102,10 +102,10 @@ const getMessageToSend = (
       return getSetAmmWrapperMessage(input)
     } 
     case FUNCTIONS.SET_L1_BRIDGE_ADDRESS.toLowerCase(): {
-      return getSetL1BridgeAddressMessage(input)
+      return getSetL1BridgeConnectorMessage(input)
     } 
     case FUNCTIONS.SET_L1_BRIDGE_CALLER.toLowerCase(): {
-      return getSetL1BridgeCallerMessage(input)
+      return getSetL1CallerMessage(input)
     } 
     case FUNCTIONS.ADD_ACTIVE_CHAIN_IDS.toLowerCase(): {
       return getAddActiveChainIdsMessage([BigNumber.from(input)])

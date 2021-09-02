@@ -16,7 +16,8 @@ import {
 
 export const MAX_NUM_SENDS_BEFORE_COMMIT = 10
 
-describe('Arbitrum Messenger Wrapper', () => {
+// Not implemented
+describe.skip('Arbitrum Messenger Wrapper', () => {
   let _fixture: IFixture
 
   let l1ChainId: BigNumber
@@ -42,24 +43,9 @@ describe('Arbitrum Messenger Wrapper', () => {
 
   it('Should set the correct values in the constructor', async () => {
     const expectedL1BridgeAddress: string = l1_bridge.address
-    const expectedL2BridgeAddress: string = l2_bridge.address
-    const expectedArbInbox: string = l1_messenger.address
-    const expectedDefaultGasLimit: number = DEFAULT_MESSENGER_WRAPPER_GAS_LIMIT
-    const expectedDefaultGasPrice: number = DEFAULT_MESSENGER_WRAPPER_GAS_PRICE
-    const expectedDefaultCallValue: number = DEFAULT_MESSENGER_WRAPPER_CALL_VALUE
 
-    const l1BridgeAddress: string = await l1_messengerWrapper.l1BridgeAddress()
-    const l2BridgeAddress: string = await l1_messengerWrapper.l2BridgeAddress()
-    const arbInbox: string = await l1_messengerWrapper.arbInbox()
-    const defaultGasLimit: number = await l1_messengerWrapper.defaultGasLimit()
-    const defaultGasPrice: string = await l1_messengerWrapper.defaultGasPrice()
-    const defaultCallValue: string = await l1_messengerWrapper.defaultCallValue()
+    const l1BridgeAddress: string = await l1_messengerWrapper.owner()
 
     expect(expectedL1BridgeAddress).to.eq(l1BridgeAddress)
-    expect(expectedL2BridgeAddress).to.eq(l2BridgeAddress)
-    expect(expectedDefaultGasLimit).to.eq(defaultGasLimit)
-    expect(expectedArbInbox).to.eq(arbInbox)
-    expect(expectedDefaultGasPrice).to.eq(defaultGasPrice)
-    expect(expectedDefaultCallValue).to.eq(defaultCallValue)
   })
 })

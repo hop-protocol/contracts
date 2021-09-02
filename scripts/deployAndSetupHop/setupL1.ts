@@ -182,7 +182,7 @@ export async function setupL1 (config: Config) {
   logger.log('setting cross domain messenger wrapper on L1 bridge')
   // Set up the L1 bridge
   modifiedGasPrice = await getModifiedGasPrice(ethers, l1ChainId)
-  tx = await l1_bridge.connect(governance).setCrossDomainMessengerWrapper(
+  tx = await l1_bridge.connect(governance).setXDomainConnector(
     l2ChainId,
     l1_messengerWrapper.address,
     modifiedGasPrice

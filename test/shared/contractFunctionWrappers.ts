@@ -59,7 +59,7 @@ export const executeCanonicalBridgeSendTokens = async (
 export const executeCanonicalMessengerSendMessage = async (
   l1_messenger: Contract,
   l1_messengerWrapper: Contract,
-  l2_bridge: Contract,
+  l2_bridgeConnector: Contract,
   l2_messenger: Contract | string,
   sender: Signer,
   message: string,
@@ -68,7 +68,7 @@ export const executeCanonicalMessengerSendMessage = async (
 ) => {
   let tx: providers.TransactionResponse
   const gasLimit: BigNumber = BigNumber.from('1500000')
-  const params: any[] = [l2_bridge.address, message, gasLimit]
+  const params: any[] = [l2_bridgeConnector.address, message, gasLimit]
   modifiedGasPrice = modifiedGasPrice || {}
 
   if (isChainIdArbitrum(l2ChainId)) {
@@ -77,7 +77,7 @@ export const executeCanonicalMessengerSendMessage = async (
     const maxGas: BigNumber = BigNumber.from('100000000000')
     const gasPriceBid: BigNumber = BigNumber.from('0')
     const arbitrumParams: any[] = [
-      l2_bridge.address,
+      l2_bridgeConnector.address,
       amount,
       maxSubmissionCost,
       await sender.getAddress(),
@@ -92,7 +92,7 @@ export const executeCanonicalMessengerSendMessage = async (
       .createRetryableTicket(...arbitrumParams, modifiedGasPrice);
   } else if (isChainIdOptimism(l2ChainId)) {
     const optimismGasLimit: BigNumber = BigNumber.from('5000000')
-    const optimismParams: any[] = [l2_bridge.address, message, optimismGasLimit]
+    const optimismParams: any[] = [l2_bridgeConnector.address, message, optimismGasLimit]
     tx = await l1_messenger.connect(sender).sendMessage(...optimismParams, modifiedGasPrice)
   } else if (isChainIdXDai(l2ChainId)) {
     tx = await l1_messenger.connect(sender).requireToPassMessage(...params, modifiedGasPrice)
@@ -1204,22 +1204,22 @@ export const getSetL1GovernanceMessage = (l1_governanceAddress: string) => {
   return ethersInterface.encodeFunctionData('setL1Governance', [l1_governanceAddress])
 }
 
-export const getSetL1BridgeAddressMessage = (l1_bridge: Contract | string) => {
+export const getSetL1BridgeConnectorMessage = (l1_bridge: Contract | string) => {
   const address = getAddressFromContractOrString(l1_bridge)
-  const ABI = ['function setL1BridgeAddress(address _l1BridgeAddress)']
+  const ABI = ['function setL1BridgeConnector(address _l1BridgeAddress)']
   const ethersInterface = new ethersUtils.Interface(ABI)
-  return ethersInterface.encodeFunctionData('setL1BridgeAddress', [address])
+  return ethersInterface.encodeFunctionData('setL1BridgeConnector', [address])
 }
 
-export const getSetL1BridgeCallerMessage = (
+export const getSetL1CallerMessage = (
   l1_messengerWrapper: Contract | string
 ) => {
   const address = getAddressFromContractOrString(l1_messengerWrapper)
   const ABI = [
-    'function setL1BridgeCaller(address _l1BridgeCaller)'
+    'function setL1Caller(address _l1Caller)'
   ]
   const ethersInterface = new ethersUtils.Interface(ABI)
-  return ethersInterface.encodeFunctionData('setL1BridgeCaller', [
+  return ethersInterface.encodeFunctionData('setL1Caller', [
     address
   ])
 }

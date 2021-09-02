@@ -76,12 +76,14 @@ describe('L1_Bridge', () => {
   let l2_hopBridgeToken: Contract
   let l2_bridge: Contract
   let l2_messenger: Contract
+  let l2_bridgeConnector: Contract
   let l2_swap: Contract
   let l2_ammWrapper: Contract
   let l22_hopBridgeToken: Contract
   let l22_canonicalToken: Contract
   let l22_bridge: Contract
   let l22_messenger: Contract
+  let l22_bridgeConnector: Contract
   let l22_swap: Contract
 
   let transfers: Transfer[]
@@ -99,7 +101,7 @@ describe('L1_Bridge', () => {
 
     l1ChainId = CHAIN_IDS.ETHEREUM.KOVAN
     l2ChainId = CHAIN_IDS.OPTIMISM.OPTIMISM_TESTNET
-    l22ChainId = CHAIN_IDS.ARBITRUM.TESTNET_4
+    l22ChainId = CHAIN_IDS.OPTIMISM.OPTIMISM_MAINNET
 
     _fixture = await fixture(l1ChainId, l2ChainId)
     await setUpDefaults(_fixture)
@@ -118,10 +120,12 @@ describe('L1_Bridge', () => {
       l2_hopBridgeToken,
       l2_bridge,
       l2_messenger,
+      l2_bridgeConnector,
       l2_swap,
       l2_ammWrapper,
       transfers
     } = _fixture)
+
 
     const l1AlreadySetOpts = {
       l1BridgeAddress: l1_bridge.address,
@@ -134,6 +138,7 @@ describe('L1_Bridge', () => {
       l2_hopBridgeToken: l22_hopBridgeToken,
       l2_bridge: l22_bridge,
       l2_messenger: l22_messenger,
+      l2_bridgeConnector: l22_bridgeConnector,
       l2_swap: l22_swap
     } = _fixture)
 
@@ -507,27 +512,18 @@ describe('L1_Bridge', () => {
   })
 
   describe('setters and getters', async () => {
-    it('Should set a new governance address', async () => {
-      const expectedGovernance: string = ONE_ADDRESS
-
-      await l1_bridge.connect(governance).setGovernance(ONE_ADDRESS)
-
-      const actualGovernance: string = await l1_bridge.governance()
-      expect(actualGovernance).to.eq(expectedGovernance)
-    })
-
-    it('Should set a new crossDomainMessengerWrapper address', async () => {
+    it('Should set a new xDomainConnector address', async () => {
       const expectedCrossDomainMessengerWrapper: string = ONE_ADDRESS
 
-      await l1_bridge.connect(governance).setCrossDomainMessengerWrapper(
+      await l1_bridge.connect(governance).setXDomainConnector(
         transfer.chainId,
         ONE_ADDRESS
       )
 
-      const crossDomainMessengerWrappers: string = await l1_bridge.crossDomainMessengerWrappers(
+      const xDomainConnectors: string = await l1_bridge.xDomainConnectors(
         transfer.chainId
       )
-      expect(crossDomainMessengerWrappers).to.eq(
+      expect(xDomainConnectors).to.eq(
         expectedCrossDomainMessengerWrapper
       )
     })
@@ -761,7 +757,7 @@ describe('L1_Bridge', () => {
         [transferId, l2Transfer.amount]
       )
 
-      expect(nextMessage[0]).to.eq(l22_bridge.address)
+      expect(nextMessage[0]).to.eq(l22_bridgeConnector.address)
       expect(nextMessage[1]).to.eq(expectedMessage)
     })
   })
@@ -1111,7 +1107,7 @@ describe('L1_Bridge', () => {
         [transferId, l2Transfer.amount]
       )
 
-      expect(nextMessage[0]).to.eq(l22_bridge.address)
+      expect(nextMessage[0]).to.eq(l22_bridgeConnector.address)
       expect(nextMessage[1]).to.eq(expectedMessage)
     })
   })
@@ -1747,11 +1743,6 @@ describe('L1_Bridge', () => {
    */
 
   describe('setters', async () => {
-    it('Should not set a new governance address because the passed in address is 0', async () => {
-      // Hardhat is now correctly reading the error message, so none is defined here
-      await expect(l1_bridge.setGovernance(ZERO_ADDRESS)).to.be.reverted
-    })
-
     it('Should not set a new challengePeriod because it is not a valid value', async () => {
       const expectedErrorMsg: string =
         'L1_BRG: challengePeriod must be divisible by TIME_SLOT_SIZE'
@@ -2154,7 +2145,7 @@ describe('L1_Bridge', () => {
         bonder
       )
 
-      await l1_bridge.connect(governance).setCrossDomainMessengerWrapper(
+      await l1_bridge.connect(governance).setXDomainConnector(
         l2Transfer.chainId,
         ZERO_ADDRESS
       )
@@ -2363,7 +2354,7 @@ describe('L1_Bridge', () => {
 
   describe('confirmTransferRoot', async () => {
     it('Should not allow a transfer root to be confirmed by anybody except the L2_Bridge', async () => {
-      const expectedErrorMsg: string = 'OVM_MSG_WPR: Caller is not l1MessengerAddress'
+      const expectedErrorMsg: string = 'L1_BRG: Caller must be bridge connector'
       await executeL1BridgeSendToL2(
         l1_canonicalToken,
         l1_bridge,
@@ -2423,7 +2414,7 @@ describe('L1_Bridge', () => {
     })
 
     it('Should not allow a transfer root to be confirmed if it was already confirmed', async () => {
-      const expectedErrorMsg: string = 'L1_BRG: TransferRoot already confirmed'
+      const expectedErrorMsg: string = 'CNR: Failed to forward message'
 
       await executeL1BridgeSendToL2(
         l1_canonicalToken,
@@ -2474,7 +2465,7 @@ describe('L1_Bridge', () => {
     })
 
     it('Should not allow a transfer root to be confirmed if the messenger wrapper for the L2 is not defined', async () => {
-      const expectedErrorMsg: string = 'L1_BRG: chainId not supported'
+      const expectedErrorMsg: string = 'CNR: Failed to forward message'
 
       await executeL1BridgeSendToL2(
         l1_canonicalToken,
@@ -2506,7 +2497,7 @@ describe('L1_Bridge', () => {
       await executeL2BridgeCommitTransfers(l2_bridge, [l2Transfer], bonder)
 
       // Unset the supported chainId for this test
-      await l1_bridge.connect(governance).setCrossDomainMessengerWrapper(
+      await l1_bridge.connect(governance).setXDomainConnector(
         l2Transfer.chainId,
         ZERO_ADDRESS
       )
@@ -3277,7 +3268,7 @@ describe('L1_Bridge', () => {
 
   describe('rescueTransferRoot', async () => {
     it('Should not rescue a transfer root from L2 -> L1 that is being rescued by someone other than governance', async () => {
-      const expectedErrorMsg: string = 'L1_BRG: Caller is not the owner'
+      const expectedErrorMsg: string = 'Ownable: caller is not the owner'
       await executeL1BridgeBondTransferRoot(
         l1_bridge,
         l2_bridge,
@@ -3290,7 +3281,7 @@ describe('L1_Bridge', () => {
       const timeToWait: number = 9 * SECONDS_IN_A_WEEK
       await increaseTime(timeToWait)
 
-      await l1_bridge.connect(governance).setGovernance(ONE_ADDRESS)
+      await l1_bridge.connect(governance).transferOwnership(ONE_ADDRESS)
 
       await expect(
         executeBridgeRescueTransferRoot(
@@ -3612,7 +3603,7 @@ describe('L1_Bridge', () => {
         [transferId, customTransfer.amount]
       )
 
-      expect(nextMessage[0]).to.eq(l22_bridge.address)
+      expect(nextMessage[0]).to.eq(l22_bridgeConnector.address)
       expect(nextMessage[1]).to.eq(expectedMessage)
     })
 

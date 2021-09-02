@@ -22,7 +22,7 @@ import {
   isChainIdPolygon,
   isChainIdOptimism,
   getPolygonFxChildAddress,
-  getL2BridgeDefaults
+  getL2ConnectorDefaults
 } from '../../config/utils'
 
 import {
@@ -98,7 +98,6 @@ export async function deployL2 (config: Config) {
   let L2_HopBridgeToken: ContractFactory
   let L2_Bridge: ContractFactory
   let L2_AmmWrapper: ContractFactory
-  let L2_MessengerProxy: ContractFactory
 
   // Contracts
   let l1_bridge: Contract
@@ -127,8 +126,7 @@ export async function deployL2 (config: Config) {
     L2_MockERC20,
     L2_HopBridgeToken,
     L2_Bridge,
-    L2_AmmWrapper,
-    L2_MessengerProxy
+    L2_AmmWrapper
   } = await getContractFactories(l2ChainId, deployer, ethers))
 
   logger.log('attaching deployed contracts')
@@ -149,9 +147,10 @@ export async function deployL2 (config: Config) {
   let l2MessengerProxyAddress: string = ''
   if (isChainIdPolygon(l2ChainId)) {
     logger.log('deploying Polygon messenger proxy')
-    const fxChild: string = getPolygonFxChildAddress(l1ChainId)
-    l2_messengerProxy = await L2_MessengerProxy.deploy(fxChild, overrides)
-    await waitAfterTransaction(l2_messengerProxy, ethers)
+    // ToDo: Fix deploy scripts
+    // const fxChild: string = getPolygonFxChildAddress(l1ChainId)
+    // l2_messengerProxy = await L2_MessengerProxy.deploy(fxChild, overrides)
+    // await waitAfterTransaction(l2_messengerProxy, ethers)
 
     l2MessengerAddress = l2_messengerProxy.address
     l2MessengerProxyAddress = l2_messengerProxy.address
@@ -364,17 +363,8 @@ const deployBridge = async (
 ) => {
   // NOTE: Adding more CHAIN_IDs here will push the OVM deployment over the contract size limit
   //       If additional CHAIN_IDs must be added, do so after the deployment.
-  const l2BridgeDeploymentParams = getL2BridgeDefaults(
-    chainId,
-    l2MessengerAddress,
-    l2MessengerProxyAddress,
-    await governance.getAddress(),
-    l2_hopBridgeToken.address,
-    l1_bridge.address,
-    [CHAIN_IDS.ETHEREUM.MAINNET.toString()],
-    [bonderAddress],
-    l1ChainId
-  )
+  // ToDo: Fix deployments
+  const l2BridgeDeploymentParams = []
 
   logger.log('Deploying L2 Bridge')
   l2_bridge = await L2_Bridge.connect(deployer).deploy(...l2BridgeDeploymentParams, overrides)

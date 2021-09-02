@@ -5,6 +5,7 @@ pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/math/SafeMath.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 import "../interfaces/IBonderRegistry.sol";
 
 /**
@@ -19,7 +20,7 @@ import "../interfaces/IBonderRegistry.sol";
  * use more than its available stake.
  */
 
-abstract contract Accounting is ReentrancyGuard {
+abstract contract Accounting is Ownable, ReentrancyGuard {
     using SafeMath for uint256;
 
     IBonderRegistry private _registry;
@@ -44,11 +45,6 @@ abstract contract Accounting is ReentrancyGuard {
         _;
     }
 
-    modifier onlyGovernance {
-        _requireIsGovernance();
-        _;
-    }
-
     /// @dev Used by parent contract to ensure that the Bonder is solvent at the end of the transaction.
     modifier requirePositiveBalance {
         _;
@@ -66,7 +62,6 @@ abstract contract Accounting is ReentrancyGuard {
      */
     function _transferFromBridge(address recipient, uint256 amount) internal virtual;
     function _transferToBridge(address from, uint256 amount) internal virtual;
-    function _requireIsGovernance() internal virtual;
 
     /**
      * @dev This function can be optionally overridden by a parent contract to track any additional
@@ -137,7 +132,7 @@ abstract contract Accounting is ReentrancyGuard {
      * @dev Set the Bonder registry address
      * @param registry The new Bonder registry address
      */
-    function setRegistry(IBonderRegistry registry) external onlyGovernance {
+    function setRegistry(IBonderRegistry registry) external onlyOwner {
         require(registry != IBonderRegistry(0), "L1_BRG: _registry cannot be address(0)");
         _registry = registry;
     }

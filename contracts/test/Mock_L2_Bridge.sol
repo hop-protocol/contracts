@@ -3,30 +3,22 @@
 pragma solidity 0.6.12;
 pragma experimental ABIEncoderV2;
 
-import "../bridges/L2_OptimismBridge.sol";
+import "../bridges/L2_Bridge.sol";
 
-contract Mock_L2_OptimismBridge is L2_OptimismBridge {
+contract Mock_L2_Bridge is L2_Bridge {
     uint256 private chainId;
 
     constructor (
         uint256 _chainId,
-        iOVM_L2CrossDomainMessenger messenger,
-        address l1Governance,
         HopBridgeToken hToken,
-        address l1BridgeAddress,
         uint256[] memory activeChainIds,
-        IBonderRegistry registry,
-        uint32 defaultGasLimit
+        IBonderRegistry registry
     )
         public
-        L2_OptimismBridge(
-            messenger,
-            l1Governance,
+        L2_Bridge(
             hToken,
-            l1BridgeAddress,
             activeChainIds,
-            registry,
-            defaultGasLimit
+            registry
         )
     {
         chainId = _chainId;

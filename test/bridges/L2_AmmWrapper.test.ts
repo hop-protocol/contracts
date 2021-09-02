@@ -30,8 +30,8 @@ import {
   executeL2BridgeBondWithdrawalAndDistribute,
   executeCanonicalMessengerSendMessage,
   getSetAmmWrapperMessage,
-  getSetL1BridgeAddressMessage,
-  getSetL1BridgeCallerMessage,
+  getSetL1BridgeConnectorMessage,
+  getSetL1CallerMessage,
   getAddActiveChainIdsMessage,
   getRemoveActiveChainIdsMessage,
   getSetMinimumForceCommitDelayMessage,
@@ -107,7 +107,7 @@ describe('L2_AmmWrapper', () => {
 
     l1ChainId = CHAIN_IDS.ETHEREUM.KOVAN
     l2ChainId = CHAIN_IDS.OPTIMISM.OPTIMISM_TESTNET
-    l22ChainId = CHAIN_IDS.ARBITRUM.TESTNET_4
+    l22ChainId = CHAIN_IDS.OPTIMISM.OPTIMISM_MAINNET
 
     _fixture = await fixture(l1ChainId, l2ChainId)
     await setUpDefaults(_fixture)
@@ -397,19 +397,9 @@ describe('L2_AmmWrapper', () => {
       const minBonderBps: BigNumber = BigNumber.from('0')
       const minBonderFeeAbsolute: BigNumber = transfer.amount
 
-      const message: string = getSetMinimumBonderFeeRequirementsMessage(
+      await l2_bridge.connect(governance).setMinimumBonderFeeRequirements(
         minBonderBps,
-        minBonderFeeAbsolute 
-      )
-
-      await executeCanonicalMessengerSendMessage(
-        l1_messenger,
-        l1_messengerWrapper,
-        l2_bridge,
-        l2_messenger,
-        governance,
-        message,
-        l2ChainId
+        minBonderFeeAbsolute
       )
 
       const customTransfer: Transfer = new Transfer(l2Transfer)
@@ -462,19 +452,9 @@ describe('L2_AmmWrapper', () => {
       const minBonderBps: BigNumber = BigNumber.from('0')
       const minBonderFeeAbsolute: BigNumber = BigNumber.from('0')
 
-      const message: string = getSetMinimumBonderFeeRequirementsMessage(
+      await l2_bridge.connect(governance).setMinimumBonderFeeRequirements(
         minBonderBps,
-        minBonderFeeAbsolute 
-      )
-
-      await executeCanonicalMessengerSendMessage(
-        l1_messenger,
-        l1_messengerWrapper,
-        l2_bridge,
-        l2_messenger,
-        governance,
-        message,
-        l2ChainId
+        minBonderFeeAbsolute
       )
 
       const customTransfer: Transfer = new Transfer(l2Transfer)
@@ -504,19 +484,9 @@ describe('L2_AmmWrapper', () => {
       const minBonderBps: BigNumber = BigNumber.from('0')
       const minBonderFeeAbsolute: BigNumber = transfer.amount.mul(98).div(100)
 
-      const message: string = getSetMinimumBonderFeeRequirementsMessage(
+      await l2_bridge.connect(governance).setMinimumBonderFeeRequirements(
         minBonderBps,
-        minBonderFeeAbsolute 
-      )
-
-      await executeCanonicalMessengerSendMessage(
-        l1_messenger,
-        l1_messengerWrapper,
-        l2_bridge,
-        l2_messenger,
-        governance,
-        message,
-        l2ChainId
+        minBonderFeeAbsolute
       )
 
       const customTransfer: Transfer = new Transfer(l2Transfer)

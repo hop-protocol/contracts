@@ -23,10 +23,8 @@ interface I_L2_AmmWrapper {
 abstract contract L2_Bridge is Bridge {
     using SafeERC20 for IERC20;
 
-    address public l1Governance;
     HopBridgeToken public immutable hToken;
-    address public l1BridgeAddress;
-    address public l1BridgeCaller;
+    address public l1BridgeConnector;
     I_L2_AmmWrapper public ammWrapper;
     mapping(uint256 => bool) public activeChainIds;
     uint256 public minimumForceCommitDelay = 1 days;
@@ -79,23 +77,19 @@ abstract contract L2_Bridge is Bridge {
     );
 
     modifier onlyL1Bridge {
-        _verifySender(l1BridgeCaller);
+        require(msg.sender == l1BridgeConnector, "L2_BRG: xDomain caller must be L1 Bridge");
         _;
     }
 
     constructor (
-        address _l1Governance,
         HopBridgeToken _hToken,
-        address _l1BridgeAddress,
         uint256[] memory _activeChainIds,
         IBonderRegistry registry
     )
         public
         Bridge(registry)
     {
-        l1Governance = _l1Governance;
         hToken = _hToken;
-        l1BridgeAddress = _l1BridgeAddress;
 
         for (uint256 i = 0; i < _activeChainIds.length; i++) {
             activeChainIds[_activeChainIds[i]] = true;
@@ -103,11 +97,6 @@ abstract contract L2_Bridge is Bridge {
 
         NONCE_DOMAIN_SEPARATOR = keccak256("L2_Bridge v1.0");
     }
-
-    /* ========== Virtual functions ========== */
-
-    function _sendCrossDomainMessage(bytes memory message) internal virtual;
-    function _verifySender(address expectedSender) internal virtual;
 
     /* ========== Public/External functions ========== */
 
@@ -317,7 +306,8 @@ abstract contract L2_Bridge is Bridge {
         pendingAmount[destinationChainId][bonder] = 0;
         delete pendingTransferIds[destinationChainId][bonder];
 
-        _sendCrossDomainMessage(confirmTransferRootMessage);
+        (bool success,) = l1BridgeConnector.call(confirmTransferRootMessage);
+        require(success, "L2_BRG: Call to L1 bridge failed");
     }
 
     function _distribute(
@@ -354,53 +344,41 @@ abstract contract L2_Bridge is Bridge {
         hToken.burn(from, amount);
     }
 
-    function _requireIsGovernance() internal override {
-        _verifySender(l1Governance);
-    }
-
     /* ========== External Config Management Functions ========== */
 
-    function setL1Governance(address _l1Governance) external onlyGovernance {
-        l1Governance = _l1Governance;
-    }
-
-    function setAmmWrapper(I_L2_AmmWrapper _ammWrapper) external onlyGovernance {
+    function setAmmWrapper(I_L2_AmmWrapper _ammWrapper) external onlyOwner {
         ammWrapper = _ammWrapper;
     }
 
-    function setL1BridgeAddress(address _l1BridgeAddress) external onlyGovernance {
-        l1BridgeAddress = _l1BridgeAddress;
+    function setL1BridgeConnector(address _l1BridgeConnector) external onlyOwner {
+        l1BridgeConnector = _l1BridgeConnector;
     }
 
-    function setL1BridgeCaller(address _l1BridgeCaller) external onlyGovernance {
-        l1BridgeCaller = _l1BridgeCaller;
-    }
-
-    function addActiveChainIds(uint256[] calldata chainIds) external onlyGovernance {
+    function addActiveChainIds(uint256[] calldata chainIds) external onlyOwner {
         for (uint256 i = 0; i < chainIds.length; i++) {
             activeChainIds[chainIds[i]] = true;
         }
     }
 
-    function removeActiveChainIds(uint256[] calldata chainIds) external onlyGovernance {
+    function removeActiveChainIds(uint256[] calldata chainIds) external onlyOwner {
         for (uint256 i = 0; i < chainIds.length; i++) {
             activeChainIds[chainIds[i]] = false;
         }
     }
 
-    function setMinimumForceCommitDelay(uint256 _minimumForceCommitDelay) external onlyGovernance {
+    function setMinimumForceCommitDelay(uint256 _minimumForceCommitDelay) external onlyOwner {
         minimumForceCommitDelay = _minimumForceCommitDelay;
     }
 
-    function setMaxPendingTransfers(uint256 _maxPendingTransfers) external onlyGovernance {
+    function setMaxPendingTransfers(uint256 _maxPendingTransfers) external onlyOwner {
         maxPendingTransfers = _maxPendingTransfers;
     }
 
-    function setHopBridgeTokenOwner(address newOwner) external onlyGovernance {
+    function setHopBridgeTokenOwner(address newOwner) external onlyOwner {
         hToken.transferOwnership(newOwner);
     }
 
-    function setMinimumBonderFeeRequirements(uint256 _minBonderBps, uint256 _minBonderFeeAbsolute) external onlyGovernance {
+    function setMinimumBonderFeeRequirements(uint256 _minBonderBps, uint256 _minBonderFeeAbsolute) external onlyOwner {
         require(_minBonderBps <= 10000, "L2_BRG: minBonderBps must not exceed 10000");
         minBonderBps = _minBonderBps;
         minBonderFeeAbsolute = _minBonderFeeAbsolute;

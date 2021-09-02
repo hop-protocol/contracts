@@ -1,6 +1,6 @@
 import '@nomiclabs/hardhat-waffle'
 import { expect } from 'chai'
-import { Contract, BigNumber, utils as ethersUtils } from 'ethers'
+import { Contract, ContractFactory, BigNumber, utils as ethersUtils } from 'ethers'
 
 import { fixture } from '../shared/fixtures'
 import { setUpDefaults } from '../shared/utils'
@@ -28,6 +28,8 @@ describe('XDai Messenger Wrapper', () => {
   let l1_bridge: Contract
   let l1_messengerWrapper: Contract
   let l2_bridge: Contract
+  
+  let L2_Bridge: ContractFactory
 
   beforeEach(async () => {
     l1ChainId = CHAIN_IDS.ETHEREUM.KOVAN
@@ -35,7 +37,7 @@ describe('XDai Messenger Wrapper', () => {
 
     _fixture = await fixture(l1ChainId, l2ChainId)
     await setUpDefaults(_fixture)
-    ;({ l1_messenger, l1_bridge, l1_messengerWrapper, l2_bridge } = _fixture)
+    ;({ l1_messenger, l1_bridge, l1_messengerWrapper, l2_bridge, L2_Bridge } = _fixture)
   })
 
   /**
@@ -48,21 +50,16 @@ describe('XDai Messenger Wrapper', () => {
     const expectedL1MessengerAddress: string = l1_messenger.address
     const expectedDefaultGasLimit: number = 1000000
     const expectedL2ChainId: string = ethersUtils.hexZeroPad(l2ChainId.toHexString(), 32)
-    const expectedAmbBridge: string = getXDaiAmbAddresses(l1ChainId)
 
-    const l1BridgeAddress: string = await l1_messengerWrapper.l1BridgeAddress()
-    const l2BridgeAddress: string = await l1_messengerWrapper.l2BridgeAddress()
+    const l1BridgeAddress: string = await l1_messengerWrapper.owner()
     const l1MessengerAddress: string = await l1_messengerWrapper.l1MessengerAddress()
     const defaultGasLimit: number = await l1_messengerWrapper.defaultGasLimit()
     const actualL2ChainId: string = await l1_messengerWrapper.l2ChainId()
-    const ambBridge: string = await l1_messengerWrapper.ambBridge()
 
     expect(expectedL1BridgeAddress).to.eq(l1BridgeAddress)
-    expect(expectedL2BridgeAddress).to.eq(l2BridgeAddress)
     expect(expectedL1MessengerAddress).to.eq(l1MessengerAddress)
     expect(expectedDefaultGasLimit).to.eq(defaultGasLimit)
     expect(expectedL2ChainId).to.eq(actualL2ChainId)
-    expect(expectedAmbBridge).to.eq(ambBridge)
   })
 
   /**
@@ -70,29 +67,13 @@ describe('XDai Messenger Wrapper', () => {
    */
 
   it('Should throw because the sender is invalid', async () => {
-    const expectedErrorMsg: string = 'MW: Sender must be the L1 Bridge'
+    const expectedErrorMsg: string = 'L2_XDAI_CNR: Caller is not the expected sender'
     const arbitraryMessage: string = ethersUtils.defaultAbiCoder.encode(
       ['address'],
       [ONE_ADDRESS]
     )
     await expect(
-      l1_messengerWrapper.sendCrossDomainMessage(
-        arbitraryMessage
-      )
-    ).to.be.revertedWith(expectedErrorMsg)
-  })
-
-  it('Should throw because messageSender() is invalid', async () => {
-    const expectedErrorMsg: string = 'L2_XDAI_BRG: Invalid cross-domain sender'
-    const arbitraryMessage: string = ethersUtils.defaultAbiCoder.encode(
-      ['address'],
-      [ONE_ADDRESS]
-    )
-    await expect(
-      l1_messengerWrapper.verifySender(
-        ONE_ADDRESS,
-        arbitraryMessage
-      )
+      L2_Bridge.attach(l1_messengerWrapper.address).setAmmWrapper(l1_messengerWrapper.address)
     ).to.be.revertedWith(expectedErrorMsg)
   })
 })

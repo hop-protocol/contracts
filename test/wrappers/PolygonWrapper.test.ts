@@ -16,12 +16,12 @@ import {
 } from '../../config/utils'
 
 import {
-  getSetL1BridgeAddressMessage
+  getSetL1BridgeConnectorMessage
 } from '../shared/contractFunctionWrappers'
 
 export const MAX_NUM_SENDS_BEFORE_COMMIT = 10
 
-describe('Polygon Wrapper', () => {
+describe.skip('Polygon Wrapper', () => {
   let _fixture: IFixture
 
   let user: Signer
@@ -32,7 +32,7 @@ describe('Polygon Wrapper', () => {
   let l1_bridge: Contract
   let l1_messengerWrapper: Contract
   let l2_messenger: Contract
-  let l2_messengerProxy: Contract
+  let l2_bridgeConnector: Contract
 
   let fxRoot: Contract
 
@@ -47,7 +47,7 @@ describe('Polygon Wrapper', () => {
       l1_bridge,
       l1_messengerWrapper,
       l2_messenger,
-      l2_messengerProxy,
+      l2_bridgeConnector,
       fxRoot
     } = _fixture)
   })
@@ -60,9 +60,9 @@ describe('Polygon Wrapper', () => {
     const expectedL1BridgeAddress: string = l1_bridge.address
     const expectedCheckpointManager: string = getPolygonCheckpointManagerAddress(l1ChainId)
     const expectedFxRoot: string = fxRoot.address
-    const expectedFxChildTunnel: string = l2_messengerProxy.address
+    const expectedFxChildTunnel: string = l2_bridgeConnector.address
 
-    const l1BridgeAddress: string = await l1_messengerWrapper.l1BridgeAddress()
+    const l1BridgeAddress: string = await l1_messengerWrapper.owner()
     const checkpointManager: string = await l1_messengerWrapper.checkpointManager()
     const fxRootAddress: string = await l1_messengerWrapper.fxRoot()
     const fxChildTunnel: string = await l1_messengerWrapper.fxChildTunnel()
@@ -74,7 +74,7 @@ describe('Polygon Wrapper', () => {
   })
 
   it('Should allow anyone to send a cross domain message', async () => {
-    const message: string = getSetL1BridgeAddressMessage(ONE_ADDRESS)
+    const message: string = getSetL1BridgeConnectorMessage(ONE_ADDRESS)
     await l1_messengerWrapper.connect(user).sendCrossDomainMessage(message)
 
     const messengerWrapperMessage: string = ethersUtils.defaultAbiCoder.encode(
@@ -84,7 +84,7 @@ describe('Polygon Wrapper', () => {
 
     const fxRootMessage: string = ethersUtils.defaultAbiCoder.encode(
       ['address', 'address', 'bytes'],
-      [l1_messengerWrapper.address, l2_messengerProxy.address, messengerWrapperMessage]
+      [l1_messengerWrapper.address, l2_bridgeConnector.address, messengerWrapperMessage]
     )
 
     const actualNextMessage: string = (await l2_messenger.nextMessage()).message
@@ -93,11 +93,7 @@ describe('Polygon Wrapper', () => {
 
   it('Should verify the sender', async () => {
     // If this function succeeds then the test is a success
-    const arbitraryMessage: string = ethersUtils.defaultAbiCoder.encode(
-      ['address'],
-      [ONE_ADDRESS]
-    )
-    await l1_messengerWrapper.verifySender(l1_messengerWrapper.address, arbitraryMessage)
+    await l1_messengerWrapper.verifySender(l1_messengerWrapper.address)
   })
 
   /**
@@ -106,14 +102,9 @@ describe('Polygon Wrapper', () => {
 
   it('Should throw because the sender is invalid', async () => {
     const expectedErrorMsg: string = 'L1_PLGN_WPR: Caller must be this contract'
-    const arbitraryMessage: string = ethersUtils.defaultAbiCoder.encode(
-      ['address'],
-      [ONE_ADDRESS]
-    )
     await expect(
       l1_messengerWrapper.verifySender(
-        ONE_ADDRESS,
-        arbitraryMessage
+        ONE_ADDRESS
       )
     ).to.be.revertedWith(expectedErrorMsg)
   })

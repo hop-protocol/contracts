@@ -328,7 +328,7 @@ abstract contract Bridge is Accounting {
      * @param originalAmount The TransferRoot's recorded total
      * @param recipient The address receiving the remaining balance
      */
-    function rescueTransferRoot(bytes32 rootHash, uint256 originalAmount, address recipient) external onlyGovernance {
+    function rescueTransferRoot(bytes32 rootHash, uint256 originalAmount, address recipient) external onlyOwner {
         bytes32 transferRootId = getTransferRootId(rootHash, originalAmount);
         TransferRoot memory transferRoot = getTransferRoot(rootHash, originalAmount);
 

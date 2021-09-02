@@ -73,13 +73,11 @@ export const getContractFactories = async (
   let L1_Messenger: ContractFactory
   let L1_MessengerWrapper: ContractFactory
   let L2_Bridge: ContractFactory
-  let L2_MessengerProxy: ContractFactory
   ;({
     L1_TokenBridge,
     L1_Messenger,
     L1_MessengerWrapper,
-    L2_Bridge,
-    L2_MessengerProxy
+    L2_Bridge
   } = await getNetworkSpecificFactories(chainId, signer, ethers))
 
   return {
@@ -92,8 +90,7 @@ export const getContractFactories = async (
     L2_HopBridgeToken,
     L2_Bridge,
     L2_Swap,
-    L2_AmmWrapper,
-    L2_MessengerProxy
+    L2_AmmWrapper
   }
 }
 
@@ -115,8 +112,7 @@ const getNetworkSpecificFactories = async (
       L1_TokenBridge: null,
       L1_Messenger: null,
       L1_MessengerWrapper: null,
-      L2_Bridge: null,
-      L2_MessengerProxy: null
+      L2_Bridge: null
     }
   }
 }
@@ -146,8 +142,7 @@ const getOptimismContractFactories = async (
     L1_TokenBridge,
     L1_Messenger,
     L1_MessengerWrapper,
-    L2_Bridge,
-    L2_MessengerProxy: null
+    L2_Bridge
   }
 }
 
@@ -173,8 +168,7 @@ const getArbitrumContractFactories = async (signer: Signer, ethers: any) => {
     L1_TokenBridge,
     L1_Messenger,
     L1_MessengerWrapper,
-    L2_Bridge,
-    L2_MessengerProxy: null
+    L2_Bridge
   }
 }
 
@@ -200,8 +194,7 @@ const getXDaiContractFactories = async (signer: Signer, ethers: any) => {
     L1_TokenBridge,
     L1_Messenger,
     L1_MessengerWrapper,
-    L2_Bridge,
-    L2_MessengerProxy: null
+    L2_Bridge
   }
 }
 
@@ -222,17 +215,12 @@ const getPolygonContractFactories = async (signer: Signer, ethers: any) => {
     'contracts/bridges/L2_PolygonBridge.sol:L2_PolygonBridge',
     { signer }
   )
-  const L2_MessengerProxy: ContractFactory = await ethers.getContractFactory(
-    'contracts/bridges/L2_PolygonMessengerProxy.sol:L2_PolygonMessengerProxy',
-    { signer }
-  )
 
   return {
     L1_TokenBridge,
     L1_Messenger,
     L1_MessengerWrapper,
-    L2_Bridge,
-    L2_MessengerProxy
+    L2_Bridge
   }
 }
 
