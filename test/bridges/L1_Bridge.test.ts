@@ -2316,7 +2316,7 @@ describe('L1_Bridge', () => {
       )
 
       await executeL2BridgeSend(l2_hopBridgeToken, l2_bridge, transfer)
-      await l2_bridge.connect(bonder).commitTransfers(transfer.chainId)
+      await l2_bridge.connect(bonder).commitTransfers(transfer.chainId, await bonder.getAddress())
 
       // Get the rootHash from the event
       const transfersCommittedEvent = await l2_bridge.queryFilter(
@@ -2400,8 +2400,9 @@ describe('L1_Bridge', () => {
       const mimicChainId: BigNumber = l2ChainId
       const mimicRootHash: Buffer = rootHash
       const mimicDestinationChainId: BigNumber = transfer.chainId
-      const mimicTotalAmount: BigNumber = await l2_bridge.pendingAmountForChainId(
-        transfer.chainId
+      const mimicTotalAmount: BigNumber = await l2_bridge.pendingAmount(
+        transfer.chainId,
+        await bonder.getAddress()
       )
       const mimicTransferRootCommittedAt: BigNumber = await l1_bridge.transferRootCommittedAt(
         mimicDestinationChainId,
@@ -3814,7 +3815,7 @@ describe('L1_Bridge', () => {
       )
 
       await executeL2BridgeSend(l2_hopBridgeToken, l2_bridge, transfer)
-      await l2_bridge.connect(bonder).commitTransfers(transfer.chainId)
+      await l2_bridge.connect(bonder).commitTransfers(transfer.chainId, await bonder.getAddress())
 
       // Get the rootHash from the event
       const transfersCommittedEvent = await l2_bridge.queryFilter(
@@ -3878,7 +3879,7 @@ describe('L1_Bridge', () => {
       )
 
       await executeL2BridgeSend(l2_hopBridgeToken, l2_bridge, transfer)
-      await l2_bridge.connect(bonder).commitTransfers(transfer.chainId)
+      await l2_bridge.connect(bonder).commitTransfers(transfer.chainId, await bonder.getAddress())
 
       // Get the rootHash from the event
       const transfersCommittedEvent = await l2_bridge.queryFilter(

@@ -464,11 +464,11 @@ describe('L2_Bridge', () => {
         await executeL2BridgeSend(l2_hopBridgeToken, l2_bridge, customTransfer)
       }
 
-      // After the commit, the contract state should have a single index for pendingTransferIdsForChainId.
+      // After the commit, the contract state should have a single index for pendingTransferIds.
       const expectedErrorMsg: string =
         'VM Exception while processing transaction: invalid opcode'
       try {
-        await l2_bridge.pendingTransferIdsForChainId(transfer.chainId, 1)
+        await l2_bridge.pendingTransferIds(transfer.chainId, await bonder.getAddress(), 1)
         throw new Error(
           'There should not be a pending transfer ID for chainId in this slot.'
         )
@@ -1000,18 +1000,18 @@ describe('L2_Bridge', () => {
       )
 
       await executeL2BridgeSend(l2_hopBridgeToken, l2_bridge, transfer)
-      await l2_bridge.connect(bonder).commitTransfers(transfer.chainId)
+      await l2_bridge.connect(bonder).commitTransfers(transfer.chainId, await bonder.getAddress())
 
       await executeL2BridgeSend(l2_hopBridgeToken, l2_bridge, transfer)
       await expect(
-        l2_bridge.connect(transfer.sender).commitTransfers(transfer.chainId)
+        l2_bridge.connect(transfer.sender).commitTransfers(transfer.chainId, await bonder.getAddress())
       ).to.be.revertedWith(expectedErrorMsg)
     })
 
     it('Should not allow a commitTransfers if there are no transfers to commit', async () => {
       const expectedErrorMsg: string = 'L2_BRG: Must commit at least 1 Transfer'
       await expect(
-        l2_bridge.connect(transfer.sender).commitTransfers(transfer.chainId)
+        l2_bridge.connect(transfer.sender).commitTransfers(transfer.chainId, await bonder.getAddress())
       ).to.be.revertedWith(expectedErrorMsg)
     })
   })

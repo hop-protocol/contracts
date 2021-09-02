@@ -29,21 +29,27 @@ abstract contract L2_Bridge is Bridge {
     address public l1BridgeCaller;
     I_L2_AmmWrapper public ammWrapper;
     mapping(uint256 => bool) public activeChainIds;
-    uint256 public minimumForceCommitDelay = 4 hours;
+    uint256 public minimumForceCommitDelay = 1 days;
     uint256 public maxPendingTransfers = 128;
     uint256 public minBonderBps = 2;
     uint256 public minBonderFeeAbsolute = 0;
 
-    mapping(uint256 => bytes32[]) public pendingTransferIdsForChainId;
-    mapping(uint256 => uint256) public pendingAmountForChainId;
-    mapping(uint256 => uint256) public lastCommitTimeForChainId;
+    // destnation chain Id -> bonder address -> pending transfer Ids
+    mapping(uint256 => mapping(address => bytes32[])) public pendingTransferIds;
+    // destnation chain Id -> bonder address -> pending amount
+    mapping(uint256 => mapping(address => uint256)) public pendingAmount;
+    // destnation chain Id -> bonder address -> last commit time
+    mapping(uint256 => mapping(address => uint256)) public lastCommitTime;
+    // destnation chain Id -> bonder address -> root index
+    mapping(uint256 => mapping(address => uint256)) public rootIndex;
+
     uint256 public transferNonceIncrementer;
-    uint256 public rootIndex;
 
     bytes32 private immutable NONCE_DOMAIN_SEPARATOR;
 
     event TransfersCommitted (
         uint256 indexed destinationChainId,
+        address bonder,
         bytes32 indexed rootHash,
         uint256 indexed rootIndex,
         uint256 totalAmount,
@@ -141,10 +147,10 @@ abstract contract L2_Bridge is Bridge {
             require(bonderFee >= minBonderFee, "L2_BRG: bonderFee must meet minimum requirements");
         }
 
-        bytes32[] storage pendingTransfers = pendingTransferIdsForChainId[chainId];
+        bytes32[] storage pendingTransfers = pendingTransferIds[chainId][bonder];
 
         if (pendingTransfers.length >= maxPendingTransfers) {
-            _commitTransfers(chainId);
+            _commitTransfers(chainId, bonder);
         }
 
         hToken.burn(msg.sender, amount);
@@ -164,11 +170,11 @@ abstract contract L2_Bridge is Bridge {
         uint256 transferIndex = pendingTransfers.length;
         pendingTransfers.push(transferId);
 
-        pendingAmountForChainId[chainId] = pendingAmountForChainId[chainId].add(amount);
+        pendingAmount[chainId][bonder] = pendingAmount[chainId][bonder].add(amount);
 
         emit TransferSent(
             chainId,
-            rootIndex,
+            rootIndex[chainId][bonder],
             recipient,
             amount,
             transferNonce,
@@ -184,12 +190,13 @@ abstract contract L2_Bridge is Bridge {
      * @dev Aggregates all pending Transfers to the `destinationChainId` and sends them to the
      * L1_Bridge as a TransferRoot.
      * @param destinationChainId The chainId of the TransferRoot's destination chain
+     * @param bonder The bonder whose transfer root is being committed
      */
-    function commitTransfers(uint256 destinationChainId) external {
-        uint256 minForceCommitTime = lastCommitTimeForChainId[destinationChainId].add(minimumForceCommitDelay);
-        require(minForceCommitTime < block.timestamp || getIsBonder(msg.sender), "L2_BRG: Only Bonder can commit before min delay");
+    function commitTransfers(uint256 destinationChainId, address bonder) external {
+        uint256 minForceCommitTime = lastCommitTime[destinationChainId][bonder].add(minimumForceCommitDelay);
+        require(bonder == msg.sender || minForceCommitTime < block.timestamp, "L2_BRG: Only Bonder can commit before min delay");
 
-        _commitTransfers(destinationChainId);
+        _commitTransfers(destinationChainId, bonder);
     }
 
     /**
@@ -278,24 +285,25 @@ abstract contract L2_Bridge is Bridge {
 
     /* ========== Helper Functions ========== */
 
-    function _commitTransfers(uint256 destinationChainId) internal {
-        bytes32[] storage pendingTransfers = pendingTransferIdsForChainId[destinationChainId];
+    function _commitTransfers(uint256 destinationChainId, address bonder) internal {
+        bytes32[] storage pendingTransfers = pendingTransferIds[destinationChainId][bonder];
         require(pendingTransfers.length > 0, "L2_BRG: Must commit at least 1 Transfer");
 
         bytes32 rootHash = Lib_MerkleTree.getMerkleRoot(pendingTransfers);
-        uint256 totalAmount = pendingAmountForChainId[destinationChainId];
+        uint256 totalAmount = pendingAmount[destinationChainId][bonder];
         uint256 rootCommittedAt = block.timestamp;
 
         emit TransfersCommitted(
             destinationChainId,
+            bonder,
             rootHash,
-            rootIndex,
+            rootIndex[destinationChainId][bonder],
             totalAmount,
             rootCommittedAt
         );
 
-        lastCommitTimeForChainId[destinationChainId] = block.timestamp;
-        rootIndex++;
+        lastCommitTime[destinationChainId][bonder] = block.timestamp;
+        rootIndex[destinationChainId][bonder]++;
 
         bytes memory confirmTransferRootMessage = abi.encodeWithSignature(
             "confirmTransferRoot(uint256,bytes32,uint256,uint256,uint256)",
@@ -306,8 +314,8 @@ abstract contract L2_Bridge is Bridge {
             rootCommittedAt
         );
 
-        pendingAmountForChainId[destinationChainId] = 0;
-        delete pendingTransferIdsForChainId[destinationChainId];
+        pendingAmount[destinationChainId][bonder] = 0;
+        delete pendingTransferIds[destinationChainId][bonder];
 
         _sendCrossDomainMessage(confirmTransferRootMessage);
     }
