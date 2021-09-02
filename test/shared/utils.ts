@@ -146,7 +146,7 @@ export const setUpL1AndL2Bridges = async (fixture: IFixture, opts: any) => {
   const { messengerWrapperChainId } = opts
 
   // Set up L1
-  await l1_bridge.connect(governance).setCrossDomainMessengerWrapper(
+  await l1_bridge.connect(governance).setXDomainConnector(
     messengerWrapperChainId,
     l1_messengerWrapper.address
   )
@@ -344,22 +344,22 @@ export const getL2SpecificArtifact = (chainId: BigNumber) => {
     l2_connectorArtifact = 'L2_OptimismConnector.sol:L2_OptimismConnector'
     l1_messengerArtifact = 'contracts/test/Mock_L1_Messenger.sol:Mock_L1_Messenger'
     l1_messengerWrapperArtifact =
-      'contracts/wrappers/OptimismMessengerWrapper.sol:OptimismMessengerWrapper'
+      'contracts/connectors/L1_OptimismConnector.sol:L1_OptimismConnector'
   } else if (isChainIdArbitrum(chainId)) {
     l2_connectorArtifact = 'L2_ArbitrumConnector.sol:L2_ArbitrumConnector'
     l1_messengerArtifact = 'contracts/test/Mock_L1_Messenger.sol:Mock_L1_Messenger'
     l1_messengerWrapperArtifact =
-      'contracts/wrappers/ArbitrumMessengerWrapper.sol:ArbitrumMessengerWrapper'
+      'contracts/connectors/L1_ArbitrumConnector.sol:L1_ArbitrumConnector'
   } else if (isChainIdXDai(chainId)) {
     l2_connectorArtifact = 'L2_XDaiConnector.sol:L2_XDaiConnector'
     l1_messengerArtifact = 'contracts/test/Mock_L1_Messenger.sol:Mock_L1_Messenger'
     l1_messengerWrapperArtifact =
-      'contracts/wrappers/XDaiMessengerWrapper.sol:XDaiMessengerWrapper'
+      'contracts/connectors/L1_XDaiConnector.sol:L1_XDaiConnector'
   } else if (isChainIdPolygon(chainId)) {
     l2_connectorArtifact = 'L2_PolygonConnector.sol:L2_PolygonConnector'
     l1_messengerArtifact = 'contracts/test/Mock_L1_Messenger.sol:Mock_L1_Messenger'
     l1_messengerWrapperArtifact =
-      'contracts/test/MockPolygonMessengerWrapper.sol:MockPolygonMessengerWrapper'
+      'contracts/connectors/L1_PolygonConnector.sol:L1_PolygonConnector'
   }
 
   return {

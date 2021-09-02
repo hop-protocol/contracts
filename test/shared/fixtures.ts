@@ -209,7 +209,8 @@ export async function fixture (
     ...l2ConnectorDefaults
   )
 
-  await l1_messengerWrapper.setL2BridgeConnectorAddress(l2_bridgeConnector.address)
+  await l1_messengerWrapper.setXDomainAddress(l2_bridgeConnector.address)
+  await l2_bridgeConnector.setXDomainAddress(l1_messengerWrapper.address)
 
   // Deploy AMM contracts
   const l2_swap = await L2_Swap.deploy()
@@ -261,7 +262,7 @@ export async function fixture (
       ...genericTransfer
     }),
     new Transfer({
-      chainId: CHAIN_IDS.ARBITRUM.TESTNET_4,
+      chainId: CHAIN_IDS.OPTIMISM.OPTIMISM_MAINNET,
       sender: user,
       recipient: user,
       deadline: DEFAULT_DEADLINE,
@@ -275,7 +276,7 @@ export async function fixture (
       ...genericTransfer
     }),
     new Transfer({
-      chainId: CHAIN_IDS.ARBITRUM.TESTNET_4,
+      chainId: CHAIN_IDS.OPTIMISM.OPTIMISM_MAINNET,
       sender: user,
       recipient: user,
       deadline: DEFAULT_DEADLINE,

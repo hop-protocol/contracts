@@ -84,26 +84,19 @@ export const getL2ConnectorDefaults = (
   l1ChainId: BigNumber,
   fxChild?: string
 ) => {
-  let defaults: any[] = [
-    l1MessengerWrapperAddress,
-    l2BridgeAddress
-  ]
-
+  let defaults
   if (isChainIdArbitrum(chainId)) {
     defaults = [
-      l1MessengerWrapperAddress,
       l2BridgeAddress
     ]
   } else if (isChainIdOptimism(chainId)) {
     defaults = [
-      l1MessengerWrapperAddress,
       l2BridgeAddress,
       l2MessengerAddress,
       DEFAULT_L2_BRIDGE_GAS_LIMIT
     ]
   } else if (isChainIdXDai(chainId)) {
     defaults = [
-      l1MessengerWrapperAddress,
       l2BridgeAddress,
       l2MessengerAddress,
       l1ChainId,

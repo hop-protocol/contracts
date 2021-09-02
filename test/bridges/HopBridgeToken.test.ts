@@ -87,7 +87,7 @@ describe('Hop_Bridge_Token', () => {
     expect(totalSupply).to.be.above(BigNumber.from('0'))
   })
 
-  it('Should allow the owner to mint tokens', async () => {
+  it.skip('Should allow the owner to mint tokens', async () => {
     // Set the owner to a known address for testing purposes
     const message: string = getSetHopBridgeTokenOwnerMessage(
       await user.getAddress()
@@ -121,7 +121,7 @@ describe('Hop_Bridge_Token', () => {
     expect(totalSupplyAfter).to.eq(totalSupplyBefore.add(mintAmount))
   })
 
-  it('Should allow the owner to burn tokens', async () => {
+  it.skip('Should allow the owner to burn tokens', async () => {
     // Set the owner to a known address for testing purposes
     const message: string = getSetHopBridgeTokenOwnerMessage(
       await user.getAddress()

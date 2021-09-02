@@ -99,7 +99,7 @@ describe('L1_Bridge', () => {
 
     l1ChainId = CHAIN_IDS.ETHEREUM.KOVAN
     l2ChainId = CHAIN_IDS.OPTIMISM.OPTIMISM_TESTNET
-    l22ChainId = CHAIN_IDS.ARBITRUM.TESTNET_4
+    l22ChainId = CHAIN_IDS.OPTIMISM.OPTIMISM_MAINNET
 
     _fixture = await fixture(l1ChainId, l2ChainId)
     await setUpDefaults(_fixture)
@@ -122,6 +122,7 @@ describe('L1_Bridge', () => {
       l2_ammWrapper,
       transfers
     } = _fixture)
+
 
     const l1AlreadySetOpts = {
       l1BridgeAddress: l1_bridge.address,
@@ -519,15 +520,15 @@ describe('L1_Bridge', () => {
     it('Should set a new crossDomainMessengerWrapper address', async () => {
       const expectedCrossDomainMessengerWrapper: string = ONE_ADDRESS
 
-      await l1_bridge.connect(governance).setCrossDomainMessengerWrapper(
+      await l1_bridge.connect(governance).setXDomainConnector(
         transfer.chainId,
         ONE_ADDRESS
       )
 
-      const crossDomainMessengerWrappers: string = await l1_bridge.crossDomainMessengerWrappers(
+      const xDomainConnectors: string = await l1_bridge.xDomainConnectors(
         transfer.chainId
       )
-      expect(crossDomainMessengerWrappers).to.eq(
+      expect(xDomainConnectors).to.eq(
         expectedCrossDomainMessengerWrapper
       )
     })
@@ -2154,7 +2155,7 @@ describe('L1_Bridge', () => {
         bonder
       )
 
-      await l1_bridge.connect(governance).setCrossDomainMessengerWrapper(
+      await l1_bridge.connect(governance).setXDomainConnector(
         l2Transfer.chainId,
         ZERO_ADDRESS
       )
@@ -2506,7 +2507,7 @@ describe('L1_Bridge', () => {
       await executeL2BridgeCommitTransfers(l2_bridge, [l2Transfer], bonder)
 
       // Unset the supported chainId for this test
-      await l1_bridge.connect(governance).setCrossDomainMessengerWrapper(
+      await l1_bridge.connect(governance).setXDomainConnector(
         l2Transfer.chainId,
         ZERO_ADDRESS
       )

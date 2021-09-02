@@ -4,7 +4,7 @@ pragma solidity 0.6.12;
 
 import "./Connector.sol";
 
-contract L2_ArbitrumConnector is Connector {
+contract L1_ArbitrumConnector is Connector {
     constructor (
         address _owner
     )

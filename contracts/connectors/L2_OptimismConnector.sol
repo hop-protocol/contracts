@@ -3,23 +3,19 @@
 pragma solidity 0.6.12;
 
 import "../interfaces/optimism/messengers/iOVM_L2CrossDomainMessenger.sol";
-import "./L2_Connector.sol";
+import "./Connector.sol";
 
-contract L2_OptimismConnector is L2_Connector {
+contract L2_OptimismConnector is Connector {
     iOVM_L2CrossDomainMessenger public messenger;
     uint32 public defaultGasLimit;
 
     constructor (
-        address _l1Address,
-        address _l2Address,
+        address _owner,
         iOVM_L2CrossDomainMessenger _messenger,
         uint32 _defaultGasLimit
     )
         public
-        L2_Connector(
-            _l1Address,
-            _l2Address
-        )
+        Connector(_owner)
     {
         messenger = _messenger;
         defaultGasLimit = _defaultGasLimit;
@@ -29,7 +25,7 @@ contract L2_OptimismConnector is L2_Connector {
 
     function _forwardCrossDomainMessage() internal override {
         messenger.sendMessage(
-            l1Address,
+            xDomainAddress,
             msg.data,
             defaultGasLimit
         );
@@ -38,6 +34,6 @@ contract L2_OptimismConnector is L2_Connector {
     function _verifySender() internal override {
         require(msg.sender == address(messenger), "L2_OVM_CNR: Caller is not the expected sender");
         // Verify that cross-domain sender is expectedSender
-        require(messenger.xDomainMessageSender() == l1Address, "L2_OVM_CNR: Invalid cross-domain sender");
+        require(messenger.xDomainMessageSender() == xDomainAddress, "L2_OVM_CNR: Invalid cross-domain sender");
     }
 }
