@@ -31,6 +31,7 @@ let overrides: any = {}
 interface Config {
   l1ChainId: BigNumber
   l2ChainId: BigNumber
+  l1MessengerWrapperAddress: string
   l2CanonicalTokenAddress: string
   l2HopBridgeTokenAddress: string
   l2BridgeAddress: string
@@ -45,6 +46,7 @@ export async function setupL2 (config: Config) {
   let {
     l1ChainId,
     l2ChainId,
+    l1MessengerWrapperAddress,
     l2CanonicalTokenAddress,
     l2HopBridgeTokenAddress,
     l2BridgeAddress,
@@ -56,6 +58,7 @@ export async function setupL2 (config: Config) {
   logger.log(`config:
             l1ChainId: ${l1ChainId}
             l2ChainId: ${l2ChainId}
+            l1MessengerWrapperAddress: ${l1MessengerWrapperAddress}
             l2CanonicalTokenAddress: ${l2CanonicalTokenAddress}
             l2HopBridgeTokenAddress: ${l2HopBridgeTokenAddress}
             l2BridgeAddress: ${l2BridgeAddress}
@@ -347,6 +350,7 @@ if (require.main === module) {
   const {
     l1ChainId,
     l2ChainId,
+    l1MessengerWrapperAddress,
     l2CanonicalTokenAddress,
     l2HopBridgeTokenAddress,
     l2BridgeAddress,
@@ -357,6 +361,7 @@ if (require.main === module) {
   setupL2({
     l1ChainId,
     l2ChainId,
+    l1MessengerWrapperAddress,
     l2CanonicalTokenAddress,
     l2HopBridgeTokenAddress,
     l2BridgeAddress,

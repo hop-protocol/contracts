@@ -195,6 +195,7 @@ export async function fixture (
     l2_bridge.address,
     l1_messenger.address,
     fxChildTunnelAddress,
+    await governance.getAddress(),
     fxRoot.address
   )
   const l1_messengerWrapper = await L1_MessengerWrapper.deploy(

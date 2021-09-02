@@ -5,14 +5,15 @@ import {
 import {
   CHAIN_IDS,
   DEFAULT_MESSENGER_WRAPPER_GAS_LIMIT,
-  DEFAULT_MESSENGER_WRAPPER_GAS_PRICE,
-  DEFAULT_MESSENGER_WRAPPER_CALL_VALUE,
   DEFAULT_L2_BRIDGE_GAS_LIMIT,
   CHECKPOINT_MANAGER_ADDRESSES,
   FX_ROOT_ADDRESSES,
   FX_CHILD_ADDRESSES,
   POLYGON_RPC_ENDPOINTS,
-  AMB_PROXY_ADDRESSES
+  AMB_PROXY_ADDRESSES,
+  DEFAULT_MAX_SUBMISSION_COST,
+  DEFAULT_MAX_GAS,
+  DEFAULT_GAS_PRICE_BID
 } from './constants'
 import {
   goerliNetworkData
@@ -25,6 +26,7 @@ export const getMessengerWrapperDefaults = (
   l2BridgeAddress: string,
   l1MessengerAddress: string,
   fxChildTunnelAddress: string,
+  governanceAddress: string,
   fxRootAddress: string = undefined
 ): any[] => {
   // Ending data to return
@@ -38,13 +40,16 @@ export const getMessengerWrapperDefaults = (
   ]
 
   if (isChainIdArbitrum(l2ChainId)) {
-    const gasLimit: number = DEFAULT_MESSENGER_WRAPPER_GAS_LIMIT
-    const gasPrice: number = DEFAULT_MESSENGER_WRAPPER_GAS_PRICE
-
+    const maxSubmissionCost: number = DEFAULT_MAX_SUBMISSION_COST
+    const maxGas: number = DEFAULT_MAX_GAS
+    const gasPriceBid: number = DEFAULT_GAS_PRICE_BID
+    const governance: string = governanceAddress
     data.push(
       ...defaults,
-      gasLimit,
-      gasPrice
+       maxSubmissionCost,
+       maxGas,
+       gasPriceBid,
+       governance
     )
   } else if (isChainIdOptimism(l2ChainId)) {
     const gasLimit: number = DEFAULT_MESSENGER_WRAPPER_GAS_LIMIT

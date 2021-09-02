@@ -58,6 +58,10 @@ export const DEFAULT_MESSENGER_WRAPPER_GAS_LIMIT: number = 8000000
 export const DEFAULT_MESSENGER_WRAPPER_GAS_PRICE: number = 0
 export const DEFAULT_MESSENGER_WRAPPER_CALL_VALUE: number = 0
 
+export const DEFAULT_MAX_SUBMISSION_COST: number = 61980393341
+export const DEFAULT_MAX_GAS: number = 20000000
+export const DEFAULT_GAS_PRICE_BID: number = 559047150
+
 export const DEFAULT_AMOUNT_OUT_MIN: number = 0
 export const DEFAULT_DEADLINE: BigNumber = BigNumber.from('9999999999')
 

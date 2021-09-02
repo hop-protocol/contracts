@@ -41,8 +41,7 @@ contract L2_ArbitrumBridge is L2_Bridge {
     }
 
     function _verifySender(address expectedSender) internal override {
-        // TODO: Verify this works
-        // require(msg.sender == expectedSender, "L2_ARB_BRG: Caller is not the expected sender");
+        require(msg.sender == expectedSender, "L2_ARB_BRG: Caller is not the expected sender");
     }
 
     /**

@@ -119,7 +119,7 @@ async function getPrompts () {
     default: 0
   }, {
     name: 'didSendBridgeFunds',
-    description: 'Did you send funds over the native bridge for LP AND convert to wrapped if needed?',
+    description: 'Do you have tokens on L1 & did you send tokens over the native bridge for LP AND convert to wrapped if needed?',
     type: 'boolean',
     required: true,
     default: true

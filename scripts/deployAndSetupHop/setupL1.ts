@@ -151,7 +151,8 @@ export async function setupL1 (config: Config) {
     l1_bridge.address,
     l2_bridge.address,
     l1_messenger?.address || '0x',
-    fxChildTunnelAddress
+    fxChildTunnelAddress,
+    await governance.getAddress()
   )
 
   logger.log('deploying L1 messenger wrapper')
@@ -172,6 +173,14 @@ export async function setupL1 (config: Config) {
       `The value can only be set once.`
     )
     await updatePolygonState(l1ChainId, l1_messengerWrapper, l2_messengerProxy)
+  } else if (isChainIdArbitrum(l2ChainId)) {
+      const l1MessengerWrapperAlias = generateArbitrumAliasAddress(l1_messengerWrapper.address)
+      logger.log(
+        `-------------------`,
+        `IMPORTANT: Please manually send funds to ${l1MessengerWrapperAlias} on Arbitrum`,
+        `in order to complete the token send across the bridge.`,
+        `-------------------`
+      )
   }
 
   /**
@@ -255,21 +264,6 @@ export async function setupL1 (config: Config) {
   )
   await tx.wait()
   await waitAfterTransaction()
-
-  // Get hop token on L2
-  if (!isChainIdMainnet(l1ChainId)) {
-    logger.log('minting L1 canonical token')
-    modifiedGasPrice = await getModifiedGasPrice(ethers, l1ChainId)
-    tx = await l1_canonicalToken
-      .connect(deployer)
-      .mint(
-        await deployer.getAddress(),
-        liquidityProviderSendAmount,
-        modifiedGasPrice
-      )
-    await tx.wait()
-    await waitAfterTransaction()
-  }
 
   logger.log('approving L1 canonical token')
   modifiedGasPrice = await getModifiedGasPrice(ethers, l1ChainId)
