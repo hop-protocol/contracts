@@ -21,7 +21,7 @@ export const networkData: NetworkData = {
     tokens: {
       DAI: {
         l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.RINKEBY.DAI,
-        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.ARBITRUM.DAI,
+        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.ARBITRUM_TESTNET.DAI,
         ...DEFAULT_NETWORK_DATA.DAI
       }
     }

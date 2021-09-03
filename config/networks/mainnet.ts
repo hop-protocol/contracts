@@ -85,5 +85,25 @@ export const networkData: NetworkData = {
         ...DEFAULT_NETWORK_DATA.MATIC
       },
     }
+  },
+  arbitrum: {
+    l2NetworkName: 'arbitrum',
+    l1ChainId,
+    l2ChainId: CHAIN_IDS.ARBITRUM.ARBITRUM_MAINNET.toString(),
+    l1MessengerAddress: '0x4Dbd4fc535Ac27206064B68FfCf827b0A60BAB3f',
+    l2TokenBridgeAddress: ZERO_ADDRESS,
+    l2MessengerAddress: '0x0000000000000000000000000000000000000064',
+    tokens: {
+      USDC: {
+        l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.MAINNET.USDC,
+        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.ARBITRUM_MAINNET.USDC,
+        ...DEFAULT_NETWORK_DATA.USDC
+      },
+      USDT: {
+        l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.MAINNET.USDT,
+        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.ARBITRUM_MAINNET.USDT,
+        ...DEFAULT_NETWORK_DATA.USDT
+      }
+    }
   }
 }

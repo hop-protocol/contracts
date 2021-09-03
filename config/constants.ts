@@ -59,8 +59,8 @@ export const DEFAULT_MESSENGER_WRAPPER_GAS_PRICE: number = 0
 export const DEFAULT_MESSENGER_WRAPPER_CALL_VALUE: number = 0
 
 export const DEFAULT_MAX_SUBMISSION_COST: number = 61980393341
-export const DEFAULT_MAX_GAS: number = 20000000
-export const DEFAULT_GAS_PRICE_BID: number = 559047150
+export const DEFAULT_MAX_GAS: number = 10000000
+export const DEFAULT_GAS_PRICE_BID: number = 10000000000
 
 export const DEFAULT_AMOUNT_OUT_MIN: number = 0
 export const DEFAULT_DEADLINE: BigNumber = BigNumber.from('9999999999')
@@ -225,7 +225,11 @@ export const L2_CANONICAL_TOKEN_ADDRESSES: any = {
       // TODO
     }
   },
-  ARBITRUM: {
+  ARBITRUM_MAINNET: {
+    USDC: '0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8',
+    USDT: '0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9',
+  },
+  ARBITRUM_TESTNET: {
     DAI: '0x5364Dc963c402aAF150700f38a8ef52C1D7D7F14'
   }
 }
