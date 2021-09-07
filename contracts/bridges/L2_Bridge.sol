@@ -9,10 +9,7 @@ import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import "./Bridge.sol";
 import "./HopBridgeToken.sol";
 import "../libraries/Lib_MerkleTree.sol";
-
-interface I_L2_AmmWrapper {
-    function attemptSwap(address recipient, uint256 amount, uint256 amountOutMin, uint256 deadline) external;
-}
+import "./L2_AmmWrapper.sol";
 
 /**
  * @dev The L2_Bridge is responsible for aggregating pending Transfers into TransferRoots. Each newly
@@ -25,7 +22,7 @@ abstract contract L2_Bridge is Bridge {
 
     HopBridgeToken public immutable hToken;
     address public l1BridgeConnector;
-    I_L2_AmmWrapper public ammWrapper;
+    L2_AmmWrapper public ammWrapper;
     mapping(uint256 => bool) public activeChainIds;
     uint256 public minimumForceCommitDelay = 1 days;
     uint256 public maxPendingTransfers = 128;
@@ -62,6 +59,7 @@ abstract contract L2_Bridge is Bridge {
         bytes32 transferNonce,
         uint256 bonderFee,
         uint256 index,
+        uint8 tokenIndex,
         uint256 amountOutMin,
         uint256 deadline,
         address bonder
@@ -70,6 +68,7 @@ abstract contract L2_Bridge is Bridge {
     event TransferFromL1Completed (
         address indexed recipient,
         uint256 amount,
+        uint8 tokenIndex,
         uint256 amountOutMin,
         uint256 deadline,
         address indexed relayer,
@@ -107,10 +106,7 @@ abstract contract L2_Bridge is Bridge {
      * @param recipient The address receiving funds at the destination
      * @param amount The amount being sent
      * @param bonderFee The amount distributed to the Bonder at the destination. This is subtracted from the `amount`.
-     * @param amountOutMin The minimum amount received after attempting to swap in the destination
-     * AMM market. 0 if no swap is intended.
-     * @param deadline The deadline for swapping in the destination AMM market. 0 if no
-     * swap is intended.
+     * @param swapData The `tokenIndex`, `amountOutMin`, and `deadline` used for swaps
      * @param bonder The bonder that should bond the transfer at the destination. This is not enforced by the
      * bridge contracts.
      */
@@ -119,8 +115,7 @@ abstract contract L2_Bridge is Bridge {
         address recipient,
         uint256 amount,
         uint256 bonderFee,
-        uint256 amountOutMin,
-        uint256 deadline,
+        SwapData calldata swapData,
         address bonder
     )
         external
@@ -153,8 +148,7 @@ abstract contract L2_Bridge is Bridge {
             amount,
             transferNonce,
             bonderFee,
-            amountOutMin,
-            deadline
+            swapData
         );
         uint256 transferIndex = pendingTransfers.length;
         pendingTransfers.push(transferId);
@@ -169,8 +163,9 @@ abstract contract L2_Bridge is Bridge {
             transferNonce,
             bonderFee,
             transferIndex,
-            amountOutMin,
-            deadline,
+            swapData.tokenIndex,
+            swapData.amountOutMin,
+            swapData.deadline,
             bonder
         );
     }
@@ -192,18 +187,14 @@ abstract contract L2_Bridge is Bridge {
      * @dev Mints new hTokens for the recipient and optionally swaps them in the AMM market.
      * @param recipient The address receiving funds
      * @param amount The amount being distributed
-     * @param amountOutMin The minimum amount received after attempting to swap in the destination
-     * AMM market. 0 if no swap is intended.
-     * @param deadline The deadline for swapping in the AMM market. 0 if no
-     * swap is intended.
+     * @param swapData The `tokenIndex`, `amountOutMin`, and `deadline` used for swaps
      * @param relayer The address of the relayer.
      * @param relayerFee The amount distributed to the relayer. This is subtracted from the `amount`.
      */
     function distribute(
         address recipient,
         uint256 amount,
-        uint256 amountOutMin,
-        uint256 deadline,
+        SwapData calldata swapData,
         address relayer,
         uint256 relayerFee
     )
@@ -211,13 +202,14 @@ abstract contract L2_Bridge is Bridge {
         onlyL1Bridge
         nonReentrant
     {
-        _distribute(recipient, amount, amountOutMin, deadline, relayer, relayerFee);
+        _distribute(recipient, amount, swapData, relayer, relayerFee);
 
         emit TransferFromL1Completed(
             recipient,
             amount,
-            amountOutMin,
-            deadline,
+            swapData.tokenIndex,
+            swapData.amountOutMin,
+            swapData.deadline,
             relayer,
             relayerFee
         );
@@ -230,18 +222,14 @@ abstract contract L2_Bridge is Bridge {
      * @param amount The amount being transferred including the `_bonderFee`
      * @param transferNonce Used to avoid transferId collisions
      * @param bonderFee The amount paid to the address that withdraws the Transfer
-     * @param amountOutMin The minimum amount received after attempting to swap in the
-     * AMM market. 0 if no swap is intended.
-     * @param deadline The deadline for swapping in the AMM market. 0 if no
-     * swap is intended.
+     * @param swapData The `tokenIndex`, `amountOutMin`, and `deadline` used for swaps
      */
     function bondWithdrawalAndDistribute(
         address recipient,
         uint256 amount,
         bytes32 transferNonce,
         uint256 bonderFee,
-        uint256 amountOutMin,
-        uint256 deadline
+        SwapData calldata swapData
     )
         external
         onlyBonder
@@ -254,13 +242,12 @@ abstract contract L2_Bridge is Bridge {
             amount,
             transferNonce,
             bonderFee,
-            amountOutMin,
-            deadline
+            swapData
         );
 
         _bondWithdrawal(transferId, amount);
         _markTransferSpent(transferId);
-        _distribute(recipient, amount, amountOutMin, deadline, msg.sender, bonderFee);
+        _distribute(recipient, amount, swapData, msg.sender, bonderFee);
     }
 
     /**
@@ -313,8 +300,7 @@ abstract contract L2_Bridge is Bridge {
     function _distribute(
         address recipient,
         uint256 amount,
-        uint256 amountOutMin,
-        uint256 deadline,
+        SwapData calldata swapData,
         address feeRecipient,
         uint256 fee
     )
@@ -325,12 +311,16 @@ abstract contract L2_Bridge is Bridge {
         }
         uint256 amountAfterFee = amount.sub(fee);
 
-        if (amountOutMin == 0 && deadline == 0) {
+        if (swapData.amountOutMin == 0 && swapData.deadline == 0) {
             hToken.mint(recipient, amountAfterFee);
         } else {
             hToken.mint(address(this), amountAfterFee);
             hToken.approve(address(ammWrapper), amountAfterFee);
-            ammWrapper.attemptSwap(recipient, amountAfterFee, amountOutMin, deadline);
+            ammWrapper.attemptSwap(
+                recipient,
+                amountAfterFee,
+                swapData
+            );
         }
     }
 
@@ -346,7 +336,7 @@ abstract contract L2_Bridge is Bridge {
 
     /* ========== External Config Management Functions ========== */
 
-    function setAmmWrapper(I_L2_AmmWrapper _ammWrapper) external onlyOwner {
+    function setAmmWrapper(L2_AmmWrapper _ammWrapper) external onlyOwner {
         ammWrapper = _ammWrapper;
     }
 

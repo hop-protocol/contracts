@@ -7,8 +7,9 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "../saddle/Swap.sol";
 import "./L2_Bridge.sol";
 import "../interfaces/IWETH.sol";
+import "./SwapDataConsumer.sol";
 
-contract L2_AmmWrapper {
+contract L2_AmmWrapper is SwapDataConsumer {
 
     L2_Bridge public immutable bridge;
     IERC20 public immutable l2CanonicalToken;
@@ -41,10 +42,8 @@ contract L2_AmmWrapper {
         address recipient,
         uint256 amount,
         uint256 bonderFee,
-        uint256 amountOutMin,
-        uint256 deadline,
-        uint256 destinationAmountOutMin,
-        uint256 destinationDeadline,
+        SwapData memory swapData,
+        SwapData memory destinationSwapData,
         address bonder
     )
         public
@@ -61,11 +60,11 @@ contract L2_AmmWrapper {
 
         require(l2CanonicalToken.approve(address(exchangeAddress), amount), "L2_AMM_W: Approve failed");
         uint256 swapAmount = Swap(exchangeAddress).swap(
+            swapData.tokenIndex,
             0,
-            1,
             amount,
-            amountOutMin,
-            deadline
+            swapData.amountOutMin,
+            swapData.deadline
         );
 
         bridge.send(
@@ -73,8 +72,7 @@ contract L2_AmmWrapper {
             recipient,
             swapAmount,
             bonderFee,
-            destinationAmountOutMin,
-            destinationDeadline,
+            destinationSwapData,
             bonder
         );
     }
@@ -82,8 +80,7 @@ contract L2_AmmWrapper {
     function attemptSwap(
         address recipient,
         uint256 amount,
-        uint256 amountOutMin,
-        uint256 deadline
+        SwapData calldata swapData
     )
         external
     {
@@ -92,11 +89,11 @@ contract L2_AmmWrapper {
 
         uint256 amountOut = 0;
         try Swap(exchangeAddress).swap(
-            1,
             0,
+            swapData.tokenIndex,
             amount,
-            amountOutMin,
-            deadline
+            swapData.amountOutMin,
+            swapData.deadline
         ) returns (uint256 _amountOut) {
             amountOut = _amountOut;
         } catch {}

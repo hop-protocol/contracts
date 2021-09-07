@@ -5,6 +5,7 @@ pragma experimental ABIEncoderV2;
 
 import "./Accounting.sol";
 import "../libraries/Lib_MerkleTree.sol";
+import "./SwapDataConsumer.sol";
 
 /**
  * @dev Bridge extends the accounting system and encapsulates the logic that is shared by both the
@@ -14,7 +15,7 @@ import "../libraries/Lib_MerkleTree.sol";
  * has been set.
  */
 
-abstract contract Bridge is Accounting {
+abstract contract Bridge is Accounting, SwapDataConsumer {
     using Lib_MerkleTree for bytes32;
 
     struct TransferRoot {
@@ -74,10 +75,7 @@ abstract contract Bridge is Accounting {
      * @param amount The amount being transferred including the `_bonderFee`
      * @param transferNonce Used to avoid transferId collisions
      * @param bonderFee The amount paid to the address that withdraws the Transfer
-     * @param amountOutMin The minimum amount received after attempting to swap in the destination
-     * AMM market. 0 if no swap is intended.
-     * @param deadline The deadline for swapping in the destination AMM market. 0 if no
-     * swap is intended.
+     * @param swapData The `tokenIndex`, `amountOutMin`, and `deadline` used for swaps
      */
     function getTransferId(
         uint256 chainId,
@@ -85,8 +83,7 @@ abstract contract Bridge is Accounting {
         uint256 amount,
         bytes32 transferNonce,
         uint256 bonderFee,
-        uint256 amountOutMin,
-        uint256 deadline
+        SwapData memory swapData
     )
         public
         pure
@@ -98,8 +95,7 @@ abstract contract Bridge is Accounting {
             amount,
             transferNonce,
             bonderFee,
-            amountOutMin,
-            deadline
+            swapData
         ));
     }
 
@@ -163,10 +159,7 @@ abstract contract Bridge is Accounting {
      * @param amount The amount being transferred including the `_bonderFee`
      * @param transferNonce Used to avoid transferId collisions
      * @param bonderFee The amount paid to the address that withdraws the Transfer
-     * @param amountOutMin The minimum amount received after attempting to swap in the destination
-     * AMM market. 0 if no swap is intended. (only used to calculate `transferId` in this function)
-     * @param deadline The deadline for swapping in the destination AMM market. 0 if no
-     * swap is intended. (only used to calculate `transferId` in this function)
+     * @param swapData The `tokenIndex`, `amountOutMin`, and `deadline` used for swaps
      * @param rootHash The Merkle root of the TransferRoot
      * @param transferRootTotalAmount The total amount being transferred in a TransferRoot
      * @param transferIdTreeIndex The index of the transferId in the Merkle tree
@@ -178,8 +171,7 @@ abstract contract Bridge is Accounting {
         uint256 amount,
         bytes32 transferNonce,
         uint256 bonderFee,
-        uint256 amountOutMin,
-        uint256 deadline,
+        SwapData calldata swapData,
         bytes32 rootHash,
         uint256 transferRootTotalAmount,
         uint256 transferIdTreeIndex,
@@ -195,8 +187,7 @@ abstract contract Bridge is Accounting {
             amount,
             transferNonce,
             bonderFee,
-            amountOutMin,
-            deadline
+            swapData
         );
 
         require(
@@ -238,8 +229,7 @@ abstract contract Bridge is Accounting {
             amount,
             transferNonce,
             bonderFee,
-            0,
-            0
+            SwapData(0,0,0)
         );
 
         _bondWithdrawal(transferId, amount);
