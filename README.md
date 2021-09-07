@@ -124,7 +124,7 @@ Anyone can challenge transactions:
 
 ## Contract Addresses
 
-Please see [`./config/addresses.ts`](https://github.com/hop-protocol/hop/blob/develop/packages/core/src/addresses/mainnet.ts) for all deployed contract addresses.
+Please see [`./config/networks/mainnet.ts`](https://github.com/hop-protocol/contracts/blob/master/config/networks/mainnet.ts) for all deployed contract addresses.
 
 ## Tokens
 
