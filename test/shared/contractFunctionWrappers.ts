@@ -828,7 +828,7 @@ export const executeL2BridgeSend = async (
       transfer.amount,
       transfer.bonderFee,
       [
-        '0',
+        transfer.tokenIndex,
         transfer.amountOutMin,
         transfer.deadline
       ],
@@ -1045,19 +1045,19 @@ export const executeL2BridgeCommitTransfers = async (
       BigNumber.from(i).add(startingIndex)
     )
 
-    const pendingTransferIds: string = await l2_bridge.pendingTransferIds(
+    const pendingTransferId: string = await l2_bridge.pendingTransferIds(
       destinationChainId,
       await transfers[i].bonder.getAddress(),
       i
     )
 
-    const expectedPendingTransferIds: string = await transfers[i].getTransferIdHex(
+    const expectedPendingTransferId: string = await transfers[i].getTransferIdHex(
       transferNonce,
       didSwapAndSend
     )
 
-    expect(pendingTransferIds).to.eq(
-      expectedPendingTransferIds
+    expect(pendingTransferId).to.eq(
+      expectedPendingTransferId
     )
 
     expectedPendingAmount = expectedPendingAmount.add(transfers[i].amount)
