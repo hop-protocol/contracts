@@ -6,8 +6,10 @@ export type TransferProps = {
   recipient: ethers.Signer
   amount: ethers.BigNumber
   bonderFee: ethers.BigNumber
+  tokenIndex: ethers.BigNumber
   amountOutMin: ethers.BigNumber
   deadline: ethers.BigNumber
+  destinationTokenIndex?: ethers.BigNumber
   destinationAmountOutMin?: ethers.BigNumber
   destinationDeadline?: ethers.BigNumber
   amountAfterSwap?: ethers.BigNumber
@@ -20,8 +22,10 @@ export default class Transfer {
   recipient: ethers.Signer
   amount: ethers.BigNumber
   bonderFee: ethers.BigNumber
+  tokenIndex: ethers.BigNumber
   amountOutMin: ethers.BigNumber
   deadline: ethers.BigNumber
+  destinationTokenIndex?: ethers.BigNumber
   destinationAmountOutMin?: ethers.BigNumber
   destinationDeadline?: ethers.BigNumber
   amountAfterSwap?: ethers.BigNumber
@@ -33,8 +37,10 @@ export default class Transfer {
     this.recipient = props.recipient
     this.amount = props.amount
     this.bonderFee = props.bonderFee
+    this.tokenIndex = props.tokenIndex
     this.amountOutMin = props.amountOutMin
     this.deadline = props.deadline
+    this.destinationTokenIndex = props.destinationTokenIndex
     this.destinationAmountOutMin = props.destinationAmountOutMin
     this.destinationDeadline = props.destinationDeadline
     this.amountAfterSwap = props.amountAfterSwap
@@ -45,6 +51,9 @@ export default class Transfer {
     transferNonce: string,
     isSwapAndSend: boolean = false
   ): Promise<Buffer> {
+    const actualTokenIndex: ethers.BigNumber = isSwapAndSend
+      ? this.destinationTokenIndex
+      : this.tokenIndex
     const actualAmountOutMin: ethers.BigNumber = isSwapAndSend
       ? this.destinationAmountOutMin
       : this.amountOutMin
@@ -58,8 +67,7 @@ export default class Transfer {
         'uint256',
         'uint256',
         'uint256',
-        'uint256',
-        'uint256'
+        '(uint8,uint256,uint256)'
       ],
       [
         this.chainId,
@@ -67,8 +75,11 @@ export default class Transfer {
         this.amount,
         transferNonce,
         this.bonderFee,
-        actualAmountOutMin,
-        actualDeadline
+        [
+          actualTokenIndex,
+          actualAmountOutMin,
+          actualDeadline
+        ]
       ]
     )
     const hash = ethers.utils.keccak256(data)

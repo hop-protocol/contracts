@@ -159,8 +159,11 @@ export const executeL1BridgeSendToL2 = async (
       l2ChainId,
       await recipient.getAddress(),
       amount,
-      amountOutMin,
-      deadline,
+      [
+        '1',
+        amountOutMin,
+        deadline
+      ],
       await relayer.getAddress(),
       relayerFee
     )
@@ -288,6 +291,7 @@ export const executeBridgeWithdraw = async (
   )
   expect(isTransferIdSpent).to.eq(false)
 
+  const tokenIndex: BigNumber = isSwapAndSend ? transfer.destinationTokenIndex : transfer.tokenIndex
   const deadline: BigNumber = isSwapAndSend ? transfer.destinationDeadline : transfer.deadline
   const amountOutMin: BigNumber = isSwapAndSend ? transfer.destinationAmountOutMin : transfer.destinationDeadline
   // Perform transaction
@@ -298,8 +302,11 @@ export const executeBridgeWithdraw = async (
       transfer.amount,
       transferNonce,
       transfer.bonderFee,
-      amountOutMin,
-      deadline,
+      [
+        tokenIndex,
+        amountOutMin,
+        deadline
+      ],
       transferRootHash,
       transfer.amount,
       transferIdTreeIndex,
@@ -820,8 +827,11 @@ export const executeL2BridgeSend = async (
       await transfer.recipient.getAddress(),
       transfer.amount,
       transfer.bonderFee,
-      transfer.amountOutMin,
-      transfer.deadline,
+      [
+        '0',
+        transfer.amountOutMin,
+        transfer.deadline
+      ],
       bonderAddress
     )
 
@@ -902,10 +912,16 @@ export const executeL2AmmWrapperSwapAndSend = async (
       await transfer.recipient.getAddress(),
       transfer.amount,
       transfer.bonderFee,
-      transfer.amountOutMin,
-      transfer.deadline,
-      transfer.destinationAmountOutMin,
-      transfer.destinationDeadline,
+      [
+        '1',
+        transfer.amountOutMin,
+        transfer.deadline
+      ],
+      [
+        transfer.destinationTokenIndex,
+        transfer.destinationAmountOutMin,
+        transfer.destinationDeadline
+      ],
       bonderAddress
     )
 
@@ -979,8 +995,11 @@ export const executeL2AmmWrapperAttemptSwap = async (
     .attemptSwap(
       await recipient.getAddress(),
       amount,
-      amountOutMin,
-      deadline
+      [
+        '1',
+        amountOutMin,
+        deadline
+      ]
     )
 
   // Validate state after transaction
@@ -1151,8 +1170,11 @@ export const executeL2BridgeBondWithdrawalAndDistribute = async (
       transfer.amount,
       transferNonce,
       transfer.bonderFee,
-      transfer.amountOutMin,
-      transfer.deadline
+      [
+        '1',
+        transfer.amountOutMin,
+        transfer.deadline
+      ]
     )
   
   // Validate state after transaction

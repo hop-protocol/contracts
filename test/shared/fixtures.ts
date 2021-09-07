@@ -218,7 +218,7 @@ export async function fixture (
   // Deploy AMM contracts
   const l2_swap = await L2_Swap.deploy()
   await l2_swap.initialize(
-    [l2_canonicalToken.address, l2_hopBridgeToken.address],
+    [l2_hopBridgeToken.address, l2_canonicalToken.address],
     DEFAULT_SWAP_DECIMALS,
     DEFAULT_SWAP_LP_TOKEN_NAME,
     DEFAULT_SWAP_LP_TOKEN_SYMBOL,
@@ -249,7 +249,9 @@ export async function fixture (
     amount: TRANSFER_AMOUNT,
     transferNonce: 0,
     bonderFee: DEFAULT_BONDER_FEE,
+    tokenIndex: BigNumber.from('0'),
     amountOutMin: BigNumber.from('0'),
+    destinationTokenIndex: BigNumber.from('0'),
     destinationAmountOutMin: BigNumber.from('0'),
     destinationDeadline: BigNumber.from('0'),
     amountAfterSwap: BigNumber.from('0'),
@@ -268,6 +270,7 @@ export async function fixture (
       chainId: CHAIN_IDS.OPTIMISM.OPTIMISM_MAINNET,
       sender: user,
       recipient: user,
+      tokenIndex: BigNumber.from('1'),
       deadline: DEFAULT_DEADLINE,
       ...genericTransfer
     }),
@@ -282,6 +285,7 @@ export async function fixture (
       chainId: CHAIN_IDS.OPTIMISM.OPTIMISM_MAINNET,
       sender: user,
       recipient: user,
+      tokenIndex: BigNumber.from('1'),
       deadline: DEFAULT_DEADLINE,
       ...genericTransfer
     })

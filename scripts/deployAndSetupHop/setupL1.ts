@@ -299,8 +299,11 @@ export async function setupL1 (config: Config) {
       l2ChainId,
       await deployer.getAddress(),
       liquidityProviderSendAmount,
-      amountOutMin,
-      deadline,
+      [
+        '1',
+        amountOutMin,
+        deadline
+      ],
       ZERO_ADDRESS,
       relayerFee,
       modifiedGasPrice

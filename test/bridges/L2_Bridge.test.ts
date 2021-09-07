@@ -873,8 +873,11 @@ describe('L2_Bridge', () => {
           .distribute(
             await transfer.recipient.getAddress(),
             transfer.amount,
-            transfer.amountOutMin,
-            transfer.deadline,
+            [
+              '1',
+              transfer.amountOutMin,
+              transfer.deadline
+            ],
             await transfer.recipient.getAddress(),
             transfer.bonderFee
           )
@@ -893,8 +896,11 @@ describe('L2_Bridge', () => {
             transfer.amount,
             ARBITRARY_ROOT_HASH,
             transfer.bonderFee,
-            transfer.amountOutMin,
-            transfer.deadline
+            [
+              '1',
+              transfer.amountOutMin,
+              transfer.deadline
+            ]
           )
       ).to.be.revertedWith(expectedErrorMsg)
     })
@@ -921,8 +927,11 @@ describe('L2_Bridge', () => {
     //         transfer.amount,
     //         ARBITRARY_ROOT_HASH,
     //         transfer.bonderFee,
-    //         transfer.amountOutMin,
-    //         transfer.deadline
+    //         [
+    //           '1',
+    //           transfer.amountOutMin,
+    //           transfer.deadline
+    //         ]
     //       )
     //   ).to.be.reverted
     // })

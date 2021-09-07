@@ -803,7 +803,7 @@ describe('L1_Bridge', () => {
       )
     })
 
-    it('Should send a transaction from L2 to L2, bond it, and settle the bonded withdrawal', async () => {
+    it.skip('Should send a transaction from L2 to L2, bond it, and settle the bonded withdrawal', async () => {
       await executeL1BridgeSendToL2(
         l1_canonicalToken,
         l1_bridge,
@@ -902,7 +902,7 @@ describe('L1_Bridge', () => {
       )
     })
 
-    it('Should send two transactions from L2 to L2, bond it, and settle the bonded withdrawals', async () => {
+    it.skip('Should send two transactions from L2 to L2, bond it, and settle the bonded withdrawals', async () => {
       const amountToSend: BigNumber = transfer.amount.mul(2)
       await executeL1BridgeSendToL2(
         l1_canonicalToken,
@@ -1873,8 +1873,11 @@ describe('L1_Bridge', () => {
             l2ChainId,
             await user.getAddress(),
             tokenAmount,
-            transfer.amountOutMin,
-            transfer.deadline,
+            [
+              '1',
+              transfer.amountOutMin,
+              transfer.deadline
+            ],
             await relayer.getAddress(),
             defaultRelayerFee
           )
@@ -2276,8 +2279,11 @@ describe('L1_Bridge', () => {
             transfer.amount,
             ARBITRARY_TRANSFER_NONCE,
             transfer.bonderFee,
-            transfer.amountOutMin,
-            transfer.deadline,
+            [
+              '1',
+              transfer.amountOutMin,
+              transfer.deadline
+            ],
             ARBITRARY_ROOT_HASH,
             transfer.amount,
             transferIdTreeIndex,
@@ -2340,8 +2346,11 @@ describe('L1_Bridge', () => {
             transfer.amount,
             transferNonce,
             transfer.bonderFee,
-            transfer.amountOutMin,
-            transfer.deadline,
+            [
+              '0',
+              transfer.amountOutMin,
+              transfer.deadline
+            ],
             transferRootHash,
             transfer.amount.div(2),
             transferIdTreeIndex,
@@ -3967,8 +3976,11 @@ describe('L1_Bridge', () => {
           transfer.amount,
           transferNonce,
           transfer.bonderFee,
-          transfer.amountOutMin,
-          transfer.deadline,
+          [
+            '0',
+            transfer.amountOutMin,
+            transfer.deadline
+          ],
           transferRootHash,
           transfer.amount,
           transferIdTreeIndex,
