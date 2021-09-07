@@ -54,6 +54,7 @@ abstract contract L1_Bridge is Bridge {
         uint256 indexed chainId,
         address indexed recipient,
         uint256 amount,
+        uint256 tokenIndex,
         uint256 amountOutMin,
         uint256 deadline,
         address indexed relayer,
@@ -105,17 +106,14 @@ abstract contract L1_Bridge is Bridge {
     /* ========== Send Functions ========== */
 
     /**
-     * @notice `amountOutMin` and `deadline` should be 0 when no swap is intended at the destination.
+     * @notice `swapData` should contain all 0s when no swap is intended at the destination.
      * @notice `amount` is the total amount the user wants to send including the relayer fee
      * @dev Send tokens to a supported layer-2 to mint hToken and optionally swap the hToken in the
      * AMM at the destination.
      * @param chainId The chainId of the destination chain
      * @param recipient The address receiving funds at the destination
      * @param amount The amount being sent
-     * @param amountOutMin The minimum amount received after attempting to swap in the destination
-     * AMM market. 0 if no swap is intended.
-     * @param deadline The deadline for swapping in the destination AMM market. 0 if no
-     * swap is intended.
+     * @param swapData The `tokenIndex`, `amountOutMin`, and `deadline` used for swaps
      * @param relayer The address of the relayer at the destination.
      * @param relayerFee The amount distributed to the relayer at the destination. This is subtracted from the `amount`.
      */
@@ -123,8 +121,7 @@ abstract contract L1_Bridge is Bridge {
         uint256 chainId,
         address recipient,
         uint256 amount,
-        uint256 amountOutMin,
-        uint256 deadline,
+        SwapData calldata swapData,
         address relayer,
         uint256 relayerFee
     )
@@ -151,8 +148,7 @@ abstract contract L1_Bridge is Bridge {
         L2_Bridge(xDomainConnector).distribute(
             recipient,
             amount,
-            amountOutMin,
-            deadline,
+            swapData,
             relayer,
             relayerFee
         );
@@ -161,8 +157,9 @@ abstract contract L1_Bridge is Bridge {
             chainId,
             recipient,
             amount,
-            amountOutMin,
-            deadline,
+            swapData.tokenIndex,
+            swapData.amountOutMin,
+            swapData.deadline,
             relayer,
             relayerFee
         );

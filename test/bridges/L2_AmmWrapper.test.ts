@@ -378,10 +378,16 @@ describe('L2_AmmWrapper', () => {
             await transfer.recipient.getAddress(),
             transfer.amount,
             transfer.bonderFee,
-            transfer.amountOutMin,
-            transfer.deadline,
-            transfer.destinationAmountOutMin,
-            transfer.destinationDeadline,
+            [
+              '1',
+              transfer.amountOutMin,
+              transfer.deadline
+            ],
+            [
+              '1',
+              transfer.destinationAmountOutMin,
+              transfer.destinationDeadline
+            ],
             bonderAddress
           )
       ).to.be.revertedWith(expectedErrorMsg)
@@ -436,8 +442,11 @@ describe('L2_AmmWrapper', () => {
           .attemptSwap(
             await transfer.recipient.getAddress(),
             transfer.amount,
-            transfer.amountOutMin,
-            transfer.deadline
+            [
+              '1',
+              transfer.amountOutMin,
+              transfer.deadline
+            ]
           )
       ).to.be.revertedWith(expectedErrorMsg)
     })

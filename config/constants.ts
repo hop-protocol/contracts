@@ -108,8 +108,8 @@ export const DEFAULT_ETHERS_OVERRIDES: Overrides = {
   gasPrice: 10000000000
 }
 
-export const C_TO_H_SWAP_INDICES: string[] = ['0', '1']
-export const H_TO_C_SWAP_INDICES: string[] = ['1', '0']
+export const C_TO_H_SWAP_INDICES: string[] = ['1', '0']
+export const H_TO_C_SWAP_INDICES: string[] = ['0', '1']
 
 export const DEFAULT_SWAP_DECIMALS: string[] = ['18', '18']
 export const DEFAULT_SWAP_LP_TOKEN_NAME: string = 'Hop DAI LP Token'
