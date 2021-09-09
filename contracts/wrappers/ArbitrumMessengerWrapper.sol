@@ -75,7 +75,7 @@ contract ArbitrumMessengerWrapper is MessengerWrapper {
         IOutbox outbox = IOutbox(arbBridge.activeOutbox());
         address l2ToL1Sender = outbox.l2ToL1Sender();
 
-        require(l1BridgeCaller == address(outbox), "ARB_MSG_WPR: Caller is not outbox");
+        require(l1BridgeCaller == address(arbBridge), "ARB_MSG_WPR: Caller is not the bridge");
         require(l2ToL1Sender == l2BridgeAddress, "ARB_MSG_WPR: Invalid cross-domain sender");
     }
 
