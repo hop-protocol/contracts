@@ -15,5 +15,5 @@ contract mockArbitrum_Inbox {
         uint256 maxGas,
         uint256 gasPriceBid,
         bytes calldata data
-    ) external {}
+    ) external payable {}
 }

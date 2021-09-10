@@ -79,9 +79,10 @@ export const executeCanonicalMessengerSendMessage = async (
     const callValue: BigNumber = BigNumber.from('0')
     const excessFeeRefundAddress: string = await sender.getAddress()
     const callValueRefundAddress: string = await sender.getAddress()
-    const maxSubmissionCost: BigNumber = DEFAULT_MAX_SUBMISSION_COST
-    const maxGas: BigNumber = BigNumber.from(DEFAULT_MAX_GAS)
-    const gasPriceBid: BigNumber = BigNumber.from(DEFAULT_GAS_PRICE_BID)
+    // Governance updates don't need high values
+    const maxSubmissionCost: BigNumber = ethersUtils.parseEther('0.0001')
+    const maxGas: BigNumber = BigNumber.from('1000000')
+    const gasPriceBid: BigNumber = BigNumber.from('5000000000')
     const data: string = message
     const arbitrumParams: any[] = [
       destinationAddress,
@@ -94,10 +95,10 @@ export const executeCanonicalMessengerSendMessage = async (
       data
     ]
     const value: BigNumber = ethersUtils.parseEther('0.01')
-    const opts = {
+    const overrides = {
       value
     }
-    tx = await l1_messenger.connect(sender).createRetryableTicket(...arbitrumParams, opts)
+    tx = await l1_messenger.connect(sender).createRetryableTicket(...arbitrumParams, overrides)
   } else if (isChainIdOptimism(l2ChainId)) {
     const optimismGasLimit: BigNumber = BigNumber.from('5000000')
     const optimismParams: any[] = [l2_bridge.address, message, optimismGasLimit]
