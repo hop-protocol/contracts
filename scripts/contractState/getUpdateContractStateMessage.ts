@@ -53,10 +53,19 @@ async function main () {
 
   console.log('------------')
   console.log('Message data:', messageToSend)
-  console.log('Address to call is the `l1_messenger` on all networks except Polygon/Mumbai where it is `l1_messengerWrapper`')
   console.log('See executeCanonicalMessengerSendMessage() for additional params')
+  console.log('Address to call is the `l1_messenger` on all networks except Polygon/Mumbai where it is `l1_messengerWrapper`')
+  console.log('Polygon is the L1 Messenger Wrapper')
   console.log('xDai messenger is labeled l1Amb in the addresses package')
   console.log('Optimism messenger is the Proxy__OVM_L1CrossDomainMessenger in their addresses repository')
+  console.log('Arbitrum messenger is their inbox')
+
+  console.log('------------')
+  console.log('Mainnet Values')
+  console.log('Poly: <messenger wrapper>, sendCrossDomainMessage(data)')
+  console.log('xDai: 0x4C36d2919e407f0Cc2Ee3c993ccF8ac26d9CE64e, requireToPassMessage(l2Bridge, data, 1500000)')
+  console.log('Opt: 0x25ace71c97B33Cc4729CF772ae268934F7ab5fA1, sendMessage(l2Bridge, data, 5000000)')
+  console.log('Arb: 0x4Dbd4fc535Ac27206064B68FfCf827b0A60BAB3f, createRetryableTicket(see executeCanonicalMessengerSendMessage for params)')
 }
 
 const getPromptRes = async() => {
