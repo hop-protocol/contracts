@@ -80,7 +80,7 @@ contract OptimismMessengerWrapper is MessengerWrapper, Ownable {
 
     // source: https://github.com/GNSPS/solidity-bytes-utils/blob/master/contracts/BytesLib.sol
     function toUint32(bytes memory _bytes, uint256 _start) private pure returns (uint32) {
-        require(_bytes.length >= _start + 4, "OVM_MSG_WPR: out 0f bounds");
+        require(_bytes.length >= _start + 4, "OVM_MSG_WPR: out of bounds");
         uint32 tempUint;
 
         assembly {
