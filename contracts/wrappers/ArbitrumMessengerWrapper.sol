@@ -4,6 +4,7 @@
 pragma solidity 0.6.12;
 pragma experimental ABIEncoderV2;
 
+import "@openzeppelin/contracts/access/Ownable.sol";
 import "../interfaces/arbitrum/messengers/IInbox.sol";
 import "../interfaces/arbitrum/messengers/IBridge.sol";
 import "../interfaces/arbitrum/messengers/IOutbox.sol";
@@ -14,12 +15,7 @@ import "./MessengerWrapper.sol";
  * @notice Deployed on layer-1
  */
 
-contract ArbitrumMessengerWrapper is MessengerWrapper {
-
-    modifier onlyGovernance {
-        require(governance == msg.sender, "ARB_MSG_WPR: Caller is not governance");
-        _;
-    }
+contract ArbitrumMessengerWrapper is MessengerWrapper, Ownable {
 
     IInbox public immutable l1MessengerAddress;
     address public l2BridgeAddress;
@@ -27,7 +23,6 @@ contract ArbitrumMessengerWrapper is MessengerWrapper {
     address public l1MessengerWrapperAlias;
     uint256 public maxGas;
     uint256 public gasPriceBid;
-    address public governance;
     uint160 constant offset = uint160(0x1111000000000000000000000000000000001111);
 
     constructor(
@@ -36,8 +31,7 @@ contract ArbitrumMessengerWrapper is MessengerWrapper {
         IInbox _l1MessengerAddress,
         uint256 _maxSubmissionCost,
         uint256 _maxGas,
-        uint256 _gasPriceBid,
-        address _governance
+        uint256 _gasPriceBid
         
     )
         public
@@ -49,7 +43,6 @@ contract ArbitrumMessengerWrapper is MessengerWrapper {
         l1MessengerWrapperAlias = applyL1ToL2Alias(address(this));
         maxGas = _maxGas;
         gasPriceBid = _gasPriceBid;
-        governance = _governance;
     }
 
     /** 
@@ -91,7 +84,7 @@ contract ArbitrumMessengerWrapper is MessengerWrapper {
         uint256 _gasPriceBid
     )
         public
-        onlyGovernance
+        onlyOwner
     {
         l1MessengerAddress.createRetryableTicket(
             _recipient,
@@ -115,23 +108,19 @@ contract ArbitrumMessengerWrapper is MessengerWrapper {
 
     /* ========== External Config Management Functions ========== */
 
-    function setMaxSubmissionCost(uint256 _newMaxSubmissionCost) external onlyGovernance {
+    function setMaxSubmissionCost(uint256 _newMaxSubmissionCost) external onlyOwner {
         maxSubmissionCost = _newMaxSubmissionCost;
     }
 
-    function setL1MessengerWrapperAlias(address _newL1MessengerWrapperAlias) external onlyGovernance {
+    function setL1MessengerWrapperAlias(address _newL1MessengerWrapperAlias) external onlyOwner {
         l1MessengerWrapperAlias = _newL1MessengerWrapperAlias;
     }
 
-    function setMaxGas(uint256 _newMaxGas) external onlyGovernance {
+    function setMaxGas(uint256 _newMaxGas) external onlyOwner {
         maxGas = _newMaxGas;
     }
 
-    function setGasPriceBid(uint256 _newGasPriceBid) external onlyGovernance {
+    function setGasPriceBid(uint256 _newGasPriceBid) external onlyOwner {
         gasPriceBid = _newGasPriceBid;
-    }
-
-    function setGovernance(address _newGovernance) external onlyGovernance {
-        governance = _newGovernance;
     }
 }

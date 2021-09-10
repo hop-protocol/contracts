@@ -151,8 +151,7 @@ export async function setupL1 (config: Config) {
     l1_bridge.address,
     l2_bridge.address,
     l1_messenger?.address || '0x',
-    fxChildTunnelAddress,
-    await governance.getAddress()
+    fxChildTunnelAddress
   )
 
   logger.log('deploying L1 messenger wrapper')
