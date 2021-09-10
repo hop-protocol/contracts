@@ -3,6 +3,7 @@
 pragma solidity 0.6.12;
 pragma experimental ABIEncoderV2;
 
+import "@openzeppelin/contracts/access/Ownable.sol";
 import "../interfaces/optimism/messengers/iOVM_L1CrossDomainMessenger.sol";
 import "./MessengerWrapper.sol";
 
@@ -11,24 +12,24 @@ import "./MessengerWrapper.sol";
  * @notice Deployed on layer-1
  */
 
-contract OptimismMessengerWrapper is MessengerWrapper {
+contract OptimismMessengerWrapper is MessengerWrapper, Ownable {
 
     iOVM_L1CrossDomainMessenger public immutable l1MessengerAddress;
     address public immutable l2BridgeAddress;
-    uint256 public immutable defaultGasLimit;
+    uint256 public l2GasLimit;
 
     constructor(
         address _l1BridgeAddress,
         address _l2BridgeAddress,
         iOVM_L1CrossDomainMessenger _l1MessengerAddress,
-        uint256 _defaultGasLimit
+        uint256 _l2GasLimit
     )
         public
         MessengerWrapper(_l1BridgeAddress)
     {
         l2BridgeAddress = _l2BridgeAddress;
         l1MessengerAddress = _l1MessengerAddress;
-        defaultGasLimit = _defaultGasLimit;
+        l2GasLimit = _l2GasLimit;
     }
 
     /** 
@@ -39,7 +40,7 @@ contract OptimismMessengerWrapper is MessengerWrapper {
         l1MessengerAddress.sendMessage(
             l2BridgeAddress,
             _calldata,
-            uint32(defaultGasLimit)
+            uint32(l2GasLimit)
         );
     }
 
@@ -47,5 +48,9 @@ contract OptimismMessengerWrapper is MessengerWrapper {
         require(l1BridgeCaller == address(l1MessengerAddress), "OVM_MSG_WPR: Caller is not l1MessengerAddress");
         // Verify that cross-domain sender is l2BridgeAddress
         require(l1MessengerAddress.xDomainMessageSender() == l2BridgeAddress, "OVM_MSG_WPR: Invalid cross-domain sender");
+    }
+
+    function setL2GasLimit(uint256 _l2GasLimit) external onlyOwner {
+        l2GasLimit = _l2GasLimit;
     }
 }
