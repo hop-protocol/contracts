@@ -93,7 +93,11 @@ export const executeCanonicalMessengerSendMessage = async (
       gasPriceBid,
       data
     ]
-    tx = await l1_messenger.connect(sender).createRetryableTicket(...arbitrumParams)
+    const value: BigNumber = ethersUtils.parseEther('0.01')
+    const opts = {
+      value
+    }
+    tx = await l1_messenger.connect(sender).createRetryableTicket(...arbitrumParams, opts)
   } else if (isChainIdOptimism(l2ChainId)) {
     const optimismGasLimit: BigNumber = BigNumber.from('5000000')
     const optimismParams: any[] = [l2_bridge.address, message, optimismGasLimit]
