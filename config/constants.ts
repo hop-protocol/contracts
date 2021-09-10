@@ -35,6 +35,12 @@ const CHAIN_IDS_TO_ACTIVATE: any = {
   },
   POLYGON: {
     POLYGON: BigNumber.from('137')
+  },
+  OPTIMISM: {
+    OPTIMISM_MAINNET: BigNumber.from('10')
+  },
+  ARBITRUM: {
+    ARBITRUM_MAINNET: BigNumber.from('42161')
   }
 }
 
@@ -58,9 +64,9 @@ export const DEFAULT_MESSENGER_WRAPPER_GAS_LIMIT: number = 8000000
 export const DEFAULT_MESSENGER_WRAPPER_GAS_PRICE: number = 0
 export const DEFAULT_MESSENGER_WRAPPER_CALL_VALUE: number = 0
 
-export const DEFAULT_MAX_SUBMISSION_COST: number = 61980393341
-export const DEFAULT_MAX_GAS: number = 10000000
-export const DEFAULT_GAS_PRICE_BID: number = 10000000000
+export const DEFAULT_MAX_SUBMISSION_COST: BigNumber = BigNumber.from('10000000000000000')
+export const DEFAULT_MAX_GAS: number = 5000000
+export const DEFAULT_GAS_PRICE_BID: number = 100000000000
 
 export const DEFAULT_AMOUNT_OUT_MIN: number = 0
 export const DEFAULT_DEADLINE: BigNumber = BigNumber.from('9999999999')

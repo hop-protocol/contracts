@@ -40,7 +40,7 @@ export const getMessengerWrapperDefaults = (
   ]
 
   if (isChainIdArbitrum(l2ChainId)) {
-    const maxSubmissionCost: number = DEFAULT_MAX_SUBMISSION_COST
+    const maxSubmissionCost: BigNumber = DEFAULT_MAX_SUBMISSION_COST
     const maxGas: number = DEFAULT_MAX_GAS
     const gasPriceBid: number = DEFAULT_GAS_PRICE_BID
     const governance: string = governanceAddress

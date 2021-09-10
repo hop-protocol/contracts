@@ -28,7 +28,10 @@ import {
   TIMESTAMP_VARIANCE,
   DEAD_ADDRESS,
   H_TO_C_SWAP_INDICES,
-  C_TO_H_SWAP_INDICES
+  C_TO_H_SWAP_INDICES,
+  DEFAULT_MAX_GAS,
+  DEFAULT_GAS_PRICE_BID,
+  DEFAULT_MAX_SUBMISSION_COST
 } from '../../config/constants'
 
 /**
@@ -72,14 +75,13 @@ export const executeCanonicalMessengerSendMessage = async (
   modifiedGasPrice = modifiedGasPrice || {}
 
   if (isChainIdArbitrum(l2ChainId)) {
-    const senderAddressAlias: string = generateArbitrumAliasAddress(await sender.getAddress())
     const destinationAddress: string = l2_bridge.address
     const callValue: BigNumber = BigNumber.from('0')
-    const excessFeeRefundAddress: string = senderAddressAlias
-    const callValueRefundAddress: string = senderAddressAlias
-    const maxSubmissionCost: BigNumber = BigNumber.from('61980393341')
-    const maxGas: BigNumber = BigNumber.from('20000000')
-    const gasPriceBid: BigNumber = BigNumber.from('559047150')
+    const excessFeeRefundAddress: string = await sender.getAddress()
+    const callValueRefundAddress: string = await sender.getAddress()
+    const maxSubmissionCost: BigNumber = DEFAULT_MAX_SUBMISSION_COST
+    const maxGas: BigNumber = BigNumber.from(DEFAULT_MAX_GAS)
+    const gasPriceBid: BigNumber = BigNumber.from(DEFAULT_GAS_PRICE_BID)
     const data: string = message
     const arbitrumParams: any[] = [
       destinationAddress,
