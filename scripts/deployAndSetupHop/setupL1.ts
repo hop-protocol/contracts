@@ -183,6 +183,23 @@ export async function setupL1 (config: Config) {
       )
   }
 
+  if (isChainIdOptimism(l2ChainId)) {
+    logger.log('setting custom L2 gasLimit for signature')
+    // setTransferRoot(bytes32,uint256)	 = 0xfd31c5ba
+    const setTransferRootSig = '0xfd31c5ba'
+    const setTransferRootGas = 1000000
+    let setL2GasLimitForSignatureParams: any[] = [setTransferRootGas, setTransferRootSig]
+    modifiedGasPrice = await getModifiedGasPrice(ethers, l1ChainId)
+    const tx = await l1_messengerWrapper.setL2GasLimitForSignature(
+      ...setL2GasLimitForSignatureParams,
+      modifiedGasPrice
+    )
+    await tx.wait()
+    await waitAfterTransaction()
+  }
+
+  logger.log('messengerWrapperAddress', l1_messengerWrapper.address)
+
   if (isChainIdArbitrum(l2ChainId) || isChainIdOptimism(l2ChainId)) {
     // Transfer ownership of the Hop Bridge Token to the L2 Bridge
     logger.log('transferring ownership of L1 messenger wrapper')
