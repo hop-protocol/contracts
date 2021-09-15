@@ -26,7 +26,6 @@ export const getMessengerWrapperDefaults = (
   l2BridgeAddress: string,
   l1MessengerAddress: string,
   fxChildTunnelAddress: string,
-  governanceAddress: string,
   fxRootAddress: string = undefined
 ): any[] => {
   // Ending data to return
@@ -40,16 +39,14 @@ export const getMessengerWrapperDefaults = (
   ]
 
   if (isChainIdArbitrum(l2ChainId)) {
-    const maxSubmissionCost: number = DEFAULT_MAX_SUBMISSION_COST
+    const maxSubmissionCost: BigNumber = DEFAULT_MAX_SUBMISSION_COST
     const maxGas: number = DEFAULT_MAX_GAS
     const gasPriceBid: number = DEFAULT_GAS_PRICE_BID
-    const governance: string = governanceAddress
     data.push(
       ...defaults,
        maxSubmissionCost,
        maxGas,
-       gasPriceBid,
-       governance
+       gasPriceBid
     )
   } else if (isChainIdOptimism(l2ChainId)) {
     const gasLimit: number = DEFAULT_MESSENGER_WRAPPER_GAS_LIMIT

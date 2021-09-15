@@ -24,6 +24,7 @@ import {
 import {
   isChainIdMainnet,
   isChainIdPolygon,
+  isChainIdOptimism,
   isChainIdArbitrum,
 } from '../../config/utils'
 
@@ -151,8 +152,7 @@ export async function setupL1 (config: Config) {
     l1_bridge.address,
     l2_bridge.address,
     l1_messenger?.address || '0x',
-    fxChildTunnelAddress,
-    await governance.getAddress()
+    fxChildTunnelAddress
   )
 
   logger.log('deploying L1 messenger wrapper')
@@ -181,6 +181,19 @@ export async function setupL1 (config: Config) {
         `in order to complete the token send across the bridge.`,
         `-------------------`
       )
+  }
+
+  if (isChainIdArbitrum(l2ChainId) || isChainIdOptimism(l2ChainId)) {
+    // Transfer ownership of the Hop Bridge Token to the L2 Bridge
+    logger.log('transferring ownership of L1 messenger wrapper')
+    let transferOwnershipParams: any[] = [await governance.getAddress()]
+    modifiedGasPrice = await getModifiedGasPrice(ethers, l1ChainId)
+    const tx = await l1_messengerWrapper.transferOwnership(
+      ...transferOwnershipParams,
+      modifiedGasPrice
+    )
+    await tx.wait()
+    await waitAfterTransaction()
   }
 
   /**

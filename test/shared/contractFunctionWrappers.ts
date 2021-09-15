@@ -28,7 +28,10 @@ import {
   TIMESTAMP_VARIANCE,
   DEAD_ADDRESS,
   H_TO_C_SWAP_INDICES,
-  C_TO_H_SWAP_INDICES
+  C_TO_H_SWAP_INDICES,
+  DEFAULT_MAX_GAS,
+  DEFAULT_GAS_PRICE_BID,
+  DEFAULT_MAX_SUBMISSION_COST
 } from '../../config/constants'
 
 /**
@@ -72,14 +75,14 @@ export const executeCanonicalMessengerSendMessage = async (
   modifiedGasPrice = modifiedGasPrice || {}
 
   if (isChainIdArbitrum(l2ChainId)) {
-    const senderAddressAlias: string = generateArbitrumAliasAddress(await sender.getAddress())
     const destinationAddress: string = l2_bridge.address
     const callValue: BigNumber = BigNumber.from('0')
-    const excessFeeRefundAddress: string = senderAddressAlias
-    const callValueRefundAddress: string = senderAddressAlias
-    const maxSubmissionCost: BigNumber = BigNumber.from('61980393341')
-    const maxGas: BigNumber = BigNumber.from('20000000')
-    const gasPriceBid: BigNumber = BigNumber.from('559047150')
+    const excessFeeRefundAddress: string = await sender.getAddress()
+    const callValueRefundAddress: string = await sender.getAddress()
+    // Governance updates don't need high values
+    const maxSubmissionCost: BigNumber = ethersUtils.parseEther('0.0001')
+    const maxGas: BigNumber = BigNumber.from('1000000')
+    const gasPriceBid: BigNumber = BigNumber.from('5000000000')
     const data: string = message
     const arbitrumParams: any[] = [
       destinationAddress,
@@ -91,7 +94,11 @@ export const executeCanonicalMessengerSendMessage = async (
       gasPriceBid,
       data
     ]
-    tx = await l1_messenger.connect(sender).createRetryableTicket(...arbitrumParams)
+    const value: BigNumber = ethersUtils.parseEther('0.01')
+    const overrides = {
+      value
+    }
+    tx = await l1_messenger.connect(sender).createRetryableTicket(...arbitrumParams, overrides)
   } else if (isChainIdOptimism(l2ChainId)) {
     const optimismGasLimit: BigNumber = BigNumber.from('5000000')
     const optimismParams: any[] = [l2_bridge.address, message, optimismGasLimit]
