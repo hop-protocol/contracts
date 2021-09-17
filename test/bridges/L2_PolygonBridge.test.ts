@@ -191,7 +191,7 @@ describe('L2_Polygon_Bridge', () => {
     expect(isBonder).to.eq(true)
 
     for (let i = 0; i < ALL_SUPPORTED_CHAIN_IDS.length; i++) {
-      const chainId: string = ALL_SUPPORTED_CHAIN_IDS[i]
+      const chainId: BigNumber = ALL_SUPPORTED_CHAIN_IDS[i]
       const isChainIdSupported = await l2_bridge.activeChainIds(
         chainId
       )

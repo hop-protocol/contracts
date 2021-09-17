@@ -5,13 +5,15 @@ import { Contract, BigNumber } from 'ethers'
 import { fixture } from '../shared/fixtures'
 import { setUpDefaults } from '../shared/utils'
 import { IFixture } from '../shared/interfaces'
+import {
+  generateArbitrumAliasAddress
+} from '../../config/utils'
 
 import {
   CHAIN_IDS,
-  DEFAULT_MESSENGER_WRAPPER_GAS_LIMIT,
-  DEFAULT_MESSENGER_WRAPPER_GAS_PRICE,
-  DEFAULT_MESSENGER_WRAPPER_CALL_VALUE,
-  ZERO_ADDRESS
+  DEFAULT_MAX_SUBMISSION_COST,
+  DEFAULT_MAX_GAS,
+  DEFAULT_GAS_PRICE_BID
 } from '../../config/constants'
 
 export const MAX_NUM_SENDS_BEFORE_COMMIT = 10
@@ -44,22 +46,25 @@ describe('Arbitrum Messenger Wrapper', () => {
     const expectedL1BridgeAddress: string = l1_bridge.address
     const expectedL2BridgeAddress: string = l2_bridge.address
     const expectedArbInbox: string = l1_messenger.address
-    const expectedDefaultGasLimit: number = DEFAULT_MESSENGER_WRAPPER_GAS_LIMIT
-    const expectedDefaultGasPrice: number = DEFAULT_MESSENGER_WRAPPER_GAS_PRICE
-    const expectedDefaultCallValue: number = DEFAULT_MESSENGER_WRAPPER_CALL_VALUE
+    const expectedMaxSubmissionCost: BigNumber = DEFAULT_MAX_SUBMISSION_COST
+    const expectedL1MessengerWrapperAlias: string = generateArbitrumAliasAddress(l1_messengerWrapper.address)
+    const expectedMaxGas: number = DEFAULT_MAX_GAS
+    const expectedGasPriceBid: number = DEFAULT_GAS_PRICE_BID
 
     const l1BridgeAddress: string = await l1_messengerWrapper.l1BridgeAddress()
     const l2BridgeAddress: string = await l1_messengerWrapper.l2BridgeAddress()
     const arbInbox: string = await l1_messengerWrapper.arbInbox()
-    const defaultGasLimit: number = await l1_messengerWrapper.defaultGasLimit()
-    const defaultGasPrice: string = await l1_messengerWrapper.defaultGasPrice()
-    const defaultCallValue: string = await l1_messengerWrapper.defaultCallValue()
+    const maxSubmissionCost: number = await l1_messengerWrapper.maxSubmissionCost()
+    const l1MessengerWrapperAlias: string = await l1_messengerWrapper.l1MessengerWrapperAlias()
+    const maxGas: number = await l1_messengerWrapper.maxGas()
+    const gasPriceBid: number = await l1_messengerWrapper.gasPriceBid()
 
     expect(expectedL1BridgeAddress).to.eq(l1BridgeAddress)
     expect(expectedL2BridgeAddress).to.eq(l2BridgeAddress)
-    expect(expectedDefaultGasLimit).to.eq(defaultGasLimit)
     expect(expectedArbInbox).to.eq(arbInbox)
-    expect(expectedDefaultGasPrice).to.eq(defaultGasPrice)
-    expect(expectedDefaultCallValue).to.eq(defaultCallValue)
+    expect(expectedMaxSubmissionCost).to.eq(maxSubmissionCost)
+    expect(expectedL1MessengerWrapperAlias).to.eq(l1MessengerWrapperAlias)
+    expect(expectedMaxGas).to.eq(maxGas)
+    expect(expectedGasPriceBid).to.eq(gasPriceBid)
   })
 })

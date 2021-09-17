@@ -87,7 +87,7 @@ export const getL2BridgeDefaults = (
   governanceAddress: string,
   l2HopBridgeTokenAddress: string,
   l1BridgeAddress: string,
-  activeChainIds: string[],
+  activeChainIds: BigNumber[],
   bonderAddresses: string[],
   l1ChainId: BigNumber
 ): IGetL2BridgeDefaults[] => {
