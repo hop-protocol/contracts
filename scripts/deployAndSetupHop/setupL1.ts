@@ -201,7 +201,7 @@ export async function setupL1 (config: Config) {
   logger.log('messengerWrapperAddress', l1_messengerWrapper.address)
 
   if (isChainIdArbitrum(l2ChainId) || isChainIdOptimism(l2ChainId)) {
-    // Transfer ownership of the Hop Bridge Token to the L2 Bridge
+    // Transfer ownership of the messenger wrapper to governance
     logger.log('transferring ownership of L1 messenger wrapper')
     let transferOwnershipParams: any[] = [await governance.getAddress()]
     modifiedGasPrice = await getModifiedGasPrice(ethers, l1ChainId)
