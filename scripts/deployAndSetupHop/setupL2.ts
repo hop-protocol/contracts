@@ -15,13 +15,12 @@ import {
 import {
   isChainIdArbitrum,
   isChainIdPolygon,
-  doesChainIdNeedToEstimateGas
+  getTxOverridesPerChain
 } from '../../config/utils'
 
 import {
   DEFAULT_DEADLINE,
   ZERO_ADDRESS,
-  DEFAULT_ETHERS_OVERRIDES,
   ALL_SUPPORTED_CHAIN_IDS
 } from '../../config/constants'
 
@@ -113,9 +112,7 @@ export async function setupL2 (config: Config) {
   l2_bridge = L2_Bridge.attach(l2BridgeAddress)
   l2_swap = L2_Swap.attach(l2SwapAddress)
 
-  if (doesChainIdNeedToEstimateGas(l2ChainId)) {
-    overrides = DEFAULT_ETHERS_OVERRIDES
-  }
+  overrides = getTxOverridesPerChain(l2ChainId)
 
   /**
    * Setup
@@ -140,13 +137,11 @@ export async function setupL2 (config: Config) {
 
   // Set up Amm
   if (l2CanonicalTokenIsEth) {
-    const gasLimit = DEFAULT_ETHERS_OVERRIDES.gasLimit
-    const gasPrice = DEFAULT_ETHERS_OVERRIDES.gasPrice
     const depositTx = {
       to: l2_canonicalToken.address,
       value: liquidityProviderAmmAmount,
-      gasLimit,
-      gasPrice
+      gasLimit: overrides.gasLimit,
+      gasPrice: overrides.gasPrice
     }
     tx = await deployer.sendTransaction(depositTx)
     await tx.wait()

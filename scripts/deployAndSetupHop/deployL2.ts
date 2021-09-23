@@ -21,13 +21,12 @@ import {
 import {
   isChainIdPolygon,
   getPolygonFxChildAddress,
-  getL2BridgeDefaults,
-  doesChainIdNeedToEstimateGas
+  getTxOverridesPerChain,
+  getL2BridgeDefaults
 } from '../../config/utils'
 
 import {
   CHAIN_IDS,
-  DEFAULT_ETHERS_OVERRIDES,
   DEFAULT_SWAP_A,
   DEFAULT_SWAP_FEE,
   DEFAULT_SWAP_ADMIN_FEE,
@@ -137,9 +136,7 @@ export async function deployL2 (config: Config) {
   l2_canonicalToken = L2_MockERC20.attach(l2CanonicalTokenAddress)
 
 
-  if (!doesChainIdNeedToEstimateGas(l2ChainId)) {
-    overrides = DEFAULT_ETHERS_OVERRIDES
-  }
+  overrides = getTxOverridesPerChain(l2ChainId)
 
   /**
    * Deployments

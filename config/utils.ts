@@ -15,9 +15,11 @@ import {
   DEFAULT_MAX_GAS,
   DEFAULT_GAS_PRICE_BID
 } from './constants'
-import {
-  goerliNetworkData
-} from './networks/index'
+
+export interface Overrides {
+  gasLimit?: number
+  gasPrice?: number
+}
 
 export const getMessengerWrapperDefaults = (
   l1ChainId: BigNumber,
@@ -278,6 +280,20 @@ export const generateArbitrumAliasAddress = (address: string): string => {
   return ((addressBn.add(aliasMaskBn)).mod(boundary)).toHexString()
 }
 
-export const doesChainIdNeedToEstimateGas = (l2ChainId: BigNumber): boolean => {
-  return isChainIdPolygon(l2ChainId) || isChainIdArbitrum(l2ChainId)
+export const getTxOverridesPerChain = (l2ChainId: BigNumber): Overrides => {
+  // xDai and Optimism will deploy as expected with the default estimations
+  // Polygon & Arbitrum's gasPrice and gasLimit estimators should be bumped
+  if (isChainIdXDai(l2ChainId) || isChainIdOptimism(l2ChainId)) {
+    return {}
+  } else if (isChainIdPolygon(l2ChainId)) {
+    return {
+      gasLimit: 4_500_000,
+      gasPrice: 10_000_000_000
+    }
+  } else if (isChainIdArbitrum(l2ChainId)) {
+    return {
+      gasLimit: 20_000_000,
+      gasPrice: 10_000_000_000
+    }
+  }
 }
