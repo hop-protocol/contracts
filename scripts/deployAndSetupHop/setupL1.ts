@@ -257,6 +257,7 @@ export async function setupL1 (config: Config) {
   await waitAfterTransaction()
 
   let addActiveChainIdsParams: any[] = ALL_SUPPORTED_CHAIN_IDS
+  addActiveChainIdsParams = addActiveChainIdsParams.filter(chainId => chainId.toString() !== l2ChainId.toString())
   message = getAddActiveChainIdsMessage(addActiveChainIdsParams)
 
   logger.log('setting supported chain IDs on L2 bridge')
