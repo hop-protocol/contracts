@@ -9,7 +9,6 @@ import {
   updateConfigFile,
   waitAfterTransaction,
   wait,
-  doesNeedExplicitGasLimit,
   Logger
 } from '../shared/utils'
 import {
@@ -152,21 +151,18 @@ export async function setupL2 (config: Config) {
     l2_swap.address,
     liquidityProviderAmmAmount
   ]
-  if (doesNeedExplicitGasLimit(l2ChainId)) {
-    approvalParams.push(overrides)
-  }
 
   logger.log('approving L2 canonical token')
   tx = await l2_canonicalToken
     .connect(deployer)
-    .approve(...approvalParams)
+    .approve(...approvalParams, overrides)
   await tx.wait()
   await waitAfterTransaction()
 
   logger.log('approving L2 hop bridge token')
   tx = await l2_hopBridgeToken
     .connect(deployer)
-    .approve(...approvalParams)
+    .approve(...approvalParams, overrides)
   await tx.wait()
   await waitAfterTransaction()
 
@@ -175,16 +171,11 @@ export async function setupL2 (config: Config) {
     '0',
     DEFAULT_DEADLINE
   ]
-  if (doesNeedExplicitGasLimit(l2ChainId)) {
-    addLiquidityParams.push(overrides)
-  } else if (isChainIdArbitrum(l2ChainId)) {
-    addLiquidityParams.push({ gasLimit: 100000000 })
-  }
 
   logger.log('adding liquidity to L2 amm')
   tx = await l2_swap
     .connect(deployer)
-    .addLiquidity(...addLiquidityParams)
+    .addLiquidity(...addLiquidityParams, overrides)
   await tx.wait()
   await waitAfterTransaction()
 
@@ -202,14 +193,11 @@ export async function setupL2 (config: Config) {
     l2_swap.address,
     lpTokenAmount
   ]
-  if (doesNeedExplicitGasLimit(l2ChainId)) {
-    approvalParams.push(overrides)
-  }
 
   logger.log('approving L2 Swap LP token')
   tx = await lpToken
     .connect(deployer)
-    .approve(...approvalParams)
+    .approve(...approvalParams, overrides)
   await tx.wait()
   await waitAfterTransaction()
 
@@ -218,16 +206,11 @@ export async function setupL2 (config: Config) {
     ['0', '0'],
     DEFAULT_DEADLINE
   ]
-  if (doesNeedExplicitGasLimit(l2ChainId)) {
-    removeLiquidityParams.push(overrides)
-  } else if (isChainIdArbitrum(l2ChainId)) {
-    removeLiquidityParams.push({ gasLimit: 100000000 })
-  }
 
   logger.log('removing liquidity from L2 amm')
   tx = await l2_swap
     .connect(deployer)
-    .removeLiquidity(...removeLiquidityParams)
+    .removeLiquidity(...removeLiquidityParams, overrides)
   await tx.wait()
   await waitAfterTransaction()
 

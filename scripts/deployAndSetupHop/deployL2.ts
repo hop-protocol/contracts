@@ -14,7 +14,6 @@ import {
   updateConfigFile,
   readConfigFile,
   waitAfterTransaction,
-  doesNeedExplicitGasLimit,
   Logger
 } from '../shared/utils'
 
@@ -201,12 +200,9 @@ export async function deployL2 (config: Config) {
 
   // Transfer ownership of the Hop Bridge Token to the L2 Bridge
   let transferOwnershipParams: any[] = [l2_bridge.address]
-  if (doesNeedExplicitGasLimit(l2ChainId)) {
-    transferOwnershipParams.push(overrides)
-  }
 
   logger.log('transferring ownership of L2 hop bridge token')
-  tx = await l2_hopBridgeToken.transferOwnership(...transferOwnershipParams)
+  tx = await l2_hopBridgeToken.transferOwnership(...transferOwnershipParams, overrides)
   await tx.wait()
   await waitAfterTransaction()
 
@@ -266,12 +262,8 @@ const deployAmm = async (
 
   let decimalParams: any[] = []
 
-  if (doesNeedExplicitGasLimit(l2ChainId)) {
-    decimalParams.push(overrides)
-  }
-
-  const l2CanonicalTokenDecimals = await l2_canonicalToken.decimals(...decimalParams)
-  const l2HopBridgeTokenDecimals = await l2_hopBridgeToken.decimals(...decimalParams)
+  const l2CanonicalTokenDecimals = await l2_canonicalToken.decimals(...decimalParams, overrides)
+  const l2HopBridgeTokenDecimals = await l2_hopBridgeToken.decimals(...decimalParams, overrides)
 
   // Deploy AMM contracts
   logger.log('Deploying L2 Swap Libs')
@@ -291,13 +283,9 @@ const deployAmm = async (
     DEFAULT_SWAP_WITHDRAWAL_FEE
   ]
 
-  if (doesNeedExplicitGasLimit(l2ChainId)) {
-    initializeParams.push(overrides)
-  }
-
   logger.log('Initializing Swap')
   logger.log('IMPORTANT: If this does not work on Optimism, l2_swap needs to be whitelisted.')
-  const tx = await l2_swap.initialize(...initializeParams)
+  const tx = await l2_swap.initialize(...initializeParams, overrides)
   await tx.wait()
   await waitAfterTransaction()
 

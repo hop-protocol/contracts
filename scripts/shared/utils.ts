@@ -333,13 +333,6 @@ export const getL1ChainIdFromNetworkName = (networkName: string): BigNumber => {
   return CHAIN_IDS.ETHEREUM[networkName.toUpperCase()]
 }
 
-export const doesNeedExplicitGasLimit = (chainId: BigNumber): Boolean => {
-  if (isChainIdXDai(chainId) || isChainIdPolygon(chainId)) {
-    return true
-  }
-  return false
-}
-
 export const getTokenSymbolLetterCase = (tokenSymbol: string): string => {
   tokenSymbol = tokenSymbol.toLowerCase()
 
