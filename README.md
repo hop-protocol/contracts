@@ -23,7 +23,7 @@ Transfers can be challenged by anyone. Challenges require a challenger to put up
 
 #### Bridges
 
-**[Accounting.sol](https://github.com/hop-exchange/contracts/blob/master/contracts/bridges/Accounting.sol)** - Abstract contract that is responsible for the accounting of the layer-1 and layer-2 bridges. A bonder can stake or unstake their funds using functions in this contract. All credits and debits are accounted accounted for and updated in this contract.
+**[Accounting.sol](https://github.com/hop-exchange/contracts/blob/master/contracts/bridges/Accounting.sol)** - Abstract contract that is responsible for the accounting of the layer-1 and layer-2 bridges. A bonder can stake or unstake their funds using functions in this contract. All credits and debits are accounted for and updated in this contract.
 
 **[Bridge.sol](https://github.com/hop-exchange/contracts/blob/master/contracts/bridges/Bridge.sol)** - Abstract contract that inherits `Accounting.sol` and has the base, shared functionality for `L1_Bridge.sol` and `L2_Bridge.sol`. This contract's main functionality is to handle user withdrawals on any chain. It is also responsible for settling withdrawals and updating a bonder's credit. This contract has helper functions to retrieve data related to transfers.
 
