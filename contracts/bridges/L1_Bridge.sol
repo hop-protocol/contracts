@@ -138,13 +138,6 @@ abstract contract L1_Bridge is Bridge {
 
         chainBalance[chainId] = chainBalance[chainId].add(amount);
 
-        uint256 forwardedValue;
-        if (token == ETH_ADDRESS) {
-            forwardedValue = msg.value.sub(amount, "L1_BRG: Value is less than amount");
-        } else {
-            forwardedValue = msg.value;
-        }
-
         L2_Bridge(xDomainConnector).distribute(
             recipient,
             amount,
