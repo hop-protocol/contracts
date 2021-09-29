@@ -23,6 +23,7 @@ async function main () {
   let bonderAddress: string
   let isL1BridgeDeploy: boolean
   let l2CanonicalTokenIsEth: boolean
+  let isEthDeployment: boolean
   let deploymentStep: number
 
   ;({
@@ -32,6 +33,7 @@ async function main () {
     bonderAddress,
     isL1BridgeDeploy,
     l2CanonicalTokenIsEth,
+    isEthDeployment,
     deploymentStep 
   } = await getPrompts())
 
@@ -44,7 +46,14 @@ async function main () {
     scripts.push(`hardhat run ${basePath}/deployL1.ts --network ${l1NetworkName}`)
   }
 
-  setNetworkParams(l1NetworkName, l2NetworkName, tokenSymbol, bonderAddress, l2CanonicalTokenIsEth)
+  setNetworkParams(
+    l1NetworkName,
+    l2NetworkName,
+    tokenSymbol,
+    bonderAddress,
+    l2CanonicalTokenIsEth,
+    isEthDeployment
+  )
 
   l2NetworkName = handleCustomL2NetworkName(l1NetworkName, l2NetworkName)
   const deployL2Cmd = `hardhat run ${basePath}/deployL2.ts --network ${l2NetworkName}`
@@ -112,6 +121,12 @@ async function getPrompts () {
     required: true,
     default: false
   }, {
+    name: 'isEthDeployment',
+    description: 'Is this a deployment for an ETH bridge set',
+    type: 'boolean',
+    required: true,
+    default: false
+  }, {
     name: 'deploymentStep',
     description: 'Deployment Step (0 for all) (0, 1, 2, or 3)',
     type: 'number',
@@ -131,8 +146,8 @@ async function getPrompts () {
   const bonderAddress: string = (res.bonderAddress as string)
   const isL1BridgeDeploy: boolean = res.isL1BridgeDeploy as boolean
   const l2CanonicalTokenIsEth: boolean = res.l2CanonicalTokenIsEth as boolean
+  const isEthDeployment: boolean = res.isEthDeployment as boolean
   const deploymentStep: number = res.deploymentStep as number
-  const didSendBridgeFunds: number = res.didSendBridgeFunds as number
 
   return {
     l1NetworkName,
@@ -141,8 +156,8 @@ async function getPrompts () {
     bonderAddress,
     isL1BridgeDeploy,
     l2CanonicalTokenIsEth,
-    deploymentStep,
-    didSendBridgeFunds
+    isEthDeployment,
+    deploymentStep
   }
 }
 
@@ -193,7 +208,8 @@ function setNetworkParams (
   l2NetworkName: string,
   tokenSymbol: string,
   bonderAddress: string,
-  l2CanonicalTokenIsEth: boolean
+  l2CanonicalTokenIsEth: boolean,
+  isEthDeployment: boolean
 ) {
   const { l1BridgeAddress } = readConfigFile()
 
@@ -239,7 +255,8 @@ function setNetworkParams (
     liquidityProviderSendAmount,
     liquidityProviderAmmAmount: liquidityProviderAmmAmount.toString(),
     bonderAddress,
-    l2CanonicalTokenIsEth
+    l2CanonicalTokenIsEth,
+    isEthDeployment
   }
 
   console.log('data:', data)

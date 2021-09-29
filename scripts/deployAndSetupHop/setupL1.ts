@@ -48,6 +48,7 @@ interface Config {
   l2MessengerProxyAddress: string
   l2AmmWrapperAddress: string
   liquidityProviderSendAmount: BigNumber
+  isEthDeployment: boolean
 }
 
 export async function setupL1 (config: Config) {
@@ -62,7 +63,8 @@ export async function setupL1 (config: Config) {
     l2BridgeAddress,
     l2MessengerProxyAddress,
     l2AmmWrapperAddress,
-    liquidityProviderSendAmount
+    liquidityProviderSendAmount,
+    isEthDeployment
   } = config
 
   logger.log(`config:
@@ -74,7 +76,8 @@ export async function setupL1 (config: Config) {
             l2BridgeAddress: ${l2BridgeAddress}
             l2MessengerProxyAddress: ${l2MessengerProxyAddress}
             l2AmmWrapperAddress: ${l2AmmWrapperAddress}
-            liquidityProviderSendAmount: ${liquidityProviderSendAmount}`)
+            liquidityProviderSendAmount: ${liquidityProviderSendAmount}
+            isEthDeployment: ${isEthDeployment}`)
 
   l1ChainId = BigNumber.from(l1ChainId)
   l2ChainId = BigNumber.from(l2ChainId)
@@ -291,17 +294,19 @@ export async function setupL1 (config: Config) {
   await tx.wait()
   await waitAfterTransaction()
 
-  logger.log('approving L1 canonical token')
-  modifiedGasPrice = await getModifiedGasPrice(ethers, l1ChainId)
-  tx = await l1_canonicalToken
-    .connect(deployer)
-    .approve(
-      l1_bridge.address,
-      liquidityProviderSendAmount,
-      modifiedGasPrice
-    )
-  await tx.wait()
-  await waitAfterTransaction()
+  if (!isEthDeployment) {
+    logger.log('approving L1 canonical token')
+    modifiedGasPrice = await getModifiedGasPrice(ethers, l1ChainId)
+    tx = await l1_canonicalToken
+      .connect(deployer)
+      .approve(
+        l1_bridge.address,
+        liquidityProviderSendAmount,
+        modifiedGasPrice
+      )
+    await tx.wait()
+    await waitAfterTransaction()
+  }
 
   const amountOutMin: BigNumber = BigNumber.from('0')
   const deadline: BigNumber = BigNumber.from('0')
@@ -370,7 +375,8 @@ if (require.main === module) {
     l2BridgeAddress,
     l2MessengerProxyAddress,
     l2AmmWrapperAddress,
-    liquidityProviderSendAmount
+    liquidityProviderSendAmount,
+    isEthDeployment
   } = readConfigFile()
   setupL1({
     l1ChainId,
@@ -381,7 +387,8 @@ if (require.main === module) {
     l2BridgeAddress,
     l2MessengerProxyAddress,
     l2AmmWrapperAddress,
-    liquidityProviderSendAmount
+    liquidityProviderSendAmount,
+    isEthDeployment
   })
     .then(() => {
       process.exit(0)

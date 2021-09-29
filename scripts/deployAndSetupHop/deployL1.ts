@@ -23,6 +23,7 @@ interface Config {
   l1ChainId: BigNumber
   l1CanonicalTokenAddress: string
   bonderAddress: string
+  isEthDeployment: boolean
 }
 
 export async function deployL1 (config: Config) {
@@ -31,13 +32,15 @@ export async function deployL1 (config: Config) {
   let {
     l1ChainId,
     l1CanonicalTokenAddress,
-    bonderAddress
+    bonderAddress,
+    isEthDeployment
   } = config
 
   logger.log(`config:
             l1ChainId: ${l1ChainId}
             l1CanonicalTokenAddress: ${l1CanonicalTokenAddress}
-            bonderAddress: ${bonderAddress}`)
+            bonderAddress: ${bonderAddress}
+            isEthDeployment: ${isEthDeployment}`)
 
   l1ChainId = BigNumber.from(l1ChainId)
 
@@ -63,12 +66,18 @@ export async function deployL1 (config: Config) {
    */
 
   logger.log('deploying L1 bridge')
+  let l1BridgeParams: any[] = [
+    [bonderAddress],
+    await governance.getAddress(),
+  ]
+  if (!isEthDeployment) {
+    l1BridgeParams.unshift(l1CanonicalTokenAddress)
+  }
+
   l1_bridge = await L1_Bridge
     .connect(deployer)
     .deploy(
-      l1CanonicalTokenAddress,
-      [bonderAddress],
-      await governance.getAddress(),
+      ...l1BridgeParams,
       await getModifiedGasPrice(ethers, l1ChainId)
     )
   await waitAfterTransaction(l1_bridge)
@@ -87,12 +96,14 @@ if (require.main === module) {
   const {
     l1ChainId,
     l1CanonicalTokenAddress,
-    bonderAddress
+    bonderAddress,
+    isEthDeployment
   } = readConfigFile()
   deployL1({
     l1ChainId,
     l1CanonicalTokenAddress,
-    bonderAddress
+    bonderAddress,
+    isEthDeployment
   })
     .then(() => {
       process.exit(0)
