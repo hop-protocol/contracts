@@ -236,16 +236,6 @@ export const L2_CANONICAL_TOKEN_ADDRESSES: any = {
   }
 }
 
-export const COMMON_SYMBOLS: { [key: string]: string } = {
-  DAI: 'DAI',
-  USDT: 'USDT',
-  sETH: 'sETH',
-  sBTC: 'sBTC',
-  USDC: 'USDC',
-  WBTC: 'WBTC',
-  TST: 'TST'
-}
-
 export const GAS_PRICE_MULTIPLIERS: { [key: string]: number } = {
   MAINNET: 1.3,
   TESTNET: 10

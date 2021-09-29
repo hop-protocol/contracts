@@ -44,7 +44,6 @@ interface Config {
   l1MessengerAddress: string
   l1CanonicalTokenAddress: string
   l1BridgeAddress: string
-  l2CanonicalTokenAddress: string
   l2BridgeAddress: string
   l2MessengerProxyAddress: string
   l2AmmWrapperAddress: string
@@ -60,7 +59,6 @@ export async function setupL1 (config: Config) {
     l1MessengerAddress,
     l1CanonicalTokenAddress,
     l1BridgeAddress,
-    l2CanonicalTokenAddress,
     l2BridgeAddress,
     l2MessengerProxyAddress,
     l2AmmWrapperAddress,
@@ -73,7 +71,6 @@ export async function setupL1 (config: Config) {
             l1MessengerAddress: ${l1MessengerAddress}
             l1CanonicalTokenAddress: ${l1CanonicalTokenAddress}
             l1BridgeAddress: ${l1BridgeAddress}
-            l2CanonicalTokenAddress: ${l2CanonicalTokenAddress}
             l2BridgeAddress: ${l2BridgeAddress}
             l2MessengerProxyAddress: ${l2MessengerProxyAddress}
             l2AmmWrapperAddress: ${l2AmmWrapperAddress}
@@ -101,7 +98,6 @@ export async function setupL1 (config: Config) {
   let l1_messengerWrapper: Contract
   let l1_bridge: Contract
   let l1_messenger: Contract
-  let l2_canonicalToken: Contract
   let l2_bridge: Contract
   let l2_messengerProxy: Contract
 
@@ -131,7 +127,6 @@ export async function setupL1 (config: Config) {
   // Attach already deployed contracts
   l1_messenger = L1_Messenger.attach(l1MessengerAddress)
   l1_canonicalToken = L1_MockERC20.attach(l1CanonicalTokenAddress)
-  l2_canonicalToken = L1_MockERC20.attach(l2CanonicalTokenAddress)
   l1_bridge = L1_Bridge.attach(l1BridgeAddress)
   l2_bridge = L2_Bridge.attach(l2BridgeAddress)
 
@@ -372,7 +367,6 @@ if (require.main === module) {
     l1MessengerAddress,
     l1CanonicalTokenAddress,
     l1BridgeAddress,
-    l2CanonicalTokenAddress,
     l2BridgeAddress,
     l2MessengerProxyAddress,
     l2AmmWrapperAddress,
@@ -383,7 +377,6 @@ if (require.main === module) {
     l2ChainId,
     l1MessengerAddress,
     l1CanonicalTokenAddress,
-    l2CanonicalTokenAddress,
     l1BridgeAddress,
     l2BridgeAddress,
     l2MessengerProxyAddress,
