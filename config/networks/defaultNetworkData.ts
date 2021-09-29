@@ -1,4 +1,12 @@
 export const DEFAULT_NETWORK_DATA = {
+  ETH: {
+    l2HBridgeTokenName: 'ETH Hop Token',
+    l2HBridgeTokenSymbol: 'hETH',
+    l2HBridgeTokenDecimals: 18,
+    l2SwapLpTokenName: 'Hop ETH LP Token',
+    l2SwapLpTokenSymbol: 'HOP-LP-ETH',
+    liquidityProviderSendAmount: '200000000000000'
+  },
   DAI: {
     l2HBridgeTokenName: 'DAI Hop Token',
     l2HBridgeTokenSymbol: 'hDAI',
