@@ -20,7 +20,6 @@ contract MockERC20 is ERC20 {
     }
 
     function withdraw(uint wad) public {
-        require(_balances[msg.sender] >= wad);
         _burn(msg.sender, wad);
         msg.sender.transfer(wad);
     }
