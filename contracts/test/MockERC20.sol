@@ -16,12 +16,12 @@ contract MockERC20 is ERC20 {
     }
 
     function deposit() public payable {
-        _balances[msg.sender] += msg.value;
+        _mint(msg.sender, msg.value);
     }
 
     function withdraw(uint wad) public {
         require(_balances[msg.sender] >= wad);
-        _balances[msg.sender] -= wad;
+        _burn(msg.sender, wad);
         msg.sender.transfer(wad);
     }
 
