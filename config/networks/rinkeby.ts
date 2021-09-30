@@ -23,6 +23,11 @@ export const networkData: NetworkData = {
         l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.RINKEBY.DAI,
         l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.ARBITRUM_TESTNET.DAI,
         ...DEFAULT_NETWORK_DATA.DAI
+      },
+      ETH: {
+        l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.RINKEBY.ETH,
+        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.ARBITRUM_TESTNET.ETH,
+        ...DEFAULT_NETWORK_DATA.ETH
       }
     }
   }

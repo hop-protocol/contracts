@@ -36,6 +36,7 @@ interface Config {
   l2SwapAddress: string
   liquidityProviderAmmAmount: BigNumber
   l2CanonicalTokenIsEth: boolean
+  isEthDeployment: boolean
 }
 
 export async function setupL2 (config: Config) {
@@ -50,7 +51,8 @@ export async function setupL2 (config: Config) {
     l2BridgeAddress,
     l2SwapAddress,
     liquidityProviderAmmAmount,
-    l2CanonicalTokenIsEth
+    l2CanonicalTokenIsEth,
+    isEthDeployment
   } = config
 
   logger.log(`config:
@@ -62,7 +64,8 @@ export async function setupL2 (config: Config) {
             l2BridgeAddress: ${l2BridgeAddress}
             l2SwapAddress: ${l2SwapAddress}
             liquidityProviderAmmAmount: ${liquidityProviderAmmAmount},
-            l2CanonicalTokenIsEth: ${l2CanonicalTokenIsEth}`
+            l2CanonicalTokenIsEth: ${l2CanonicalTokenIsEth},
+            isEthDeployment: ${isEthDeployment}`
             )
 
   l1ChainId = BigNumber.from(l1ChainId)
@@ -334,7 +337,8 @@ if (require.main === module) {
     l2BridgeAddress,
     l2SwapAddress,
     liquidityProviderAmmAmount,
-    l2CanonicalTokenIsEth
+    l2CanonicalTokenIsEth,
+    isEthDeployment
   } = readConfigFile()
   setupL2({
     l1ChainId,
@@ -345,7 +349,8 @@ if (require.main === module) {
     l2BridgeAddress,
     l2SwapAddress,
     liquidityProviderAmmAmount,
-    l2CanonicalTokenIsEth
+    l2CanonicalTokenIsEth,
+    isEthDeployment
   })
     .then(() => {
       process.exit(0)

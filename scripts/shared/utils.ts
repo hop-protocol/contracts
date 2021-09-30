@@ -34,15 +34,23 @@ import {
 export const getContractFactories = async (
   chainId: BigNumber,
   signer: Signer,
-  ethers: any
+  ethers: any,
+  isEthDeployment: boolean = false
 ) => {
 
-  const L1_MockERC20: ContractFactory = await ethers.getContractFactory(
-    'contracts/test/MockERC20.sol:MockERC20',
+  let l1BridgeArtifact: string
+  if (isEthDeployment) {
+    l1BridgeArtifact = 'contracts/bridges/L1_ETH_Bridge.sol:L1_ETH_Bridge'
+  } else {
+    l1BridgeArtifact = 'contracts/bridges/L1_ERC20_Bridge.sol:L1_ERC20_Bridge'
+  }
+
+  const L1_Bridge: ContractFactory = await ethers.getContractFactory(
+    l1BridgeArtifact,
     { signer }
   )
-  const L1_Bridge: ContractFactory = await ethers.getContractFactory(
-    'contracts/bridges/L1_ERC20_Bridge.sol:L1_ERC20_Bridge',
+  const L1_MockERC20: ContractFactory = await ethers.getContractFactory(
+    'contracts/test/MockERC20.sol:MockERC20',
     { signer }
   )
   const L2_MockERC20: ContractFactory = await ethers.getContractFactory(

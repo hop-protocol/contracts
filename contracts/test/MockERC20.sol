@@ -14,4 +14,18 @@ contract MockERC20 is ERC20 {
     function burn(address _recipient, uint256 _amount) public {
         _burn(_recipient, _amount);
     }
+
+    function deposit() public payable {
+        _balances[msg.sender] += msg.value;
+    }
+
+    function withdraw(uint wad) public {
+        require(_balances[msg.sender] >= wad);
+        _balances[msg.sender] -= wad;
+        msg.sender.transfer(wad);
+    }
+
+    receive() external payable {
+        deposit();
+    }
 }

@@ -59,7 +59,7 @@ export async function deployL1 (config: Config) {
 
   // Contracts
   let l1_bridge: Contract
-  ;({ L1_Bridge } = await getContractFactories(l1ChainId, deployer, ethers))
+  ;({ L1_Bridge } = await getContractFactories(l1ChainId, deployer, ethers, isEthDeployment))
 
   /**
    * Deployments

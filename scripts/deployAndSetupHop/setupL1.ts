@@ -124,7 +124,7 @@ export async function setupL1 (config: Config) {
     L1_MessengerWrapper,
     L2_Bridge,
     L2_MessengerProxy
-  } = await getContractFactories(l2ChainId, deployer, ethers))
+  } = await getContractFactories(l2ChainId, deployer, ethers, isEthDeployment))
 
   logger.log('attaching deployed contracts')
   // Attach already deployed contracts
@@ -319,6 +319,19 @@ export async function setupL1 (config: Config) {
     `little gas. (2) The L1 deployer does not have tokens to send over the bridge.`
   )
   modifiedGasPrice = await getModifiedGasPrice(ethers, l1ChainId)
+
+  let modifiedSendValues: any
+  if (isEthDeployment) {
+    modifiedSendValues = {
+      gasPrice: modifiedGasPrice.gasPrice,
+      value: liquidityProviderSendAmount
+    }
+  } else {
+    modifiedSendValues = {
+      gasPrice: modifiedGasPrice.gasPrice,
+    }
+  }
+
   tx = await l1_bridge
     .connect(deployer)
     .sendToL2(
@@ -329,7 +342,7 @@ export async function setupL1 (config: Config) {
       deadline,
       ZERO_ADDRESS,
       relayerFee,
-      modifiedGasPrice
+      modifiedSendValues
     )
   await tx.wait()
   await waitAfterTransaction()

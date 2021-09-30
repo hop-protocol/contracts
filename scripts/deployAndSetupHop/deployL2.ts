@@ -48,6 +48,7 @@ interface Config {
   l2SwapLpTokenSymbol: string
   bonderAddress: string
   l2CanonicalTokenIsEth: boolean
+  isEthDeployment: boolean
 }
 
 
@@ -66,7 +67,8 @@ export async function deployL2 (config: Config) {
     l2SwapLpTokenName,
     l2SwapLpTokenSymbol,
     bonderAddress,
-    l2CanonicalTokenIsEth
+    l2CanonicalTokenIsEth,
+    isEthDeployment
   } = config
 
   logger.log(`config:
@@ -79,7 +81,8 @@ export async function deployL2 (config: Config) {
             l2HBridgeTokenSymbol: ${l2HBridgeTokenSymbol}
             l2HBridgeTokenDecimals: ${l2HBridgeTokenDecimals}
             bonderAddress: ${bonderAddress},
-            l2CanonicalTokenIsEth: ${l2CanonicalTokenIsEth}`
+            l2CanonicalTokenIsEth: ${l2CanonicalTokenIsEth},
+            isEthDeployment: ${isEthDeployment}`
             )
 
   l1ChainId = BigNumber.from(l1ChainId)
@@ -127,7 +130,7 @@ export async function deployL2 (config: Config) {
     L2_Bridge,
     L2_AmmWrapper,
     L2_MessengerProxy
-  } = await getContractFactories(l2ChainId, deployer, ethers))
+  } = await getContractFactories(l2ChainId, deployer, ethers, isEthDeployment))
 
   logger.log('attaching deployed contracts')
   // Attach already deployed contracts
@@ -314,7 +317,7 @@ const deployL2SwapLibs = async (
   )
 
   logger.log('Deploying L2 Swap Utils')
-  logger.log('IMPORTANT: This transaction needs 4.5 million gas to be deployed on Polygon')
+  logger.log('IMPORTANT: This transaction needs 4.5 million gas to be deployed on Polygon & 200 million gas on Arbitrum')
   const l2_swapUtils = await L2_SwapUtils.deploy(overrides)
   await waitAfterTransaction(l2_swapUtils, ethers)
 
@@ -396,7 +399,8 @@ if (require.main === module) {
     l2SwapLpTokenName,
     l2SwapLpTokenSymbol,
     bonderAddress,
-    l2CanonicalTokenIsEth
+    l2CanonicalTokenIsEth,
+    isEthDeployment
   } = readConfigFile()
   deployL2({
     l1ChainId,
@@ -410,7 +414,8 @@ if (require.main === module) {
     l2SwapLpTokenName,
     l2SwapLpTokenSymbol,
     bonderAddress,
-    l2CanonicalTokenIsEth
+    l2CanonicalTokenIsEth,
+    isEthDeployment
   })
     .then(() => {
       process.exit(0)

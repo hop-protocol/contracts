@@ -39,6 +39,11 @@ export const networkData: NetworkData = {
         l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.MUMBAI.USDC,
         ...DEFAULT_NETWORK_DATA.USDC
       },
+      ETH: {
+        l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.GOERLI.ETH,
+        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.MUMBAI.ETH,
+        ...DEFAULT_NETWORK_DATA.ETH
+      },
       WBTC: {
         l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.GOERLI.WBTC,
         l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.MUMBAI.WBTC,
