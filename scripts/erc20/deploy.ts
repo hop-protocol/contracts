@@ -21,7 +21,7 @@ async function main () {
   console.log('signer:', await signer.getAddress())
 
   const MockERC20 = await ethers.getContractFactory(
-    'contracts/test/MockERC20.sol:MockERC20',
+    'contracts/test/MockERC20WithDeposit.sol:MockERC20WithDeposit',
     { signer }
   )
 
