@@ -10,6 +10,7 @@ import "./Bridge.sol";
 import "./HopBridgeToken.sol";
 import "../libraries/Lib_MerkleTree.sol";
 import "./L2_AmmWrapper.sol";
+import "./L1_Bridge.sol";
 
 /**
  * @dev The L2_Bridge is responsible for aggregating pending Transfers into TransferRoots. Each newly
@@ -280,21 +281,16 @@ abstract contract L2_Bridge is Bridge {
 
         lastCommitTime[destinationChainId][bonder] = block.timestamp;
         rootIndex[destinationChainId][bonder]++;
+        pendingAmount[destinationChainId][bonder] = 0;
+        delete pendingTransferIds[destinationChainId][bonder];
 
-        bytes memory confirmTransferRootMessage = abi.encodeWithSignature(
-            "confirmTransferRoot(uint256,bytes32,uint256,uint256,uint256)",
+        L1_Bridge(l1BridgeConnector).confirmTransferRoot(
             getChainId(),
             rootHash,
             destinationChainId,
             totalAmount,
             rootCommittedAt
         );
-
-        pendingAmount[destinationChainId][bonder] = 0;
-        delete pendingTransferIds[destinationChainId][bonder];
-
-        (bool success,) = l1BridgeConnector.call(confirmTransferRootMessage);
-        require(success, "L2_BRG: Call to L1 bridge failed");
     }
 
     function _distribute(
