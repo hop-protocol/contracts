@@ -1912,7 +1912,7 @@ describe('L1_Bridge', () => {
 
     it('Should not allow a transfer to L2 via sendToL2 if the user did not approve the token transfer to the L1 Bridge', async () => {
       const expectedErrorMsg: string =
-        ' ERC20: transfer amount exceeds allowance'
+        'ERC20: transfer amount exceeds allowance'
       const tokenAmount = await l1_canonicalToken.balanceOf(
         await user.getAddress()
       )
