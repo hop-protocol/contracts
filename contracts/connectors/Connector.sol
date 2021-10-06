@@ -10,7 +10,7 @@ abstract contract Connector {
         owner = _owner;
     }
 
-    fallback () external {
+    fallback () external payable {
         if (msg.sender == owner) {
             _forwardCrossDomainMessage();
         } else {
