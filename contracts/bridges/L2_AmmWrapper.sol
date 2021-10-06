@@ -4,12 +4,14 @@ pragma solidity 0.6.12;
 pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import "../saddle/Swap.sol";
 import "./L2_Bridge.sol";
 import "../interfaces/IWETH.sol";
 import "./SwapDataConsumer.sol";
 
 contract L2_AmmWrapper is SwapDataConsumer {
+    using SafeERC20 for IERC20;
 
     L2_Bridge public immutable bridge;
     IERC20 public immutable l2CanonicalToken;
@@ -55,10 +57,10 @@ contract L2_AmmWrapper is SwapDataConsumer {
             require(msg.value == amount, "L2_AMM_W: Value does not match amount");
             IWETH(address(l2CanonicalToken)).deposit{value: amount}();
         } else {
-            require(l2CanonicalToken.transferFrom(msg.sender, address(this), amount), "L2_AMM_W: TransferFrom failed");
+            l2CanonicalToken.safeTransferFrom(msg.sender, address(this), amount);
         }
 
-        require(l2CanonicalToken.approve(address(exchangeAddress), amount), "L2_AMM_W: Approve failed");
+        l2CanonicalToken.safeApprove(address(exchangeAddress), amount);
         uint256 swapAmount = Swap(exchangeAddress).swap(
             swapData.tokenIndex,
             0,
@@ -84,8 +86,8 @@ contract L2_AmmWrapper is SwapDataConsumer {
     )
         external
     {
-        require(hToken.transferFrom(msg.sender, address(this), amount), "L2_AMM_W: TransferFrom failed");
-        require(hToken.approve(address(exchangeAddress), amount), "L2_AMM_W: Approve failed");
+        hToken.safeTransferFrom(msg.sender, address(this), amount);
+        hToken.safeApprove(address(exchangeAddress), amount);
 
         uint256 amountOut = 0;
         try Swap(exchangeAddress).swap(
@@ -100,7 +102,7 @@ contract L2_AmmWrapper is SwapDataConsumer {
 
         if (amountOut == 0) {
             // Transfer hToken to recipient if swap fails
-            require(hToken.transfer(recipient, amount), "L2_AMM_W: Transfer failed");
+            hToken.safeTransfer(recipient, amount);
             return;
         }
 
@@ -109,7 +111,7 @@ contract L2_AmmWrapper is SwapDataConsumer {
             (bool success, ) = recipient.call{value: amountOut}(new bytes(0));
             require(success, 'L2_AMM_W: ETH transfer failed');
         } else {
-            require(l2CanonicalToken.transfer(recipient, amountOut), "L2_AMM_W: Transfer failed");
+            l2CanonicalToken.safeTransfer(recipient, amountOut);
         }
     }
 }
