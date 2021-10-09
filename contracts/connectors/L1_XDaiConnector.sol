@@ -13,13 +13,13 @@ contract L1_XDaiConnector is Connector {
     uint256 public immutable defaultGasLimit;
 
     constructor (
-        address _owner,
+        address _localAddress,
         IArbitraryMessageBridge _l1MessengerAddress,
         uint256 _defaultGasLimit,
         uint256 _l2ChainId
     )
         public
-        Connector(_owner)
+        Connector(_localAddress)
     {
         l1MessengerAddress = _l1MessengerAddress;
         defaultGasLimit = _defaultGasLimit;
@@ -30,7 +30,7 @@ contract L1_XDaiConnector is Connector {
 
     function _forwardCrossDomainMessage() internal override {
         l1MessengerAddress.requireToPassMessage(
-            xDomainAddress,
+            xDomainConnector,
             msg.data,
             defaultGasLimit
         );
@@ -38,7 +38,7 @@ contract L1_XDaiConnector is Connector {
 
     function _verifySender() internal override {
         require(msg.sender == address(l1MessengerAddress), "L2_XDAI_CNR: Caller is not the expected sender");
-        require(l1MessengerAddress.messageSender() == xDomainAddress, "L2_XDAI_CNR: Invalid cross-domain sender");
+        require(l1MessengerAddress.messageSender() == xDomainConnector, "L2_XDAI_CNR: Invalid cross-domain sender");
 
         // With the xDai AMB, it is best practice to also check the source chainId
         // https://docs.tokenbridge.net/amb-bridge/how-to-develop-xchain-apps-by-amb#receive-a-method-call-from-the-amb-bridge

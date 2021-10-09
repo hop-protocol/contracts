@@ -10,12 +10,12 @@ contract L2_OptimismConnector is Connector {
     uint32 public defaultGasLimit;
 
     constructor (
-        address _owner,
+        address _localAddress,
         iOVM_L2CrossDomainMessenger _messenger,
         uint32 _defaultGasLimit
     )
         public
-        Connector(_owner)
+        Connector(_localAddress)
     {
         messenger = _messenger;
         defaultGasLimit = _defaultGasLimit;
@@ -25,7 +25,7 @@ contract L2_OptimismConnector is Connector {
 
     function _forwardCrossDomainMessage() internal override {
         messenger.sendMessage(
-            xDomainAddress,
+            xDomainConnector,
             msg.data,
             defaultGasLimit
         );
@@ -34,6 +34,6 @@ contract L2_OptimismConnector is Connector {
     function _verifySender() internal override {
         require(msg.sender == address(messenger), "L2_OVM_CNR: Caller is not the expected sender");
         // Verify that cross-domain sender is expectedSender
-        require(messenger.xDomainMessageSender() == xDomainAddress, "L2_OVM_CNR: Invalid cross-domain sender");
+        require(messenger.xDomainMessageSender() == xDomainConnector, "L2_OVM_CNR: Invalid cross-domain sender");
     }
 }

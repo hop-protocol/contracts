@@ -10,12 +10,12 @@ contract L1_OptimismConnector is Connector {
     uint256 public immutable defaultGasLimit;
 
     constructor (
-        address _owner,
+        address _localAddress,
         iOVM_L1CrossDomainMessenger _l1MessengerAddress,
         uint32 _defaultGasLimit
     )
         public
-        Connector(_owner)
+        Connector(_localAddress)
     {
         l1MessengerAddress = _l1MessengerAddress;
         defaultGasLimit = _defaultGasLimit;
@@ -25,7 +25,7 @@ contract L1_OptimismConnector is Connector {
 
     function _forwardCrossDomainMessage() internal override {
         l1MessengerAddress.sendMessage(
-            xDomainAddress,
+            xDomainConnector,
             msg.data,
             uint32(defaultGasLimit)
         );
@@ -33,7 +33,7 @@ contract L1_OptimismConnector is Connector {
 
     function _verifySender() internal override {
         require(msg.sender == address(l1MessengerAddress), "L1_OVM_CNR: Caller is not l1MessengerAddress");
-        // Verify that cross-domain sender is xDomainAddress
-        require(l1MessengerAddress.xDomainMessageSender() == xDomainAddress, "L1_OVM_CNR: Invalid cross-domain sender");
+        // Verify that cross-domain sender is xDomainConnector
+        require(l1MessengerAddress.xDomainMessageSender() == xDomainConnector, "L1_OVM_CNR: Invalid cross-domain sender");
     }
 }

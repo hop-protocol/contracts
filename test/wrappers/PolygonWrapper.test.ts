@@ -62,7 +62,7 @@ describe.skip('Polygon Wrapper', () => {
     const expectedFxRoot: string = fxRoot.address
     const expectedFxChildTunnel: string = l2_bridgeConnector.address
 
-    const l1BridgeAddress: string = await l1_messengerWrapper.owner()
+    const l1BridgeAddress: string = await l1_messengerWrapper.localAddress()
     const checkpointManager: string = await l1_messengerWrapper.checkpointManager()
     const fxRootAddress: string = await l1_messengerWrapper.fxRoot()
     const fxChildTunnel: string = await l1_messengerWrapper.fxChildTunnel()

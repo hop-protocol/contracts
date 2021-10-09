@@ -6,10 +6,10 @@ import "./Connector.sol";
 
 contract L1_ArbitrumConnector is Connector {
     constructor (
-        address _owner
+        address _localAddress
     )
         public
-        Connector(_owner)
+        Connector(_localAddress)
     {}
 
     /* ========== Override Functions ========== */

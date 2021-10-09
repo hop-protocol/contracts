@@ -51,7 +51,7 @@ describe('XDai Messenger Wrapper', () => {
     const expectedDefaultGasLimit: number = 1000000
     const expectedL2ChainId: string = ethersUtils.hexZeroPad(l2ChainId.toHexString(), 32)
 
-    const l1BridgeAddress: string = await l1_messengerWrapper.owner()
+    const l1BridgeAddress: string = await l1_messengerWrapper.localAddress()
     const l1MessengerAddress: string = await l1_messengerWrapper.l1MessengerAddress()
     const defaultGasLimit: number = await l1_messengerWrapper.defaultGasLimit()
     const actualL2ChainId: string = await l1_messengerWrapper.l2ChainId()

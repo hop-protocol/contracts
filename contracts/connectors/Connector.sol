@@ -3,31 +3,31 @@
 pragma solidity 0.6.12;
 
 abstract contract Connector {
-    address public owner;
-    address public xDomainAddress;
+    address public localAddress;
+    address public xDomainConnector;
 
-    constructor(address _owner) public {
-        owner = _owner;
+    constructor(address _localAddress) public {
+        localAddress = _localAddress;
     }
 
     fallback () external payable {
-        if (msg.sender == owner) {
+        if (msg.sender == localAddress) {
             _forwardCrossDomainMessage();
         } else {
             _verifySender();
 
-            (bool success,) = owner.call(msg.data);
+            (bool success,) = localAddress.call(msg.data);
             require(success, "CNR: Failed to forward message");
         }
     }
 
     /**
      * @dev Sets the l2BridgeConnectorAddress
-     * @param _xDomainAddress The new bridge connector address
+     * @param _xDomainConnector The new bridge connector address
      */
-    function setXDomainAddress(address _xDomainAddress) external {
-        require(xDomainAddress == address(0), "CNR: Connector address has already been set");
-        xDomainAddress = _xDomainAddress;
+    function setxDomainConnector(address _xDomainConnector) external {
+        require(xDomainConnector == address(0), "CNR: Connector address has already been set");
+        xDomainConnector = _xDomainConnector;
     }
 
     /* ========== Virtual functions ========== */
