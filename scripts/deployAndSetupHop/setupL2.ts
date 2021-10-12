@@ -132,7 +132,8 @@ export async function setupL2 (config: Config) {
     l2_canonicalToken,
     l2_hopBridgeToken,
     l2_bridge,
-    l2CanonicalTokenIsEth
+    l2CanonicalTokenIsEth,
+    l2ChainId
   )
 
   logger.log('L2 state verified')
@@ -259,11 +260,13 @@ const waitForL2StateVerification = async (
   l2_canonicalToken: Contract,
   l2_hopBridgeToken: Contract,
   l2_bridge: Contract,
-  l2CanonicalTokenIsEth: boolean
+  l2CanonicalTokenIsEth: boolean,
+  l2ChainId: BigNumber
 ) => {
   let checkCount: number = 0
   let isStateSet: boolean = false
-  const supportedChainIds: BigNumber[] = ALL_SUPPORTED_CHAIN_IDS
+  let supportedChainIds: BigNumber[] = ALL_SUPPORTED_CHAIN_IDS
+  supportedChainIds = supportedChainIds.filter(chainId => chainId.toString() !== l2ChainId.toString())
 
   while (!isStateSet) {
     // Note: Mumbai can take up to 75 checks

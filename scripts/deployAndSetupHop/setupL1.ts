@@ -162,7 +162,7 @@ export async function setupL1 (config: Config) {
   await waitAfterTransaction(l1_messengerWrapper)
 
   if (isChainIdPolygon(l2ChainId)) {
-    logger.log('make polygon specific changes')
+    logger.log('making polygon specific changes')
     l1_messenger = L1_MessengerWrapper.attach(l1_messenger.address)
     l2_messengerProxy = L2_MessengerProxy.attach(l2MessengerProxyAddress)
 

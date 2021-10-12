@@ -114,7 +114,7 @@ export default {
     }
   },
   ovm: {
-    solcVersion: '0.6.12'
+    solcVersion: '0.7.6'
   },
   solidity: {
     compilers: [

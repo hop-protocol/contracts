@@ -281,10 +281,12 @@ export const generateArbitrumAliasAddress = (address: string): string => {
 }
 
 export const getTxOverridesPerChain = (l2ChainId: BigNumber): Overrides => {
-  // xDai and Optimism will deploy as expected with the default estimations
-  // Polygon & Arbitrum's gasPrice and gasLimit estimators should be bumped
-  if (isChainIdXDai(l2ChainId) || isChainIdOptimism(l2ChainId)) {
+  if (isChainIdOptimism(l2ChainId)) {
     return {}
+  } else if (isChainIdXDai(l2ChainId)) {
+    return {
+      gasLimit: 4_500_000
+    }
   } else if (isChainIdPolygon(l2ChainId)) {
     return {
       gasLimit: 4_500_000,

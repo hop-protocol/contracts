@@ -50,7 +50,7 @@
   },
   "dependencies": {
     "@eth-optimism/contracts": "^0.1.11",
-    "@eth-optimism/hardhat-ovm": "0.2.2",
+    "@eth-optimism/hardhat-ovm": "0.2.3",
     "@maticnetwork/pos-portal": "^1.5.0",
     "@openzeppelin/contracts": "=3.4.1",
     "@openzeppelin/contracts-upgradeable": "^3.4.1",
