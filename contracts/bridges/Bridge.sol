@@ -269,7 +269,7 @@ abstract contract Bridge is Accounting, SwapDataConsumer {
         bytes32 transferRootId = getTransferRootId(rootHash, transferRootTotalAmount);
 
         uint256 amount = _bondedWithdrawalAmounts[bonder][transferId];
-        require(amount > 0, "L2_BRG: transferId has no bond");
+        require(amount > 0, "BRG: transferId has no bond");
 
         _bondedWithdrawalAmounts[bonder][transferId] = 0;
         _addToAmountWithdrawn(transferRootId, amount);
@@ -300,7 +300,7 @@ abstract contract Bridge is Accounting, SwapDataConsumer {
                 _bondedWithdrawalAmounts[bonder][transferIds[i]] = 0;
             }
         }
-        require(totalBondsSettled > 0, "L2_BRG: No transfer bonds to settle");
+        require(totalBondsSettled > 0, "BRG: No transfer bonds to settle");
 
         bytes32 rootHash = Lib_MerkleTree.getMerkleRoot(transferIds);
         bytes32 transferRootId = getTransferRootId(rootHash, totalAmount);

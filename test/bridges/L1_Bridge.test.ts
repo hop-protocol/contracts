@@ -2292,7 +2292,7 @@ describe('L1_Bridge', () => {
     })
 
     it('Should not let an arbitrary bonder settle a bonded withdrawal', async () => {
-      const expectedErrorMsg: string = 'L2_BRG: transferId has no bond'
+      const expectedErrorMsg: string = 'BRG: transferId has no bond'
 
       await executeL1BridgeSendToL2(
         l1_canonicalToken,
@@ -2351,9 +2351,55 @@ describe('L1_Bridge', () => {
 
   describe('settleBondedWithdrawals', async () => {
     it('Should not settle bonded withdrawals because the transfer root is not found', async () => {
+      await executeL1BridgeSendToL2(
+        l1_canonicalToken,
+        l1_bridge,
+        l2_hopBridgeToken,
+        l2_canonicalToken,
+        l2_messenger,
+        l2_swap,
+        transfer.sender,
+        transfer.recipient,
+        relayer,
+        transfer.amount.mul(2),
+        transfer.amountOutMin,
+        transfer.deadline,
+        defaultRelayerFee,
+        l2ChainId
+      )
+
+      await executeL2BridgeSend(l2_hopBridgeToken, l2_bridge, transfer)
+
+      await executeBridgeBondWithdrawal(
+        l1_canonicalToken,
+        l1_bridge,
+        l2_bridge,
+        transfer,
+        bonder
+      )
+
+      const transferIndex: BigNumber = BigNumber.from('1')
+      await executeL2BridgeSend(l2_hopBridgeToken, l2_bridge, transfer, transferIndex)
+
+      await executeBridgeBondWithdrawal(
+        l1_canonicalToken,
+        l1_bridge,
+        l2_bridge,
+        transfer,
+        bonder,
+        transferIndex
+      )
+
+      const numTransfers: BigNumber = BigNumber.from('2')
+      let totalTransferAmount: BigNumber = BigNumber.from('0')
+      let transferIds: Buffer[] = []
+      for (let i = 0; i < numTransfers.toNumber(); i++) {
+        const transferNonce: string = await getTransferNonceFromEvent(l2_bridge, BigNumber.from(i))
+        transferIds.push(await transfer.getTransferId(transferNonce))
+        totalTransferAmount = totalTransferAmount.add(transfers[i].amount)
+      }
+
       const expectedErrorMsg: string = 'BRG: Transfer root not found'
-      const transferIds: string[] = [ARBITRARY_ROOT_HASH]
-      const totalTransferAmount: BigNumber = BigNumber.from('123')
 
       await expect(
         l1_bridge
@@ -2610,7 +2656,7 @@ describe('L1_Bridge', () => {
       // Unset the supported chainId for this test
       await l1_bridge.connect(governance).setXDomainConnector(
         l2Transfer.chainId,
-        ZERO_ADDRESS
+        DEAD_ADDRESS
       )
 
       await expect(l1_messenger.relayNextMessage()).to.be.revertedWith(
@@ -3794,13 +3840,18 @@ describe('L1_Bridge', () => {
 
       const creditBefore = await l1_bridge.getCredit(await bonder.getAddress())
       // Send tx with arbitrary bonder address
-      await l1_bridge
-        .connect(bonder)
-        .settleBondedWithdrawals(
-          await user.getAddress(),
-          transferIds,
-          totalTransferAmount
-        )
+
+      const expectedErrorMsg: string = 'BRG: No transfer bonds to settle'
+
+      await expect(
+        l1_bridge
+          .connect(bonder)
+          .settleBondedWithdrawals(
+            await user.getAddress(),
+            transferIds,
+            totalTransferAmount
+          )
+      ).to.be.revertedWith(expectedErrorMsg)
 
       // Validate state after transaction
       const currentTime: number = Math.floor(Date.now() / 1000)
@@ -3836,7 +3887,7 @@ describe('L1_Bridge', () => {
     })
 
     it('Should settle bonded withdrawals and update state. Should then try to settle a single withdrawal and fail.', async () => {
-      const expectedErrorMsg: string = 'L2_BRG: transferId has no bond'
+      const expectedErrorMsg: string = 'BRG: transferId has no bond'
       await executeL1BridgeSendToL2(
         l1_canonicalToken,
         l1_bridge,
@@ -4237,16 +4288,21 @@ describe('L1_Bridge', () => {
       const transferNonce: string = await getTransferNonceFromEvent(l2_bridge)
       const transferId: Buffer = await transfer.getTransferId(transferNonce)
       const totalTransferAmount: BigNumber = transfer.amount
-      await l1_bridge
-        .connect(bonder)
-        .settleBondedWithdrawals(
-          await bonder.getAddress(),
-          [transferId],
-          totalTransferAmount
-        )
 
-        const credit = await l1_bridge.getCredit(await otherUser.getAddress())
-        expect(credit).to.eq(BigNumber.from('0'))
+      const expectedErrorMsg: string = 'BRG: No transfer bonds to settle'
+
+      await expect(
+        l1_bridge
+          .connect(bonder)
+          .settleBondedWithdrawals(
+            await bonder.getAddress(),
+            [transferId],
+            totalTransferAmount
+          )
+      ).to.be.revertedWith(expectedErrorMsg)
+
+      const credit = await l1_bridge.getCredit(await otherUser.getAddress())
+      expect(credit).to.eq(BigNumber.from('0'))
     })
 
     it('Should settle bonded withdrawals and update state with 3, 5, 7, 11, 12, and 15 transfers.', async () => {

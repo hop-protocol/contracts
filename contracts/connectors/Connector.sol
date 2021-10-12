@@ -7,7 +7,7 @@ abstract contract Connector {
     address public xDomainConnector;
 
     constructor(address _localAddress) public {
-        require(localAddress != address(0), "CNR: localAddress cannot be zero address");
+        require(_localAddress != address(0), "CNR: localAddress cannot be zero address");
         localAddress = _localAddress;
     }
 
