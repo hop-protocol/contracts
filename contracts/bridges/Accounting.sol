@@ -46,7 +46,7 @@ abstract contract Accounting is Ownable, ReentrancyGuard {
         _;
     }
 
-    /// @dev Used by parent contract to ensure that the Bonder is solvent at the end of the transaction.
+    /// @dev Used by child contract to ensure that the Bonder is solvent at the end of the transaction.
     modifier requirePositiveBalance {
         _;
         require(getCredit(msg.sender) >= getDebitAndAdditionalDebit(msg.sender), "ACT: Not enough available credit");
@@ -66,7 +66,7 @@ abstract contract Accounting is Ownable, ReentrancyGuard {
     function _transferToBridge(address from, uint256 amount) internal virtual;
 
     /**
-     * @dev This function can be optionally overridden by a parent contract to track any additional
+     * @dev This function can be optionally overridden by a child contract to track any additional
      * debit balance in an alternative way.
      */
     function _additionalDebit(address /*bonder*/) internal view virtual returns (uint256) {

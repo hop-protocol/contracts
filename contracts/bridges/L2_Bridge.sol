@@ -22,7 +22,7 @@ abstract contract L2_Bridge is Bridge {
     using SafeERC20 for IERC20;
 
     HopBridgeToken public immutable hToken;
-    address public l1BridgeConnector;
+    address public bridgeConnector;
     L2_AmmWrapper public ammWrapper;
     mapping(uint256 => bool) public activeChainIds;
     uint256 public minimumForceCommitDelay = 1 days;
@@ -30,13 +30,13 @@ abstract contract L2_Bridge is Bridge {
     uint256 public minBonderBps = 2;
     uint256 public minBonderFeeAbsolute = 0;
 
-    // destnation chain Id -> bonder address -> pending transfer Ids
+    // destination chain Id -> bonder address -> pending transfer Ids
     mapping(uint256 => mapping(address => bytes32[])) public pendingTransferIds;
-    // destnation chain Id -> bonder address -> pending amount
+    // destination chain Id -> bonder address -> pending amount
     mapping(uint256 => mapping(address => uint256)) public pendingAmount;
-    // destnation chain Id -> bonder address -> last commit time
+    // destination chain Id -> bonder address -> last commit time
     mapping(uint256 => mapping(address => uint256)) public lastCommitTime;
-    // destnation chain Id -> bonder address -> root index
+    // destination chain Id -> bonder address -> root index
     mapping(uint256 => mapping(address => uint256)) public rootIndex;
 
     uint256 public transferNonceIncrementer;
@@ -77,7 +77,7 @@ abstract contract L2_Bridge is Bridge {
     );
 
     modifier onlyL1Bridge {
-        require(msg.sender == l1BridgeConnector, "L2_BRG: xDomain caller must be L1 Bridge");
+        require(msg.sender == bridgeConnector, "L2_BRG: xDomain caller must be L1 Bridge");
         _;
     }
 
@@ -285,7 +285,7 @@ abstract contract L2_Bridge is Bridge {
         pendingAmount[destinationChainId][bonder] = 0;
         delete pendingTransferIds[destinationChainId][bonder];
 
-        L1_Bridge(l1BridgeConnector).confirmTransferRoot(
+        L1_Bridge(bridgeConnector).confirmTransferRoot(
             getChainId(),
             rootHash,
             destinationChainId,
@@ -338,9 +338,9 @@ abstract contract L2_Bridge is Bridge {
         ammWrapper = _ammWrapper;
     }
 
-    function setL1BridgeConnector(address _l1BridgeConnector) external onlyOwner {
-        require(_l1BridgeConnector != address(0), "L2_BRG: Cannot set l1BridgeConnector to zero address");
-        l1BridgeConnector = _l1BridgeConnector;
+    function setBridgeConnector(address _bridgeConnector) external onlyOwner {
+        require(_bridgeConnector != address(0), "L2_BRG: Cannot set bridgeConnector to zero address");
+        bridgeConnector = _bridgeConnector;
     }
 
     function addActiveChainIds(uint256[] calldata chainIds) external onlyOwner {

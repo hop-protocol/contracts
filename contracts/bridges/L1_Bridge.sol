@@ -343,7 +343,7 @@ abstract contract L1_Bridge is Bridge {
         address bonder = transferBond.bonder;
         timeSlotToAmountBonded[timeSlot][bonder] = timeSlotToAmountBonded[timeSlot][bonder].sub(bondAmount);
 
-        _addDebit(transferBond.bonder, bondAmount);
+        _addDebit(bonder, bondAmount);
 
         // Get stake for challenge
         uint256 challengeStakeAmount = getChallengeAmountForTransferAmount(originalAmount);

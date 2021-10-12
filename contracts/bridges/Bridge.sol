@@ -100,7 +100,7 @@ abstract contract Bridge is Accounting, SwapDataConsumer {
     }
 
     /**
-     * @notice getChainId can be overridden by subclasses if needed for compatibility or testing purposes.
+     * @notice getChainId can be overridden by child contracts if needed for compatibility or testing purposes.
      * @dev Get the current chainId
      * @return chainId The current chainId
      */
@@ -300,6 +300,7 @@ abstract contract Bridge is Accounting, SwapDataConsumer {
                 _bondedWithdrawalAmounts[bonder][transferIds[i]] = 0;
             }
         }
+        require(totalBondsSettled > 0, "L2_BRG: No transfer bonds to settle");
 
         bytes32 rootHash = Lib_MerkleTree.getMerkleRoot(transferIds);
         bytes32 transferRootId = getTransferRootId(rootHash, totalAmount);

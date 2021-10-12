@@ -25,7 +25,7 @@ import {
   executeCanonicalMessengerSendMessage,
   executeCanonicalBridgeSendTokens,
   executeL1BridgeSendToL2,
-  getSetL1BridgeConnectorMessage,
+  getSetBridgeConnectorMessage,
   getSetL1CallerMessage,
   getSetAmmWrapperMessage
 } from './contractFunctionWrappers'
@@ -151,7 +151,7 @@ export const setUpL1AndL2Bridges = async (fixture: IFixture, opts: any) => {
     l1_messengerWrapper.address
   )
   // Set up L2
-  await l2_bridge.connect(governance).setL1BridgeConnector(l2_bridgeConnector.address)
+  await l2_bridge.connect(governance).setBridgeConnector(l2_bridgeConnector.address)
   await l2_bridge.connect(governance).setAmmWrapper(l2_ammWrapper.address)
 }
 

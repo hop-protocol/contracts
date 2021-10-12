@@ -16,7 +16,7 @@ import {
 } from '../../config/utils'
 
 import {
-  getSetL1BridgeConnectorMessage
+  getSetBridgeConnectorMessage
 } from '../shared/contractFunctionWrappers'
 
 export const MAX_NUM_SENDS_BEFORE_COMMIT = 10
@@ -74,7 +74,7 @@ describe.skip('Polygon Wrapper', () => {
   })
 
   it('Should allow anyone to send a cross domain message', async () => {
-    const message: string = getSetL1BridgeConnectorMessage(ONE_ADDRESS)
+    const message: string = getSetBridgeConnectorMessage(ONE_ADDRESS)
     await l1_messengerWrapper.connect(user).sendCrossDomainMessage(message)
 
     const messengerWrapperMessage: string = ethersUtils.defaultAbiCoder.encode(
