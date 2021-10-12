@@ -29,6 +29,11 @@ contract L2_AmmWrapper is SwapDataConsumer {
     )
         public
     {
+        require(_bridge != L2_Bridge(0), "L2_AMM_W: Cannot set bridge to zero address");
+        require(_l2CanonicalToken != IERC20(0), "L2_AMM_W: Cannot set l2CanonicalToken to zero address");
+        require(_hToken != IERC20(0), "L2_AMM_W: Cannot set hToken to zero address");
+        require(_exchangeAddress != Swap(0), "L2_AMM_W: Cannot set exchangeAddress to zero address");
+
         bridge = _bridge;
         l2CanonicalToken = _l2CanonicalToken;
         l2CanonicalTokenIsEth = _l2CanonicalTokenIsEth;
@@ -52,6 +57,8 @@ contract L2_AmmWrapper is SwapDataConsumer {
         payable
     {
         require(amount >= bonderFee, "L2_AMM_W: Bonder fee cannot exceed amount");
+        require(recipient != address(0), "L2_AMM_W: Recipient cannot be zero address");
+        require(bonder != address(0), "L2_AMM_W: Bonder cannot be zero address");
 
         if (l2CanonicalTokenIsEth) {
             require(msg.value == amount, "L2_AMM_W: Value does not match amount");
@@ -86,6 +93,8 @@ contract L2_AmmWrapper is SwapDataConsumer {
     )
         external
     {
+        require(recipient != address(0), "L2_AMM_W: Recipient cannot be zero address");
+
         hToken.safeTransferFrom(msg.sender, address(this), amount);
         hToken.safeApprove(address(exchangeAddress), amount);
 

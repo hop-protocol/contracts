@@ -7,6 +7,7 @@ abstract contract Connector {
     address public xDomainConnector;
 
     constructor(address _localAddress) public {
+        require(localAddress != address(0), "CNR: localAddress cannot be zero address");
         localAddress = _localAddress;
     }
 
@@ -26,7 +27,8 @@ abstract contract Connector {
      * @param _xDomainConnector The new bridge connector address
      */
     function setxDomainConnector(address _xDomainConnector) external {
-        require(xDomainConnector == address(0), "CNR: Connector address has already been set");
+        require(_xDomainConnector != address(0), "CNR: Cannot set xDomainConnector to zero address");
+        require(xDomainConnector == address(0), "CNR: xDomainConnector has already been set");
         xDomainConnector = _xDomainConnector;
     }
 

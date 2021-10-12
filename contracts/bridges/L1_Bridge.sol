@@ -114,6 +114,7 @@ abstract contract L1_Bridge is Bridge {
         public
         Bridge(_registry)
     {
+        require(_token != address(0), "L1_BRG: Cannot set token to zero address");
         token = _token;
     }
 

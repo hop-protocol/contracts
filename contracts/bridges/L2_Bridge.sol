@@ -89,6 +89,7 @@ abstract contract L2_Bridge is Bridge {
         public
         Bridge(registry)
     {
+        require(_hToken != HopBridgeToken(0), "L2_BRG: Cannot set hToken to zero address");
         hToken = _hToken;
 
         for (uint256 i = 0; i < _activeChainIds.length; i++) {
@@ -333,10 +334,12 @@ abstract contract L2_Bridge is Bridge {
     /* ========== External Config Management Functions ========== */
 
     function setAmmWrapper(L2_AmmWrapper _ammWrapper) external onlyOwner {
+        require(_ammWrapper != L2_AmmWrapper(0), "L2_BRG: Cannot set ammWrapper to zero address");
         ammWrapper = _ammWrapper;
     }
 
     function setL1BridgeConnector(address _l1BridgeConnector) external onlyOwner {
+        require(_l1BridgeConnector != address(0), "L2_BRG: Cannot set l1BridgeConnector to zero address");
         l1BridgeConnector = _l1BridgeConnector;
     }
 

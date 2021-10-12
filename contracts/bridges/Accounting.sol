@@ -54,6 +54,7 @@ abstract contract Accounting is Ownable, ReentrancyGuard {
 
     /// @dev Sets the Bonder addresses
     constructor(IBonderRegistry registry) public {
+        require(registry != IBonderRegistry(0), "ACT: Cannot set registry to zero address");
         _registry = registry;
     }
 
