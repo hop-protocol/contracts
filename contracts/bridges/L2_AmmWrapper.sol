@@ -1,28 +1,47 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity 0.6.12;
+pragma solidity 0.7.6;
 pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "../saddle/Swap.sol";
-import "./L2_Bridge.sol";
 import "../interfaces/IWETH.sol";
+
+interface ISwap {
+    function swap(
+        uint8 tokenIndexFrom,
+        uint8 tokenIndexTo,
+        uint256 dx,
+        uint256 minDy,
+        uint256 deadline
+    ) external returns (uint256);
+}
+
+interface IL2_Bridge {
+    function send(
+        uint256 chainId,
+        address recipient,
+        uint256 amount,
+        uint256 bonderFee,
+        uint256 amountOutMin,
+        uint256 deadline
+    ) external;
+}
 
 contract L2_AmmWrapper {
 
-    L2_Bridge public immutable bridge;
+    IL2_Bridge public immutable bridge;
     IERC20 public immutable l2CanonicalToken;
     bool public immutable l2CanonicalTokenIsEth;
     IERC20 public immutable hToken;
-    Swap public immutable exchangeAddress;
+    ISwap public immutable exchangeAddress;
 
     /// @notice When l2CanonicalTokenIsEth is true, l2CanonicalToken should be set to the WETH address
     constructor(
-        L2_Bridge _bridge,
+        IL2_Bridge _bridge,
         IERC20 _l2CanonicalToken,
         bool _l2CanonicalTokenIsEth,
         IERC20 _hToken,
-        Swap _exchangeAddress
+        ISwap _exchangeAddress
     )
         public
     {
@@ -59,7 +78,7 @@ contract L2_AmmWrapper {
         }
 
         require(l2CanonicalToken.approve(address(exchangeAddress), amount), "L2_AMM_W: Approve failed");
-        uint256 swapAmount = Swap(exchangeAddress).swap(
+        uint256 swapAmount = exchangeAddress.swap(
             0,
             1,
             amount,
@@ -82,7 +101,7 @@ contract L2_AmmWrapper {
         require(hToken.approve(address(exchangeAddress), amount), "L2_AMM_W: Approve failed");
 
         uint256 amountOut = 0;
-        try Swap(exchangeAddress).swap(
+        try exchangeAddress.swap(
             1,
             0,
             amount,
