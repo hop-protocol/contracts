@@ -77,7 +77,12 @@ export const networkData: NetworkData = {
         l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.KOVAN.WBTC,
         l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.OPTIMISM_TESTNET.KOVAN.WBTC,
         ...DEFAULT_NETWORK_DATA.WBTC
-      }
+      },
+      ETH: {
+        l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.KOVAN.ETH,
+        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.OPTIMISM_TESTNET.KOVAN.ETH,
+        ...DEFAULT_NETWORK_DATA.ETH
+      },
     }
   }
 }
