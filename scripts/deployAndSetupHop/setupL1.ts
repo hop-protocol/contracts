@@ -15,7 +15,8 @@ import {
 import {
   getMessengerWrapperDefaults,
   getPolygonRpcEndpoint,
-  generateArbitrumAliasAddress
+  generateArbitrumAliasAddress,
+  getTxOverridesPerChain
 } from '../../config/utils'
 import {
   ALL_SUPPORTED_CHAIN_IDS,
@@ -170,7 +171,12 @@ export async function setupL1 (config: Config) {
       `IMPORTANT: this tx will fail if it is being called a second time (i.e. restarting a deployment halfway through).`,
       `The value can only be set once.`
     )
-    await updatePolygonState(l1ChainId, l1_messengerWrapper, l2_messengerProxy)
+    await updatePolygonState(
+      l1ChainId,
+      l2ChainId,
+      l1_messengerWrapper,
+      l2_messengerProxy
+    )
   } else if (isChainIdArbitrum(l2ChainId)) {
       const l1MessengerWrapperAlias = generateArbitrumAliasAddress(l1_messengerWrapper.address)
       logger.log(
@@ -357,6 +363,7 @@ export async function setupL1 (config: Config) {
 
 const updatePolygonState = async (
   l1ChainId: BigNumber,
+  l2ChainId: BigNumber,
   l1_messengerWrapper: Contract,
   l2_messengerProxy: Contract
 ) => {
@@ -364,8 +371,7 @@ const updatePolygonState = async (
   const l2EthersProvider = new l2Ethers.providers.JsonRpcProvider(polygonRpcEndpoint)
   const l2EthersWallet = new l2Ethers.Wallet(process.env.DEPLOYER_PRIVATE_KEY, l2EthersProvider)
   const polygonTransactionData: string = getSetFxRootTunnelMessage(l1_messengerWrapper.address)
-  const gasLimit: number = 100000
-  const gasPrice: number = 10000000000
+  const { gasLimit, gasPrice } = getTxOverridesPerChain(l2ChainId)
 
   const setFxRootTunnelTransaction = {
     to: l2_messengerProxy.address,

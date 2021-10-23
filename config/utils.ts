@@ -290,7 +290,7 @@ export const getTxOverridesPerChain = (l2ChainId: BigNumber): Overrides => {
   } else if (isChainIdPolygon(l2ChainId)) {
     return {
       gasLimit: 4_500_000,
-      gasPrice: 10_000_000_000
+      gasPrice: 40_000_000_000
     }
   } else if (isChainIdArbitrum(l2ChainId)) {
     return {
