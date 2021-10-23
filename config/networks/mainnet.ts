@@ -44,6 +44,11 @@ export const networkData: NetworkData = {
         l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.POLYGON.ETH,
         ...DEFAULT_NETWORK_DATA.ETH
       },
+      WBTC: {
+        l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.MAINNET.WBTC,
+        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.POLYGON.WBTC,
+        ...DEFAULT_NETWORK_DATA.WBTC
+      },
     }
   },
   xdai: {
@@ -78,6 +83,11 @@ export const networkData: NetworkData = {
         l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.MAINNET.ETH,
         l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.XDAI.ETH,
         ...DEFAULT_NETWORK_DATA.ETH
+      },
+      WBTC: {
+        l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.MAINNET.WBTC,
+        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.XDAI.WBTC,
+        ...DEFAULT_NETWORK_DATA.WBTC
       },
     }
   },
@@ -114,6 +124,11 @@ export const networkData: NetworkData = {
         l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.OPTIMISM_MAINNET.ETH,
         ...DEFAULT_NETWORK_DATA.ETH
       },
+      WBTC: {
+        l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.MAINNET.WBTC,
+        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.OPTIMISM_MAINNET.WBTC,
+        ...DEFAULT_NETWORK_DATA.WBTC
+      },
     }
   },
   arbitrum: {
@@ -143,6 +158,11 @@ export const networkData: NetworkData = {
         l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.MAINNET.ETH,
         l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.ARBITRUM_MAINNET.ETH,
         ...DEFAULT_NETWORK_DATA.ETH
+      },
+      WBTC: {
+        l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.MAINNET.WBTC,
+        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.ARBITRUM_MAINNET.WBTC,
+        ...DEFAULT_NETWORK_DATA.WBTC
       },
     }
   }

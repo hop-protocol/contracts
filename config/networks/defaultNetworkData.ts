@@ -50,10 +50,10 @@ export const DEFAULT_NETWORK_DATA = {
   WBTC: {
     l2HBridgeTokenName: 'Wrapped BTC Hop Token',
     l2HBridgeTokenSymbol: 'hWBTC',
-    l2HBridgeTokenDecimals: 18,
+    l2HBridgeTokenDecimals: 8,
     l2SwapLpTokenName: 'Hop WBTC LP Token',
     l2SwapLpTokenSymbol: 'HOP-LP-WBTC',
-    liquidityProviderSendAmount: '10000000000000'
+    liquidityProviderSendAmount: '1000'
   },
   MATIC: {
     l2HBridgeTokenName: 'Matic Token Hop Token',
