@@ -16,7 +16,7 @@
     "lint": "prettier-standard --fix",
     "publish-module": "npm publish --tag beta --access public",
     "release": "npm run clean && npm run publish-module",
-    "clean": "rimraf cache artifacts",
+    "clean": "rimraf cache artifacts cache-ovm artifacts-ovm",
     "patch-oz": "patch-package --patch-dir node_modules/@thesatoshicompany/optimism-openzeppelin-compat/patches",
     "generate-abis": "mkdir -p ./data/abi && npm run clean && npm run build",
     "deploy": "ts-node ./scripts/deployAndSetupHop/deploy.ts",

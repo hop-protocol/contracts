@@ -189,7 +189,7 @@ export async function setupL1 (config: Config) {
 
   if (isChainIdOptimism(l2ChainId)) {
     logger.log('setting custom L2 gasLimit for signature')
-    // setTransferRoot(bytes32,uint256)	 = 0xfd31c5ba
+    // setTransferRoot(bytes32,uint256) = 0xfd31c5ba
     const setTransferRootSig = '0xfd31c5ba'
     const setTransferRootGas = 1000000
     let setL2GasLimitForSignatureParams: any[] = [setTransferRootGas, setTransferRootSig]
