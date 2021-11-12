@@ -4,6 +4,7 @@ import { parseEther } from 'ethers/lib/utils'
 export const CHAIN_IDS: any = {
   ETHEREUM: {
     MAINNET: BigNumber.from('1'),
+    RINKEBY: BigNumber.from('4'),
     GOERLI: BigNumber.from('5'),
     KOVAN: BigNumber.from('42')
   },
@@ -12,9 +13,8 @@ export const CHAIN_IDS: any = {
     OPTIMISM_MAINNET: BigNumber.from('10'),
   },
   ARBITRUM: {
-    TESTNET_2: BigNumber.from('152709604825713'),
-    TESTNET_3: BigNumber.from('79377087078960'),
-    TESTNET_4: BigNumber.from('212984383488152')
+    ARBITRUM_TESTNET: BigNumber.from('421611'),
+    ARBITRUM_MAINNET: BigNumber.from('42161')
   },
   XDAI: {
     XDAI: BigNumber.from('100'),
@@ -35,6 +35,12 @@ const CHAIN_IDS_TO_ACTIVATE: any = {
   },
   POLYGON: {
     POLYGON: BigNumber.from('137')
+  },
+  OPTIMISM: {
+    OPTIMISM_MAINNET: BigNumber.from('10')
+  },
+  ARBITRUM: {
+    ARBITRUM_MAINNET: BigNumber.from('42161')
   }
 }
 
