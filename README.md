@@ -96,13 +96,13 @@ If the bonder is offline, the system relies on the canonical layer-2 bridge to s
 - **L2 -> L1 (bonder offline)**
 
   - User calls `L2_Bridge.swapAndSend()`
-  - `L2_Bridge.commitTransfer()` is called by anyone after 100 txs or after 4 hours
+  - 512 transactions are sent or `L2_Bridge.commitTransfer()` is called by anyone after 1 day
   - Wait for the sending layer-2 to be confirmed on layer-1 (approximately 7 days)
   - User or Relayer calls `L1_Bridge.withdraw()`
 
 - **L2 -> L2 (bonder offline)**
   - User calls `L2_Bridge.swapAndSend()` on the sending layer-2
-  - `L2_Bridge.commitTransfer()` is called on the sending layer-2 by anyone after 100 txs or after 4 hours
+  - 512 transactions are sent or `L2_Bridge.commitTransfer()` is called by anyone after 1 day on the sending layer-2
   - Wait for the sending layer-2 to be confirmed on layer-1 (approximately 7 days)
   - User or Relayer calls `L2_Bridge.withdraw()` on the receiving layer-2
 
