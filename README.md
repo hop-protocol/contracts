@@ -54,8 +54,8 @@ Transfers can be challenged by anyone. Challenges require a challenger to put up
 ### Diagrams
 
 - For detailed diagrams of the system, please see [here](https://github.com/hop-exchange/contracts/tree/master/assets)
-  - [Detailed Transaction Diagrams](https://github.com/hop-exchange/contracts/blob/master/assets/Hop_Contract_Inheritance_Diagram.jpg)
-  - [Contract Inheritance](https://github.com/hop-exchange/contracts/blob/master/assets/Hop_Transfer_Diagrams.jpg)
+  - [Detailed Transaction Diagrams](https://github.com/hop-exchange/contracts/blob/master/assets/Hop_Transfer_Diagrams.jpg)
+  - [Contract Inheritance](https://github.com/hop-exchange/contracts/blob/master/assets/Hop_Contract_Inheritance_Diagram.jpg) 
 
 ### Expected Usage
 
