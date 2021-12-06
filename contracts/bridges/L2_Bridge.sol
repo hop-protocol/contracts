@@ -29,13 +29,13 @@ abstract contract L2_Bridge is Bridge {
     uint256 public minBonderBps = 2;
     uint256 public minBonderFeeAbsolute = 0;
 
-    // destnation chain Id -> bonder address -> pending transfer Ids
+    // destination chain Id -> bonder address -> pending transfer Ids
     mapping(uint256 => mapping(address => bytes32[])) public pendingTransferIds;
-    // destnation chain Id -> bonder address -> pending amount
+    // destination chain Id -> bonder address -> pending amount
     mapping(uint256 => mapping(address => uint256)) public pendingAmount;
-    // destnation chain Id -> bonder address -> last commit time
+    // destination chain Id -> bonder address -> last commit time
     mapping(uint256 => mapping(address => uint256)) public lastCommitTime;
-    // destnation chain Id -> bonder address -> root index
+    // destination chain Id -> bonder address -> root index
     mapping(uint256 => mapping(address => uint256)) public rootIndex;
 
     uint256 public transferNonceIncrementer;
