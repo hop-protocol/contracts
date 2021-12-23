@@ -180,29 +180,29 @@ npm run deploy
 ## Event Signatures
 
 ### Accounting
-`Stake(address,uint256)`: 0xebedb8b3c678666e7f36970bc8f57abf6d8fa2e828c0da91ea5b75bf68ed101a
-`Unstake(address,uint256)`: 0x85082129d87b2fe11527cb1b3b7a520aeb5aa6913f88a3d8757fe40d1db02fdd
-`BonderAdded(address)`: 0x2cec73b7434d3b91198ad1a618f63e6a0761ce281af5ec9ec76606d948d03e23
-`BonderRemoved(address)`: 0x4234ba611d325b3ba434c4e1b037967b955b1274d4185ee9847b7491111a48ff
+* `Stake(address,uint256)`: 0xebedb8b3c678666e7f36970bc8f57abf6d8fa2e828c0da91ea5b75bf68ed101a
+* `Unstake(address,uint256)`: 0x85082129d87b2fe11527cb1b3b7a520aeb5aa6913f88a3d8757fe40d1db02fdd
+* `BonderAdded(address)`: 0x2cec73b7434d3b91198ad1a618f63e6a0761ce281af5ec9ec76606d948d03e23
+* `BonderRemoved(address)`: 0x4234ba611d325b3ba434c4e1b037967b955b1274d4185ee9847b7491111a48ff
 
 ### Bridge
-`Withdrew(bytes32,address,uint256,bytes32)`: 0x9475cdbde5fc71fe2ccd413c82878ee54d061b9f74f9e2e1a03ff1178821502c
-`WithdrawalBonded(bytes32,uint256)`: 0x0c3d250c7831051e78aa6a56679e590374c7c424415ffe4aa474491def2fe705
-`WithdrawalBondSettled(address,bytes32,bytes32)`: 0x84eb21b24c31b27a3bc67dde4a598aad06db6e9415cd66544492b9616996143c
-`MultipleWithdrawalsSettled(address,bytes32,uint256)`: 0x78e830d08be9d5f957414c84d685c061ecbd8467be98b42ebb64f0118b57d2ff
-`TransferRootSet(bytes32,uint256)`: 0xb33d2162aead99dab59e77a7a67ea025b776bf8ca8079e132afdf9b23e03bd42
+* `Withdrew(bytes32,address,uint256,bytes32)`: 0x9475cdbde5fc71fe2ccd413c82878ee54d061b9f74f9e2e1a03ff1178821502c
+* `WithdrawalBonded(bytes32,uint256)`: 0x0c3d250c7831051e78aa6a56679e590374c7c424415ffe4aa474491def2fe705
+* `WithdrawalBondSettled(address,bytes32,bytes32)`: 0x84eb21b24c31b27a3bc67dde4a598aad06db6e9415cd66544492b9616996143c
+* `MultipleWithdrawalsSettled(address,bytes32,uint256)`: 0x78e830d08be9d5f957414c84d685c061ecbd8467be98b42ebb64f0118b57d2ff
+* `TransferRootSet(bytes32,uint256)`: 0xb33d2162aead99dab59e77a7a67ea025b776bf8ca8079e132afdf9b23e03bd42
 
 ### L1 Bridge
-`TransferSentToL2(uint256,address,uint256,uint256,uint256,address,uint256)`: 0x0a0607688c86ec1775abcdbab7b33a3a35a6c9cde677c9be880150c231cc6b0b
-`TransferRootBonded(bytes32,uint256)`: 0xa57b3e1f3af9eca02201028629700658608222c365064584cfe65d9630ef4f7b
-`TransferRootConfirmed(uint256,uint256,bytes32,uint256)`: 0xfdfb0eefa96935b8a8c0edf528e125dc6f3934fdbbfce31b38967e8ff413dccd
-`TransferBondChallenged(bytes32,bytes32,uint256)`: 0xec2697dcba539a0ac947cdf1f6d0b6314c065429eca8be2435859b10209d4c27
-`ChallengeResolved(bytes32,bytes32,uint256)`: 0x4a99228a8a6d774d261be57ab0ed833bb1bae1f22bbbd3d4767b75ad03fdddf7
+* `TransferSentToL2(uint256,address,uint256,uint256,uint256,address,uint256)`: 0x0a0607688c86ec1775abcdbab7b33a3a35a6c9cde677c9be880150c231cc6b0b
+* `TransferRootBonded(bytes32,uint256)`: 0xa57b3e1f3af9eca02201028629700658608222c365064584cfe65d9630ef4f7b
+* `TransferRootConfirmed(uint256,uint256,bytes32,uint256)`: 0xfdfb0eefa96935b8a8c0edf528e125dc6f3934fdbbfce31b38967e8ff413dccd
+* `TransferBondChallenged(bytes32,bytes32,uint256)`: 0xec2697dcba539a0ac947cdf1f6d0b6314c065429eca8be2435859b10209d4c27
+* `ChallengeResolved(bytes32,bytes32,uint256)`: 0x4a99228a8a6d774d261be57ab0ed833bb1bae1f22bbbd3d4767b75ad03fdddf7
 
 ### L2 Bridge
-`TransfersCommitted(uint256,bytes32,uint256,uint256)`: 0xf52ad20d3b4f50d1c40901dfb95a9ce5270b2fc32694e5c668354721cd87aa74
-`TransferSent(bytes32,uint256,address,uint256,bytes32,uint256,uint256,uint256,uint256)`: 0xe35dddd4ea75d7e9b3fe93af4f4e40e778c3da4074c9d93e7c6536f1e803c1eb
-`TransferFromL1Completed(address,uint256,uint256,uint256,address,uint256)`:  0x320958176930804eb66c2343c7343fc0367dc16249590c0f195783bee199d094
+* `TransfersCommitted(uint256,bytes32,uint256,uint256)`: 0xf52ad20d3b4f50d1c40901dfb95a9ce5270b2fc32694e5c668354721cd87aa74
+* `TransferSent(bytes32,uint256,address,uint256,bytes32,uint256,uint256,uint256,uint256)`: 0xe35dddd4ea75d7e9b3fe93af4f4e40e778c3da4074c9d93e7c6536f1e803c1eb
+* `TransferFromL1Completed(address,uint256,uint256,uint256,address,uint256)`:  0x320958176930804eb66c2343c7343fc0367dc16249590c0f195783bee199d094
 ## FAQ
 
 - Why are my Optimism contracts not working?
