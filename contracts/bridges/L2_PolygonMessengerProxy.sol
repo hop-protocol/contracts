@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // @unsupported: ovm
 
-pragma solidity 0.8.0;
+pragma solidity 0.8.9;
 pragma experimental ABIEncoderV2;
 
 import "../polygon/ReentrancyGuard.sol";
