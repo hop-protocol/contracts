@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 // @unsupported: ovm
 
-pragma solidity 0.7.3;
+pragma solidity 0.8.9;
 pragma experimental ABIEncoderV2;
 
 import "../wrappers/PolygonMessengerWrapper.sol";

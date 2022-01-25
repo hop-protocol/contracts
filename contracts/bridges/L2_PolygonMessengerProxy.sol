@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 // @unsupported: ovm
 
-pragma solidity 0.7.3;
+pragma solidity 0.8.0;
 pragma experimental ABIEncoderV2;
 
-import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
+import "../polygon/ReentrancyGuard.sol";
 import "../polygon/tunnel/FxBaseChildTunnel.sol";
 
 contract L2_PolygonMessengerProxy is FxBaseChildTunnel, ReentrancyGuard {
