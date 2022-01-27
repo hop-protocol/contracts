@@ -1,3 +1,5 @@
+require('dotenv').config()
+
 import { BigNumber } from 'ethers'
 import { parseEther } from 'ethers/lib/utils'
 
@@ -121,8 +123,8 @@ export const DEFAULT_SWAP_ADMIN_FEE: string = '0'
 export const DEFAULT_SWAP_WITHDRAWAL_FEE: string = '0'
 
 export const POLYGON_RPC_ENDPOINTS: any = {
-  MAINNET: 'https://polygon.rpc.hop.exchange',
-  GOERLI: 'https://mumbai.rpc.hop.exchange'
+  MAINNET: process.env.RPC_ENDPOINT_POLYGON,
+  GOERLI: process.env.RPC_ENDPOINT_GOERLI
 }
 
 export const FX_ROOT_ADDRESSES: any = {
