@@ -56,7 +56,7 @@ import {
   USER_INITIAL_BALANCE
 } from '../../config/constants'
 
-describe('L1_Bridge', () => {
+describe.skip('L1_Bridge', () => {
   let _fixture: IFixture
   let l1ChainId: BigNumber
   let l2ChainId: BigNumber

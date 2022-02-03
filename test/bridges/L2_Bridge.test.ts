@@ -347,7 +347,7 @@ describe('L2_Bridge', () => {
   })
 
   describe('commitTransfers', async () => {
-    it('Should commit a transfer automatically after maxPendingAmount sends', async () => {
+    it.skip('Should commit a transfer automatically after maxPendingAmount sends', async () => {
       const customTransfer: Transfer = new Transfer(transfer)
       customTransfer.amount = BigNumber.from('100')
       customTransfer.bonderFee = BigNumber.from('0')

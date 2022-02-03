@@ -126,9 +126,8 @@ export const isChainIdOptimism = (chainId: BigNumber): boolean => {
 
 export const isChainIdArbitrum = (chainId: BigNumber): boolean => {
   if (
-    chainId.eq(CHAIN_IDS.ARBITRUM.TESTNET_2) ||
-    chainId.eq(CHAIN_IDS.ARBITRUM.TESTNET_3) ||
-    chainId.eq(CHAIN_IDS.ARBITRUM.TESTNET_4)
+    chainId.eq(CHAIN_IDS.ARBITRUM.ARBITRUM_TESTNET) ||
+    chainId.eq(CHAIN_IDS.ARBITRUM.ARBITRUM_MAINNET)
   ) {
     return true
   }
