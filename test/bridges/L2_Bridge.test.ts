@@ -30,7 +30,7 @@ import {
   executeL2BridgeBondWithdrawalAndDistribute,
   executeCanonicalMessengerSendMessage,
   getSetAmmWrapperMessage,
-  getSetL1BridgeConnectorMessage,
+  getSetBridgeConnectorMessage,
   getSetL1CallerMessage,
   getAddActiveChainIdsMessage,
   getRemoveActiveChainIdsMessage,
@@ -240,14 +240,14 @@ describe('L2_Bridge', () => {
     })
 
     it('Should set the L1 bridge connector arbitrarily', async () => {
-      const expectedL1BridgeConnectorAddress: string = ONE_ADDRESS
+      const expectedBridgeConnectorAddress: string = ONE_ADDRESS
 
-      await l2_bridge.connect(governance).setL1BridgeConnector(
-        expectedL1BridgeConnectorAddress
+      await l2_bridge.connect(governance).setBridgeConnector(
+        expectedBridgeConnectorAddress
       )
 
-      const l1BridgeAddress: string = await l2_bridge.l1BridgeConnector()
-      expect(l1BridgeAddress).to.eq(expectedL1BridgeConnectorAddress)
+      const l1BridgeAddress: string = await l2_bridge.bridgeConnector()
+      expect(l1BridgeAddress).to.eq(expectedBridgeConnectorAddress)
     })
 
     it('Should add support for a new chainId', async () => {
@@ -620,7 +620,7 @@ describe('L2_Bridge', () => {
       const expectedErrorMsg: string = 'Ownable: caller is not the owner'
       const expectedL1BridgeAddress: string = ONE_ADDRESS
 
-      const message: string = getSetL1BridgeConnectorMessage(
+      const message: string = getSetBridgeConnectorMessage(
         expectedL1BridgeAddress
       )
       await expect(

@@ -44,7 +44,7 @@ describe.skip('Arbitrum Messenger Wrapper', () => {
   it('Should set the correct values in the constructor', async () => {
     const expectedL1BridgeAddress: string = l1_bridge.address
 
-    const l1BridgeAddress: string = await l1_messengerWrapper.owner()
+    const l1BridgeAddress: string = await l1_messengerWrapper.localAddress()
 
     expect(expectedL1BridgeAddress).to.eq(l1BridgeAddress)
   })

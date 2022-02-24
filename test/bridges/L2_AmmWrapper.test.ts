@@ -30,7 +30,7 @@ import {
   executeL2BridgeBondWithdrawalAndDistribute,
   executeCanonicalMessengerSendMessage,
   getSetAmmWrapperMessage,
-  getSetL1BridgeConnectorMessage,
+  getSetBridgeConnectorMessage,
   getSetL1CallerMessage,
   getAddActiveChainIdsMessage,
   getRemoveActiveChainIdsMessage,

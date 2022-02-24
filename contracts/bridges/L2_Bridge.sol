@@ -10,6 +10,7 @@ import "./Bridge.sol";
 import "./HopBridgeToken.sol";
 import "../libraries/Lib_MerkleTree.sol";
 import "./L2_AmmWrapper.sol";
+import "./L1_Bridge.sol";
 
 /**
  * @dev The L2_Bridge is responsible for aggregating pending Transfers into TransferRoots. Each newly
@@ -21,7 +22,7 @@ abstract contract L2_Bridge is Bridge {
     using SafeERC20 for IERC20;
 
     HopBridgeToken public immutable hToken;
-    address public l1BridgeConnector;
+    address public bridgeConnector;
     L2_AmmWrapper public ammWrapper;
     mapping(uint256 => bool) public activeChainIds;
     uint256 public minimumForceCommitDelay = 1 days;
@@ -76,7 +77,7 @@ abstract contract L2_Bridge is Bridge {
     );
 
     modifier onlyL1Bridge {
-        require(msg.sender == l1BridgeConnector, "L2_BRG: xDomain caller must be L1 Bridge");
+        require(msg.sender == bridgeConnector, "L2_BRG: xDomain caller must be L1 Bridge");
         _;
     }
 
@@ -88,6 +89,7 @@ abstract contract L2_Bridge is Bridge {
         public
         Bridge(registry)
     {
+        require(_hToken != HopBridgeToken(0), "L2_BRG: Cannot set hToken to zero address");
         hToken = _hToken;
 
         for (uint256 i = 0; i < _activeChainIds.length; i++) {
@@ -280,21 +282,16 @@ abstract contract L2_Bridge is Bridge {
 
         lastCommitTime[destinationChainId][bonder] = block.timestamp;
         rootIndex[destinationChainId][bonder]++;
+        pendingAmount[destinationChainId][bonder] = 0;
+        delete pendingTransferIds[destinationChainId][bonder];
 
-        bytes memory confirmTransferRootMessage = abi.encodeWithSignature(
-            "confirmTransferRoot(uint256,bytes32,uint256,uint256,uint256)",
+        L1_Bridge(bridgeConnector).confirmTransferRoot(
             getChainId(),
             rootHash,
             destinationChainId,
             totalAmount,
             rootCommittedAt
         );
-
-        pendingAmount[destinationChainId][bonder] = 0;
-        delete pendingTransferIds[destinationChainId][bonder];
-
-        (bool success,) = l1BridgeConnector.call(confirmTransferRootMessage);
-        require(success, "L2_BRG: Call to L1 bridge failed");
     }
 
     function _distribute(
@@ -337,11 +334,13 @@ abstract contract L2_Bridge is Bridge {
     /* ========== External Config Management Functions ========== */
 
     function setAmmWrapper(L2_AmmWrapper _ammWrapper) external onlyOwner {
+        require(_ammWrapper != L2_AmmWrapper(0), "L2_BRG: Cannot set ammWrapper to zero address");
         ammWrapper = _ammWrapper;
     }
 
-    function setL1BridgeConnector(address _l1BridgeConnector) external onlyOwner {
-        l1BridgeConnector = _l1BridgeConnector;
+    function setBridgeConnector(address _bridgeConnector) external onlyOwner {
+        require(_bridgeConnector != address(0), "L2_BRG: Cannot set bridgeConnector to zero address");
+        bridgeConnector = _bridgeConnector;
     }
 
     function addActiveChainIds(uint256[] calldata chainIds) external onlyOwner {

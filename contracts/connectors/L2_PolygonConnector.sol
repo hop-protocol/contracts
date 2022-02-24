@@ -5,20 +5,20 @@ pragma solidity 0.7.3;
 import "../polygon/tunnel/FxBaseChildTunnel.sol";
 
 contract L2_PolygonConnector is FxBaseChildTunnel {
-    address public owner;
+    address public localAddress;
 
     constructor (
-        address _owner,
+        address _localAddress,
         address _fxChild
     )
         public
         FxBaseChildTunnel(_fxChild)
     {
-        owner = _owner;
+        localAddress = _localAddress;
     }
 
     fallback () external {
-        require(msg.sender == owner, "L2_PLGN_CNR: Only owner can forward messages");
+        require(msg.sender == localAddress, "L2_PLGN_CNR: Only localAddress can forward messages");
         _sendMessageToRoot(msg.data);
     }
 
@@ -33,7 +33,7 @@ contract L2_PolygonConnector is FxBaseChildTunnel {
         override
         validateSender(sender)
     {
-        (bool success,) = owner.call(data);
+        (bool success,) = localAddress.call(data);
         require(success, "L2_PLGN_CNR: Failed to proxy message");
     }
 }

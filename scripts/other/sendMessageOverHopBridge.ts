@@ -9,7 +9,7 @@ import {
 
 import {
   executeCanonicalMessengerSendMessage,
-  getSetL1BridgeConnectorMessage,
+  getSetBridgeConnectorMessage,
   getAddBonderMessage,
 } from '../../test/shared/contractFunctionWrappers'
 

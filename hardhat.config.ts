@@ -16,11 +16,6 @@ const desiredAccounts: string[] = [
   process.env.GOVERNANCE_PRIVATE_KEY
 ]
 
-const isOptimizerEnabled: boolean = true
-// 50k for normal, 1 for Optimism
-// const numOptimizerRuns: number = 1
-const numOptimizerRuns: number = 50000
-
 // You have to export an object to set up your config
 // This object can have the following optional entries:
 // defaultNetwork, networks, solc, and paths.
@@ -114,84 +109,30 @@ export default {
   solidity: {
     compilers: [
       {
-        settings: {
-          optimizer: {
-            enabled: isOptimizerEnabled,
-            runs: numOptimizerRuns
-          }
-        },
         version: '0.7.3'
       },
       {
-        settings: {
-          optimizer: {
-            enabled: isOptimizerEnabled,
-            runs: numOptimizerRuns
-          }
-        },
         version: '0.7.0'
       },
       {
-        settings: {
-          optimizer: {
-            enabled: isOptimizerEnabled,
-            runs: numOptimizerRuns
-          }
-        },
         version: '0.6.12'
       },
       {
-        settings: {
-          optimizer: {
-            enabled: isOptimizerEnabled,
-            runs: numOptimizerRuns
-          }
-        },
         version: '0.6.11'
       },
       {
-        settings: {
-          optimizer: {
-            enabled: isOptimizerEnabled,
-            runs: numOptimizerRuns
-          }
-        },
         version: '0.6.6'
       },
       {
-        settings: {
-          optimizer: {
-            enabled: isOptimizerEnabled,
-            runs: numOptimizerRuns
-          }
-        },
         version: '0.5.17'
       },
       {
-        settings: {
-          optimizer: {
-            enabled: isOptimizerEnabled,
-            runs: numOptimizerRuns
-          }
-        },
         version: '0.5.16'
       },
       {
-        settings: {
-          optimizer: {
-            enabled: isOptimizerEnabled,
-            runs: numOptimizerRuns
-          }
-        },
         version: '0.5.11'
       },
       {
-        settings: {
-          optimizer: {
-            enabled: isOptimizerEnabled,
-            runs: numOptimizerRuns
-          }
-        },
         version: '0.4.25'
       }
     ]
