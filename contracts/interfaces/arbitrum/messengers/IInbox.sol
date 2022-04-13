@@ -23,7 +23,7 @@ import "./IBridge.sol";
 interface IInbox {
     function sendL2Message(bytes calldata messageData) external returns (uint256);
     function bridge() external view returns (IBridge);
-    function createRetryableTicket(
+    function createRetryableTicketNoRefundAliasRewrite(
         address destAddr,
         uint256 l2CallValue,
         uint256 maxSubmissionCost,

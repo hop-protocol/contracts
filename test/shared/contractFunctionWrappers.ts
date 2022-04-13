@@ -98,7 +98,7 @@ export const executeCanonicalMessengerSendMessage = async (
     const overrides = {
       value
     }
-    tx = await l1_messenger.connect(sender).createRetryableTicket(...arbitrumParams, overrides)
+    tx = await l1_messenger.connect(sender).createRetryableTicketNoRefundAliasRewrite(...arbitrumParams, overrides)
   } else if (isChainIdOptimism(l2ChainId)) {
     const optimismGasLimit: BigNumber = BigNumber.from('5000000')
     const optimismParams: any[] = [l2_bridge.address, message, optimismGasLimit]

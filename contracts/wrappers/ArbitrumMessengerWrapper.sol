@@ -50,7 +50,7 @@ contract ArbitrumMessengerWrapper is MessengerWrapper, Ownable {
      * @param _calldata The data that l2BridgeAddress will be called with
      */
     function sendCrossDomainMessage(bytes memory _calldata) public override onlyL1Bridge {
-        l1MessengerAddress.createRetryableTicket(
+        l1MessengerAddress.createRetryableTicketNoRefundAliasRewrite(
             l2BridgeAddress,
             0,
             maxSubmissionCost,
@@ -86,7 +86,7 @@ contract ArbitrumMessengerWrapper is MessengerWrapper, Ownable {
         public
         onlyOwner
     {
-        l1MessengerAddress.createRetryableTicket(
+        l1MessengerAddress.createRetryableTicketNoRefundAliasRewrite(
             _recipient,
             _l2CallValue,
             _maxSubmissionCost,
