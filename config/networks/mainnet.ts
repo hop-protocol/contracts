@@ -49,6 +49,11 @@ export const networkData: NetworkData = {
         l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.POLYGON.WBTC,
         ...DEFAULT_NETWORK_DATA.WBTC
       },
+      FRAX: {
+        l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.MAINNET.FRAX,
+        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.POLYGON.FRAX,
+        ...DEFAULT_NETWORK_DATA.FRAX
+      },
     }
   },
   xdai: {
@@ -129,6 +134,11 @@ export const networkData: NetworkData = {
         l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.OPTIMISM_MAINNET.WBTC,
         ...DEFAULT_NETWORK_DATA.WBTC
       },
+      FRAX: {
+        l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.MAINNET.FRAX,
+        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.OPTIMISM_MAINNET.FRAX,
+        ...DEFAULT_NETWORK_DATA.FRAX
+      },
     }
   },
   arbitrum: {
@@ -163,6 +173,11 @@ export const networkData: NetworkData = {
         l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.MAINNET.WBTC,
         l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.ARBITRUM_MAINNET.WBTC,
         ...DEFAULT_NETWORK_DATA.WBTC
+      },
+      FRAX: {
+        l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.MAINNET.FRAX,
+        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.ARBITRUM_MAINNET.FRAX,
+        ...DEFAULT_NETWORK_DATA.FRAX
       },
     }
   }

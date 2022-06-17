@@ -62,5 +62,13 @@ export const DEFAULT_NETWORK_DATA = {
     l2SwapLpTokenName: 'Hop MATIC LP Token',
     l2SwapLpTokenSymbol: 'HOP-LP-MATIC',
     liquidityProviderSendAmount: '1000000000000000000'
+  },
+  FRAX: {
+    l2HBridgeTokenName: 'Frax Hop Token',
+    l2HBridgeTokenSymbol: 'hFRAX',
+    l2HBridgeTokenDecimals: 18,
+    l2SwapLpTokenName: 'Hop FRAX LP Token',
+    l2SwapLpTokenSymbol: 'HOP-LP-FRAX',
+    liquidityProviderSendAmount: '1000000000000000000'
   }
 }
