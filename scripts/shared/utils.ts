@@ -277,8 +277,8 @@ export const waitAfterTransaction = async (
     await contract.deployed()
   }
 
-  // NOTE: 6 seconds seems to work fine. 5 seconds does not always work
-  const secondsToWait = 6e3
+  // Some endpoints are unreliable. 20s+ here helps with a smooth deployment process
+  const secondsToWait = 20e3
   await wait(secondsToWait)
 
   if (contract && ethers) {

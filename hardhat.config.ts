@@ -17,8 +17,6 @@ const desiredAccounts: string[] = [
 ]
 
 const isOptimizerEnabled: boolean = true
-// 50k for normal, 1 for Optimism
-// const numOptimizerRuns: number = 1
 const numOptimizerRuns: number = 50000
 
 // You have to export an object to set up your config
@@ -55,7 +53,6 @@ export default {
     arbitrum_mainnet: {
       url: process.env.RPC_ENDPOINT_ARBITRUM_MAINNET,
       accounts: desiredAccounts,
-      gasPrice: 0,
       chainId: CHAIN_IDS.ARBITRUM.ARBITRUM_MAINNET.toNumber(),
       timeout: 480e3
     },
@@ -69,11 +66,8 @@ export default {
     optimism_mainnet: {
       url: process.env.RPC_ENDPOINT_OPTIMISM_MAINNET,
       accounts: desiredAccounts,
-      gasPrice: 15000000,
-      // gasPrice: 10000000000,
       chainId: CHAIN_IDS.OPTIMISM.OPTIMISM_MAINNET.toNumber(),
-      timeout: 480e3,
-      ovm: true
+      timeout: 480e3
     },
     optimism_testnet: {
       url: process.env.RPC_ENDPOINT_OPTIMISM_TESTNET,
@@ -81,8 +75,7 @@ export default {
       gasPrice: 15000000,
       // gasPrice: 10000000000,
       chainId: CHAIN_IDS.OPTIMISM.OPTIMISM_TESTNET.toNumber(),
-      timeout: 480e3,
-      ovm: true
+      timeout: 480e3
     },
     xdai: {
       url: process.env.RPC_ENDPOINT_XDAI,
@@ -112,10 +105,6 @@ export default {
       gas: 500000,
       chainId: CHAIN_IDS.POLYGON.MUMBAI.toNumber()
     }
-  },
-  ovm: {
-    solcVersion: '0.6.12'
-    // solcVersion: '0.7.6+commit.3b061308',
   },
   solidity: {
     compilers: [
