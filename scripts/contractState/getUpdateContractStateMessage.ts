@@ -1,5 +1,5 @@
 require('dotenv').config()
-import { BigNumber } from 'ethers'
+import { BigNumber, utils } from 'ethers'
 import prompt from 'prompt'
 
 import {
@@ -40,47 +40,9 @@ const FUNCTIONS = {
   SET_MESSENGER_PROXY: 'setMessengerProxy'
 }
 
-async function main () {
-  let functionToCall: string
-  let input: any
-
-  ;({
-    functionToCall,
-    input
-  } = await getPromptRes())
-
+export async function getUpdateContractStateMessage (functionToCall: string, input: any) {
   const messageToSend: string = getMessageToSend(functionToCall, input)
-
-  console.log('------------')
-  console.log('Message data:', messageToSend)
-  console.log('Address to call is the `l1_messenger` on all networks except Polygon/Mumbai where it is `l1_messengerWrapper`')
-  console.log('See executeCanonicalMessengerSendMessage() for additional params')
-  console.log('xDai messenger is labeled l1Amb in the addresses package')
-  console.log('Optimism messenger is the Proxy__OVM_L1CrossDomainMessenger in their addresses repository')
-}
-
-const getPromptRes = async() => {
-  prompt.start()
-  prompt.message = ''
-  prompt.delimiter = ''
-
-  const res = await prompt.get([{
-    name: 'functionToCall',
-    type: 'string',
-    required: true,
-  }, {
-    name: 'input',
-    type: 'any',
-    required: true
-  }])
-
-  const functionToCall: string = (res.functionToCall as string)
-  const input: any = res.input
-
-  return {
-    functionToCall,
-    input
-  }
+  return messageToSend
 }
 
 const getMessageToSend = (
@@ -145,9 +107,3 @@ const getMessageToSend = (
     }
   }
 }
-
-main()
-  .catch(error => {
-    console.error(error)
-  })
-  .finally(() => process.exit(0))
