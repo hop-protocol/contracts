@@ -7,10 +7,15 @@ pragma experimental ABIEncoderV2;
 import "../polygon/ReentrancyGuard.sol";
 import "../polygon/tunnel/FxBaseChildTunnel.sol";
 
+contract L2Bridge {
+    function commitTransfers(uint256 destinationChainId) external {}
+}
+
 contract L2_PolygonMessengerProxy is FxBaseChildTunnel, ReentrancyGuard {
 
     address public l2Bridge;
     address public xDomainMessageSender;
+    bool private canCommit = false;
 
     address constant public DEAD_ADDRESS = 0x000000000000000000000000000000000000dEaD;
 
@@ -28,7 +33,15 @@ contract L2_PolygonMessengerProxy is FxBaseChildTunnel, ReentrancyGuard {
         l2Bridge = _l2Bridge;
     }
 
+    function commitTransfers(uint256 destinationChainId) external {
+        require(msg.sender == tx.origin, "L2_PLGN_BRG_WRAP: Sender must be origin");
+        canCommit = true;
+        L2Bridge(l2Bridge).commitTransfers(destinationChainId);
+        canCommit = false;
+    }
+
     function sendCrossDomainMessage(bytes memory message) external onlyL2Bridge {
+        require(canCommit, "L2_PLGN_MSG: Unable to commit");
         _sendMessageToRoot(message);
     }
 

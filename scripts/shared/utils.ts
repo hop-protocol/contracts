@@ -245,6 +245,7 @@ export const readConfigFile = () => {
     l2AmmWrapperAddress: '',
     l2SwapLpTokenName: '',
     l2SwapLpTokenSymbol: '',
+    l2MessengerProxyAddress: '',
     bonderAddress: ''
   }
   if (fs.existsSync(configFilepath)) {
