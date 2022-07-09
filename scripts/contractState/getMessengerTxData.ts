@@ -5,17 +5,6 @@ import prompt from 'prompt'
 import { getUpdateContractStateMessage } from './getUpdateContractStateMessage'
 
 const governanceAddress: string = '0xF56e305024B195383245A075737d16dBdb8487Fb'
-
-const TxTypes = {
-  Queue: 'queue',
-  Execute: 'execute'
-}
-
-type TimelockData = {
-  abi: string
-  name: string
-}
-
 const chains: Record<string, string> = {
   Gnosis: 'gnosis',
   Polygon: 'polygon',
@@ -91,7 +80,10 @@ const l2BridgeAddresses: Record<string, Record<string, string>> = {
 
 async function main () {
   const res = await getPromptRes()
-  const { token, functionToCall, input, txType } = res
+  const { token, functionToCall, input } = res
+  if (!tokens.includes(token)) {
+    throw new Error('Invalid token')
+  }
 
   const timestamp = 1656637200
   const defaultValue = 0
@@ -107,7 +99,7 @@ async function main () {
   data = ethersInterface.encodeFunctionData(
     'requireToPassMessage', [l2BridgeAddresses['gnosis'][token], calldata, '1500000']
   )
-  logData(chains.Gnosis, abi, token, data, defaultValue, timestamp, txType)
+  logData(chains.Gnosis, abi, token, data, defaultValue, timestamp)
 
   // Polygon
   abi = ['function sendCrossDomainMessage(bytes)']
@@ -115,7 +107,7 @@ async function main () {
   data = ethersInterface.encodeFunctionData(
     'sendCrossDomainMessage', [calldata]
   )
-  logData(chains.Polygon, abi, token, data, defaultValue, timestamp, txType)
+  logData(chains.Polygon, abi, token, data, defaultValue, timestamp)
 
   if (token === 'MATIC') return
 
@@ -125,7 +117,7 @@ async function main () {
   data = ethersInterface.encodeFunctionData(
     'sendMessage', [l2BridgeAddresses['optimism'][token], calldata, '5000000']
   )
-  logData(chains.Optimism, abi, token, data, defaultValue, timestamp, txType)
+  logData(chains.Optimism, abi, token, data, defaultValue, timestamp)
 
   // Arbitrum
   abi = ['function createRetryableTicket(address,uint256,uint256,address,address,uint256,uint256,bytes)']
@@ -134,7 +126,7 @@ async function main () {
     'createRetryableTicket', [l2BridgeAddresses['arbitrum'][token], 0, '100000000000000', governanceAddress, governanceAddress, '1000000', '5000000000', calldata]
   )
   const value = 0.01
-  logData(chains.Arbitrum, abi, token, data, value, timestamp, txType)
+  logData(chains.Arbitrum, abi, token, data, value, timestamp)
 }
 
 const getPromptRes = async() => {
@@ -157,34 +149,16 @@ const getPromptRes = async() => {
     type: 'any',
     description: 'Function input',
     required: true
-  }, {
-    name: 'txType',
-    type: 'string',
-    description: 'Queue or execute',
-    required: true
   }])
 
   const token: string = (res.token as string)
   const functionToCall: string = (res.functionToCall as string)
   const input: any = res.input
-  const txType: any = (res.txType as string).toLowerCase()
-
-  if (!tokens.includes(token)) {
-    throw new Error('Invalid token')
-  }
-
-  if (
-    txType !== TxTypes.Queue &&
-    txType !== TxTypes.Execute
-  ) {
-    throw new Error('Tx type must be queue or execute')
-  }
 
   return {
     token,
     functionToCall,
-    input,
-    txType
+    input
   }
 }
 
@@ -194,35 +168,18 @@ const logData = (
   token: string,
   data: string,
   value: number,
-  eta: number,
-  txType: string
+  eta: number
 ) => {
-  const target = targetAddresses[chain][token]
-  const signature = abi[0].substring(9)
-  const callData = '0x' + data.substring(10)
-  const valueInWei = value === 0 ? value : ethersUtils.parseUnits(value.toString())
-  const timelockData: TimelockData = getTimelockData(txType)
-
-  const timelockAbi = [timelockData.abi]
-  const ethersInterface = new ethersUtils.Interface(timelockAbi)
-  const timelockCalldata = ethersInterface.encodeFunctionData(
-    timelockData.name, [target, valueInWei, signature, callData, eta]
-  )
-
   console.log(`\n${chain}`)
-  console.log(timelockCalldata)
+  console.log(`target: ${targetAddresses[chain][token]}`)
+  console.log(`value: ${value}`)
+  console.log(`sig: ${abi[0].substring(9)}`)
+  console.log(`data: 0x${data.substring(10)}`)
+  console.log(`eta: ${eta} (${new Date(eta * 1000)})`)
 
   if (chain === chains.Arbitrum) {
     const valueToSend = 10000000000000000
     console.log(`value to send: ${valueToSend}`)
-  }
-}
-
-function getTimelockData (txType: string): TimelockData {
-  const name = txType === 'queue' ? 'queueTransaction' : 'executeTransaction'
-  return {
-    abi: `function ${name}(address,uint256,string,bytes,uint256)`,
-    name
   }
 }
 
