@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: MIT
 
-pragma solidity >=0.6.12 <=0.8.9;
+pragma solidity >=0.6.12 <=0.8.15;
 pragma experimental ABIEncoderV2;
 
 import "../interfaces/IMessengerWrapper.sol";

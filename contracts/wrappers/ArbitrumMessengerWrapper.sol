@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // @unsupported: ovm
 
-pragma solidity 0.6.12;
+pragma solidity 0.8.15;
 pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -19,30 +19,20 @@ contract ArbitrumMessengerWrapper is MessengerWrapper, Ownable {
 
     IInbox public immutable l1MessengerAddress;
     address public l2BridgeAddress;
-    uint256 public maxSubmissionCost;
     address public l1MessengerWrapperAlias;
-    uint256 public maxGas;
-    uint256 public gasPriceBid;
     uint160 constant offset = uint160(0x1111000000000000000000000000000000001111);
 
     constructor(
         address _l1BridgeAddress,
         address _l2BridgeAddress,
-        IInbox _l1MessengerAddress,
-        uint256 _maxSubmissionCost,
-        uint256 _maxGas,
-        uint256 _gasPriceBid
-        
+        IInbox _l1MessengerAddress
     )
         public
         MessengerWrapper(_l1BridgeAddress)
     {
         l2BridgeAddress = _l2BridgeAddress;
         l1MessengerAddress = _l1MessengerAddress;
-        maxSubmissionCost = _maxSubmissionCost;
         l1MessengerWrapperAlias = applyL1ToL2Alias(address(this));
-        maxGas = _maxGas;
-        gasPriceBid = _gasPriceBid;
     }
 
     /** 
@@ -50,14 +40,21 @@ contract ArbitrumMessengerWrapper is MessengerWrapper, Ownable {
      * @param _calldata The data that l2BridgeAddress will be called with
      */
     function sendCrossDomainMessage(bytes memory _calldata) public override onlyL1Bridge {
-        l1MessengerAddress.createRetryableTicketNoRefundAliasRewrite(
+        uint256 submissionFee;
+        try l1MessengerAddress.calculateRetryableSubmissionFee(_calldata.length, block.basefee) returns (uint256 fee) {
+            submissionFee = fee;
+        } catch {
+            submissionFee = calculateRetryableSubmissionFee(_calldata.length, block.basefee);
+        }
+
+        l1MessengerAddress.unsafeCreateRetryableTicket{ value: submissionFee }(
             l2BridgeAddress,
             0,
-            maxSubmissionCost,
+            submissionFee,
             l1MessengerWrapperAlias,
             l1MessengerWrapperAlias,
-            maxGas,
-            gasPriceBid,
+            0,
+            0,
             _calldata
         );
     }
@@ -106,21 +103,24 @@ contract ArbitrumMessengerWrapper is MessengerWrapper, Ownable {
         return address(uint160(l1Address) + offset);
     }
 
-    /* ========== External Config Management Functions ========== */
-
-    function setMaxSubmissionCost(uint256 _newMaxSubmissionCost) external onlyOwner {
-        maxSubmissionCost = _newMaxSubmissionCost;
+    /**
+     * @notice Get the L1 fee for submitting a retryable
+     * @dev This fee can be paid by funds already in the L2 aliased address or by the current message value
+     * @dev This formula may change in the future, to future proof your code query this method instead of inlining!!
+     * @param dataLength The length of the retryable's calldata, in bytes
+     * @param baseFee The block basefee when the retryable is included in the chain
+     */
+    function calculateRetryableSubmissionFee(uint256 dataLength, uint256 baseFee)
+        public
+        pure
+        returns (uint256)
+    {
+        return (1400 + 6 * dataLength) * baseFee;
     }
+
+    /* ========== External Config Management Functions ========== */
 
     function setL1MessengerWrapperAlias(address _newL1MessengerWrapperAlias) external onlyOwner {
         l1MessengerWrapperAlias = _newL1MessengerWrapperAlias;
-    }
-
-    function setMaxGas(uint256 _newMaxGas) external onlyOwner {
-        maxGas = _newMaxGas;
-    }
-
-    function setGasPriceBid(uint256 _newGasPriceBid) external onlyOwner {
-        gasPriceBid = _newGasPriceBid;
     }
 }
