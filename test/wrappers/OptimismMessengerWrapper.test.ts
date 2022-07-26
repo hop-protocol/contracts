@@ -25,7 +25,7 @@ describe('Optimism Messenger Wrapper', () => {
   let l2_bridge: Contract
 
   beforeEach(async () => {
-    l1ChainId = CHAIN_IDS.ETHEREUM.KOVAN
+    l1ChainId = CHAIN_IDS.ETHEREUM.GOERLI
     l2ChainId = CHAIN_IDS.OPTIMISM.OPTIMISM_TESTNET
     _fixture = await fixture(l1ChainId, l2ChainId)
     await setUpDefaults(_fixture)

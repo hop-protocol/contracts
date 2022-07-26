@@ -19,36 +19,41 @@ export const networkData: NetworkData = {
     l2TokenBridgeAddress: ZERO_ADDRESS,
     l2MessengerAddress: ZERO_ADDRESS,
     tokens: {
-      DAI: {
-        l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.GOERLI.DAI,
-        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.MUMBAI.DAI,
-        ...DEFAULT_NETWORK_DATA.DAI
-      },
-      sETH: {
-        l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.GOERLI.sETH,
-        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.MUMBAI.sETH,
-        ...DEFAULT_NETWORK_DATA.sETH
-      },
-      sBTC: {
-        l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.GOERLI.sBTC,
-        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.MUMBAI.sBTC,
-        ...DEFAULT_NETWORK_DATA.sBTC
-      },
-      USDC: {
-        l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.GOERLI.USDC,
-        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.MUMBAI.USDC,
-        ...DEFAULT_NETWORK_DATA.USDC
-      },
       ETH: {
         l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.GOERLI.ETH,
         l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.MUMBAI.ETH,
         ...DEFAULT_NETWORK_DATA.ETH
       },
-      WBTC: {
-        l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.GOERLI.WBTC,
-        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.MUMBAI.WBTC,
-        ...DEFAULT_NETWORK_DATA.WBTC
+    }
+  },
+  optimism: {
+    l2NetworkName: 'optimism',
+    l1ChainId,
+    l2ChainId: CHAIN_IDS.OPTIMISM.OPTIMISM_TESTNET.toString(),
+    l1MessengerAddress: 'TODO',
+    l2TokenBridgeAddress: 'TODO',
+    l2MessengerAddress: 'TODO',
+    tokens: {
+      ETH: {
+        l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.GOERLI.ETH,
+        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.OPTIMISM_TESTNET.ETH,
+        ...DEFAULT_NETWORK_DATA.ETH
+      },
+    }
+  },
+  arbitrum: {
+    l2NetworkName: 'arbitrum',
+    l1ChainId,
+    l2ChainId: CHAIN_IDS.ARBITRUM.ARBITRUM_TESTNET.toString(),
+    l1MessengerAddress: 'TODO',
+    l2TokenBridgeAddress: ZERO_ADDRESS,
+    l2MessengerAddress: '0x0000000000000000000000000000000000000064',
+    tokens: {
+      ETH: {
+        l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.GOERLI.ETH,
+        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.ARBITRUM_TESTNET.ETH,
+        ...DEFAULT_NETWORK_DATA.ETH
       }
     }
-  }
+  },
 }

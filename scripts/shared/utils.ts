@@ -27,7 +27,6 @@ import {
 import {
   mainnetNetworkData,
   goerliNetworkData,
-  kovanNetworkData,
   rinkebyNetworkData
 } from '../../config/networks/index'
 
@@ -259,8 +258,6 @@ export const getNetworkDataByNetworkName = (networkName: string) => {
     return mainnetNetworkData
   } else if (networkName === 'goerli') {
     return goerliNetworkData
-  } else if (networkName === 'kovan') {
-    return kovanNetworkData
   } else if (networkName === 'rinkeby') {
     return rinkebyNetworkData
   } else {

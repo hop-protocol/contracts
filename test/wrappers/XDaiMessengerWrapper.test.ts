@@ -30,8 +30,8 @@ describe('XDai Messenger Wrapper', () => {
   let l2_bridge: Contract
 
   beforeEach(async () => {
-    l1ChainId = CHAIN_IDS.ETHEREUM.KOVAN
-    l2ChainId = CHAIN_IDS.XDAI.SOKOL
+    l1ChainId = CHAIN_IDS.ETHEREUM.MAINNET
+    l2ChainId = CHAIN_IDS.XDAI.XDAI
 
     _fixture = await fixture(l1ChainId, l2ChainId)
     await setUpDefaults(_fixture)

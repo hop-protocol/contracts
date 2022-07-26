@@ -4,7 +4,6 @@ import { BigNumber } from 'ethers'
 
 // NOTE: This works with both L1 and L2. Specify the network in the CLI.
 // Example usage:
-// $ npm run deploy:l1-kovan:erc20
 // $ npm run deploy:l1-goerli:erc20
 // $ npm run deploy:l2-optimism:erc20
 

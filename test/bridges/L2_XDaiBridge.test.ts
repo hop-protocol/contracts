@@ -102,8 +102,8 @@ describe('L2_XDai_Bridge', () => {
   before(async () => {
     beforeAllSnapshotId = await takeSnapshot()
 
-    l1ChainId = CHAIN_IDS.ETHEREUM.KOVAN
-    l2ChainId = CHAIN_IDS.XDAI.SOKOL
+    l1ChainId = CHAIN_IDS.ETHEREUM.GOERLI
+    l2ChainId = CHAIN_IDS.XDAI.XDAI
 
     _fixture = await fixture(l1ChainId, l2ChainId)
     await setUpDefaults(_fixture)

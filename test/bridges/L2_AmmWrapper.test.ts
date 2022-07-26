@@ -105,7 +105,7 @@ describe('L2_AmmWrapper', () => {
   before(async () => {
     beforeAllSnapshotId = await takeSnapshot()
 
-    l1ChainId = CHAIN_IDS.ETHEREUM.KOVAN
+    l1ChainId = CHAIN_IDS.ETHEREUM.GOERLI
     l2ChainId = CHAIN_IDS.OPTIMISM.OPTIMISM_TESTNET
     l22ChainId = CHAIN_IDS.ARBITRUM.ARBITRUM_TESTNET
 

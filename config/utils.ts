@@ -145,7 +145,7 @@ export const isChainIdArbitrum = (chainId: BigNumber): boolean => {
 }
 
 export const isChainIdXDai = (chainId: BigNumber): boolean => {
-  if (chainId.eq(CHAIN_IDS.XDAI.SOKOL) ||
+  if (
       chainId.eq(CHAIN_IDS.XDAI.XDAI)
   ) {
     return true
@@ -185,21 +185,10 @@ export const isChainIdGoerli = (chainId: BigNumber): boolean => {
   return false
 }
 
-export const isChainIdKovan = (chainId: BigNumber): boolean => {
-  if (
-    chainId.eq(CHAIN_IDS.ETHEREUM.KOVAN)
-  ) {
-    return true
-  }
-
-  return false
-}
-
 export const isChainIdL1 = (chainId: BigNumber): boolean => {
   if (
     isChainIdMainnet(chainId) ||
-    isChainIdGoerli(chainId) ||
-    isChainIdKovan(chainId)
+    isChainIdGoerli(chainId)
   ) {
     return true
   }
@@ -210,8 +199,6 @@ export const isChainIdL1 = (chainId: BigNumber): boolean => {
 export const getXDaiAmbAddresses = (l1ChainId: BigNumber): string => {
   if (isChainIdMainnet(l1ChainId)) {
     return AMB_PROXY_ADDRESSES.MAINNET
-  } else if (isChainIdKovan(l1ChainId)) {
-    return AMB_PROXY_ADDRESSES.KOVAN
   } else {
     throw new Error('Invalid Chain ID')
   }

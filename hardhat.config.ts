@@ -11,13 +11,18 @@ import 'hardhat-abi-exporter'
 
 import { CHAIN_IDS } from './config/constants'
 
-const desiredAccounts: string[] = [
-  process.env.DEPLOYER_PRIVATE_KEY,
-  process.env.GOVERNANCE_PRIVATE_KEY
-]
-
+// Compiler Config
 const isOptimizerEnabled: boolean = true
 const numOptimizerRuns: number = 50000
+
+// Network Config
+// NOTE: Defining an accounts const and using that in the networks config does not work with hardhat
+//       so we must use a different name than accounts
+const desiredAccounts: string[] = [
+  process.env.DEPLOYER_PRIVATE_KEY!,
+  process.env.GOVERNANCE_PRIVATE_KEY!
+]
+const timeout: number = 480e3
 
 // You have to export an object to set up your config
 // This object can have the following optional entries:
@@ -32,77 +37,67 @@ export default {
       url: process.env.RPC_ENDPOINT_MAINNET,
       accounts: desiredAccounts,
       chainId: CHAIN_IDS.ETHEREUM.MAINNET.toNumber(),
-      timeout: 480e3
-    },
-    kovan: {
-      url: process.env.RPC_ENDPOINT_KOVAN,
-      accounts: desiredAccounts,
-      chainId: CHAIN_IDS.ETHEREUM.KOVAN.toNumber(),
-      timeout: 480e3
+      timeout
     },
     goerli: {
       url: process.env.RPC_ENDPOINT_GOERLI,
       accounts: desiredAccounts,
-      chainId: CHAIN_IDS.ETHEREUM.GOERLI.toNumber()
+      chainId: CHAIN_IDS.ETHEREUM.GOERLI.toNumber(),
+      timeout
     },
     rinkeby: {
       url: process.env.RPC_ENDPOINT_RINKEBY,
       accounts: desiredAccounts,
-      chainId: CHAIN_IDS.ETHEREUM.RINKEBY.toNumber()
+      chainId: CHAIN_IDS.ETHEREUM.RINKEBY.toNumber(),
+      timeout
     },
     arbitrum_mainnet: {
       url: process.env.RPC_ENDPOINT_ARBITRUM_MAINNET,
       accounts: desiredAccounts,
       chainId: CHAIN_IDS.ARBITRUM.ARBITRUM_MAINNET.toNumber(),
-      timeout: 480e3
+      timeout
     },
     arbitrum_testnet: {
       url: process.env.RPC_ENDPOINT_ARBITRUM_TESTNET,
       accounts: desiredAccounts,
       chainId: CHAIN_IDS.ARBITRUM.ARBITRUM_TESTNET.toNumber(),
-      timeout: 480e3
+      timeout
     },
     optimism_mainnet: {
       url: process.env.RPC_ENDPOINT_OPTIMISM_MAINNET,
       accounts: desiredAccounts,
       chainId: CHAIN_IDS.OPTIMISM.OPTIMISM_MAINNET.toNumber(),
-      timeout: 480e3
+      timeout
     },
     optimism_testnet: {
       url: process.env.RPC_ENDPOINT_OPTIMISM_TESTNET,
       accounts: desiredAccounts,
-      gasPrice: 15000000,
-      // gasPrice: 10000000000,
       chainId: CHAIN_IDS.OPTIMISM.OPTIMISM_TESTNET.toNumber(),
-      timeout: 480e3
+      timeout
     },
     xdai: {
       url: process.env.RPC_ENDPOINT_XDAI,
       accounts: desiredAccounts,
       gasPrice: 1000000000,
       gas: 500000,
-      chainId: CHAIN_IDS.XDAI.XDAI.toNumber()
-    },
-    sokol: {
-      url: process.env.RPC_ENDPOINT_SOKOL,
-      accounts: desiredAccounts,
-      gasPrice: 1000000000,
-      gas: 500000,
-      chainId: CHAIN_IDS.XDAI.SOKOL.toNumber()
+      chainId: CHAIN_IDS.XDAI.XDAI.toNumber(),
+      timeout
     },
     polygon: {
       url: process.env.RPC_ENDPOINT_POLYGON,
       accounts: desiredAccounts,
       gasPrice: 1000000000,
       gas: 500000,
-      chainId: CHAIN_IDS.POLYGON.POLYGON.toNumber()
+      chainId: CHAIN_IDS.POLYGON.POLYGON.toNumber(),
+      timeout
     },
     mumbai: {
       url: process.env.RPC_ENDPOINT_MUMBAI,
       accounts: desiredAccounts,
       gasPrice: 1000000000,
       gas: 500000,
-      chainId: CHAIN_IDS.POLYGON.MUMBAI.toNumber()
+      chainId: CHAIN_IDS.POLYGON.MUMBAI.toNumber(),
+      timeout
     }
   },
   solidity: {
@@ -159,52 +154,7 @@ export default {
             runs: numOptimizerRuns
           }
         },
-        version: '0.6.11'
-      },
-      {
-        settings: {
-          optimizer: {
-            enabled: isOptimizerEnabled,
-            runs: numOptimizerRuns
-          }
-        },
-        version: '0.6.6'
-      },
-      {
-        settings: {
-          optimizer: {
-            enabled: isOptimizerEnabled,
-            runs: numOptimizerRuns
-          }
-        },
         version: '0.5.17'
-      },
-      {
-        settings: {
-          optimizer: {
-            enabled: isOptimizerEnabled,
-            runs: numOptimizerRuns
-          }
-        },
-        version: '0.5.16'
-      },
-      {
-        settings: {
-          optimizer: {
-            enabled: isOptimizerEnabled,
-            runs: numOptimizerRuns
-          }
-        },
-        version: '0.5.11'
-      },
-      {
-        settings: {
-          optimizer: {
-            enabled: isOptimizerEnabled,
-            runs: numOptimizerRuns
-          }
-        },
-        version: '0.4.25'
       }
     ]
   },

@@ -15,7 +15,7 @@ import {
 
 // Send an arbitrary message over the Hop Bridge. Useful for updating L2 Bridge state
 // Example usage:
-// $ npx hardhat run scripts/other/sendMessageOverHopBridge.ts --network kovan
+// $ npx hardhat run scripts/other/sendMessageOverHopBridge.ts --network goerli
 async function main () {
   // Addresses
   const l1_messengerAddress: string = '0xFe446bEF1DbF7AFE24E81e05BC8B271C1BA9a560'
@@ -24,7 +24,7 @@ async function main () {
   const l2_bridgeAddress: string = '0x0116f7Cc707486def830e8B5FbEEE13A237D2A08'
 
   // Chain Ids
-  const l2_chainId: BigNumber = CHAIN_IDS.XDAI.SOKOL
+  const l2_chainId: BigNumber = CHAIN_IDS.XDAI.XDAI
 
   // Contracts and Factories
   let L1_Bridge: ContractFactory
