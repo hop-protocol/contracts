@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 // @unsupported: ovm
 
-pragma solidity 0.8.15;
+pragma solidity 0.6.12;
 pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -40,14 +40,8 @@ contract ArbitrumMessengerWrapper is MessengerWrapper, Ownable {
      * @param _calldata The data that l2BridgeAddress will be called with
      */
     function sendCrossDomainMessage(bytes memory _calldata) public override onlyL1Bridge {
-        uint256 submissionFee;
-        try l1MessengerAddress.calculateRetryableSubmissionFee(_calldata.length, block.basefee) returns (uint256 fee) {
-            submissionFee = fee;
-        } catch {
-            submissionFee = calculateRetryableSubmissionFee(_calldata.length, block.basefee);
-        }
-
-        l1MessengerAddress.unsafeCreateRetryableTicket{ value: submissionFee }(
+        uint256 submissionFee = l1MessengerAddress.calculateRetryableSubmissionFee(_calldata.length, 0);
+        l1MessengerAddress.unsafeCreateRetryableTicket(
             l2BridgeAddress,
             0,
             submissionFee,
@@ -83,7 +77,7 @@ contract ArbitrumMessengerWrapper is MessengerWrapper, Ownable {
         public
         onlyOwner
     {
-        l1MessengerAddress.createRetryableTicketNoRefundAliasRewrite(
+        l1MessengerAddress.unsafeCreateRetryableTicket(
             _recipient,
             _l2CallValue,
             _maxSubmissionCost,
@@ -101,21 +95,6 @@ contract ArbitrumMessengerWrapper is MessengerWrapper, Ownable {
     /// @return The address in the L1 that triggered the tx to L2
     function applyL1ToL2Alias(address l1Address) internal pure returns (address) {
         return address(uint160(l1Address) + offset);
-    }
-
-    /**
-     * @notice Get the L1 fee for submitting a retryable
-     * @dev This fee can be paid by funds already in the L2 aliased address or by the current message value
-     * @dev This formula may change in the future, to future proof your code query this method instead of inlining!!
-     * @param dataLength The length of the retryable's calldata, in bytes
-     * @param baseFee The block basefee when the retryable is included in the chain
-     */
-    function calculateRetryableSubmissionFee(uint256 dataLength, uint256 baseFee)
-        public
-        pure
-        returns (uint256)
-    {
-        return (1400 + 6 * dataLength) * baseFee;
     }
 
     /* ========== External Config Management Functions ========== */

@@ -59,7 +59,6 @@ export default {
     arbitrum_testnet: {
       url: process.env.RPC_ENDPOINT_ARBITRUM_TESTNET,
       accounts: desiredAccounts,
-      gasPrice: 0,
       chainId: CHAIN_IDS.ARBITRUM.ARBITRUM_TESTNET.toNumber(),
       timeout: 480e3
     },
@@ -108,15 +107,6 @@ export default {
   },
   solidity: {
     compilers: [
-      {
-        settings: {
-          optimizer: {
-            enabled: isOptimizerEnabled,
-            runs: numOptimizerRuns
-          }
-        },
-        version: '0.8.15'
-      },
       {
         settings: {
           optimizer: {

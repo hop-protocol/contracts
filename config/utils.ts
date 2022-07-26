@@ -41,14 +41,8 @@ export const getMessengerWrapperDefaults = (
   ]
 
   if (isChainIdArbitrum(l2ChainId)) {
-    const maxSubmissionCost: BigNumber = DEFAULT_MAX_SUBMISSION_COST
-    const maxGas: number = DEFAULT_MAX_GAS
-    const gasPriceBid: number = DEFAULT_GAS_PRICE_BID
     data.push(
-      ...defaults,
-       maxSubmissionCost,
-       maxGas,
-       gasPriceBid
+      ...defaults
     )
   } else if (isChainIdOptimism(l2ChainId)) {
     const gasLimit: number = DEFAULT_MESSENGER_WRAPPER_GAS_LIMIT

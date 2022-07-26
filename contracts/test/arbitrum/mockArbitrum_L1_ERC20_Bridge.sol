@@ -35,7 +35,7 @@ contract Arbitrum_L1_ERC20_Bridge {
         );
 
         uint256 maxGas = 100000000000;
-        messenger.createRetryableTicketNoRefundAliasRewrite(
+        messenger.unsafeCreateRetryableTicket(
             _l2TokenAddress,
             0,
             0,
