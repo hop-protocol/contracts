@@ -20,7 +20,7 @@ export const networkData: NetworkData = {
     l2MessengerAddress: '0x0000000000000000000000000000000000000064',
     tokens: {
       ETH: {
-        l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.GOERLI.ETH,
+        l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.RINKEBY.ETH,
         l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.ARBITRUM_TESTNET.ETH,
         ...DEFAULT_NETWORK_DATA.ETH
       }
