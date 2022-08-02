@@ -68,23 +68,23 @@ contract ArbitrumMessengerWrapper is MessengerWrapper, Ownable {
      * @notice Do not use state variables here as this is to be used when passing in precise values
      */
     function claimL2Funds(
-        address _recipient,
+        address _to,
         uint256 _l2CallValue,
         uint256 _maxSubmissionCost,
-        uint256 _maxGas,
-        uint256 _gasPriceBid
+        uint256 _gasLimit,
+        uint256 _maxFeePerGas
     )
         public
         onlyOwner
     {
         l1MessengerAddress.unsafeCreateRetryableTicket(
-            _recipient,
+            _to,
             _l2CallValue,
             _maxSubmissionCost,
-            _recipient,
-            _recipient,
-            _maxGas,
-            _gasPriceBid,
+            _to,
+            _to,
+            _gasLimit,
+            _maxFeePerGas,
             ""
         );
     }
