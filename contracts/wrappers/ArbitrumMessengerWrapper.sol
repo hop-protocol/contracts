@@ -19,8 +19,6 @@ contract ArbitrumMessengerWrapper is MessengerWrapper, Ownable {
 
     IInbox public immutable l1MessengerAddress;
     address public l2BridgeAddress;
-    address public l1MessengerWrapperAlias;
-    uint160 constant offset = uint160(0x1111000000000000000000000000000000001111);
 
     constructor(
         address _l1BridgeAddress,
@@ -32,7 +30,6 @@ contract ArbitrumMessengerWrapper is MessengerWrapper, Ownable {
     {
         l2BridgeAddress = _l2BridgeAddress;
         l1MessengerAddress = _l1MessengerAddress;
-        l1MessengerWrapperAlias = applyL1ToL2Alias(address(this));
     }
 
     /** 
@@ -45,8 +42,8 @@ contract ArbitrumMessengerWrapper is MessengerWrapper, Ownable {
             l2BridgeAddress,
             0,
             submissionFee,
-            l1MessengerWrapperAlias,
-            l1MessengerWrapperAlias,
+            address(0),
+            address(0),
             0,
             0,
             _calldata
@@ -87,19 +84,5 @@ contract ArbitrumMessengerWrapper is MessengerWrapper, Ownable {
             _maxFeePerGas,
             ""
         );
-    }
-
-    /// @notice Utility function that converts the msg.sender viewed in the L2 to the
-    /// address in the L1 that submitted a tx to the inbox
-    /// @param l1Address L2 address as viewed in msg.sender
-    /// @return The address in the L1 that triggered the tx to L2
-    function applyL1ToL2Alias(address l1Address) internal pure returns (address) {
-        return address(uint160(l1Address) + offset);
-    }
-
-    /* ========== External Config Management Functions ========== */
-
-    function setL1MessengerWrapperAlias(address _newL1MessengerWrapperAlias) external onlyOwner {
-        l1MessengerWrapperAlias = _newL1MessengerWrapperAlias;
     }
 }
