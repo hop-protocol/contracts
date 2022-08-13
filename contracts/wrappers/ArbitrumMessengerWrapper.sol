@@ -32,13 +32,15 @@ contract ArbitrumMessengerWrapper is MessengerWrapper, Ownable {
         l1MessengerAddress = _l1MessengerAddress;
     }
 
+    receive() external payable {}
+
     /** 
      * @dev Sends a message to the l2BridgeAddress from layer-1
      * @param _calldata The data that l2BridgeAddress will be called with
      */
     function sendCrossDomainMessage(bytes memory _calldata) public override onlyL1Bridge {
         uint256 submissionFee = l1MessengerAddress.calculateRetryableSubmissionFee(_calldata.length, 0);
-        l1MessengerAddress.unsafeCreateRetryableTicket(
+        l1MessengerAddress.unsafeCreateRetryableTicket{value: submissionFee}(
             l2BridgeAddress,
             0,
             submissionFee,
@@ -61,28 +63,11 @@ contract ArbitrumMessengerWrapper is MessengerWrapper, Ownable {
     }
 
     /**
-     * @dev Claim funds that exist on the l2 messenger wrapper alias address
-     * @notice Do not use state variables here as this is to be used when passing in precise values
+     * @dev Claim excess funds
+     * @param recipient The recipient to send to
+     * @param amount The amount to claim
      */
-    function claimL2Funds(
-        address _to,
-        uint256 _l2CallValue,
-        uint256 _maxSubmissionCost,
-        uint256 _gasLimit,
-        uint256 _maxFeePerGas
-    )
-        public
-        onlyOwner
-    {
-        l1MessengerAddress.unsafeCreateRetryableTicket(
-            _to,
-            _l2CallValue,
-            _maxSubmissionCost,
-            _to,
-            _to,
-            _gasLimit,
-            _maxFeePerGas,
-            ""
-        );
+    function claimFunds(address payable recipient, uint256 amount) public onlyOwner {
+        recipient.transfer(amount);
     }
 }
