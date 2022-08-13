@@ -178,10 +178,9 @@ export async function setupL1 (config: Config) {
       l2_messengerProxy
     )
   } else if (isChainIdArbitrum(l2ChainId)) {
-      const l1MessengerWrapperAlias = generateArbitrumAliasAddress(l1_messengerWrapper.address)
       logger.log(
         `-------------------`,
-        `IMPORTANT: Please manually send funds to ${l1MessengerWrapperAlias} on Arbitrum`,
+        `IMPORTANT: Please manually send funds to ${l1_messengerWrapper.address} on L1`,
         `in order to complete the token send across the bridge.`,
         `-------------------`
       )
@@ -320,9 +319,8 @@ export async function setupL1 (config: Config) {
 
   logger.log('sending token to L2')
   logger.log(
-    `IMPORTANT: if this transaction fails, it may be one of two things. (1) You are using a patched OZ. Reinstall`,
-    `node modules & redeploy the L1 bridge. A failed transaction here will not show any internal calls and use very`,
-    `little gas. (2) The L1 deployer does not have tokens to send over the bridge.`
+    `IMPORTANT: if this transaction fails, it may be one of two things. (1) (Arbitrum only) The messenger wrapper
+    address does not have funds in it (2) The L1 deployer does not have tokens to send over the bridge.`
   )
   modifiedGasPrice = await getModifiedGasPrice(ethers, l1ChainId)
 

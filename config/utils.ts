@@ -262,7 +262,7 @@ export const generateArbitrumAliasAddress = (address: string): string => {
 }
 
 export const getTxOverridesPerChain = (l2ChainId: BigNumber): Overrides => {
-  if (isChainIdOptimism(l2ChainId)) {
+  if (isChainIdOptimism(l2ChainId) || isChainIdArbitrum(l2ChainId)) {
     return {}
   } else if (isChainIdXDai(l2ChainId)) {
     return {
@@ -270,13 +270,10 @@ export const getTxOverridesPerChain = (l2ChainId: BigNumber): Overrides => {
     }
   } else if (isChainIdPolygon(l2ChainId)) {
     return {
-      gasLimit: 4_500_000,
-      gasPrice: 100_000_000_000
-    }
-  } else if (isChainIdArbitrum(l2ChainId)) {
-    return {
-      gasLimit: 200_000_000,
-      gasPrice: 10_000_000_000
+      // For Mumbai, a gasPrice any lower than this will not get mined
+      gasPrice: 100_000_000_000,
+      // A polygon transactions require this much gas
+      gasLimit: 4_500_000
     }
   }
 }

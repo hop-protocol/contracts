@@ -20,14 +20,12 @@ import {
 import {
   CHAIN_IDS,
   GAS_PRICE_MULTIPLIERS,
-  ZERO_ADDRESS,
-  LIQUIDITY_PROVIDER_INITIAL_BALANCE
+  ZERO_ADDRESS
 } from '../../config/constants'
 
 import {
   mainnetNetworkData,
-  goerliNetworkData,
-  rinkebyNetworkData
+  goerliNetworkData
 } from '../../config/networks/index'
 
 export const getContractFactories = async (
@@ -258,8 +256,6 @@ export const getNetworkDataByNetworkName = (networkName: string) => {
     return mainnetNetworkData
   } else if (networkName === 'goerli') {
     return goerliNetworkData
-  } else if (networkName === 'rinkeby') {
-    return rinkebyNetworkData
   } else {
     throw new Error('Invalid network name')
   }

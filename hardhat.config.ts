@@ -45,12 +45,6 @@ export default {
       chainId: CHAIN_IDS.ETHEREUM.GOERLI.toNumber(),
       timeout
     },
-    rinkeby: {
-      url: process.env.RPC_ENDPOINT_RINKEBY,
-      accounts: desiredAccounts,
-      chainId: CHAIN_IDS.ETHEREUM.RINKEBY.toNumber(),
-      timeout
-    },
     arbitrum_mainnet: {
       url: process.env.RPC_ENDPOINT_ARBITRUM_MAINNET,
       accounts: desiredAccounts,

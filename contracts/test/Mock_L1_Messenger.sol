@@ -18,7 +18,7 @@ contract Mock_L1_Messenger is MockMessenger {
 
     /* ========== Arbitrum ========== */
 
-    function createRetryableTicketNoRefundAliasRewrite(
+    function unsafeCreateRetryableTicket(
         address _destAddr,
         uint256 /* _arbTxCallValue */,
         uint256 /* _maxSubmissionCost */,

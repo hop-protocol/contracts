@@ -223,7 +223,7 @@ npm run deploy
 
 - How do you recover funds from an Arbitrum alias address on L2?
 
-  - Send a `createRetryableTicketNoRefundAliasRewrite()` with the destination/refund addresses set to the address you want. Set the callValue to the amount you are trying to recover and don't send ETH over the bridge with the L1 transaction.
+  - Send a `unsafeCreateRetryableTicket()` with the destination/refund addresses set to the address you want. Set the callValue to the amount you are trying to recover and don't send ETH over the bridge with the L1 transaction.
 
 - Are there any deployment quirks to know about?
 

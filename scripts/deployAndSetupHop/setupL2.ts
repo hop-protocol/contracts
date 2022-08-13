@@ -269,8 +269,8 @@ const waitForL2StateVerification = async (
   supportedChainIds = supportedChainIds.filter(chainId => chainId.toString() !== l2ChainId.toString())
 
   while (!isStateSet) {
-    // Note: Mumbai can take up to 75 checks
-    if (checkCount === 75) {
+    // Note: Mumbai can take up to 150 checks
+    if (checkCount === 150) {
       throw new Error(
         'L2 state has not been set after more than 10 minutes. Possibly due to a misconfiguration with modifiers on L2 bridge or messenger gas limit.'
       )

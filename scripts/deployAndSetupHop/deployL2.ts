@@ -287,7 +287,6 @@ const deployAmm = async (
   ]
 
   logger.log('Initializing Swap')
-  logger.log('IMPORTANT: If this does not work on Optimism, l2_swap needs to be whitelisted.')
   const tx = await l2_swap.initialize(...initializeParams, overrides)
   await tx.wait()
   await waitAfterTransaction()
