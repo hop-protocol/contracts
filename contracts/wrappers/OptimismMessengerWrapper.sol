@@ -23,10 +23,11 @@ contract OptimismMessengerWrapper is MessengerWrapper, Ownable {
         address _l1BridgeAddress,
         address _l2BridgeAddress,
         iOVM_L1CrossDomainMessenger _l1MessengerAddress,
-        uint256 _defaultL2GasLimit
+        uint256 _defaultL2GasLimit,
+        uint256 _l2ChainId
     )
         public
-        MessengerWrapper(_l1BridgeAddress)
+        MessengerWrapper(_l1BridgeAddress, _l2ChainId)
     {
         l2BridgeAddress = _l2BridgeAddress;
         l1MessengerAddress = _l1MessengerAddress;
@@ -48,6 +49,8 @@ contract OptimismMessengerWrapper is MessengerWrapper, Ownable {
     }
 
     function verifySender(address l1BridgeCaller, bytes memory /*_data*/) public override {
+        if (isRootConfirmation) return;
+
         require(l1BridgeCaller == address(l1MessengerAddress), "OVM_MSG_WPR: Caller is not l1MessengerAddress");
         // Verify that cross-domain sender is l2BridgeAddress
         require(l1MessengerAddress.xDomainMessageSender() == l2BridgeAddress, "OVM_MSG_WPR: Invalid cross-domain sender");

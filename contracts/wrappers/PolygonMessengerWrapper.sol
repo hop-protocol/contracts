@@ -18,10 +18,11 @@ contract PolygonMessengerWrapper is FxBaseRootTunnel, MessengerWrapper {
         address _l1BridgeAddress,
         address _checkpointManager,
         address _fxRoot,
-        address _fxChildTunnel
+        address _fxChildTunnel,
+        uint256 _l2ChainId
     )
         public
-        MessengerWrapper(_l1BridgeAddress)
+        MessengerWrapper(_l1BridgeAddress, _l2ChainId)
         FxBaseRootTunnel(_checkpointManager, _fxRoot)
     {
         setFxChildTunnel(_fxChildTunnel);
@@ -39,6 +40,8 @@ contract PolygonMessengerWrapper is FxBaseRootTunnel, MessengerWrapper {
     }
 
     function verifySender(address l1BridgeCaller, bytes memory /*_data*/) public view override {
+        if (isRootConfirmation) return;
+
         require(l1BridgeCaller == address(this), "L1_PLGN_WPR: Caller must be this contract");
     }
 

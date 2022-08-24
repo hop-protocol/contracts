@@ -37,7 +37,8 @@ export const getMessengerWrapperDefaults = (
   let defaults: any[] = [
     l1BridgeAddress,
     l2BridgeAddress,
-    l1MessengerAddress
+    l1MessengerAddress,
+    l2ChainId.toString()
   ]
 
   if (isChainIdArbitrum(l2ChainId)) {
@@ -58,7 +59,6 @@ export const getMessengerWrapperDefaults = (
     data.push(
       ...defaults,
       gasLimit,
-      l2ChainId.toString(),
       ambAddress
     )
   } else if (isChainIdPolygon(l2ChainId)) {
@@ -69,7 +69,8 @@ export const getMessengerWrapperDefaults = (
       l1BridgeAddress,
       checkpointManager,
       fxRootAddress,
-      fxChildTunnelAddress
+      fxChildTunnelAddress,
+      l2ChainId.toString()
     )
   }
 
