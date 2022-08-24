@@ -3,7 +3,6 @@
 pragma solidity >=0.6.12 <=0.8.9;
 pragma experimental ABIEncoderV2;
 
-import "@openzeppelin/contracts/math/SafeMath.sol";
 import "../interfaces/IMessengerWrapper.sol";
 
 contract IL1Bridge {
@@ -31,8 +30,6 @@ contract IL1Bridge {
 }
 
 abstract contract MessengerWrapper is IMessengerWrapper {
-    using SafeMath for uint256;
-
     address public immutable l1BridgeAddress;
     uint256 public immutable l2ChainId;
     bool public isRootConfirmation = false;
@@ -58,7 +55,7 @@ abstract contract MessengerWrapper is IMessengerWrapper {
      * @param rootHashes The root hashes to confirm
      * @param destinationChainIds The destinationChainId of the roots to confirm
      * @param totalAmounts The totalAmount of the roots to confirm
-     * @param rootCommittedAts The rootCommittedAts of the roots to confirm
+     * @param rootCommittedAts The rootCommittedAt of the roots to confirm
      */
     function confirmRoots (
         bytes32[] calldata rootHashes,
@@ -68,6 +65,7 @@ abstract contract MessengerWrapper is IMessengerWrapper {
     ) external override rootConfirmation {
         IL1Bridge l1Bridge = IL1Bridge(l1BridgeAddress);
         require(l1Bridge.getIsBonder(msg.sender), "MW: Sender must be a bonder");
+        require(rootHashes.length == totalAmounts.length, "MW: rootHashes and totalAmounts must be the same length");
 
         uint256 challengePeriod = l1Bridge.challengePeriod();
         for (uint i = 0; i < rootHashes.length; i++) {
@@ -89,14 +87,21 @@ abstract contract MessengerWrapper is IMessengerWrapper {
         bytes32 transferRootId = l1Bridge.getTransferRootId(rootHash, totalAmount);
         (,uint256 createdAt,,uint256 challengeStartTime,,) = l1Bridge.transferBonds(transferRootId);
 
+        uint256 challengePeriodEnd = _safeAdd(createdAt, challengePeriod);
         if (
             createdAt != 0 &&
             challengeStartTime == 0 &&
-            block.timestamp > createdAt.add(challengePeriod)
+            block.timestamp > challengePeriodEnd
         ) {
             return true;
         }
 
         return false;
+    }
+
+    function _safeAdd(uint256 a, uint256 b) internal pure returns (uint256) {
+        uint256 c = a + b;
+        require(c >= a, "MW: Addition overflow");
+        return c;
     }
 }
