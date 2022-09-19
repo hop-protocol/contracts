@@ -50,6 +50,7 @@ interface Config {
   l2AmmWrapperAddress: string
   liquidityProviderSendAmount: BigNumber
   isEthDeployment: boolean
+  isHopDeployment: boolean
 }
 
 export async function setupL1 (config: Config) {
@@ -65,7 +66,8 @@ export async function setupL1 (config: Config) {
     l2MessengerProxyAddress,
     l2AmmWrapperAddress,
     liquidityProviderSendAmount,
-    isEthDeployment
+    isEthDeployment,
+    isHopDeployment
   } = config
 
   logger.log(`config:
@@ -78,7 +80,8 @@ export async function setupL1 (config: Config) {
             l2MessengerProxyAddress: ${l2MessengerProxyAddress}
             l2AmmWrapperAddress: ${l2AmmWrapperAddress}
             liquidityProviderSendAmount: ${liquidityProviderSendAmount}
-            isEthDeployment: ${isEthDeployment}`)
+            isEthDeployment: ${isEthDeployment}
+            isHopDeployment: ${isHopDeployment}`)
 
   l1ChainId = BigNumber.from(l1ChainId)
   l2ChainId = BigNumber.from(l2ChainId)
@@ -125,7 +128,7 @@ export async function setupL1 (config: Config) {
     L1_MessengerWrapper,
     L2_Bridge,
     L2_MessengerProxy
-  } = await getContractFactories(l2ChainId, deployer, ethers, isEthDeployment))
+  } = await getContractFactories(l2ChainId, deployer, ethers, isEthDeployment, isHopDeployment))
 
   logger.log('attaching deployed contracts')
   // Attach already deployed contracts
@@ -282,22 +285,24 @@ export async function setupL1 (config: Config) {
   await tx.wait()
   await waitAfterTransaction()
 
-  message = getSetAmmWrapperMessage(l2AmmWrapperAddress)
+  if (!isHopDeployment) {
+    message = getSetAmmWrapperMessage(l2AmmWrapperAddress)
 
-  logger.log('setting amm wrapper address on L2 bridge')
-  modifiedGasPrice = await getModifiedGasPrice(ethers, l1ChainId)
-  tx = await executeCanonicalMessengerSendMessage(
-    l1_messenger,
-    l1_messengerWrapper,
-    l2_bridge,
-    ZERO_ADDRESS,
-    governance,
-    message,
-    l2ChainId,
-    modifiedGasPrice
-  )
-  await tx.wait()
-  await waitAfterTransaction()
+    logger.log('setting amm wrapper address on L2 bridge')
+    modifiedGasPrice = await getModifiedGasPrice(ethers, l1ChainId)
+    tx = await executeCanonicalMessengerSendMessage(
+      l1_messenger,
+      l1_messengerWrapper,
+      l2_bridge,
+      ZERO_ADDRESS,
+      governance,
+      message,
+      l2ChainId,
+      modifiedGasPrice
+    )
+    await tx.wait()
+    await waitAfterTransaction()
+  }
 
   if (!isEthDeployment) {
     logger.log('approving L1 canonical token')
@@ -393,7 +398,8 @@ if (require.main === module) {
     l2MessengerProxyAddress,
     l2AmmWrapperAddress,
     liquidityProviderSendAmount,
-    isEthDeployment
+    isEthDeployment,
+    isHopDeployment
   } = readConfigFile()
   setupL1({
     l1ChainId,
@@ -405,7 +411,8 @@ if (require.main === module) {
     l2MessengerProxyAddress,
     l2AmmWrapperAddress,
     liquidityProviderSendAmount,
-    isEthDeployment
+    isEthDeployment,
+    isHopDeployment
   })
     .then(() => {
       process.exit(0)

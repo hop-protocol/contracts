@@ -29,7 +29,8 @@ import {
   DEFAULT_SWAP_A,
   DEFAULT_SWAP_FEE,
   DEFAULT_SWAP_ADMIN_FEE,
-  DEFAULT_SWAP_WITHDRAWAL_FEE
+  DEFAULT_SWAP_WITHDRAWAL_FEE,
+  ZERO_ADDRESS
 } from '../../config/constants'
 
 const logger = Logger('deployL2')
@@ -49,6 +50,7 @@ interface Config {
   bonderAddress: string
   l2CanonicalTokenIsEth: boolean
   isEthDeployment: boolean
+  isHopDeployment: boolean
 }
 
 
@@ -68,7 +70,8 @@ export async function deployL2 (config: Config) {
     l2SwapLpTokenSymbol,
     bonderAddress,
     l2CanonicalTokenIsEth,
-    isEthDeployment
+    isEthDeployment,
+    isHopDeployment
   } = config
 
   logger.log(`config:
@@ -80,9 +83,10 @@ export async function deployL2 (config: Config) {
             l2HBridgeTokenName: ${l2HBridgeTokenName}
             l2HBridgeTokenSymbol: ${l2HBridgeTokenSymbol}
             l2HBridgeTokenDecimals: ${l2HBridgeTokenDecimals}
-            bonderAddress: ${bonderAddress},
-            l2CanonicalTokenIsEth: ${l2CanonicalTokenIsEth},
-            isEthDeployment: ${isEthDeployment}`
+            bonderAddress: ${bonderAddress}
+            l2CanonicalTokenIsEth: ${l2CanonicalTokenIsEth}
+            isEthDeployment: ${isEthDeployment}
+            isHopDeployment: ${isHopDeployment}`
             )
 
   l1ChainId = BigNumber.from(l1ChainId)
@@ -130,7 +134,7 @@ export async function deployL2 (config: Config) {
     L2_Bridge,
     L2_AmmWrapper,
     L2_MessengerProxy
-  } = await getContractFactories(l2ChainId, deployer, ethers, isEthDeployment))
+  } = await getContractFactories(l2ChainId, deployer, ethers, isEthDeployment, isHopDeployment))
 
   logger.log('attaching deployed contracts')
   // Attach already deployed contracts
@@ -156,26 +160,30 @@ export async function deployL2 (config: Config) {
     l2MessengerProxyAddress = l2_messengerProxy.address
   }
 
-  logger.log('deploying L2 hop bridge token')
-  l2_hopBridgeToken = await L2_HopBridgeToken.deploy(
-    l2HBridgeTokenName,
-    l2HBridgeTokenSymbol,
-    l2HBridgeTokenDecimals,
-    overrides
-  )
-  await waitAfterTransaction(l2_hopBridgeToken, ethers)
+  if (!isHopDeployment) {
+    logger.log('deploying L2 hop bridge token')
+    l2_hopBridgeToken = await L2_HopBridgeToken.deploy(
+      l2HBridgeTokenName,
+      l2HBridgeTokenSymbol,
+      l2HBridgeTokenDecimals,
+      overrides
+    )
+    await waitAfterTransaction(l2_hopBridgeToken, ethers)
 
-  logger.log('deploying L2 swap contract')
-  ;({ l2_swap } = await deployAmm(
-    deployer,
-    ethers,
-    l2ChainId,
-    l2_canonicalToken,
-    l2_hopBridgeToken,
-    l2SwapLpTokenName,
-    l2SwapLpTokenSymbol,
-    logger
-  ))
+    logger.log('deploying L2 swap contract')
+    ;({ l2_swap } = await deployAmm(
+      deployer,
+      ethers,
+      l2ChainId,
+      l2_canonicalToken,
+      l2_hopBridgeToken,
+      l2SwapLpTokenName,
+      l2SwapLpTokenSymbol,
+      logger
+    ))
+  } else {
+    l2_hopBridgeToken = L2_HopBridgeToken.attach(l2CanonicalTokenAddress)
+  }
 
   logger.log('deploying L2 bridge and L2 amm wrapper')
   ;({ l2_bridge, l2_ammWrapper } = await deployBridge(
@@ -196,18 +204,21 @@ export async function deployL2 (config: Config) {
     l2MessengerAddress,
     l2MessengerProxyAddress,
     l2CanonicalTokenIsEth,
+    isHopDeployment,
     logger
   ))
 
   logger.log('deploying network specific contracts')
 
-  // Transfer ownership of the Hop Bridge Token to the L2 Bridge
-  let transferOwnershipParams: any[] = [l2_bridge.address]
+  if (!isHopDeployment) {
+    // Transfer ownership of the Hop Bridge Token to the L2 Bridge
+    let transferOwnershipParams: any[] = [l2_bridge.address]
 
-  logger.log('transferring ownership of L2 hop bridge token')
-  tx = await l2_hopBridgeToken.transferOwnership(...transferOwnershipParams, overrides)
-  await tx.wait()
-  await waitAfterTransaction()
+    logger.log('transferring ownership of L2 hop bridge token')
+    tx = await l2_hopBridgeToken.transferOwnership(...transferOwnershipParams, overrides)
+    await tx.wait()
+    await waitAfterTransaction()
+  }
 
   if (isChainIdPolygon(l2ChainId)) {
     logger.log('setting Polygon-specific state')
@@ -222,7 +233,7 @@ export async function deployL2 (config: Config) {
 
   const l2HopBridgeTokenAddress: string = l2_hopBridgeToken.address
   const l2BridgeAddress: string = l2_bridge.address
-  const l2SwapAddress: string = l2_swap.address
+  const l2SwapAddress: string = l2_swap?.address || ZERO_ADDRESS
   const l2AmmWrapperAddress: string = l2_ammWrapper.address
 
   logger.log('L2 Deployments Complete')
@@ -348,6 +359,7 @@ const deployBridge = async (
   l2MessengerAddress: string,
   l2MessengerProxyAddress: string,
   l2CanonicalTokenIsEth: boolean,
+  isHopDeployment: boolean,
   logger: any
 ) => {
   // NOTE: Adding more CHAIN_IDs here will push the OVM deployment over the contract size limit
@@ -368,6 +380,12 @@ const deployBridge = async (
   l2_bridge = await L2_Bridge.connect(deployer).deploy(...l2BridgeDeploymentParams, overrides)
   await waitAfterTransaction(l2_bridge, ethers)
 
+  if (isHopDeployment) {
+    return {
+      l2_bridge,
+      l2_ammWrapper: L2_AmmWrapper.attach(ZERO_ADDRESS)
+    }
+  }
   logger.log('Deploying L2 AMM Wrapper')
   l2_ammWrapper = await L2_AmmWrapper.connect(deployer).deploy(
     l2_bridge.address,
@@ -399,7 +417,8 @@ if (require.main === module) {
     l2SwapLpTokenSymbol,
     bonderAddress,
     l2CanonicalTokenIsEth,
-    isEthDeployment
+    isEthDeployment,
+    isHopDeployment
   } = readConfigFile()
   deployL2({
     l1ChainId,
@@ -414,7 +433,8 @@ if (require.main === module) {
     l2SwapLpTokenSymbol,
     bonderAddress,
     l2CanonicalTokenIsEth,
-    isEthDeployment
+    isEthDeployment,
+    isHopDeployment
   })
     .then(() => {
       process.exit(0)

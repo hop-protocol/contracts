@@ -172,6 +172,8 @@ export async function fixture (
   const l2_messengerProxy: Contract = await L2_MessengerProxy.deploy(fxChild.address)
 
   // Deploy Hop L2 contracts
+  let supportedChainIds: BigNumber[] = ALL_SUPPORTED_CHAIN_IDS
+  supportedChainIds = supportedChainIds.filter(chainId => chainId.toString() !== l2ChainId.toString())
   let l2BridgeDefaults: IGetL2BridgeDefaults[] = getL2BridgeDefaults(
     l2ChainId,
     l2_messenger.address,
@@ -179,7 +181,7 @@ export async function fixture (
     await governance.getAddress(),
     l2_hopBridgeToken.address,
     l1_bridge.address,
-    ALL_SUPPORTED_CHAIN_IDS,
+    supportedChainIds,
     [await bonder.getAddress()],
     l1ChainId
   )

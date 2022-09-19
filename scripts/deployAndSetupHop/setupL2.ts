@@ -37,6 +37,7 @@ interface Config {
   liquidityProviderAmmAmount: BigNumber
   l2CanonicalTokenIsEth: boolean
   isEthDeployment: boolean
+  isHopDeployment: boolean
 }
 
 export async function setupL2 (config: Config) {
@@ -52,7 +53,8 @@ export async function setupL2 (config: Config) {
     l2SwapAddress,
     liquidityProviderAmmAmount,
     l2CanonicalTokenIsEth,
-    isEthDeployment
+    isEthDeployment,
+    isHopDeployment,
   } = config
 
   logger.log(`config:
@@ -63,9 +65,10 @@ export async function setupL2 (config: Config) {
             l2HopBridgeTokenAddress: ${l2HopBridgeTokenAddress}
             l2BridgeAddress: ${l2BridgeAddress}
             l2SwapAddress: ${l2SwapAddress}
-            liquidityProviderAmmAmount: ${liquidityProviderAmmAmount},
-            l2CanonicalTokenIsEth: ${l2CanonicalTokenIsEth},
-            isEthDeployment: ${isEthDeployment}`
+            liquidityProviderAmmAmount: ${liquidityProviderAmmAmount}
+            l2CanonicalTokenIsEth: ${l2CanonicalTokenIsEth}
+            isEthDeployment: ${isEthDeployment}
+            isHopDeployment: ${isHopDeployment}`
             )
 
   l1ChainId = BigNumber.from(l1ChainId)
@@ -133,10 +136,16 @@ export async function setupL2 (config: Config) {
     l2_hopBridgeToken,
     l2_bridge,
     l2CanonicalTokenIsEth,
-    l2ChainId
+    l2ChainId,
+    isHopDeployment
   )
 
   logger.log('L2 state verified')
+  if (isHopDeployment) {
+    const l2LpTokenAddress = ZERO_ADDRESS
+    logAddresses(l2ChainId, l2CanonicalTokenIsEth, l2LpTokenAddress)
+    return
+  }
 
   // Set up Amm
   if (l2CanonicalTokenIsEth) {
@@ -225,34 +234,7 @@ export async function setupL2 (config: Config) {
   logger.log('L2 Setup Complete')
   
   // Match output with addresses package
-  const postDeploymentAddresses = readConfigFile()
-  let l1FxBaseRootTunnel: string
-  let l2CanonicalBridgeAddress: string
-  if (isChainIdPolygon(l2ChainId)) {
-    l1FxBaseRootTunnel = postDeploymentAddresses.l1MessengerWrapperAddress
-
-    if (l2CanonicalTokenIsEth) {
-      const polygonMaticWithdrawalAddress = '0x0000000000000000000000000000000000001010'
-      l2CanonicalBridgeAddress = polygonMaticWithdrawalAddress
-    } else {
-      l2CanonicalBridgeAddress = postDeploymentAddresses.l2CanonicalTokenAddress
-    }
-  } else {
-    l1FxBaseRootTunnel = ''
-    l2CanonicalBridgeAddress = postDeploymentAddresses.l2TokenBridgeAddress
-  }
-  logger.log(`
-    l1Bridge: '${postDeploymentAddresses.l1BridgeAddress}'
-    l1MessengerWrapper: '${postDeploymentAddresses.l1MessengerWrapperAddress}',
-    l2CanonicalBridge: '${l2CanonicalBridgeAddress}',
-    l2CanonicalToken: '${postDeploymentAddresses.l2CanonicalTokenAddress}',
-    l2Bridge: '${postDeploymentAddresses.l2BridgeAddress}',
-    l2HopBridgeToken: '${postDeploymentAddresses.l2HopBridgeTokenAddress}',
-    l2AmmWrapper: '${postDeploymentAddresses.l2AmmWrapperAddress}',
-    l2SaddleSwap: '${postDeploymentAddresses.l2SwapAddress}',
-    l2SaddleLpToken: '${postDeploymentAddresses.l2LpTokenAddress}',
-    l1FxBaseRootTunnel: '${l1FxBaseRootTunnel}',
-  `)
+  logAddresses(l2ChainId, l2CanonicalTokenIsEth)
 }
 
 const waitForL2StateVerification = async (
@@ -261,7 +243,8 @@ const waitForL2StateVerification = async (
   l2_hopBridgeToken: Contract,
   l2_bridge: Contract,
   l2CanonicalTokenIsEth: boolean,
-  l2ChainId: BigNumber
+  l2ChainId: BigNumber,
+  isHopDeployment: boolean
 ) => {
   let checkCount: number = 0
   let isStateSet: boolean = false
@@ -288,11 +271,6 @@ const waitForL2StateVerification = async (
       }
     }
 
-    // Validate that the Amm wrapper address has been set
-    const ammWrapperAddress: string = await l2_bridge.ammWrapper(
-      overrides
-    )
-
     // Validate that the Hop Bridge Token balance has been updated
     let canonicalTokenBalance: BigNumber
     if (l2CanonicalTokenIsEth) {
@@ -304,10 +282,23 @@ const waitForL2StateVerification = async (
       )
     }
 
-    const hopBridgeTokenBalance: BigNumber = await l2_hopBridgeToken.balanceOf(
-      await account.getAddress(),
-      overrides
-    )
+    let hopBridgeTokenBalance: BigNumber
+    let ammWrapperAddress: string
+    if (isHopDeployment) {
+      // These are arbitrary, as they do not exist for a Hop deployment
+      hopBridgeTokenBalance = BigNumber.from('1')
+      ammWrapperAddress = '1'
+    } else {
+      hopBridgeTokenBalance = await l2_hopBridgeToken.balanceOf(
+        await account.getAddress(),
+        overrides
+      )
+
+      // Validate that the Amm wrapper address has been set
+      ammWrapperAddress = await l2_bridge.ammWrapper(
+        overrides
+      )
+    }
 
     if (
       !areChainIdsSupported ||
@@ -330,6 +321,41 @@ const waitForL2StateVerification = async (
   return
 }
 
+const logAddresses = (l2ChainId: BigNumber, l2CanonicalTokenIsEth: boolean, l2LpTokenAddress: string | null = null) => {
+  const postDeploymentAddresses = readConfigFile()
+  let l1FxBaseRootTunnel: string
+  let l2CanonicalBridgeAddress: string
+  if (isChainIdPolygon(l2ChainId)) {
+    l1FxBaseRootTunnel = postDeploymentAddresses.l1MessengerWrapperAddress
+
+    if (l2CanonicalTokenIsEth) {
+      const polygonMaticWithdrawalAddress = '0x0000000000000000000000000000000000001010'
+      l2CanonicalBridgeAddress = polygonMaticWithdrawalAddress
+    } else {
+      l2CanonicalBridgeAddress = postDeploymentAddresses.l2CanonicalTokenAddress
+    }
+  } else {
+    l1FxBaseRootTunnel = ''
+    l2CanonicalBridgeAddress = postDeploymentAddresses.l2TokenBridgeAddress
+  }
+
+  if (!l2LpTokenAddress) {
+    l2LpTokenAddress = postDeploymentAddresses.l2LpTokenAddress
+  }
+  logger.log(`
+    l1Bridge: '${postDeploymentAddresses.l1BridgeAddress}'
+    l1MessengerWrapper: '${postDeploymentAddresses.l1MessengerWrapperAddress}',
+    l2CanonicalBridge: '${l2CanonicalBridgeAddress}',
+    l2CanonicalToken: '${postDeploymentAddresses.l2CanonicalTokenAddress}',
+    l2Bridge: '${postDeploymentAddresses.l2BridgeAddress}',
+    l2HopBridgeToken: '${postDeploymentAddresses.l2HopBridgeTokenAddress}',
+    l2AmmWrapper: '${postDeploymentAddresses.l2AmmWrapperAddress}',
+    l2SaddleSwap: '${postDeploymentAddresses.l2SwapAddress}',
+    l2SaddleLpToken: '${l2LpTokenAddress}',
+    l1FxBaseRootTunnel: '${l1FxBaseRootTunnel}',
+  `)
+}
+
 if (require.main === module) {
   const {
     l1ChainId,
@@ -341,7 +367,8 @@ if (require.main === module) {
     l2SwapAddress,
     liquidityProviderAmmAmount,
     l2CanonicalTokenIsEth,
-    isEthDeployment
+    isEthDeployment,
+    isHopDeployment
   } = readConfigFile()
   setupL2({
     l1ChainId,
@@ -353,7 +380,8 @@ if (require.main === module) {
     l2SwapAddress,
     liquidityProviderAmmAmount,
     l2CanonicalTokenIsEth,
-    isEthDeployment
+    isEthDeployment,
+    isHopDeployment
   })
     .then(() => {
       process.exit(0)
