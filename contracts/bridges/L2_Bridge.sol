@@ -309,12 +309,16 @@ abstract contract L2_Bridge is Bridge {
         }
         uint256 amountAfterFee = amount.sub(fee);
 
-        if (amountOutMin == 0 && deadline == 0) {
+        if (address(ammWrapper) == address(0)) {
             hToken.mint(recipient, amountAfterFee);
         } else {
-            hToken.mint(address(this), amountAfterFee);
-            hToken.approve(address(ammWrapper), amountAfterFee);
-            ammWrapper.attemptSwap(recipient, amountAfterFee, amountOutMin, deadline);
+            if (amountOutMin == 0 && deadline == 0) {
+                hToken.mint(recipient, amountAfterFee);
+            } else {
+                hToken.mint(address(this), amountAfterFee);
+                hToken.approve(address(ammWrapper), amountAfterFee);
+                ammWrapper.attemptSwap(recipient, amountAfterFee, amountOutMin, deadline);
+            }
         }
     }
 
