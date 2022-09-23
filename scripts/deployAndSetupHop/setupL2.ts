@@ -14,6 +14,7 @@ import {
 import {
   isChainIdArbitrum,
   isChainIdPolygon,
+  getActiveChainIds,
   getTxOverridesPerChain
 } from '../../config/utils'
 
@@ -248,8 +249,7 @@ const waitForL2StateVerification = async (
 ) => {
   let checkCount: number = 0
   let isStateSet: boolean = false
-  let supportedChainIds: BigNumber[] = ALL_SUPPORTED_CHAIN_IDS
-  supportedChainIds = supportedChainIds.filter(chainId => chainId.toString() !== l2ChainId.toString())
+  const supportedChainIds = getActiveChainIds(l2ChainId)
 
   while (!isStateSet) {
     // Note: Mumbai can take up to 150 checks

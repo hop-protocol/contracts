@@ -27,6 +27,7 @@ import {
   isChainIdPolygon,
   isChainIdOptimism,
   isChainIdArbitrum,
+  getActiveChainIds
 } from '../../config/utils'
 
 import {
@@ -262,14 +263,12 @@ export async function setupL1 (config: Config) {
   await tx.wait()
   await waitAfterTransaction()
 
-  let addActiveChainIdsParams: any[] = ALL_SUPPORTED_CHAIN_IDS
-  addActiveChainIdsParams = addActiveChainIdsParams.filter(chainId => chainId.toString() !== l2ChainId.toString())
+  const addActiveChainIdsParams = getActiveChainIds(l2ChainId)
   message = getAddActiveChainIdsMessage(addActiveChainIdsParams)
 
   logger.log('setting supported chain IDs on L2 bridge')
   logger.log(
-    'chain IDs:',
-    ALL_SUPPORTED_CHAIN_IDS.map(v => v.toString()).join(', ')
+    'chain IDs:', JSON.stringify(addActiveChainIdsParams)
   )
   modifiedGasPrice = await getModifiedGasPrice(ethers, l1ChainId)
   tx = await executeCanonicalMessengerSendMessage(

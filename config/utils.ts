@@ -201,8 +201,8 @@ export const isChainIdTestnet = (chainId: BigNumber): boolean => {
   if (
     chainId.eq(CHAIN_IDS.ETHEREUM.GOERLI) ||
     chainId.eq(CHAIN_IDS.POLYGON.MUMBAI) ||
-    chainId.eq(CHAIN_IDS.POLYGON.ARBITRUM_TESTNET) ||
-    chainId.eq(CHAIN_IDS.POLYGON.OPTIMISM_TESTNET)
+    chainId.eq(CHAIN_IDS.ARBITRUM.ARBITRUM_TESTNET) ||
+    chainId.eq(CHAIN_IDS.OPTIMISM.OPTIMISM_TESTNET)
   ) {
     return true
   }
@@ -294,10 +294,10 @@ export const getTxOverridesPerChain = (l2ChainId: BigNumber): Overrides => {
 
 export const getActiveChainIds = (chainId: BigNumber): BigNumber[] => {
   const network = isChainIdTestnet(chainId) ? 'TESTNET' : 'MAINNET'
-  const chainIds = CHAIN_IDS_TO_ACTIVATE.network
-
-  return (Object.values(
+  const chainIds = CHAIN_IDS_TO_ACTIVATE[network]
+  const allActiveChainIds: BigNumber[] = (Object.values(
     chainIds
   ) as any[]).reduce((a: any[], b: any) => [...a, ...Object.values(b)], [])
 
+  return allActiveChainIds.filter(activeChainId => activeChainId.toString() !== chainId.toString())
 }

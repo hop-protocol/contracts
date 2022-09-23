@@ -1,5 +1,6 @@
 require('dotenv').config()
 
+import { task } from 'hardhat/config'
 import '@nomiclabs/hardhat-ethers'
 import '@nomiclabs/hardhat-waffle'
 import '@nomiclabs/hardhat-etherscan'
@@ -10,6 +11,7 @@ import "@eth-optimism/hardhat-ovm"
 import 'hardhat-abi-exporter'
 
 import { CHAIN_IDS } from './config/constants'
+import { verifyContract } from './scripts/other/verifyContract'
 
 // Compiler Config
 const isOptimizerEnabled: boolean = true
@@ -23,6 +25,16 @@ const desiredAccounts: string[] = [
   process.env.GOVERNANCE_PRIVATE_KEY!
 ]
 const timeout: number = 480e3
+
+task('verify-contract', 'Verify a contract')
+  .addParam("chain", "The chain of the contract to verify")
+  .addParam("name", "The contract name")
+  .addParam("address", "The contract address")
+  .addParam("data", "The deployment data")
+  .setAction(async (taskArgs, hre) => {
+    const { chain, name, address, data } = taskArgs
+    await verifyContract(hre, chain, name, address, data)
+  })
 
 // You have to export an object to set up your config
 // This object can have the following optional entries:
@@ -156,9 +168,28 @@ export default {
     timeout: 40000
   },
   etherscan: {
-    apiKey: process.env.ETHERSCAN_API_KEY
-    // apiKey: process.env.POLYGONSCAN_API_KEY
-  },
+    apiKey: {
+      mainnet: process.env.ETHERSCAN_API_KEY,
+      goerli: process.env.ETHERSCAN_API_KEY,
+      arbitrumOne: process.env.ARBITRUM_API_KEY,
+      arbitrum_testnet: process.env.ARBITRUM_API_KEY,
+      optimisticEthereum: process.env.OPTIMISM_API_KEY,
+      optimism_testnet: process.env.OPTIMISM_API_KEY,
+      xdai: process.env.XDAI_API_KEY,
+      polygon: process.env.POLYGONSCAN_API_KEY,
+      mumbai: process.env.POLYGONSCAN_API_KEY,
+    },
+    customChains: [
+      {
+        network: "xdai",
+        chainId: 100,
+        urls: {
+          apiURL: "https://api.gnosisscan.io/api",
+          browserURL: "https://gnosisscan.io"
+        }
+      }
+    ]
+  }
   // abiExporter: {
   //   path: './data/abi',
   //   clear: true,
