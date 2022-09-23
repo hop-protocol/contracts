@@ -25,21 +25,37 @@ export const CHAIN_IDS: any = {
   }
 }
 
-const CHAIN_IDS_TO_ACTIVATE: any = {
-  ETHEREUM: {
-    MAINNET: BigNumber.from('1')
+export const CHAIN_IDS_TO_ACTIVATE: any = {
+  MAINNET: {
+    ETHEREUM: {
+      MAINNET: BigNumber.from('1')
+    },
+    XDAI: {
+      XDAI: BigNumber.from('100')
+    },
+    POLYGON: {
+      POLYGON: BigNumber.from('137')
+    },
+    OPTIMISM: {
+      OPTIMISM_MAINNET: BigNumber.from('10')
+    },
+    ARBITRUM: {
+      ARBITRUM_MAINNET: BigNumber.from('42161')
+    }
   },
-  XDAI: {
-    XDAI: BigNumber.from('100')
-  },
-  POLYGON: {
-    POLYGON: BigNumber.from('137')
-  },
-  OPTIMISM: {
-    OPTIMISM_MAINNET: BigNumber.from('10')
-  },
-  ARBITRUM: {
-    ARBITRUM_MAINNET: BigNumber.from('42161')
+  TESTNET: {
+    ETHEREUM: {
+      MAINNET: BigNumber.from('5')
+    },
+    POLYGON: {
+      MUMBAI: BigNumber.from('80001')
+    },
+    OPTIMISM: {
+      OPTIMISM_TESTNET: BigNumber.from('420')
+    },
+    ARBITRUM: {
+      ARBITRUM_TESTNET: BigNumber.from('421613')
+    }
   }
 }
 
