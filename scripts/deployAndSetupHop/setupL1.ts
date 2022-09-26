@@ -35,7 +35,8 @@ import {
   executeCanonicalMessengerSendMessage,
   getAddActiveChainIdsMessage,
   getSetFxRootTunnelMessage,
-  getSetAmmWrapperMessage
+  getSetAmmWrapperMessage,
+  getSetMinimumForceCommitDelayMessage
 } from '../../test/shared/contractFunctionWrappers'
 
 const logger = Logger('setupL1')
@@ -268,7 +269,7 @@ export async function setupL1 (config: Config) {
 
   logger.log('setting supported chain IDs on L2 bridge')
   logger.log(
-    'chain IDs:', JSON.stringify(addActiveChainIdsParams)
+    'chain IDs:', JSON.stringify(addActiveChainIdsParams.map(x => x.toString()))
   )
   modifiedGasPrice = await getModifiedGasPrice(ethers, l1ChainId)
   tx = await executeCanonicalMessengerSendMessage(
@@ -288,6 +289,26 @@ export async function setupL1 (config: Config) {
     message = getSetAmmWrapperMessage(l2AmmWrapperAddress)
 
     logger.log('setting amm wrapper address on L2 bridge')
+    modifiedGasPrice = await getModifiedGasPrice(ethers, l1ChainId)
+    tx = await executeCanonicalMessengerSendMessage(
+      l1_messenger,
+      l1_messengerWrapper,
+      l2_bridge,
+      ZERO_ADDRESS,
+      governance,
+      message,
+      l2ChainId,
+      modifiedGasPrice
+    )
+    await tx.wait()
+    await waitAfterTransaction()
+  }
+
+  if (isChainIdPolygon(l2ChainId)) {
+    const minForceCommitDelay = BigNumber.from('0')
+    message = getSetMinimumForceCommitDelayMessage(minForceCommitDelay)
+
+    logger.log('updating minimum force commit delay on L2 bridge')
     modifiedGasPrice = await getModifiedGasPrice(ethers, l1ChainId)
     tx = await executeCanonicalMessengerSendMessage(
       l1_messenger,
