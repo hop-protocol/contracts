@@ -25,7 +25,7 @@ const decodeTypes: Record<string, ContractNames> = {
     l1HopBridge: ['address', 'address[]', 'address', 'address']
   },
   arbitrum: {
-    l1MessengerWrapper: ['address', 'address', 'address', 'uint256'],
+    l1MessengerWrapper: ['address', 'address', 'address'],
     l2Bridge: ['address', 'address', 'address', 'address', 'uint256[]', 'address[]'],
     swapUtils: [],
     mathUtils: []
