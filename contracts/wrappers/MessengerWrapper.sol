@@ -70,9 +70,7 @@ abstract contract MessengerWrapper is IMessengerWrapper {
         uint256 challengePeriod = l1Bridge.challengePeriod();
         for (uint i = 0; i < rootHashes.length; i++) {
             bool canConfirm = canConfirmRoot(l1Bridge, rootHashes[i], totalAmounts[i], challengePeriod);
-            if (!canConfirm) {
-                revert("MW: Root cannot be confirmed");
-            }
+            require(canConfirm, "MW: Root cannot be confirmed");
             l1Bridge.confirmTransferRoot(
                 l2ChainId,
                 rootHashes[i],
@@ -87,21 +85,15 @@ abstract contract MessengerWrapper is IMessengerWrapper {
         bytes32 transferRootId = l1Bridge.getTransferRootId(rootHash, totalAmount);
         (,uint256 createdAt,,uint256 challengeStartTime,,) = l1Bridge.transferBonds(transferRootId);
 
-        uint256 challengePeriodEnd = _safeAdd(createdAt, challengePeriod);
+        uint256 timeSinceBondCreation = block.timestamp - createdAt;
         if (
             createdAt != 0 &&
             challengeStartTime == 0 &&
-            block.timestamp > challengePeriodEnd
+            timeSinceBondCreation > challengePeriod
         ) {
             return true;
         }
 
         return false;
-    }
-
-    function _safeAdd(uint256 a, uint256 b) internal pure returns (uint256) {
-        uint256 c = a + b;
-        require(c >= a, "MW: Addition overflow");
-        return c;
     }
 }
