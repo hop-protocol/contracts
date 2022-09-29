@@ -154,6 +154,11 @@ export const networkData: NetworkData = {
         l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.OPTIMISM_MAINNET.HOP,
         ...DEFAULT_NETWORK_DATA.HOP
       },
+      SNX: {
+        l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.MAINNET.SNX,
+        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.OPTIMISM_MAINNET.SNX,
+        ...DEFAULT_NETWORK_DATA.SNX
+      },
     }
   },
   arbitrum: {

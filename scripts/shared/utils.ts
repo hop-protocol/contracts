@@ -350,6 +350,7 @@ export const getTokenSymbolLetterCase = (tokenSymbol: string): string => {
   else if (tokenSymbol.toLowerCase() === 'eth') return 'ETH'
   else if (tokenSymbol.toLowerCase() === 'frax') return 'FRAX'
   else if (tokenSymbol.toLowerCase() === 'hop') return 'HOP'
+  else if (tokenSymbol.toLowerCase() === 'snx') return 'SNX'
   else {
     throw new Error ('Invalid token symbol getter')
   }
