@@ -197,36 +197,7 @@ export async function setupL2 (config: Config) {
   const res = await l2_swap.swapStorage(overrides)
   const lpTokenAddress = res[7]
 
-  const lpToken = L2_MockERC20.attach(lpTokenAddress)
-  const lpTokenAmount = await lpToken.balanceOf(
-    await deployer.getAddress(),
-    overrides
-  )
-
-  approvalParams = [
-    l2_swap.address,
-    lpTokenAmount
-  ]
-
-  logger.log('approving L2 Swap LP token')
-  tx = await lpToken
-    .connect(deployer)
-    .approve(...approvalParams, overrides)
-  await tx.wait()
-  await waitAfterTransaction()
-
-  let removeLiquidityParams: any[] = [
-    lpTokenAmount,
-    ['0', '0'],
-    DEFAULT_DEADLINE
-  ]
-
-  logger.log('removing liquidity from L2 amm')
-  tx = await l2_swap
-    .connect(deployer)
-    .removeLiquidity(...removeLiquidityParams, overrides)
-  await tx.wait()
-  await waitAfterTransaction()
+  // Do not remove the LP token unless it is needed.
 
   updateConfigFile({
     l2LpTokenAddress: lpTokenAddress

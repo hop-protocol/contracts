@@ -86,5 +86,13 @@ export const DEFAULT_NETWORK_DATA = {
     l2SwapLpTokenName: 'Hop SNX LP Token',
     l2SwapLpTokenSymbol: 'HOP-LP-SNX',
     liquidityProviderSendAmount: '1000000000000000000'
-  }
+  },
+  sUSD: {
+    l2HBridgeTokenName: 'Synth sUSD Hop Token',
+    l2HBridgeTokenSymbol: 'hsUSD',
+    l2HBridgeTokenDecimals: 18,
+    l2SwapLpTokenName: 'Hop sUSD LP Token',
+    l2SwapLpTokenSymbol: 'HOP-LP-sUSD',
+    liquidityProviderSendAmount: '1000000000000000000'
+  },
 }

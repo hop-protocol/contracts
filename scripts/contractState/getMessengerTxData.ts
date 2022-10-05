@@ -18,7 +18,8 @@ const tokens: string[] = [
   'MATIC',
   'ETH',
   'HOP',
-  'SNX'
+  'SNX',
+  'sUSD'
 ]
 const targetAddresses: Record<string, Record<string, string>> = {
   gnosis: {
@@ -45,6 +46,7 @@ const targetAddresses: Record<string, Record<string, string>> = {
     ETH: '0x25ace71c97B33Cc4729CF772ae268934F7ab5fA1',
     HOP: '0x25ace71c97B33Cc4729CF772ae268934F7ab5fA1',
     SNX: '0x25ace71c97B33Cc4729CF772ae268934F7ab5fA1',
+    sUSD: '0x25ace71c97B33Cc4729CF772ae268934F7ab5fA1',
   },
   arbitrum: {
     USDC: '0x4Dbd4fc535Ac27206064B68FfCf827b0A60BAB3f',
@@ -80,6 +82,7 @@ const l2BridgeAddresses: Record<string, Record<string, string>> = {
     ETH: '0x83f6244Bd87662118d96D9a6D44f09dffF14b30E',
     HOP: '0x03D7f750777eC48d39D080b020D83Eb2CB4e3547',
     SNX: '0x16284c7323c35F4960540583998C98B1CfC581a7',
+    sUSD: '0x33Fe5bB8DA466dA55a8A32D6ADE2BB104E2C5201',
   },
   arbitrum: {
     USDC: '0x0e0E3d2C5c292161999474247956EF542caBF8dd',
