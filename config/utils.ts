@@ -4,6 +4,7 @@ import {
 } from './interfaces'
 import {
   CHAIN_IDS,
+  CHAIN_IDS_TO_ACTIVATE,
   DEFAULT_MESSENGER_WRAPPER_GAS_LIMIT,
   DEFAULT_L2_BRIDGE_GAS_LIMIT,
   CHECKPOINT_MANAGER_ADDRESSES,
@@ -196,6 +197,19 @@ export const isChainIdL1 = (chainId: BigNumber): boolean => {
   return false
 }
 
+export const isChainIdTestnet = (chainId: BigNumber): boolean => {
+  if (
+    chainId.eq(CHAIN_IDS.ETHEREUM.GOERLI) ||
+    chainId.eq(CHAIN_IDS.POLYGON.MUMBAI) ||
+    chainId.eq(CHAIN_IDS.ARBITRUM.ARBITRUM_TESTNET) ||
+    chainId.eq(CHAIN_IDS.OPTIMISM.OPTIMISM_TESTNET)
+  ) {
+    return true
+  }
+
+  return false
+}
+
 export const getXDaiAmbAddresses = (l1ChainId: BigNumber): string => {
   if (isChainIdMainnet(l1ChainId)) {
     return AMB_PROXY_ADDRESSES.MAINNET
@@ -276,4 +290,14 @@ export const getTxOverridesPerChain = (l2ChainId: BigNumber): Overrides => {
       gasLimit: 4_500_000
     }
   }
+}
+
+export const getActiveChainIds = (chainId: BigNumber): BigNumber[] => {
+  const network = isChainIdTestnet(chainId) ? 'TESTNET' : 'MAINNET'
+  const chainIds = CHAIN_IDS_TO_ACTIVATE[network]
+  const allActiveChainIds: BigNumber[] = (Object.values(
+    chainIds
+  ) as any[]).reduce((a: any[], b: any) => [...a, ...Object.values(b)], [])
+
+  return allActiveChainIds.filter(activeChainId => activeChainId.toString() !== chainId.toString())
 }

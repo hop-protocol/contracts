@@ -32,12 +32,15 @@ export const getContractFactories = async (
   chainId: BigNumber,
   signer: Signer,
   ethers: any,
-  isEthDeployment: boolean = false
+  isEthDeployment: boolean = false,
+  isHopDeployment: boolean = false
 ) => {
 
   let l1BridgeArtifact: string
   if (isEthDeployment) {
     l1BridgeArtifact = 'contracts/bridges/L1_ETH_Bridge.sol:L1_ETH_Bridge'
+  } else if (isHopDeployment) {
+    l1BridgeArtifact = 'contracts/bridges/L1_HOP_Bridge.sol:L1_HOP_Bridge'
   } else {
     l1BridgeArtifact = 'contracts/bridges/L1_ERC20_Bridge.sol:L1_ERC20_Bridge'
   }
@@ -346,6 +349,9 @@ export const getTokenSymbolLetterCase = (tokenSymbol: string): string => {
   else if (tokenSymbol.toLowerCase() === 'matic') return 'MATIC'
   else if (tokenSymbol.toLowerCase() === 'eth') return 'ETH'
   else if (tokenSymbol.toLowerCase() === 'frax') return 'FRAX'
+  else if (tokenSymbol.toLowerCase() === 'hop') return 'HOP'
+  else if (tokenSymbol.toLowerCase() === 'snx') return 'SNX'
+  else if (tokenSymbol.toLowerCase() === 'susd') return 'sUSD'
   else {
     throw new Error ('Invalid token symbol getter')
   }

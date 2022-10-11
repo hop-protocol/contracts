@@ -17,6 +17,10 @@ import {
   Logger
 } from '../shared/utils'
 
+import {
+  HOP_DAO_ADDRESS
+} from '../../config/constants'
+
 const logger = Logger('deployL1')
 
 interface Config {
@@ -24,6 +28,7 @@ interface Config {
   l1CanonicalTokenAddress: string
   bonderAddress: string
   isEthDeployment: boolean
+  isHopDeployment: boolean
 }
 
 export async function deployL1 (config: Config) {
@@ -33,14 +38,16 @@ export async function deployL1 (config: Config) {
     l1ChainId,
     l1CanonicalTokenAddress,
     bonderAddress,
-    isEthDeployment
+    isEthDeployment,
+    isHopDeployment
   } = config
 
   logger.log(`config:
             l1ChainId: ${l1ChainId}
             l1CanonicalTokenAddress: ${l1CanonicalTokenAddress}
             bonderAddress: ${bonderAddress}
-            isEthDeployment: ${isEthDeployment}`)
+            isEthDeployment: ${isEthDeployment}
+            isHopDeployment: ${isHopDeployment}`)
 
   l1ChainId = BigNumber.from(l1ChainId)
 
@@ -59,7 +66,7 @@ export async function deployL1 (config: Config) {
 
   // Contracts
   let l1_bridge: Contract
-  ;({ L1_Bridge } = await getContractFactories(l1ChainId, deployer, ethers, isEthDeployment))
+  ;({ L1_Bridge } = await getContractFactories(l1ChainId, deployer, ethers, isEthDeployment, isHopDeployment))
 
   /**
    * Deployments
@@ -72,6 +79,9 @@ export async function deployL1 (config: Config) {
   ]
   if (!isEthDeployment) {
     l1BridgeParams.unshift(l1CanonicalTokenAddress)
+  }
+  if (isHopDeployment) {
+    l1BridgeParams.push(HOP_DAO_ADDRESS)
   }
 
   l1_bridge = await L1_Bridge
@@ -97,13 +107,15 @@ if (require.main === module) {
     l1ChainId,
     l1CanonicalTokenAddress,
     bonderAddress,
-    isEthDeployment
+    isEthDeployment,
+    isHopDeployment
   } = readConfigFile()
   deployL1({
     l1ChainId,
     l1CanonicalTokenAddress,
     bonderAddress,
-    isEthDeployment
+    isEthDeployment,
+    isHopDeployment
   })
     .then(() => {
       process.exit(0)

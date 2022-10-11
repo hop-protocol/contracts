@@ -17,6 +17,9 @@ const tokens: string[] = [
   'DAI',
   'MATIC',
   'ETH',
+  'HOP',
+  'SNX',
+  'sUSD'
 ]
 const targetAddresses: Record<string, Record<string, string>> = {
   gnosis: {
@@ -25,13 +28,15 @@ const targetAddresses: Record<string, Record<string, string>> = {
     DAI: '0x4C36d2919e407f0Cc2Ee3c993ccF8ac26d9CE64e',
     MATIC: '0x4C36d2919e407f0Cc2Ee3c993ccF8ac26d9CE64e',
     ETH: '0x4C36d2919e407f0Cc2Ee3c993ccF8ac26d9CE64e',
+    HOP: '0x4C36d2919e407f0Cc2Ee3c993ccF8ac26d9CE64e',
   },
   polygon: {
-    USDC: '0x4e9840f3C1ff368a10731D15c11516b9Fe7E1898',
-    USDT: '0x2D8b884f7aaEa1Dd13a805071530Ba9Ee9a7E035',
-    DAI: '0xB8a49c3137f27b04ee9E68727147b3131764B8A0',
-    MATIC: '0xAd33Daa2BcDf3E52D30FCca3c7066762DF657657',
-    ETH: '0x69d10828233D7a656104455445d289bBFD50eF6d',
+    USDC: '0xD89ea85ee5dD2027dbC29Fbc198DC197D44c3d70',
+    USDT: '0xFC047884dE7797A3D9cbA42FBc3b675388A110d5',
+    DAI: '0x2e929203D8F2Fcf88C4Ff7b7362d08169b6F661c',
+    MATIC: '0xe6bfe2ac487EA9A6c58108FBcb6d2DB96b667cc0',
+    ETH: '0xdeC8005ca1a3f90168C211406feFafA412467D81',
+    HOP: '0xaE6Dc7fED207FB7bF3F406Fc197f70607CeA618a',
   },
   optimism: {
     USDC: '0x25ace71c97B33Cc4729CF772ae268934F7ab5fA1',
@@ -39,6 +44,9 @@ const targetAddresses: Record<string, Record<string, string>> = {
     DAI: '0x25ace71c97B33Cc4729CF772ae268934F7ab5fA1',
     MATIC: '0x25ace71c97B33Cc4729CF772ae268934F7ab5fA1',
     ETH: '0x25ace71c97B33Cc4729CF772ae268934F7ab5fA1',
+    HOP: '0x25ace71c97B33Cc4729CF772ae268934F7ab5fA1',
+    SNX: '0x25ace71c97B33Cc4729CF772ae268934F7ab5fA1',
+    sUSD: '0x25ace71c97B33Cc4729CF772ae268934F7ab5fA1',
   },
   arbitrum: {
     USDC: '0x4Dbd4fc535Ac27206064B68FfCf827b0A60BAB3f',
@@ -46,6 +54,7 @@ const targetAddresses: Record<string, Record<string, string>> = {
     DAI: '0x4Dbd4fc535Ac27206064B68FfCf827b0A60BAB3f',
     MATIC: '0x4Dbd4fc535Ac27206064B68FfCf827b0A60BAB3f',
     ETH: '0x4Dbd4fc535Ac27206064B68FfCf827b0A60BAB3f',
+    HOP: '0x4Dbd4fc535Ac27206064B68FfCf827b0A60BAB3f',
   },
 }
 
@@ -56,6 +65,7 @@ const l2BridgeAddresses: Record<string, Record<string, string>> = {
     DAI: '0x0460352b91D7CF42B0E1C1c30f06B602D9ef2238',
     MATIC: '0x7ac71c29fEdF94BAc5A5C9aB76E1Dd12Ea885CCC',
     ETH: '0xD8926c12C0B2E5Cd40cFdA49eCaFf40252Af491B',
+    HOP: '0x6F03052743CD99ce1b29265E377e320CD24Eb632',
   },
   polygon: {
     USDC: '0x25D8039bB044dC227f741a9e381CA4cEAE2E6aE8',
@@ -63,18 +73,23 @@ const l2BridgeAddresses: Record<string, Record<string, string>> = {
     DAI: '0xEcf268Be00308980B5b3fcd0975D47C4C8e1382a',
     MATIC: '0x553bC791D746767166fA3888432038193cEED5E2',
     ETH: '0xb98454270065A31D71Bf635F6F7Ee6A518dFb849',
+    HOP: '0x58c61AeE5eD3D748a1467085ED2650B697A66234',
   },
   optimism: {
     USDC: '0xa81D244A1814468C734E5b4101F7b9c0c577a8fC',
     USDT: '0x46ae9BaB8CEA96610807a275EBD36f8e916b5C61',
     DAI: '0x7191061D5d4C60f598214cC6913502184BAddf18',
     ETH: '0x83f6244Bd87662118d96D9a6D44f09dffF14b30E',
+    HOP: '0x03D7f750777eC48d39D080b020D83Eb2CB4e3547',
+    SNX: '0x16284c7323c35F4960540583998C98B1CfC581a7',
+    sUSD: '0x33Fe5bB8DA466dA55a8A32D6ADE2BB104E2C5201',
   },
   arbitrum: {
     USDC: '0x0e0E3d2C5c292161999474247956EF542caBF8dd',
     USDT: '0x72209Fe68386b37A40d6bCA04f78356fd342491f',
     DAI: '0x7aC115536FE3A185100B2c4DE4cb328bf3A58Ba6',
     ETH: '0x3749C4f034022c39ecafFaBA182555d4508caCCC',
+    HOP: '0x25FB92E505F752F730cAD0Bd4fa17ecE4A384266',
   },
 }
 
@@ -92,12 +107,14 @@ async function main () {
   let abi: string[]
   let ethersInterface: ethersUtils.Interface
   let data: string
+  let l2BridgeAddress: string | undefined
 
   // Gnosis
   abi = ['function requireToPassMessage(address,bytes,uint256)']
   ethersInterface = new ethersUtils.Interface(abi)
-  data = ethersInterface.encodeFunctionData(
-    'requireToPassMessage', [l2BridgeAddresses['gnosis'][token], calldata, '1500000']
+  l2BridgeAddress = l2BridgeAddresses?.['gnosis']?.[token]
+  data = !l2BridgeAddress ? null : ethersInterface.encodeFunctionData(
+    'requireToPassMessage', [l2BridgeAddress, calldata, '1500000']
   )
   logData(chains.Gnosis, abi, token, data, defaultValue, timestamp)
 
@@ -114,16 +131,18 @@ async function main () {
   // Optimism
   abi = ['function sendMessage(address,bytes,uint32)']
   ethersInterface = new ethersUtils.Interface(abi)
-  data = ethersInterface.encodeFunctionData(
-    'sendMessage', [l2BridgeAddresses['optimism'][token], calldata, '5000000']
+  l2BridgeAddress = l2BridgeAddresses?.['optimism']?.[token]
+  data = !l2BridgeAddress ? null : ethersInterface.encodeFunctionData(
+    'sendMessage', [l2BridgeAddress, calldata, '5000000']
   )
   logData(chains.Optimism, abi, token, data, defaultValue, timestamp)
 
   // Arbitrum
   abi = ['function createRetryableTicket(address,uint256,uint256,address,address,uint256,uint256,bytes)']
   ethersInterface = new ethersUtils.Interface(abi)
-  data = ethersInterface.encodeFunctionData(
-    'createRetryableTicket', [l2BridgeAddresses['arbitrum'][token], 0, '100000000000000', governanceAddress, governanceAddress, '1000000', '5000000000', calldata]
+  l2BridgeAddress = l2BridgeAddresses?.['arbitrum']?.[token]
+  data = !l2BridgeAddress ? null : ethersInterface.encodeFunctionData(
+    'createRetryableTicket', [l2BridgeAddress, 0, '100000000000000', governanceAddress, governanceAddress, '1000000', '5000000000', calldata]
   )
   const value = 0.01
   logData(chains.Arbitrum, abi, token, data, value, timestamp)
@@ -170,6 +189,12 @@ const logData = (
   value: number,
   eta: number
 ) => {
+  if (!targetAddresses?.[chain]?.[token]) {
+    console.log(`\nSkipping ${chain} because there is no deployment`)
+    return
+  }
+
+  console.log(data)
   console.log(`\n${chain}`)
   console.log(`target: ${targetAddresses[chain][token]}`)
   console.log(`value: ${value}`)
