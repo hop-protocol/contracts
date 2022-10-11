@@ -35,7 +35,7 @@ abstract contract L1_Bridge is Bridge {
     mapping(uint256 => IMessengerWrapper) public crossDomainMessengerWrappers;
     mapping(uint256 => bool) public isChainIdPaused;
     uint256 public challengePeriod = 1 days;
-    uint256 public challengeResolutionPeriod = 10 days;
+    uint256 public challengeResolutionPeriod = 14 days;
     uint256 public minTransferRootBondDelay = 15 minutes;
     
     uint256 public constant CHALLENGE_AMOUNT_DIVISOR = 10;

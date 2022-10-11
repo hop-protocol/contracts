@@ -29,6 +29,11 @@ export const networkData: NetworkData = {
         l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.MUMBAI.USDC,
         ...DEFAULT_NETWORK_DATA.USDC
       },
+      HOP: {
+        l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.GOERLI.HOP,
+        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.MUMBAI.HOP,
+        ...DEFAULT_NETWORK_DATA.HOP
+      },
     }
   },
   optimism: {
@@ -49,6 +54,11 @@ export const networkData: NetworkData = {
         l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.OPTIMISM_TESTNET.USDC,
         ...DEFAULT_NETWORK_DATA.USDC
       },
+      HOP: {
+        l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.GOERLI.HOP,
+        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.OPTIMISM_TESTNET.HOP,
+        ...DEFAULT_NETWORK_DATA.HOP
+      },
     }
   },
   arbitrum: {
@@ -68,6 +78,11 @@ export const networkData: NetworkData = {
         l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.GOERLI.USDC,
         l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.ARBITRUM_TESTNET.USDC,
         ...DEFAULT_NETWORK_DATA.USDC
+      },
+      HOP: {
+        l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.GOERLI.HOP,
+        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.ARBITRUM_TESTNET.HOP,
+        ...DEFAULT_NETWORK_DATA.HOP
       },
     }
   },

@@ -171,13 +171,34 @@ export default {
     apiKey: {
       mainnet: process.env.ETHERSCAN_API_KEY,
       goerli: process.env.ETHERSCAN_API_KEY,
-      arbitrum_mainnet: process.env.ARBITRUM_API_KEY,
-      arbitrum_testnet: process.env.ARBITRUM_API_KEY,
-      optimism_mainnet: process.env.OPTIMISM_API_KEY,
-      optimism_testnet: process.env.OPTIMISM_API_KEY,
+      arbitrumOne: process.env.ARBITRUM_API_KEY,
+      optimisticEthereum: process.env.OPTIMISM_API_KEY,
       xdai: process.env.XDAI_API_KEY,
       polygon: process.env.POLYGONSCAN_API_KEY,
-      mumbai: process.env.POLYGONSCAN_API_KEY,
-    }
+      polygonMumbai: process.env.POLYGONSCAN_API_KEY,
+    },
+    customChains: [
+      {
+        network: "xdai",
+        chainId: 100,
+        urls: {
+          apiURL: "https://api.gnosisscan.io/api",
+          browserURL: "https://gnosisscan.io"
+        }
+      },
+      {
+        network: "optimism_testnet",
+        chainId: 420,
+        urls: {
+          apiURL: "https://api-goerli-optimism.etherscan.io/api",
+          browserURL: "https://goerli-optimism.etherscan.io"
+        }
+      }
+    ]
   }
+  // abiExporter: {
+  //   path: './data/abi',
+  //   clear: true,
+  //   flat: true
+  // }
 }

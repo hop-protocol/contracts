@@ -23,7 +23,6 @@ async function main () {
   let bonderAddress: string
   let isL1BridgeDeploy: boolean
   let l2CanonicalTokenIsEth: boolean
-  let isEthDeployment: boolean
   let deploymentStep: number
 
   ;({
@@ -33,7 +32,6 @@ async function main () {
     bonderAddress,
     isL1BridgeDeploy,
     l2CanonicalTokenIsEth,
-    isEthDeployment,
     deploymentStep 
   } = await getPrompts())
 
@@ -51,8 +49,7 @@ async function main () {
     l2NetworkName,
     tokenSymbol,
     bonderAddress,
-    l2CanonicalTokenIsEth,
-    isEthDeployment
+    l2CanonicalTokenIsEth
   )
 
   l2NetworkName = handleCustomL2NetworkName(l1NetworkName, l2NetworkName)
@@ -121,12 +118,6 @@ async function getPrompts () {
     required: true,
     default: false
   }, {
-    name: 'isEthDeployment',
-    description: 'Is this a deployment for an ETH bridge set',
-    type: 'boolean',
-    required: true,
-    default: false
-  }, {
     name: 'deploymentStep',
     description: 'Deployment Step (0 for all) (0, 1, 2, or 3)',
     type: 'number',
@@ -146,7 +137,6 @@ async function getPrompts () {
   const bonderAddress: string = (res.bonderAddress as string)
   const isL1BridgeDeploy: boolean = res.isL1BridgeDeploy as boolean
   const l2CanonicalTokenIsEth: boolean = res.l2CanonicalTokenIsEth as boolean
-  const isEthDeployment: boolean = res.isEthDeployment as boolean
   const deploymentStep: number = res.deploymentStep as number
 
   return {
@@ -156,7 +146,6 @@ async function getPrompts () {
     bonderAddress,
     isL1BridgeDeploy,
     l2CanonicalTokenIsEth,
-    isEthDeployment,
     deploymentStep
   }
 }
@@ -208,8 +197,7 @@ function setNetworkParams (
   l2NetworkName: string,
   tokenSymbol: string,
   bonderAddress: string,
-  l2CanonicalTokenIsEth: boolean,
-  isEthDeployment: boolean
+  l2CanonicalTokenIsEth: boolean
 ) {
   const { l1BridgeAddress } = readConfigFile()
 
@@ -236,6 +224,20 @@ function setNetworkParams (
     liquidityProviderSendAmount
   } = tokens[expectedTokenSymbolLetterCase]
 
+  let isEthDeployment = false
+  if (expectedTokenSymbolLetterCase === 'ETH') {
+    isEthDeployment = true
+  }
+
+  let isHopDeployment = false
+  if (expectedTokenSymbolLetterCase === 'HOP') {
+    isHopDeployment = true
+  }
+
+  if (isEthDeployment && isHopDeployment) {
+    throw new Error('Cannot deploy both ETH and HOP')
+  }
+
   const liquidityProviderAmmAmount: BigNumber = BigNumber.from(liquidityProviderSendAmount).div(2)
 
   const data = {
@@ -256,7 +258,8 @@ function setNetworkParams (
     liquidityProviderAmmAmount: liquidityProviderAmmAmount.toString(),
     bonderAddress,
     l2CanonicalTokenIsEth,
-    isEthDeployment
+    isEthDeployment,
+    isHopDeployment
   }
 
   console.log('data:', data)
