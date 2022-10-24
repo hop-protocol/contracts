@@ -6,6 +6,7 @@ import { getUpdateContractStateMessage } from './getUpdateContractStateMessage'
 
 const governanceAddress: string = '0xF56e305024B195383245A075737d16dBdb8487Fb'
 const chains: Record<string, string> = {
+  Ethereum: 'ethereum',
   Gnosis: 'gnosis',
   Polygon: 'polygon',
   Optimism: 'optimism',
@@ -58,6 +59,15 @@ const targetAddresses: Record<string, Record<string, string>> = {
   },
 }
 
+const l1BridgeAddresses: Record<string, string> = {
+  USDC: '0x3666f603Cc164936C1b87e207F36BEBa4AC5f18a',
+  USDT: '0x3E4a3a4796d16c0Cd582C382691998f7c06420B6',
+  DAI: '0x3d4Cc8A61c7528Fd86C55cfe061a78dCBA48EDd1',
+  MATIC: '0x22B1Cbb8D98a01a3B71D034BB899775A76Eb1cc2',
+  ETH: '0xb8901acB165ed027E32754E0FFe830802919727f',
+  HOP: '0x914f986a44AcB623A277d6Bd17368171FCbe4273',
+}
+
 const l2BridgeAddresses: Record<string, Record<string, string>> = {
   gnosis: {
     USDC: '0x25D8039bB044dC227f741a9e381CA4cEAE2E6aE8',
@@ -95,19 +105,26 @@ const l2BridgeAddresses: Record<string, Record<string, string>> = {
 
 async function main () {
   const res = await getPromptRes()
-  const { token, functionToCall, input } = res
+  const { token, functionToCall, input, timestamp } = res
   if (!tokens.includes(token)) {
     throw new Error('Invalid token')
   }
 
-  const timestamp = 1656637200
   const defaultValue = 0
   const calldata = await getUpdateContractStateMessage(functionToCall, input)
 
-  let abi: string[]
+  let abi: string[] = []
   let ethersInterface: ethersUtils.Interface
   let data: string
   let l2BridgeAddress: string | undefined
+
+  // Ethereum
+  abi = [`function ${functionToCall}(address)`]
+  ethersInterface = new ethersUtils.Interface(abi)
+  data = ethersInterface.encodeFunctionData(
+    functionToCall, [input]
+  )
+  logData(chains.Ethereum, abi, token, data, defaultValue, timestamp)
 
   // Gnosis
   abi = ['function requireToPassMessage(address,bytes,uint256)']
@@ -154,6 +171,11 @@ const getPromptRes = async() => {
   prompt.delimiter = ''
 
   const res = await prompt.get([{
+    name: 'timestamp',
+    type: 'number',
+    description: 'Timestamp to execute',
+    required: true
+  }, {
     name: 'token',
     type: 'string',
     description: 'Token of bridge being updated',
@@ -170,6 +192,7 @@ const getPromptRes = async() => {
     required: true
   }])
 
+  const timestamp: any = (res.timestamp as number)
   const token: string = (res.token as string)
   const functionToCall: string = (res.functionToCall as string)
   const input: any = res.input
@@ -177,7 +200,8 @@ const getPromptRes = async() => {
   return {
     token,
     functionToCall,
-    input
+    input,
+    timestamp
   }
 }
 
@@ -189,16 +213,17 @@ const logData = (
   value: number,
   eta: number
 ) => {
-  if (!targetAddresses?.[chain]?.[token]) {
+  const isL1 = chain === chains.Ethereum
+  if (!isL1 && !targetAddresses?.[chain]?.[token]) {
     console.log(`\nSkipping ${chain} because there is no deployment`)
     return
   }
+  let target = isL1 ? l1BridgeAddresses?.[token] : targetAddresses?.[chain]?.[token] 
 
-  console.log(data)
   console.log(`\n${chain}`)
-  console.log(`target: ${targetAddresses[chain][token]}`)
+  console.log(`target: ${target}`)
   console.log(`value: ${value}`)
-  console.log(`sig: ${abi[0].substring(9)}`)
+  console.log(`sig: ${abi?.[0] && abi[0].substring(9)} (${isL1 && 'TODO - This may be incorrect'})`)
   console.log(`data: 0x${data.substring(10)}`)
   console.log(`eta: ${eta} (${new Date(eta * 1000)})`)
 
