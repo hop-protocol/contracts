@@ -223,7 +223,7 @@ const logData = (
   console.log(`\n${chain}`)
   console.log(`target: ${target}`)
   console.log(`value: ${value}`)
-  console.log(`sig: ${abi?.[0] && abi[0].substring(9)} (${isL1 && 'TODO - This may be incorrect'})`)
+  console.log(`sig: ${abi?.[0] && abi[0].substring(9)}${isL1 ? '(TODO - This may be incorrect)' : ''}`)
   console.log(`data: 0x${data.substring(10)}`)
   console.log(`eta: ${eta} (${new Date(eta * 1000)})`)
 
