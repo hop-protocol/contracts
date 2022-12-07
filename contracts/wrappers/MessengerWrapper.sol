@@ -68,7 +68,7 @@ abstract contract MessengerWrapper is IMessengerWrapper {
         require(rootHashes.length == totalAmounts.length, "MW: rootHashes and totalAmounts must be the same length");
 
         uint256 challengePeriod = l1Bridge.challengePeriod();
-        for (uint i = 0; i < rootHashes.length; i++) {
+        for (uint256 i = 0; i < rootHashes.length; i++) {
             bool canConfirm = canConfirmRoot(l1Bridge, rootHashes[i], totalAmounts[i], challengePeriod);
             require(canConfirm, "MW: Root cannot be confirmed");
             l1Bridge.confirmTransferRoot(
