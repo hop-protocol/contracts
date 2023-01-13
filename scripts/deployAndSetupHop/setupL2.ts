@@ -13,6 +13,7 @@ import {
 } from '../shared/utils'
 import {
   isChainIdArbitrum,
+  isChainIdNova,
   isChainIdPolygon,
   getActiveChainIds,
   getTxOverridesPerChain

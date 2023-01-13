@@ -22,6 +22,10 @@ export const CHAIN_IDS: any = {
   POLYGON: {
     POLYGON: BigNumber.from('137'),
     MUMBAI: BigNumber.from('80001')
+  },
+  NOVA: {
+    NOVA_MAINNET: BigNumber.from('42170'),
+  },
   }
 }
 
@@ -40,7 +44,10 @@ export const CHAIN_IDS_TO_ACTIVATE: any = {
       OPTIMISM_MAINNET: BigNumber.from('10')
     },
     ARBITRUM: {
-      ARBITRUM_MAINNET: BigNumber.from('42161')
+      ARBITRUM_MAINNET: BigNumber.from('42161'),
+    },
+    NOVA: {
+      NOVA_MAINNET: BigNumber.from('42170')
     }
   },
   TESTNET: {
@@ -243,7 +250,10 @@ export const L2_CANONICAL_TOKEN_ADDRESSES: any = {
     ETH: '0xcb5ddfb8d0038247dc0beeecaa7f3457befcb77c', // Our deployment
     USDC: '0x17078F231AA8dc256557b49a8f2F72814A71f633', // Canonical deployment
     HOP: '0xB1ea9FeD58a317F81eEEFC18715Dd323FDEf45c4' // Our deployment
-  }
+  },
+  NOVA_MAINNET: {
+    ETH: '0x722E8BdD2ce80A4422E880164f2079488e115365'
+  },
 }
 
 export const GAS_PRICE_MULTIPLIERS: { [key: string]: number } = {

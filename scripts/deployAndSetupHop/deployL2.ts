@@ -327,7 +327,7 @@ const deployL2SwapLibs = async (
   )
 
   logger.log('Deploying L2 Swap Utils')
-  logger.log('IMPORTANT: This transaction needs 4.5 million gas to be deployed on Polygon & 200 million gas on Arbitrum')
+  logger.log('IMPORTANT: This transaction needs 4.5 million gas to be deployed on Polygon & 200 million gas on Arbitrum & Nova')
   const l2_swapUtils = await L2_SwapUtils.deploy(overrides)
   await waitAfterTransaction(l2_swapUtils, ethers)
 

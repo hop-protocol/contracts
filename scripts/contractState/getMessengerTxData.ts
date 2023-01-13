@@ -11,6 +11,7 @@ const chains: Record<string, string> = {
   Polygon: 'polygon',
   Optimism: 'optimism',
   Arbitrum: 'arbitrum',
+  Nova: 'nova',
 }
 const tokens: string[] = [
   'USDC',
@@ -57,6 +58,9 @@ const targetAddresses: Record<string, Record<string, string>> = {
     ETH: '0x4Dbd4fc535Ac27206064B68FfCf827b0A60BAB3f',
     HOP: '0x4Dbd4fc535Ac27206064B68FfCf827b0A60BAB3f',
   },
+  nova: {
+    ETH: '0xc4448b71118c9071Bcb9734A0EAc55D18A153949'
+  },
 }
 
 const l1BridgeAddresses: Record<string, string> = {
@@ -100,6 +104,9 @@ const l2BridgeAddresses: Record<string, Record<string, string>> = {
     DAI: '0x7aC115536FE3A185100B2c4DE4cb328bf3A58Ba6',
     ETH: '0x3749C4f034022c39ecafFaBA182555d4508caCCC',
     HOP: '0x25FB92E505F752F730cAD0Bd4fa17ecE4A384266',
+  },
+  nova: {
+    ETH: '0x8796860ca1677Bf5d54cE5A348Fe4b779a8212f3'
   },
 }
 
@@ -164,6 +171,16 @@ async function main () {
   )
   const value = 0.01
   logData(chains.Arbitrum, abi, token, data, value, timestamp)
+
+  // Nova
+  abi = ['function createRetryableTicket(address,uint256,uint256,address,address,uint256,uint256,bytes)']
+  ethersInterface = new ethersUtils.Interface(abi)
+  l2BridgeAddress = l2BridgeAddresses?.['nova']?.[token]
+  data = !l2BridgeAddress ? null : ethersInterface.encodeFunctionData(
+    'createRetryableTicket', [l2BridgeAddress, 0, '100000000000000', governanceAddress, governanceAddress, '1000000', '5000000000', calldata]
+  )
+  logData(chains.Nova, abi, token, data, value, timestamp)
+
 }
 
 const getPromptRes = async() => {
@@ -228,7 +245,7 @@ const logData = (
   console.log(`data: 0x${data.substring(10)}`)
   console.log(`eta: ${eta} (${new Date(eta * 1000)})`)
 
-  if (chain === chains.Arbitrum) {
+  if (chain === chains.Arbitrum || chain === chains.Nova) {
     const valueToSend = 10000000000000000
     console.log(`value to send: ${valueToSend}`)
   }

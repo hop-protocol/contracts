@@ -41,7 +41,7 @@ export const getMessengerWrapperDefaults = (
     l1MessengerAddress
   ]
 
-  if (isChainIdArbitrum(l2ChainId)) {
+  if (isChainIdArbitrum(l2ChainId) || isChainIdNova(l2ChainId)) {
     data.push(
       ...defaults
     )
@@ -93,7 +93,7 @@ export const getL2BridgeDefaults = (
   let actualL2MessengerAddress: string = l2MessengerAddress
   let additionalData = []
 
-  if (isChainIdArbitrum(chainId)) {
+  if (isChainIdArbitrum(chainId) || isChainIdNova(chainId)) {
     governanceAddress = generateArbitrumAliasAddress(governanceAddress)
   } else if (isChainIdOptimism(chainId)) {
     const defaultGasLimit = DEFAULT_L2_BRIDGE_GAS_LIMIT
@@ -138,6 +138,16 @@ export const isChainIdArbitrum = (chainId: BigNumber): boolean => {
   if (
     chainId.eq(CHAIN_IDS.ARBITRUM.ARBITRUM_TESTNET) ||
     chainId.eq(CHAIN_IDS.ARBITRUM.ARBITRUM_MAINNET)
+  ) {
+    return true
+  }
+
+  return false
+}
+
+export const isChainIdNova = (chainId: BigNumber): boolean => {
+  if (
+    chainId.eq(CHAIN_IDS.NOVA.NOVA_MAINNET)
   ) {
     return true
   }
@@ -276,7 +286,7 @@ export const generateArbitrumAliasAddress = (address: string): string => {
 }
 
 export const getTxOverridesPerChain = (l2ChainId: BigNumber): Overrides => {
-  if (isChainIdOptimism(l2ChainId) || isChainIdArbitrum(l2ChainId)) {
+  if (isChainIdOptimism(l2ChainId) || isChainIdArbitrum(l2ChainId) || isChainIdNova(l2ChainId)) {
     return {}
   } else if (isChainIdXDai(l2ChainId)) {
     return {

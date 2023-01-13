@@ -35,6 +35,7 @@ import { IFixture } from './interfaces'
 import {
   isChainIdOptimism,
   isChainIdArbitrum,
+  isChainIdNova,
   isChainIdXDai,
   isChainIdPolygon,
   isChainIdMainnet,
@@ -375,7 +376,7 @@ export const getL2SpecificArtifact = (chainId: BigNumber) => {
     l1_messengerArtifact = 'contracts/test/Mock_L1_Messenger.sol:Mock_L1_Messenger'
     l1_messengerWrapperArtifact =
       'contracts/wrappers/OptimismMessengerWrapper.sol:OptimismMessengerWrapper'
-  } else if (isChainIdArbitrum(chainId)) {
+  } else if (isChainIdArbitrum(chainId) || isChainIdNova(chainId)) {
     l2_bridgeArtifact = 'Mock_L2_ArbitrumBridge.sol:Mock_L2_ArbitrumBridge'
     l1_messengerArtifact = 'contracts/test/Mock_L1_Messenger.sol:Mock_L1_Messenger'
     l1_messengerWrapperArtifact =
