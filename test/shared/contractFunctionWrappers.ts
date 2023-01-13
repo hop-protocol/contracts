@@ -18,6 +18,7 @@ import {
 import {
   isChainIdOptimism,
   isChainIdArbitrum,
+  isChainIdNova,
   isChainIdXDai,
   isChainIdPolygon,
   isChainIdL1,
@@ -74,7 +75,7 @@ export const executeCanonicalMessengerSendMessage = async (
   const params: any[] = [l2_bridge.address, message, gasLimit]
   modifiedGasPrice = modifiedGasPrice || {}
 
-  if (isChainIdArbitrum(l2ChainId)) {
+  if (isChainIdArbitrum(l2ChainId) || isChainIdNova(l2ChainId)) {
     const destinationAddress: string = l2_bridge.address
     const callValue: BigNumber = BigNumber.from('0')
     const excessFeeRefundAddress: string = await sender.getAddress()

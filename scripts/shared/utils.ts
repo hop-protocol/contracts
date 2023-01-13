@@ -12,6 +12,7 @@ import {
 import {
   isChainIdOptimism,
   isChainIdArbitrum,
+  isChainIdNova,
   isChainIdXDai,
   isChainIdPolygon,
   isChainIdMainnet
@@ -109,7 +110,7 @@ const getNetworkSpecificFactories = async (
 ) => {
   if (isChainIdOptimism(chainId)) {
     return getOptimismContractFactories(signer, ethers)
-  } else if (isChainIdArbitrum(chainId)) {
+  } else if (isChainIdArbitrum(chainId) || isChainIdNova(chainId)) {
     return getArbitrumContractFactories(signer, ethers)
   } else if (isChainIdXDai(chainId)) {
     return getXDaiContractFactories(signer, ethers)

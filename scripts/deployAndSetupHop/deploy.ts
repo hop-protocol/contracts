@@ -267,7 +267,7 @@ function setNetworkParams (
 }
 
 function handleCustomL2NetworkName(l1NetworkName: string, l2NetworkName: string) {
-  if (l2NetworkName === 'optimism' || l2NetworkName === 'arbitrum') {
+  if (l2NetworkName === 'optimism' || l2NetworkName === 'arbitrum' || l2NetworkName === 'nova' || l2NetworkName === 'consensys') {
     if (l1NetworkName === 'mainnet') {
       return `${l2NetworkName}_mainnet`
     } else if (l1NetworkName === 'goerli') {

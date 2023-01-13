@@ -63,6 +63,12 @@ export default {
       chainId: CHAIN_IDS.ARBITRUM.ARBITRUM_MAINNET.toNumber(),
       timeout
     },
+    nova_mainnet: {
+      url: process.env.RPC_ENDPOINT_ARBITRUM_NOVA,
+      accounts: desiredAccounts,
+      chainId: CHAIN_IDS.NOVA.NOVA_MAINNET.toNumber(),
+      timeout
+    },
     arbitrum_testnet: {
       url: process.env.RPC_ENDPOINT_ARBITRUM_TESTNET,
       accounts: desiredAccounts,
@@ -176,6 +182,7 @@ export default {
       xdai: process.env.XDAI_API_KEY,
       polygon: process.env.POLYGONSCAN_API_KEY,
       polygonMumbai: process.env.POLYGONSCAN_API_KEY,
+      nova_mainnet: process.env.NOVA_API_KEY,
     },
     customChains: [
       {
@@ -193,7 +200,15 @@ export default {
           apiURL: "https://api-goerli-optimism.etherscan.io/api",
           browserURL: "https://goerli-optimism.etherscan.io"
         }
-      }
+      },
+      {
+        network: "nova_mainnet",
+        chainId: 42170,
+        urls: {
+          apiURL: "https://api-nova.arbiscan.io/api",
+          browserURL: "https://nova.arbiscan.io"
+        }
+      },
     ]
   }
   // abiExporter: {
