@@ -81,5 +81,15 @@ const decodeTypes: Record<string, ContractNames> = {
     l2SaddleLpToken: ['string', 'string', 'uint8'],
     l2AmmWrapper: ['address', 'address', 'bool', 'address', 'address'],
     l2HopBridgeToken: ['string', 'string', 'uint8']
-  }
+  },
+  consensys_mainnet: {
+    l1MessengerWrapper: [], // TODO Consensys
+    l2Bridge: [], // TODO Consensys
+    swap: [],
+    swapUtils: [],
+    mathUtils: [],
+    l2SaddleLpToken: ['string', 'string', 'uint8'],
+    l2AmmWrapper: ['address', 'address', 'bool', 'address', 'address'],
+    l2HopBridgeToken: ['string', 'string', 'uint8']
+  },
 }

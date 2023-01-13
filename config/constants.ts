@@ -26,6 +26,8 @@ export const CHAIN_IDS: any = {
   NOVA: {
     NOVA_MAINNET: BigNumber.from('42170'),
   },
+  CONSENSYS: {
+    CONSENSYS_TESTNET: BigNumber.from('59140'),
   }
 }
 
@@ -62,6 +64,9 @@ export const CHAIN_IDS_TO_ACTIVATE: any = {
     },
     ARBITRUM: {
       ARBITRUM_TESTNET: BigNumber.from('421613')
+    },
+    CONSENSYS: {
+      CONSENSYS_TESTNET: BigNumber.from('59140')
     }
   }
 }
@@ -253,6 +258,10 @@ export const L2_CANONICAL_TOKEN_ADDRESSES: any = {
   },
   NOVA_MAINNET: {
     ETH: '0x722E8BdD2ce80A4422E880164f2079488e115365'
+  },
+  CONSENSYS_TESTNET: {
+    ETH: 'TODO:', // TODO Consensys: most likely 0x2C1b868d6596a18e32E61B901E4060C872647b6C
+    USDC: 'TODO' // TODO Consensys: most likely 0x964FF70695da981027c81020B1c58d833D49A640
   },
 }
 

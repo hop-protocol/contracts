@@ -72,6 +72,8 @@ export const getMessengerWrapperDefaults = (
       fxRootAddress,
       fxChildTunnelAddress
     )
+  } else if (isChainIdConsensys(l2ChainId)) {
+    // TODO Consensys
   }
 
   return data
@@ -105,6 +107,8 @@ export const getL2BridgeDefaults = (
     )
   } else if (isChainIdPolygon(chainId)) {
     actualL2MessengerAddress = l2MessengerProxyAddress
+  } else if (isChainIdConsensys(chainId)) {
+    // TODO: Consensys
   }
 
   defaults.push(
@@ -176,6 +180,16 @@ export const isChainIdPolygon = (chainId: BigNumber): boolean => {
   return false
 }
 
+export const isChainIdConsensys = (chainId: BigNumber): boolean => {
+  if (
+    chainId.eq(CHAIN_IDS.CONSENSYS.CONSENSYS_TESTNET)
+  ) {
+    return true
+  }
+
+  return false
+}
+
 export const isChainIdMainnet = (chainId: BigNumber): boolean => {
   if (
     chainId.eq(CHAIN_IDS.ETHEREUM.MAINNET)
@@ -212,7 +226,8 @@ export const isChainIdTestnet = (chainId: BigNumber): boolean => {
     chainId.eq(CHAIN_IDS.ETHEREUM.GOERLI) ||
     chainId.eq(CHAIN_IDS.POLYGON.MUMBAI) ||
     chainId.eq(CHAIN_IDS.ARBITRUM.ARBITRUM_TESTNET) ||
-    chainId.eq(CHAIN_IDS.OPTIMISM.OPTIMISM_TESTNET)
+    chainId.eq(CHAIN_IDS.OPTIMISM.OPTIMISM_TESTNET) ||
+    chainId.eq(CHAIN_IDS.CONSENSYS.CONSENSYS_TESTNET)
   ) {
     return true
   }

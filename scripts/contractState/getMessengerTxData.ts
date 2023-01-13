@@ -12,6 +12,7 @@ const chains: Record<string, string> = {
   Optimism: 'optimism',
   Arbitrum: 'arbitrum',
   Nova: 'nova',
+  Consensys: 'consensys'
 }
 const tokens: string[] = [
   'USDC',
@@ -61,6 +62,9 @@ const targetAddresses: Record<string, Record<string, string>> = {
   nova: {
     ETH: '0xc4448b71118c9071Bcb9734A0EAc55D18A153949'
   },
+  consensys: {
+    ETH: 'TODO' // TODO Consensys
+  }
 }
 
 const l1BridgeAddresses: Record<string, string> = {
@@ -108,6 +112,10 @@ const l2BridgeAddresses: Record<string, Record<string, string>> = {
   nova: {
     ETH: '0x8796860ca1677Bf5d54cE5A348Fe4b779a8212f3'
   },
+  consensys: {
+    ETH: 'TODO' // TODO Consensys
+  }
+
 }
 
 async function main () {
@@ -181,6 +189,8 @@ async function main () {
   )
   logData(chains.Nova, abi, token, data, value, timestamp)
 
+  // Consensys
+  // TODO Consensys
 }
 
 const getPromptRes = async() => {

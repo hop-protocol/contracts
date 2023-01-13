@@ -86,4 +86,24 @@ export const networkData: NetworkData = {
       },
     }
   },
+  consensys: {
+    l2NetworkName: 'consensys',
+    l1ChainId,
+    l2ChainId: CHAIN_IDS.CONSENSYS.CONSENSYS_TESTNET.toString(),
+    l1MessengerAddress: 'TODO', // TODO Consensys
+    l2TokenBridgeAddress: 'TODO', // TODO Consensys
+    l2MessengerAddress: 'TODO', // TODO Consensys
+    tokens: {
+      ETH: {
+        l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.GOERLI.ETH,
+        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.CONSENSYS_TESTNET.ETH,
+        ...DEFAULT_NETWORK_DATA.ETH
+      },
+      USDC: {
+        l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.GOERLI.USDC,
+        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.CONSENSYS_TESTNET.USDC,
+        ...DEFAULT_NETWORK_DATA.USDC
+      }
+    }
+  },
 }

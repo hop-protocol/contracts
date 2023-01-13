@@ -21,6 +21,7 @@ import {
   isChainIdNova,
   isChainIdXDai,
   isChainIdPolygon,
+  isChainIdConsensys,
   isChainIdL1,
   generateArbitrumAliasAddress
 } from '../../config/utils'
@@ -108,6 +109,8 @@ export const executeCanonicalMessengerSendMessage = async (
     tx = await l1_messenger.connect(sender).requireToPassMessage(...params, modifiedGasPrice)
   } else if (isChainIdPolygon(l2ChainId)) {
     tx = await l1_messengerWrapper.connect(sender).sendCrossDomainMessage(message, modifiedGasPrice)
+  } else if (isChainIdConsensys(l2ChainId)) {
+    // TODO Consensys
   } else {
     tx = await l1_messenger.connect(sender).sendMessage(...params, modifiedGasPrice)
   }

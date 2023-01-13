@@ -15,7 +15,8 @@ import {
   isChainIdNova,
   isChainIdXDai,
   isChainIdPolygon,
-  isChainIdMainnet
+  isChainIdMainnet,
+  isChainIdConsensys
 } from '../../config/utils'
 
 import {
@@ -116,6 +117,8 @@ const getNetworkSpecificFactories = async (
     return getXDaiContractFactories(signer, ethers)
   } else if (isChainIdPolygon(chainId)) {
     return getPolygonContractFactories(signer, ethers)
+  } else if (isChainIdConsensys(chainId)) {
+    return getConsensysContractFactories(signer, ethers)
   } else {
     return {
       L1_Messenger: null,
@@ -219,6 +222,10 @@ const getPolygonContractFactories = async (signer: Signer, ethers: any) => {
     L2_Bridge,
     L2_MessengerProxy
   }
+}
+
+const getConsensysContractFactories = async (signer: Signer, ethers: any) => {
+  // TODO Consensys
 }
 
 const configFilepath = path.resolve(__dirname, '../deployAndSetupHop/deploy_config.json')
