@@ -570,7 +570,8 @@ contract Swap is ReentrancyGuardUpgradeable {
     }
 
     /**
-     * @notice Stop ramping A immediately. Reverts if ramp A is already stopped.
+     * @notice Update the connector address.
+     * @param _connector new connector
      */
     function setConnector(address _connector) external onlyL1Governance {
         connector = _connector;
