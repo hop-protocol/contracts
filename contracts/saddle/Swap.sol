@@ -43,6 +43,8 @@ contract Swap is ReentrancyGuardUpgradeable {
     // getTokenIndex function also relies on this mapping to retrieve token index.
     mapping(address => uint8) private tokenIndexes;
 
+    address public connector;
+
     /*** EVENTS ***/
 
     // events replicated from SwapUtils to make the ABI easier for dumb
@@ -91,6 +93,11 @@ contract Swap is ReentrancyGuardUpgradeable {
     );
     event StopRampA(uint256 currentA, uint256 time);
 
+    modifier onlyL1Governance() {
+        require(msg.sender == connector, "SWAP: Only L1 Governance can make this call");
+        _;
+    }
+
     /**
      * @notice Initializes this Swap contract with the given parameters.
      * This will also deploy the LPToken that represents users
@@ -107,6 +114,7 @@ contract Swap is ReentrancyGuardUpgradeable {
      * @param _fee default swap fee to be initialized with
      * @param _adminFee default adminFee to be initialized with
      * @param _withdrawFee default withdrawFee to be initialized with
+     * @param _connector connector for L1 governance
      */
     function initialize(
         IERC20[] memory _pooledTokens,
@@ -116,7 +124,8 @@ contract Swap is ReentrancyGuardUpgradeable {
         uint256 _a,
         uint256 _fee,
         uint256 _adminFee,
-        uint256 _withdrawFee
+        uint256 _withdrawFee,
+        address _connector
     ) public virtual initializer {
         // __OwnerPausable_init();
         __ReentrancyGuard_init();
@@ -183,6 +192,8 @@ contract Swap is ReentrancyGuardUpgradeable {
         swapStorage.swapFee = _fee;
         swapStorage.adminFee = _adminFee;
         swapStorage.defaultWithdrawFee = _withdrawFee;
+
+        connector = _connector;
     }
 
     /*** MODIFIERS ***/
@@ -523,13 +534,13 @@ contract Swap is ReentrancyGuardUpgradeable {
     //     swapStorage.setAdminFee(newAdminFee);
     // }
 
-    // /**
-    //  * @notice Update the swap fee to be applied on swaps
-    //  * @param newSwapFee new swap fee to be applied on future transactions
-    //  */
-    // function setSwapFee(uint256 newSwapFee) external onlyOwner {
-    //     swapStorage.setSwapFee(newSwapFee);
-    // }
+    /**
+     * @notice Update the swap fee to be applied on swaps
+     * @param newSwapFee new swap fee to be applied on future transactions
+     */
+    function setSwapFee(uint256 newSwapFee) external onlyL1Governance {
+        swapStorage.setSwapFee(newSwapFee);
+    }
 
     // /**
     //  * @notice Update the withdraw fee. This fee decays linearly over 4 weeks since
@@ -540,21 +551,28 @@ contract Swap is ReentrancyGuardUpgradeable {
     //     swapStorage.setDefaultWithdrawFee(newWithdrawFee);
     // }
 
-    // /**
-    //  * @notice Start ramping up or down A parameter towards given futureA and futureTime
-    //  * Checks if the change is too rapid, and commits the new A value only when it falls under
-    //  * the limit range.
-    //  * @param futureA the new A to ramp towards
-    //  * @param futureTime timestamp when the new A should be reached
-    //  */
-    // function rampA(uint256 futureA, uint256 futureTime) external onlyOwner {
-    //     swapStorage.rampA(futureA, futureTime);
-    // }
+    /**
+     * @notice Start ramping up or down A parameter towards given futureA and futureTime
+     * Checks if the change is too rapid, and commits the new A value only when it falls under
+     * the limit range.
+     * @param futureA the new A to ramp towards
+     * @param futureTime timestamp when the new A should be reached
+     */
+    function rampA(uint256 futureA, uint256 futureTime) external onlyL1Governance {
+        swapStorage.rampA(futureA, futureTime);
+    }
 
-    // /**
-    //  * @notice Stop ramping A immediately. Reverts if ramp A is already stopped.
-    //  */
-    // function stopRampA() external onlyOwner {
-    //     swapStorage.stopRampA();
-    // }
+    /**
+     * @notice Stop ramping A immediately. Reverts if ramp A is already stopped.
+     */
+    function stopRampA() external onlyL1Governance {
+        swapStorage.stopRampA();
+    }
+
+    /**
+     * @notice Stop ramping A immediately. Reverts if ramp A is already stopped.
+     */
+    function setConnector(address _connector) external onlyL1Governance {
+        connector = _connector;
+    }
 }

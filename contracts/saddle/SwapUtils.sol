@@ -55,15 +55,15 @@ library SwapUtils {
         uint256 lpTokenSupply
     );
     // event NewAdminFee(uint256 newAdminFee);
-    // event NewSwapFee(uint256 newSwapFee);
+    event NewSwapFee(uint256 newSwapFee);
     // event NewWithdrawFee(uint256 newWithdrawFee);
-    // event RampA(
-    //     uint256 oldA,
-    //     uint256 newA,
-    //     uint256 initialTime,
-    //     uint256 futureTime
-    // );
-    // event StopRampA(uint256 currentA, uint256 time);
+    event RampA(
+        uint256 oldA,
+        uint256 newA,
+        uint256 initialTime,
+        uint256 futureTime
+    );
+    event StopRampA(uint256 currentA, uint256 time);
 
     struct Swap {
         // variables around the ramp management of A,
@@ -1193,18 +1193,18 @@ library SwapUtils {
     //     emit NewAdminFee(newAdminFee);
     // }
 
-    // /**
-    //  * @notice update the swap fee
-    //  * @dev fee cannot be higher than 1% of each swap
-    //  * @param self Swap struct to update
-    //  * @param newSwapFee new swap fee to be applied on future transactions
-    //  */
-    // function setSwapFee(Swap storage self, uint256 newSwapFee) external {
-    //     require(newSwapFee <= MAX_SWAP_FEE, "Fee is too high");
-    //     self.swapFee = newSwapFee;
+    /**
+     * @notice update the swap fee
+     * @dev fee cannot be higher than 1% of each swap
+     * @param self Swap struct to update
+     * @param newSwapFee new swap fee to be applied on future transactions
+     */
+    function setSwapFee(Swap storage self, uint256 newSwapFee) external {
+        require(newSwapFee <= MAX_SWAP_FEE, "Fee is too high");
+        self.swapFee = newSwapFee;
 
-    //     emit NewSwapFee(newSwapFee);
-    // }
+        emit NewSwapFee(newSwapFee);
+    }
 
     // /**
     //  * @notice update the default withdraw fee. This also affects deposits made in the past as well.
@@ -1220,74 +1220,74 @@ library SwapUtils {
     //     emit NewWithdrawFee(newWithdrawFee);
     // }
 
-    // /**
-    //  * @notice Start ramping up or down A parameter towards given futureA_ and futureTime_
-    //  * Checks if the change is too rapid, and commits the new A value only when it falls under
-    //  * the limit range.
-    //  * @param self Swap struct to update
-    //  * @param futureA_ the new A to ramp towards
-    //  * @param futureTime_ timestamp when the new A should be reached
-    //  */
-    // function rampA(
-    //     Swap storage self,
-    //     uint256 futureA_,
-    //     uint256 futureTime_
-    // ) external {
-    //     require(
-    //         block.timestamp >= self.initialATime.add(1 days),
-    //         "Wait 1 day before starting ramp"
-    //     );
-    //     require(
-    //         futureTime_ >= block.timestamp.add(MIN_RAMP_TIME),
-    //         "Insufficient ramp time"
-    //     );
-    //     require(
-    //         futureA_ > 0 && futureA_ < MAX_A,
-    //         "futureA_ must be > 0 and < MAX_A"
-    //     );
+    /**
+     * @notice Start ramping up or down A parameter towards given futureA_ and futureTime_
+     * Checks if the change is too rapid, and commits the new A value only when it falls under
+     * the limit range.
+     * @param self Swap struct to update
+     * @param futureA_ the new A to ramp towards
+     * @param futureTime_ timestamp when the new A should be reached
+     */
+    function rampA(
+        Swap storage self,
+        uint256 futureA_,
+        uint256 futureTime_
+    ) external {
+        require(
+            block.timestamp >= self.initialATime.add(1 days),
+            "Wait 1 day before starting ramp"
+        );
+        require(
+            futureTime_ >= block.timestamp.add(MIN_RAMP_TIME),
+            "Insufficient ramp time"
+        );
+        require(
+            futureA_ > 0 && futureA_ < MAX_A,
+            "futureA_ must be > 0 and < MAX_A"
+        );
 
-    //     uint256 initialAPrecise = _getAPrecise(self);
-    //     uint256 futureAPrecise = futureA_.mul(A_PRECISION);
+        uint256 initialAPrecise = _getAPrecise(self);
+        uint256 futureAPrecise = futureA_.mul(A_PRECISION);
 
-    //     if (futureAPrecise < initialAPrecise) {
-    //         require(
-    //             futureAPrecise.mul(MAX_A_CHANGE) >= initialAPrecise,
-    //             "futureA_ is too small"
-    //         );
-    //     } else {
-    //         require(
-    //             futureAPrecise <= initialAPrecise.mul(MAX_A_CHANGE),
-    //             "futureA_ is too large"
-    //         );
-    //     }
+        if (futureAPrecise < initialAPrecise) {
+            require(
+                futureAPrecise.mul(MAX_A_CHANGE) >= initialAPrecise,
+                "futureA_ is too small"
+            );
+        } else {
+            require(
+                futureAPrecise <= initialAPrecise.mul(MAX_A_CHANGE),
+                "futureA_ is too large"
+            );
+        }
 
-    //     self.initialA = initialAPrecise;
-    //     self.futureA = futureAPrecise;
-    //     self.initialATime = block.timestamp;
-    //     self.futureATime = futureTime_;
+        self.initialA = initialAPrecise;
+        self.futureA = futureAPrecise;
+        self.initialATime = block.timestamp;
+        self.futureATime = futureTime_;
 
-    //     emit RampA(
-    //         initialAPrecise,
-    //         futureAPrecise,
-    //         block.timestamp,
-    //         futureTime_
-    //     );
-    // }
+        emit RampA(
+            initialAPrecise,
+            futureAPrecise,
+            block.timestamp,
+            futureTime_
+        );
+    }
 
-    // /**
-    //  * @notice Stops ramping A immediately. Once this function is called, rampA()
-    //  * cannot be called for another 24 hours
-    //  * @param self Swap struct to update
-    //  */
-    // function stopRampA(Swap storage self) external {
-    //     require(self.futureATime > block.timestamp, "Ramp is already stopped");
-    //     uint256 currentA = _getAPrecise(self);
+    /**
+     * @notice Stops ramping A immediately. Once this function is called, rampA()
+     * cannot be called for another 24 hours
+     * @param self Swap struct to update
+     */
+    function stopRampA(Swap storage self) external {
+        require(self.futureATime > block.timestamp, "Ramp is already stopped");
+        uint256 currentA = _getAPrecise(self);
 
-    //     self.initialA = currentA;
-    //     self.futureA = currentA;
-    //     self.initialATime = block.timestamp;
-    //     self.futureATime = block.timestamp;
+        self.initialA = currentA;
+        self.futureA = currentA;
+        self.initialATime = block.timestamp;
+        self.futureATime = block.timestamp;
 
-    //     emit StopRampA(currentA, block.timestamp);
-    // }
+        emit StopRampA(currentA, block.timestamp);
+    }
 }
