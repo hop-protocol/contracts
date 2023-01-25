@@ -26,7 +26,6 @@ export const CHAIN_IDS: any = {
   NOVA: {
     NOVA_MAINNET: BigNumber.from('42170'),
   },
-  }
 }
 
 export const CHAIN_IDS_TO_ACTIVATE: any = {
