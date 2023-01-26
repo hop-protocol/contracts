@@ -93,11 +93,6 @@ contract Swap is ReentrancyGuardUpgradeable {
     );
     event StopRampA(uint256 currentA, uint256 time);
 
-    modifier onlyL1Governance() {
-        require(msg.sender == connector, "SWAP: Only L1 Governance can make this call");
-        _;
-    }
-
     /**
      * @notice Initializes this Swap contract with the given parameters.
      * This will also deploy the LPToken that represents users
@@ -114,7 +109,6 @@ contract Swap is ReentrancyGuardUpgradeable {
      * @param _fee default swap fee to be initialized with
      * @param _adminFee default adminFee to be initialized with
      * @param _withdrawFee default withdrawFee to be initialized with
-     * @param _connector connector for L1 governance
      */
     function initialize(
         IERC20[] memory _pooledTokens,
@@ -124,8 +118,7 @@ contract Swap is ReentrancyGuardUpgradeable {
         uint256 _a,
         uint256 _fee,
         uint256 _adminFee,
-        uint256 _withdrawFee,
-        address _connector
+        uint256 _withdrawFee
     ) public virtual initializer {
         // __OwnerPausable_init();
         __ReentrancyGuard_init();
@@ -192,8 +185,6 @@ contract Swap is ReentrancyGuardUpgradeable {
         swapStorage.swapFee = _fee;
         swapStorage.adminFee = _adminFee;
         swapStorage.defaultWithdrawFee = _withdrawFee;
-
-        connector = _connector;
     }
 
     /*** MODIFIERS ***/
@@ -206,6 +197,12 @@ contract Swap is ReentrancyGuardUpgradeable {
         require(block.timestamp <= deadline, "Deadline not met");
         _;
     }
+
+    modifier onlyL1Governance() {
+        require(msg.sender == connector, "SWAP: Only L1 Governance can make this call");
+        _;
+    }
+
 
     /*** VIEW FUNCTIONS ***/
 
@@ -567,6 +564,15 @@ contract Swap is ReentrancyGuardUpgradeable {
      */
     function stopRampA() external onlyL1Governance {
         swapStorage.stopRampA();
+    }
+
+    /**
+     * @notice Set initial connector address.
+     * @param _connector connector address
+     */
+    function setInitialConnector(address _connector) external {
+        require(connector == address(0), "Connector already set");
+        connector = _connector;
     }
 
     /**
