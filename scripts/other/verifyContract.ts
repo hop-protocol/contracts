@@ -83,8 +83,8 @@ const decodeTypes: Record<string, ContractNames> = {
     l2HopBridgeToken: ['string', 'string', 'uint8']
   },
   consensys_mainnet: {
-    l1MessengerWrapper: [], // TODO Consensys
-    l2Bridge: [], // TODO Consensys
+    l1MessengerWrapper: ['address', 'address', 'address'],
+    l2Bridge: ['address', 'address', 'address', 'address', 'uint256[]', 'address[]'],
     swap: [],
     swapUtils: [],
     mathUtils: [],

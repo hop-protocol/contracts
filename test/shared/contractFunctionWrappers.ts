@@ -26,7 +26,9 @@ import {
   generateArbitrumAliasAddress
 } from '../../config/utils'
 import {
+  CONSENSYS_ZK_EVM_MESSAGE_FEE,
   CHAIN_IDS,
+  DEFAULT_DEADLINE,
   TIMESTAMP_VARIANCE,
   DEAD_ADDRESS,
   H_TO_C_SWAP_INDICES,
@@ -110,7 +112,12 @@ export const executeCanonicalMessengerSendMessage = async (
   } else if (isChainIdPolygon(l2ChainId)) {
     tx = await l1_messengerWrapper.connect(sender).sendCrossDomainMessage(message, modifiedGasPrice)
   } else if (isChainIdConsensys(l2ChainId)) {
-    // TODO Consensys
+    const consensysZkEvmParams = [l2_bridge.address, CONSENSYS_ZK_EVM_MESSAGE_FEE, DEFAULT_DEADLINE, message]
+    const value: BigNumber = BigNumber.from(CONSENSYS_ZK_EVM_MESSAGE_FEE)
+    const overrides = {
+      value
+    }
+    tx = await l1_messenger.connect(sender).dispatchMessage(...consensysZkEvmParams, overrides)
   } else {
     tx = await l1_messenger.connect(sender).sendMessage(...params, modifiedGasPrice)
   }

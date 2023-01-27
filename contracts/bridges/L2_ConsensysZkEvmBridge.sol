@@ -3,7 +3,7 @@
 pragma solidity 0.6.12;
 pragma experimental ABIEncoderV2;
 
-import "../interfaces/consensysZkEvm/messengers/IBridge.sol";
+import "../interfaces/consensys/messengers/IBridge.sol";
 import "./L2_Bridge.sol";
 
 /**
@@ -13,7 +13,6 @@ import "./L2_Bridge.sol";
 contract L2_ConsensysZkEvmBridge is L2_Bridge {
 
     IBridge public consensysMessengerAddress;
-    bytes32 public immutable l1ChainId;
 
     constructor (
         IBridge _consensysMessengerAddress,
@@ -21,8 +20,7 @@ contract L2_ConsensysZkEvmBridge is L2_Bridge {
         HopBridgeToken hToken,
         address l1BridgeAddress,
         uint256[] memory activeChainIds,
-        address[] memory bonders,
-        uint256 _l1ChainId
+        address[] memory bonders
     )
         public
         L2_Bridge(
@@ -34,7 +32,6 @@ contract L2_ConsensysZkEvmBridge is L2_Bridge {
         )
     {
         consensysMessengerAddress = _consensysMessengerAddress;
-        l1ChainId = _l1ChainId;
     }
 
     function _sendCrossDomainMessage(bytes memory message) internal override {
@@ -47,7 +44,7 @@ contract L2_ConsensysZkEvmBridge is L2_Bridge {
     }
 
     function _verifySender(address expectedSender) internal override {
-        require(consensysL1BridgeAddress.sender() == l2BridgeAddress, "L2_CSYS_BRG: Invalid cross-domain sender");
-        require(l1BridgeCaller == consensysL1BridgeAddress, "L2_CSYS_BRG: Caller is not the expected sender");
+        require(consensysMessengerAddress.sender() == expectedSender, "L2_CSYS_BRG: Invalid cross-domain sender");
+        require(msg.sender == address(consensysMessengerAddress), "L2_CSYS_BRG: Caller is not the expected sender");
     }
 }

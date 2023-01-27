@@ -73,7 +73,9 @@ export const getMessengerWrapperDefaults = (
       fxChildTunnelAddress
     )
   } else if (isChainIdConsensys(l2ChainId)) {
-    // TODO Consensys
+    data.push(
+      ...defaults
+    )
   }
 
   return data
@@ -108,7 +110,7 @@ export const getL2BridgeDefaults = (
   } else if (isChainIdPolygon(chainId)) {
     actualL2MessengerAddress = l2MessengerProxyAddress
   } else if (isChainIdConsensys(chainId)) {
-    // TODO: Consensys
+    // no additional data
   }
 
   defaults.push(
@@ -301,7 +303,12 @@ export const generateArbitrumAliasAddress = (address: string): string => {
 }
 
 export const getTxOverridesPerChain = (l2ChainId: BigNumber): Overrides => {
-  if (isChainIdOptimism(l2ChainId) || isChainIdArbitrum(l2ChainId) || isChainIdNova(l2ChainId)) {
+  if (
+    isChainIdOptimism(l2ChainId) ||
+    isChainIdArbitrum(l2ChainId) ||
+    isChainIdNova(l2ChainId) ||
+    isChainIdConsensys(l2ChainId)
+  ) {
     return {}
   } else if (isChainIdXDai(l2ChainId)) {
     return {

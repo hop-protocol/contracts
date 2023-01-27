@@ -90,9 +90,9 @@ export const networkData: NetworkData = {
     l2NetworkName: 'consensys',
     l1ChainId,
     l2ChainId: CHAIN_IDS.CONSENSYS.CONSENSYS_TESTNET.toString(),
-    l1MessengerAddress: 'TODO', // TODO Consensys
-    l2TokenBridgeAddress: 'TODO', // TODO Consensys
-    l2MessengerAddress: 'TODO', // TODO Consensys
+    l1MessengerAddress: '0xE87d317eB8dcc9afE24d9f63D6C760e52Bc18A40',
+    l2TokenBridgeAddress: '0x0000000000000000000000000000000000000000',
+    l2MessengerAddress: '0xA59477f7742Ba7d51bb1E487a8540aB339d6801d',
     tokens: {
       ETH: {
         l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.GOERLI.ETH,
