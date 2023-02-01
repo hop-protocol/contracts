@@ -12,6 +12,8 @@ import "./L2_Bridge.sol";
 
 contract L2_ConsensysZkEvmBridge is L2_Bridge {
 
+    receive() external payable {}
+
     IBridge public consensysMessengerAddress;
 
     constructor (
@@ -35,9 +37,10 @@ contract L2_ConsensysZkEvmBridge is L2_Bridge {
     }
 
     function _sendCrossDomainMessage(bytes memory message) internal override {
-        consensysMessengerAddress.dispatchMessage(
+        uint256 fee = consensysMessengerAddress.minimumFee(); 
+        consensysMessengerAddress.dispatchMessage{value: fee}(
             l1BridgeAddress,
-            0,
+            fee,
             9999999999, // Unlimited deadline
             message
         );
