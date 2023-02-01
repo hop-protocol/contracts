@@ -12,6 +12,8 @@ import "./L2_Bridge.sol";
 
 contract L2_ConsensysZkEvmBridge is L2_Bridge {
 
+    // Consensys needs this to receive funds to pay for L2 to L1 messages.
+    // TODO: This only applies on testnet and should be removed for production.
     receive() external payable {}
 
     IBridge public consensysMessengerAddress;
