@@ -189,7 +189,7 @@ export default {
       polygon: process.env.POLYGONSCAN_API_KEY,
       polygonMumbai: process.env.POLYGONSCAN_API_KEY,
       nova_mainnet: process.env.NOVA_API_KEY,
-      consensys_mainnet: process.env.CONSENSYS_API_KEY,
+      consensys_testnet: process.env.CONSENSYS_API_KEY,
     },
     customChains: [
       {
@@ -217,7 +217,7 @@ export default {
         }
       },
       {
-        network: "consensys_mainnet",
+        network: "consensys_testnet",
         chainId: 59140,
         urls: {
           apiURL: "https://explorer.goerli.zkevm.consensys.net/api",

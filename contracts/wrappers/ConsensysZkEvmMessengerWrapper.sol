@@ -3,6 +3,7 @@
 pragma solidity 0.6.12;
 pragma experimental ABIEncoderV2;
 
+import "@openzeppelin/contracts/access/Ownable.sol";
 import "../interfaces/consensys/messengers/IBridge.sol";
 import "./MessengerWrapper.sol";
 
@@ -11,7 +12,7 @@ import "./MessengerWrapper.sol";
  * @notice Deployed on layer-1
  */
 
-contract ConsensysZkEvmMessengerWrapper is MessengerWrapper {
+contract ConsensysZkEvmMessengerWrapper is MessengerWrapper, Ownable {
 
     IBridge public consensysL1Bridge;
     address public l2BridgeAddress;
@@ -35,10 +36,10 @@ contract ConsensysZkEvmMessengerWrapper is MessengerWrapper {
      * @param _calldata The data that l2BridgeAddress will be called with
      */
     function sendCrossDomainMessage(bytes memory _calldata) public override onlyL1Bridge {
-        uint256 fee = 1 ether;
+        uint256 fee = consensysL1Bridge.minimumFee(); 
         consensysL1Bridge.dispatchMessage{value: fee}(
             l2BridgeAddress,
-            0,
+            fee,
             9999999999, // Unlimited deadline
             _calldata
         );
@@ -50,4 +51,12 @@ contract ConsensysZkEvmMessengerWrapper is MessengerWrapper {
         require(l1BridgeCaller == address(consensysL1Bridge), "L1_CSYS_MSG_WRP: Caller is not the expected sender");
     }
 
+    /**
+     * @dev Claim excess funds
+     * @param recipient The recipient to send to
+     * @param amount The amount to claim
+     */
+    function claimFunds(address payable recipient, uint256 amount) public onlyOwner {
+        recipient.transfer(amount);
+    }
 }

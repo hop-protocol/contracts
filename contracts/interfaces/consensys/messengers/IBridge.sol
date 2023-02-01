@@ -38,4 +38,5 @@ interface IBridge {
   ) external payable;
 
   function sender() external view returns (address);
+  function minimumFee() external view returns (uint256);
 }
