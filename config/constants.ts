@@ -26,6 +26,9 @@ export const CHAIN_IDS: any = {
   NOVA: {
     NOVA_MAINNET: BigNumber.from('42170'),
   },
+  CONSENSYS: {
+    CONSENSYS_TESTNET: BigNumber.from('59140'),
+  }
 }
 
 export const CHAIN_IDS_TO_ACTIVATE: any = {
@@ -61,6 +64,9 @@ export const CHAIN_IDS_TO_ACTIVATE: any = {
     },
     ARBITRUM: {
       ARBITRUM_TESTNET: BigNumber.from('421613')
+    },
+    CONSENSYS: {
+      CONSENSYS_TESTNET: BigNumber.from('59140')
     }
   }
 }
@@ -253,6 +259,10 @@ export const L2_CANONICAL_TOKEN_ADDRESSES: any = {
   NOVA_MAINNET: {
     ETH: '0x722E8BdD2ce80A4422E880164f2079488e115365'
   },
+  CONSENSYS_TESTNET: {
+    ETH: '0x2C1b868d6596a18e32E61B901E4060C872647b6C', // Canonical deployment
+    USDC: '0x964FF70695da981027c81020B1c58d833D49A640' // Canonical deployment
+  },
 }
 
 export const GAS_PRICE_MULTIPLIERS: { [key: string]: number } = {
@@ -261,3 +271,4 @@ export const GAS_PRICE_MULTIPLIERS: { [key: string]: number } = {
 }
 
 export const HOP_DAO_ADDRESS = '0xeeA8422a08258e73c139Fc32a25e10410c14bd7a'
+export const CONSENSYS_ZK_EVM_MESSAGE_FEE = '10000000000000000'

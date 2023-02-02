@@ -15,7 +15,8 @@ import {
   isChainIdNova,
   isChainIdXDai,
   isChainIdPolygon,
-  isChainIdMainnet
+  isChainIdMainnet,
+  isChainIdConsensys
 } from '../../config/utils'
 
 import {
@@ -116,6 +117,8 @@ const getNetworkSpecificFactories = async (
     return getXDaiContractFactories(signer, ethers)
   } else if (isChainIdPolygon(chainId)) {
     return getPolygonContractFactories(signer, ethers)
+  } else if (isChainIdConsensys(chainId)) {
+    return getConsensysContractFactories(signer, ethers)
   } else {
     return {
       L1_Messenger: null,
@@ -218,6 +221,28 @@ const getPolygonContractFactories = async (signer: Signer, ethers: any) => {
     L1_MessengerWrapper,
     L2_Bridge,
     L2_MessengerProxy
+  }
+}
+
+const getConsensysContractFactories = async (signer: Signer, ethers: any) => {
+  const L1_Messenger: ContractFactory = await ethers.getContractFactory(
+    'contracts/test/consensys/mockConsensysZkEvm_L1Bridge.sol:mockConsensysZkEvm_L1Bridge',
+    { signer }
+  )
+  const L1_MessengerWrapper: ContractFactory = await ethers.getContractFactory(
+    'contracts/wrappers/ConsensysZkEvmMessengerWrapper.sol:ConsensysZkEvmMessengerWrapper',
+    { signer }
+  )
+  const L2_Bridge: ContractFactory = await ethers.getContractFactory(
+    'contracts/bridges/L2_ConsensysZkEvmBridge.sol:L2_ConsensysZkEvmBridge',
+    { signer }
+  )
+
+  return {
+    L1_Messenger,
+    L1_MessengerWrapper,
+    L2_Bridge,
+    L2_MessengerProxy: null
   }
 }
 

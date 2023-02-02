@@ -3,6 +3,10 @@ import { utils as ethersUtils } from 'ethers'
 import prompt from 'prompt'
 
 import { getUpdateContractStateMessage } from './getUpdateContractStateMessage'
+import {
+  DEFAULT_DEADLINE,
+  CONSENSYS_ZK_EVM_MESSAGE_FEE
+} from '../../config/constants'
 
 const governanceAddress: string = '0xF56e305024B195383245A075737d16dBdb8487Fb'
 const chains: Record<string, string> = {
@@ -12,6 +16,7 @@ const chains: Record<string, string> = {
   Optimism: 'optimism',
   Arbitrum: 'arbitrum',
   Nova: 'nova',
+  Consensys: 'consensys'
 }
 const tokens: string[] = [
   'USDC',
@@ -61,6 +66,9 @@ const targetAddresses: Record<string, Record<string, string>> = {
   nova: {
     ETH: '0xc4448b71118c9071Bcb9734A0EAc55D18A153949'
   },
+  consensys: {
+    ETH: '0xE87d317eB8dcc9afE24d9f63D6C760e52Bc18A40'
+  }
 }
 
 const l1BridgeAddresses: Record<string, string> = {
@@ -108,6 +116,10 @@ const l2BridgeAddresses: Record<string, Record<string, string>> = {
   nova: {
     ETH: '0x8796860ca1677Bf5d54cE5A348Fe4b779a8212f3'
   },
+  consensys: {
+    ETH: 'TODO' // TODO Consensys post deployment
+  }
+
 }
 
 async function main () {
@@ -166,21 +178,33 @@ async function main () {
   abi = ['function createRetryableTicket(address,uint256,uint256,address,address,uint256,uint256,bytes)']
   ethersInterface = new ethersUtils.Interface(abi)
   l2BridgeAddress = l2BridgeAddresses?.['arbitrum']?.[token]
+  let fee = '10000000000000000'
   data = !l2BridgeAddress ? null : ethersInterface.encodeFunctionData(
     'createRetryableTicket', [l2BridgeAddress, 0, '100000000000000', governanceAddress, governanceAddress, '1000000', '5000000000', calldata]
   )
-  const value = 0.01
-  logData(chains.Arbitrum, abi, token, data, value, timestamp)
+  let value = 0.01
+  logData(chains.Arbitrum, abi, token, data, value, timestamp, fee)
 
   // Nova
   abi = ['function createRetryableTicket(address,uint256,uint256,address,address,uint256,uint256,bytes)']
   ethersInterface = new ethersUtils.Interface(abi)
   l2BridgeAddress = l2BridgeAddresses?.['nova']?.[token]
+  fee = '10000000000000000'
   data = !l2BridgeAddress ? null : ethersInterface.encodeFunctionData(
     'createRetryableTicket', [l2BridgeAddress, 0, '100000000000000', governanceAddress, governanceAddress, '1000000', '5000000000', calldata]
   )
-  logData(chains.Nova, abi, token, data, value, timestamp)
+  logData(chains.Nova, abi, token, data, value, timestamp, fee)
 
+  // Consensys
+  abi = ['function dispatchMessage(address,uint256,uint256,bytes)']
+  ethersInterface = new ethersUtils.Interface(abi)
+  l2BridgeAddress = l2BridgeAddresses?.['consensys']?.[token]
+  fee = CONSENSYS_ZK_EVM_MESSAGE_FEE
+  data = !l2BridgeAddress ? null : ethersInterface.encodeFunctionData(
+    'dispatchMessage', [l2BridgeAddress, fee, DEFAULT_DEADLINE, calldata]
+  )
+  value = 0.012
+  logData(chains.Nova, abi, token, data, value, timestamp, fee)
 }
 
 const getPromptRes = async() => {
@@ -229,7 +253,8 @@ const logData = (
   token: string,
   data: string,
   value: number,
-  eta: number
+  eta: number,
+  fee: string = '0'
 ) => {
   const isL1 = chain === chains.Ethereum
   if (!isL1 && !targetAddresses?.[chain]?.[token]) {
@@ -245,9 +270,8 @@ const logData = (
   console.log(`data: 0x${data.substring(10)}`)
   console.log(`eta: ${eta} (${new Date(eta * 1000)})`)
 
-  if (chain === chains.Arbitrum || chain === chains.Nova) {
-    const valueToSend = 10000000000000000
-    console.log(`value to send: ${valueToSend}`)
+  if (chain === chains.Arbitrum || chain === chains.Nova || chain === chains.Consensys) {
+    console.log(`value to send: ${fee}`)
   }
 }
 

@@ -38,6 +38,7 @@ import {
   isChainIdNova,
   isChainIdXDai,
   isChainIdPolygon,
+  isChainIdConsensys,
   isChainIdMainnet,
   isChainIdGoerli,
   getPolygonCheckpointManagerAddress
@@ -391,6 +392,11 @@ export const getL2SpecificArtifact = (chainId: BigNumber) => {
     l1_messengerArtifact = 'contracts/test/Mock_L1_Messenger.sol:Mock_L1_Messenger'
     l1_messengerWrapperArtifact =
       'contracts/test/MockPolygonMessengerWrapper.sol:MockPolygonMessengerWrapper'
+  } else if (isChainIdConsensys(chainId)) {
+    l2_bridgeArtifact = 'Mock_L2_ConsensysBridge.sol:Mock_L2_ConsensysBridge'
+    l1_messengerArtifact = 'contracts/test/Mock_L1_Messenger.sol:Mock_L1_Messenger'
+    l1_messengerWrapperArtifact =
+      'contracts/wrappers/ConsensysZkEvmMessengerWrapper.sol:ConsensysZkEvmMessengerWrapper'
   }
 
   return {
