@@ -6,6 +6,8 @@ cache
 artifacts
 artifacts-ovm
 cache-ovm
+artifacts-zk
+cache-zk
 
 dist
 
