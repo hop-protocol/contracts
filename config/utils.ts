@@ -76,6 +76,10 @@ export const getMessengerWrapperDefaults = (
     data.push(
       ...defaults
     )
+  } else if (isChainIdZkSync(l2ChainId)) {
+    data.push(
+      ...defaults
+    )
   }
 
   return data
@@ -110,6 +114,8 @@ export const getL2BridgeDefaults = (
   } else if (isChainIdPolygon(chainId)) {
     actualL2MessengerAddress = l2MessengerProxyAddress
   } else if (isChainIdConsensys(chainId)) {
+    // no additional data
+  } else if (isChainIdZkSync(chainId)) {
     // no additional data
   }
 
@@ -192,6 +198,16 @@ export const isChainIdConsensys = (chainId: BigNumber): boolean => {
   return false
 }
 
+export const isChainIdZkSync = (chainId: BigNumber): boolean => {
+  if (
+    chainId.eq(CHAIN_IDS.ZKSYNC.ZKSYNC_TESTNET)
+  ) {
+    return true
+  }
+
+  return false
+}
+
 export const isChainIdMainnet = (chainId: BigNumber): boolean => {
   if (
     chainId.eq(CHAIN_IDS.ETHEREUM.MAINNET)
@@ -229,7 +245,8 @@ export const isChainIdTestnet = (chainId: BigNumber): boolean => {
     chainId.eq(CHAIN_IDS.POLYGON.MUMBAI) ||
     chainId.eq(CHAIN_IDS.ARBITRUM.ARBITRUM_TESTNET) ||
     chainId.eq(CHAIN_IDS.OPTIMISM.OPTIMISM_TESTNET) ||
-    chainId.eq(CHAIN_IDS.CONSENSYS.CONSENSYS_TESTNET)
+    chainId.eq(CHAIN_IDS.CONSENSYS.CONSENSYS_TESTNET) ||
+    chainId.eq(CHAIN_IDS.ZKSYNC.ZKSYNC_TESTNET)
   ) {
     return true
   }
@@ -307,7 +324,8 @@ export const getTxOverridesPerChain = (l2ChainId: BigNumber): Overrides => {
     isChainIdOptimism(l2ChainId) ||
     isChainIdArbitrum(l2ChainId) ||
     isChainIdNova(l2ChainId) ||
-    isChainIdConsensys(l2ChainId)
+    isChainIdConsensys(l2ChainId) ||
+    isChainIdZkSync(l2ChainId)
   ) {
     return {}
   } else if (isChainIdXDai(l2ChainId)) {

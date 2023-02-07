@@ -106,4 +106,19 @@ export const networkData: NetworkData = {
       }
     }
   },
+  zksync: {
+    l2NetworkName: 'zksync',
+    l1ChainId,
+    l2ChainId: CHAIN_IDS.ZKSYNC.ZKSYNC_TESTNET.toString(),
+    l1MessengerAddress: 'TODO', // TODO: zksync
+    l2TokenBridgeAddress: '0x0000000000000000000000000000000000000000',
+    l2MessengerAddress: 'TODO', // TODO: zksync
+    tokens: {
+      ETH: {
+        l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.GOERLI.ETH,
+        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.ZKSYNC_TESTNET.ETH,
+        ...DEFAULT_NETWORK_DATA.ETH
+      }
+    }
+  },
 }

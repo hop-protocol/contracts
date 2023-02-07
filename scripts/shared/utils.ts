@@ -16,7 +16,8 @@ import {
   isChainIdXDai,
   isChainIdPolygon,
   isChainIdMainnet,
-  isChainIdConsensys
+  isChainIdConsensys,
+  isChainIdZkSync
 } from '../../config/utils'
 
 import {
@@ -119,6 +120,8 @@ const getNetworkSpecificFactories = async (
     return getPolygonContractFactories(signer, ethers)
   } else if (isChainIdConsensys(chainId)) {
     return getConsensysContractFactories(signer, ethers)
+  } else if (isChainIdZkSync(chainId)) {
+    return getZkSyncContractFactories(signer, ethers)
   } else {
     return {
       L1_Messenger: null,
@@ -235,6 +238,28 @@ const getConsensysContractFactories = async (signer: Signer, ethers: any) => {
   )
   const L2_Bridge: ContractFactory = await ethers.getContractFactory(
     'contracts/bridges/L2_ConsensysZkEvmBridge.sol:L2_ConsensysZkEvmBridge',
+    { signer }
+  )
+
+  return {
+    L1_Messenger,
+    L1_MessengerWrapper,
+    L2_Bridge,
+    L2_MessengerProxy: null
+  }
+}
+
+const getZkSyncContractFactories = async (signer: Signer, ethers: any) => {
+  const L1_Messenger: ContractFactory = await ethers.getContractFactory(
+    'contracts/test/zksync/mockZkSync_L1Bridge.sol:mockZkSync_L1Bridge',
+    { signer }
+  )
+  const L1_MessengerWrapper: ContractFactory = await ethers.getContractFactory(
+    'contracts/wrappers/ZkSyncMessengerWrapper.sol:ZkSyncMessengerWrapper',
+    { signer }
+  )
+  const L2_Bridge: ContractFactory = await ethers.getContractFactory(
+    'contracts/bridges/L2_ZkSyncBridge.sol:L2_ZkSyncBridge',
     { signer }
   )
 
