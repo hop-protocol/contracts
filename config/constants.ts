@@ -270,7 +270,7 @@ export const L2_CANONICAL_TOKEN_ADDRESSES: any = {
     USDC: '0x964FF70695da981027c81020B1c58d833D49A640' // Canonical deployment
   },
   ZKSYNC_TESTNET: {
-    ETH: 'TODO', // Canonical deployment // todo: zksync
+    ETH: '0xE4c2573bD4125270b356444B2F551c3406baC6a2', // Our deployment
   },
 }
 
