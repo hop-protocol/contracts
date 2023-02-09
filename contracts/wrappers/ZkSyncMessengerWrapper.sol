@@ -63,13 +63,13 @@ contract ZkSyncMessengerWrapper is MessengerWrapper {
         // not be unique. Consider hashing all the input values here.
         require(!processedExits[l2BlockNumber][index], "L1_ZKSYNC_WRP: Already processed exit");
 
-        L2Message memory message = L2Message({
+        L2Message memory l2Message = L2Message({
             txNumberInBlock: l2TxNumberInBlock,
             sender: l2BridgeAddress,
             data: message
         });
 
-        bool success = zkSyncL1Bridge.proveL2MessageInclusion(l2BlockNumber, index, message, proof);
+        bool success = zkSyncL1Bridge.proveL2MessageInclusion(l2BlockNumber, index, l2Message, proof);
 
         if (success) {
             // TODO: For mainnet, consider adding an event
