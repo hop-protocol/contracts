@@ -45,6 +45,8 @@
     "@eth-optimism/contracts": "^0.1.11",
     "@eth-optimism/hardhat-ovm": "0.2.3",
     "@maticnetwork/pos-portal": "^1.5.0",
+    "@matterlabs/hardhat-zksync-deploy": "^0.6.1",
+    "@matterlabs/hardhat-zksync-solc": "^0.3.13",
     "@openzeppelin/contracts": "=3.4.1",
     "@openzeppelin/contracts-upgradeable": "^3.4.1",
     "@thesatoshicompany/optimism-openzeppelin-compat": "^1.0.3",

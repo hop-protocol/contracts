@@ -5,7 +5,8 @@ import prompt from 'prompt'
 import { getUpdateContractStateMessage } from './getUpdateContractStateMessage'
 import {
   DEFAULT_DEADLINE,
-  CONSENSYS_ZK_EVM_MESSAGE_FEE
+  CONSENSYS_ZK_EVM_MESSAGE_FEE,
+  ZKSYNC_MESSAGE_FEE
 } from '../../config/constants'
 
 const governanceAddress: string = '0xF56e305024B195383245A075737d16dBdb8487Fb'
@@ -16,7 +17,8 @@ const chains: Record<string, string> = {
   Optimism: 'optimism',
   Arbitrum: 'arbitrum',
   Nova: 'nova',
-  Consensys: 'consensys'
+  Consensys: 'consensys',
+  ZkSync: 'zksync'
 }
 const tokens: string[] = [
   'USDC',
@@ -67,7 +69,10 @@ const targetAddresses: Record<string, Record<string, string>> = {
     ETH: '0xc4448b71118c9071Bcb9734A0EAc55D18A153949'
   },
   consensys: {
-    ETH: '0xE87d317eB8dcc9afE24d9f63D6C760e52Bc18A40'
+    ETH: 'TODO' // TODO: consensys - for prod deployment
+  },
+  zksync: {
+    ETH: 'TODO' // TODO: zksync - for prod deployment
   }
 }
 
@@ -117,7 +122,10 @@ const l2BridgeAddresses: Record<string, Record<string, string>> = {
     ETH: '0x8796860ca1677Bf5d54cE5A348Fe4b779a8212f3'
   },
   consensys: {
-    ETH: 'TODO' // TODO Consensys post deployment
+    ETH: 'TODO' // TODO: consensys - for prod deployment
+  },
+  zksync: {
+    ETH: 'TODO' // TODO: zksync - for prod deployment
   }
 
 }
@@ -195,16 +203,27 @@ async function main () {
   )
   logData(chains.Nova, abi, token, data, value, timestamp, fee)
 
-  // Consensys
-  abi = ['function dispatchMessage(address,uint256,uint256,bytes)']
-  ethersInterface = new ethersUtils.Interface(abi)
-  l2BridgeAddress = l2BridgeAddresses?.['consensys']?.[token]
-  fee = CONSENSYS_ZK_EVM_MESSAGE_FEE
-  data = !l2BridgeAddress ? null : ethersInterface.encodeFunctionData(
-    'dispatchMessage', [l2BridgeAddress, fee, DEFAULT_DEADLINE, calldata]
-  )
-  value = 0.012
-  logData(chains.Nova, abi, token, data, value, timestamp, fee)
+  // // Consensys
+  // abi = ['function dispatchMessage(address,uint256,uint256,bytes)']
+  // ethersInterface = new ethersUtils.Interface(abi)
+  // l2BridgeAddress = l2BridgeAddresses?.['consensys']?.[token]
+  // fee = CONSENSYS_ZK_EVM_MESSAGE_FEE
+  // data = !l2BridgeAddress ? null : ethersInterface.encodeFunctionData(
+  //   'dispatchMessage', [l2BridgeAddress, fee, DEFAULT_DEADLINE, calldata]
+  // )
+  // value = 0.012
+  // logData(chains.Consensys, abi, token, data, value, timestamp, fee)
+
+  // // zkSync
+  // abi = ['function requestL2Transaction(address,uint256,bytes,uint256,bytes[])']
+  // ethersInterface = new ethersUtils.Interface(abi)
+  // l2BridgeAddress = l2BridgeAddresses?.['zksync']?.[token]
+  // fee = ZKSYNC_MESSAGE_FEE
+  // data = !l2BridgeAddress ? null : ethersInterface.encodeFunctionData(
+  //   'requestL2Transaction', [l2BridgeAddress, 0, calldata, fee, ['']]
+  // )
+  // value = 0
+  // logData(chains.ZkSync, abi, token, data, value, timestamp, fee)
 }
 
 const getPromptRes = async() => {

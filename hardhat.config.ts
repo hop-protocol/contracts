@@ -10,6 +10,10 @@ import "@eth-optimism/hardhat-ovm"
 
 import 'hardhat-abi-exporter'
 
+import "@matterlabs/hardhat-zksync-deploy";
+import "@matterlabs/hardhat-zksync-solc";
+
+
 import { CHAIN_IDS } from './config/constants'
 import { verifyContract } from './scripts/other/verifyContract'
 
@@ -117,6 +121,19 @@ export default {
       chainId: CHAIN_IDS.CONSENSYS.CONSENSYS_TESTNET.toNumber(),
       timeout
     },
+    zksync_testnet: {
+      url: process.env.RPC_ENDPOINT_ZKSYNC_TESTNET,
+      ethNetwork: process.env.RPC_ENDPOINT_GOERLI,
+      accounts: desiredAccounts,
+      chainId: CHAIN_IDS.ZKSYNC.ZKSYNC_TESTNET.toNumber(),
+      timeout,
+      zksync: true
+    },
+  },
+  zksolc: {
+    version: "1.3.1",
+    compilerSource: "binary",
+    settings: {},
   },
   solidity: {
     compilers: [
@@ -190,6 +207,7 @@ export default {
       polygonMumbai: process.env.POLYGONSCAN_API_KEY,
       nova_mainnet: process.env.NOVA_API_KEY,
       consensys_testnet: process.env.CONSENSYS_API_KEY,
+      zksync_testnet: process.env.ZKSYNC_API_KEY,
     },
     customChains: [
       {
@@ -222,6 +240,14 @@ export default {
         urls: {
           apiURL: "https://explorer.goerli.zkevm.consensys.net/api",
           browserURL: "https://explorer.goerli.zkevm.consensys.net"
+        }
+      },
+      {
+        network: "zksync_testnet",
+        chainId: 280,
+        urls: {
+          apiURL: "https://goerli.explorer.zksync.io/api",
+          browserURL: "https://goerli.explorer.zksync.io/"
         }
       },
     ]

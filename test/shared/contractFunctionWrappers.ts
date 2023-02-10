@@ -22,11 +22,13 @@ import {
   isChainIdXDai,
   isChainIdPolygon,
   isChainIdConsensys,
+  isChainIdZkSync,
   isChainIdL1,
   generateArbitrumAliasAddress
 } from '../../config/utils'
 import {
   CONSENSYS_ZK_EVM_MESSAGE_FEE,
+  ZKSYNC_MESSAGE_FEE,
   CHAIN_IDS,
   DEFAULT_DEADLINE,
   TIMESTAMP_VARIANCE,
@@ -118,6 +120,13 @@ export const executeCanonicalMessengerSendMessage = async (
       value
     }
     tx = await l1_messenger.connect(sender).dispatchMessage(...consensysZkEvmParams, overrides)
+  } else if (isChainIdZkSync(l2ChainId)) {
+    const consensysZkEvmParams = [l2_bridge.address, 0, message, ZKSYNC_MESSAGE_FEE, ['']]
+    const value: BigNumber = BigNumber.from(ZKSYNC_MESSAGE_FEE)
+    const overrides = {
+      value
+    }
+    tx = await l1_messenger.connect(sender).requestL2Transaction(...consensysZkEvmParams, overrides)
   } else {
     tx = await l1_messenger.connect(sender).sendMessage(...params, modifiedGasPrice)
   }
