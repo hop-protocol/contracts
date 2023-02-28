@@ -28,6 +28,7 @@ import {
   isChainIdOptimism,
   isChainIdArbitrum,
   isChainIdNova,
+  isChainIdConsensys,
   getActiveChainIds
 } from '../../config/utils'
 
@@ -183,7 +184,7 @@ export async function setupL1 (config: Config) {
       l1_messengerWrapper,
       l2_messengerProxy
     )
-  } else if (isChainIdArbitrum(l2ChainId) || isChainIdNova(l2ChainId)) {
+  } else if (isChainIdArbitrum(l2ChainId) || isChainIdNova(l2ChainId) || isChainIdConsensys(l2ChainId)) {
       logger.log(
         `-------------------`,
         `IMPORTANT: Please manually send funds to ${l1_messengerWrapper.address} on L1`,
@@ -345,7 +346,7 @@ export async function setupL1 (config: Config) {
 
   logger.log('sending token to L2')
   logger.log(
-    `IMPORTANT: if this transaction fails, it may be one of two things. (1) (Arbitrum/Nova only) The messenger wrapper
+    `IMPORTANT: if this transaction fails, it may be one of two things. (1) (Arbitrum/Nova/Consensys only) The messenger wrapper
     address does not have funds in it (2) The L1 deployer does not have tokens to send over the bridge.`
   )
   modifiedGasPrice = await getModifiedGasPrice(ethers, l1ChainId)
