@@ -18,13 +18,19 @@ import {
 import {
   isChainIdOptimism,
   isChainIdArbitrum,
+  isChainIdNova,
   isChainIdXDai,
   isChainIdPolygon,
+  isChainIdConsensys,
+  isChainIdZkSync,
   isChainIdL1,
   generateArbitrumAliasAddress
 } from '../../config/utils'
 import {
+  CONSENSYS_ZK_EVM_MESSAGE_FEE,
+  ZKSYNC_MESSAGE_FEE,
   CHAIN_IDS,
+  DEFAULT_DEADLINE,
   TIMESTAMP_VARIANCE,
   DEAD_ADDRESS,
   H_TO_C_SWAP_INDICES,
@@ -74,7 +80,7 @@ export const executeCanonicalMessengerSendMessage = async (
   const params: any[] = [l2_bridge.address, message, gasLimit]
   modifiedGasPrice = modifiedGasPrice || {}
 
-  if (isChainIdArbitrum(l2ChainId)) {
+  if (isChainIdArbitrum(l2ChainId) || isChainIdNova(l2ChainId)) {
     const destinationAddress: string = l2_bridge.address
     const callValue: BigNumber = BigNumber.from('0')
     const excessFeeRefundAddress: string = await sender.getAddress()
@@ -107,6 +113,20 @@ export const executeCanonicalMessengerSendMessage = async (
     tx = await l1_messenger.connect(sender).requireToPassMessage(...params, modifiedGasPrice)
   } else if (isChainIdPolygon(l2ChainId)) {
     tx = await l1_messengerWrapper.connect(sender).sendCrossDomainMessage(message, modifiedGasPrice)
+  } else if (isChainIdConsensys(l2ChainId)) {
+    const consensysZkEvmParams = [l2_bridge.address, CONSENSYS_ZK_EVM_MESSAGE_FEE, DEFAULT_DEADLINE, message]
+    const value: BigNumber = BigNumber.from(CONSENSYS_ZK_EVM_MESSAGE_FEE)
+    const overrides = {
+      value
+    }
+    tx = await l1_messenger.connect(sender).dispatchMessage(...consensysZkEvmParams, overrides)
+  } else if (isChainIdZkSync(l2ChainId)) {
+    const consensysZkEvmParams = [l2_bridge.address, 0, message, ZKSYNC_MESSAGE_FEE, ['']]
+    const value: BigNumber = BigNumber.from(ZKSYNC_MESSAGE_FEE)
+    const overrides = {
+      value
+    }
+    tx = await l1_messenger.connect(sender).requestL2Transaction(...consensysZkEvmParams, overrides)
   } else {
     tx = await l1_messenger.connect(sender).sendMessage(...params, modifiedGasPrice)
   }

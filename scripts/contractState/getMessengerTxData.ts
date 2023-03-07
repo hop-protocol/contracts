@@ -3,13 +3,22 @@ import { utils as ethersUtils } from 'ethers'
 import prompt from 'prompt'
 
 import { getUpdateContractStateMessage } from './getUpdateContractStateMessage'
+import {
+  DEFAULT_DEADLINE,
+  CONSENSYS_ZK_EVM_MESSAGE_FEE,
+  ZKSYNC_MESSAGE_FEE
+} from '../../config/constants'
 
 const governanceAddress: string = '0xF56e305024B195383245A075737d16dBdb8487Fb'
 const chains: Record<string, string> = {
+  Ethereum: 'ethereum',
   Gnosis: 'gnosis',
   Polygon: 'polygon',
   Optimism: 'optimism',
   Arbitrum: 'arbitrum',
+  Nova: 'nova',
+  Consensys: 'consensys',
+  ZkSync: 'zksync'
 }
 const tokens: string[] = [
   'USDC',
@@ -56,6 +65,24 @@ const targetAddresses: Record<string, Record<string, string>> = {
     ETH: '0x4Dbd4fc535Ac27206064B68FfCf827b0A60BAB3f',
     HOP: '0x4Dbd4fc535Ac27206064B68FfCf827b0A60BAB3f',
   },
+  nova: {
+    ETH: '0xc4448b71118c9071Bcb9734A0EAc55D18A153949'
+  },
+  consensys: {
+    ETH: 'TODO' // TODO: consensys - for prod deployment
+  },
+  zksync: {
+    ETH: 'TODO' // TODO: zksync - for prod deployment
+  }
+}
+
+const l1BridgeAddresses: Record<string, string> = {
+  USDC: '0x3666f603Cc164936C1b87e207F36BEBa4AC5f18a',
+  USDT: '0x3E4a3a4796d16c0Cd582C382691998f7c06420B6',
+  DAI: '0x3d4Cc8A61c7528Fd86C55cfe061a78dCBA48EDd1',
+  MATIC: '0x22B1Cbb8D98a01a3B71D034BB899775A76Eb1cc2',
+  ETH: '0xb8901acB165ed027E32754E0FFe830802919727f',
+  HOP: '0x914f986a44AcB623A277d6Bd17368171FCbe4273',
 }
 
 const l2BridgeAddresses: Record<string, Record<string, string>> = {
@@ -91,23 +118,41 @@ const l2BridgeAddresses: Record<string, Record<string, string>> = {
     ETH: '0x3749C4f034022c39ecafFaBA182555d4508caCCC',
     HOP: '0x25FB92E505F752F730cAD0Bd4fa17ecE4A384266',
   },
+  nova: {
+    ETH: '0x8796860ca1677Bf5d54cE5A348Fe4b779a8212f3'
+  },
+  consensys: {
+    ETH: 'TODO' // TODO: consensys - for prod deployment
+  },
+  zksync: {
+    ETH: 'TODO' // TODO: zksync - for prod deployment
+  }
+
 }
 
 async function main () {
   const res = await getPromptRes()
-  const { token, functionToCall, input } = res
+  const { token, functionToCall, input, timestamp } = res
   if (!tokens.includes(token)) {
     throw new Error('Invalid token')
   }
 
-  const timestamp = 1656637200
   const defaultValue = 0
   const calldata = await getUpdateContractStateMessage(functionToCall, input)
 
-  let abi: string[]
+  let abi: string[] = []
   let ethersInterface: ethersUtils.Interface
   let data: string
   let l2BridgeAddress: string | undefined
+
+  // Ethereum
+  const paramTypes = 'uint256'
+  abi = [`function ${functionToCall}(${paramTypes})`]
+  ethersInterface = new ethersUtils.Interface(abi)
+  data = ethersInterface.encodeFunctionData(
+    functionToCall, [input]
+  )
+  logData(chains.Ethereum, abi, token, data, defaultValue, timestamp)
 
   // Gnosis
   abi = ['function requireToPassMessage(address,bytes,uint256)']
@@ -141,11 +186,44 @@ async function main () {
   abi = ['function createRetryableTicket(address,uint256,uint256,address,address,uint256,uint256,bytes)']
   ethersInterface = new ethersUtils.Interface(abi)
   l2BridgeAddress = l2BridgeAddresses?.['arbitrum']?.[token]
+  let fee = '10000000000000000'
   data = !l2BridgeAddress ? null : ethersInterface.encodeFunctionData(
     'createRetryableTicket', [l2BridgeAddress, 0, '100000000000000', governanceAddress, governanceAddress, '1000000', '5000000000', calldata]
   )
-  const value = 0.01
-  logData(chains.Arbitrum, abi, token, data, value, timestamp)
+  let value = 0.01
+  logData(chains.Arbitrum, abi, token, data, value, timestamp, fee)
+
+  // Nova
+  abi = ['function createRetryableTicket(address,uint256,uint256,address,address,uint256,uint256,bytes)']
+  ethersInterface = new ethersUtils.Interface(abi)
+  l2BridgeAddress = l2BridgeAddresses?.['nova']?.[token]
+  fee = '10000000000000000'
+  data = !l2BridgeAddress ? null : ethersInterface.encodeFunctionData(
+    'createRetryableTicket', [l2BridgeAddress, 0, '100000000000000', governanceAddress, governanceAddress, '1000000', '5000000000', calldata]
+  )
+  logData(chains.Nova, abi, token, data, value, timestamp, fee)
+
+  // // Consensys
+  // abi = ['function dispatchMessage(address,uint256,uint256,bytes)']
+  // ethersInterface = new ethersUtils.Interface(abi)
+  // l2BridgeAddress = l2BridgeAddresses?.['consensys']?.[token]
+  // fee = CONSENSYS_ZK_EVM_MESSAGE_FEE
+  // data = !l2BridgeAddress ? null : ethersInterface.encodeFunctionData(
+  //   'dispatchMessage', [l2BridgeAddress, fee, DEFAULT_DEADLINE, calldata]
+  // )
+  // value = 0.012
+  // logData(chains.Consensys, abi, token, data, value, timestamp, fee)
+
+  // // zkSync
+  // abi = ['function requestL2Transaction(address,uint256,bytes,uint256,bytes[])']
+  // ethersInterface = new ethersUtils.Interface(abi)
+  // l2BridgeAddress = l2BridgeAddresses?.['zksync']?.[token]
+  // fee = ZKSYNC_MESSAGE_FEE
+  // data = !l2BridgeAddress ? null : ethersInterface.encodeFunctionData(
+  //   'requestL2Transaction', [l2BridgeAddress, 0, calldata, fee, ['']]
+  // )
+  // value = 0
+  // logData(chains.ZkSync, abi, token, data, value, timestamp, fee)
 }
 
 const getPromptRes = async() => {
@@ -154,6 +232,11 @@ const getPromptRes = async() => {
   prompt.delimiter = ''
 
   const res = await prompt.get([{
+    name: 'timestamp',
+    type: 'number',
+    description: 'Timestamp to execute',
+    required: true
+  }, {
     name: 'token',
     type: 'string',
     description: 'Token of bridge being updated',
@@ -170,6 +253,7 @@ const getPromptRes = async() => {
     required: true
   }])
 
+  const timestamp: any = (res.timestamp as number)
   const token: string = (res.token as string)
   const functionToCall: string = (res.functionToCall as string)
   const input: any = res.input
@@ -177,7 +261,8 @@ const getPromptRes = async() => {
   return {
     token,
     functionToCall,
-    input
+    input,
+    timestamp
   }
 }
 
@@ -187,24 +272,25 @@ const logData = (
   token: string,
   data: string,
   value: number,
-  eta: number
+  eta: number,
+  fee: string = '0'
 ) => {
-  if (!targetAddresses?.[chain]?.[token]) {
+  const isL1 = chain === chains.Ethereum
+  if (!isL1 && !targetAddresses?.[chain]?.[token]) {
     console.log(`\nSkipping ${chain} because there is no deployment`)
     return
   }
+  let target = isL1 ? l1BridgeAddresses?.[token] : targetAddresses?.[chain]?.[token] 
 
-  console.log(data)
   console.log(`\n${chain}`)
-  console.log(`target: ${targetAddresses[chain][token]}`)
+  console.log(`target: ${target}`)
   console.log(`value: ${value}`)
-  console.log(`sig: ${abi[0].substring(9)}`)
+  console.log(`sig: ${abi?.[0] && abi[0].substring(9)}`)
   console.log(`data: 0x${data.substring(10)}`)
   console.log(`eta: ${eta} (${new Date(eta * 1000)})`)
 
-  if (chain === chains.Arbitrum) {
-    const valueToSend = 10000000000000000
-    console.log(`value to send: ${valueToSend}`)
+  if (chain === chains.Arbitrum || chain === chains.Nova || chain === chains.Consensys) {
+    console.log(`value to send: ${fee}`)
   }
 }
 

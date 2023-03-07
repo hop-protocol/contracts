@@ -42,7 +42,7 @@ export const getMessengerWrapperDefaults = (
     l2ChainId.toString()
   ]
 
-  if (isChainIdArbitrum(l2ChainId)) {
+  if (isChainIdArbitrum(l2ChainId) || isChainIdNova(l2ChainId)) {
     data.push(
       ...defaults
     )
@@ -73,6 +73,14 @@ export const getMessengerWrapperDefaults = (
       fxChildTunnelAddress,
       l2ChainId.toString()
     )
+  } else if (isChainIdConsensys(l2ChainId)) {
+    data.push(
+      ...defaults
+    )
+  } else if (isChainIdZkSync(l2ChainId)) {
+    data.push(
+      ...defaults
+    )
   }
 
   return data
@@ -94,7 +102,7 @@ export const getL2BridgeDefaults = (
   let actualL2MessengerAddress: string = l2MessengerAddress
   let additionalData = []
 
-  if (isChainIdArbitrum(chainId)) {
+  if (isChainIdArbitrum(chainId) || isChainIdNova(chainId)) {
     governanceAddress = generateArbitrumAliasAddress(governanceAddress)
   } else if (isChainIdOptimism(chainId)) {
     const defaultGasLimit = DEFAULT_L2_BRIDGE_GAS_LIMIT
@@ -106,6 +114,10 @@ export const getL2BridgeDefaults = (
     )
   } else if (isChainIdPolygon(chainId)) {
     actualL2MessengerAddress = l2MessengerProxyAddress
+  } else if (isChainIdConsensys(chainId)) {
+    // no additional data
+  } else if (isChainIdZkSync(chainId)) {
+    // no additional data
   }
 
   defaults.push(
@@ -146,6 +158,16 @@ export const isChainIdArbitrum = (chainId: BigNumber): boolean => {
   return false
 }
 
+export const isChainIdNova = (chainId: BigNumber): boolean => {
+  if (
+    chainId.eq(CHAIN_IDS.NOVA.NOVA_MAINNET)
+  ) {
+    return true
+  }
+
+  return false
+}
+
 export const isChainIdXDai = (chainId: BigNumber): boolean => {
   if (
       chainId.eq(CHAIN_IDS.XDAI.XDAI)
@@ -160,6 +182,26 @@ export const isChainIdPolygon = (chainId: BigNumber): boolean => {
   if (
     chainId.eq(CHAIN_IDS.POLYGON.MUMBAI) ||
     chainId.eq(CHAIN_IDS.POLYGON.POLYGON)
+  ) {
+    return true
+  }
+
+  return false
+}
+
+export const isChainIdConsensys = (chainId: BigNumber): boolean => {
+  if (
+    chainId.eq(CHAIN_IDS.CONSENSYS.CONSENSYS_TESTNET)
+  ) {
+    return true
+  }
+
+  return false
+}
+
+export const isChainIdZkSync = (chainId: BigNumber): boolean => {
+  if (
+    chainId.eq(CHAIN_IDS.ZKSYNC.ZKSYNC_TESTNET)
   ) {
     return true
   }
@@ -203,7 +245,9 @@ export const isChainIdTestnet = (chainId: BigNumber): boolean => {
     chainId.eq(CHAIN_IDS.ETHEREUM.GOERLI) ||
     chainId.eq(CHAIN_IDS.POLYGON.MUMBAI) ||
     chainId.eq(CHAIN_IDS.ARBITRUM.ARBITRUM_TESTNET) ||
-    chainId.eq(CHAIN_IDS.OPTIMISM.OPTIMISM_TESTNET)
+    chainId.eq(CHAIN_IDS.OPTIMISM.OPTIMISM_TESTNET) ||
+    chainId.eq(CHAIN_IDS.CONSENSYS.CONSENSYS_TESTNET) ||
+    chainId.eq(CHAIN_IDS.ZKSYNC.ZKSYNC_TESTNET)
   ) {
     return true
   }
@@ -277,7 +321,13 @@ export const generateArbitrumAliasAddress = (address: string): string => {
 }
 
 export const getTxOverridesPerChain = (l2ChainId: BigNumber): Overrides => {
-  if (isChainIdOptimism(l2ChainId) || isChainIdArbitrum(l2ChainId)) {
+  if (
+    isChainIdOptimism(l2ChainId) ||
+    isChainIdArbitrum(l2ChainId) ||
+    isChainIdNova(l2ChainId) ||
+    isChainIdConsensys(l2ChainId) ||
+    isChainIdZkSync(l2ChainId)
+  ) {
     return {}
   } else if (isChainIdXDai(l2ChainId)) {
     return {

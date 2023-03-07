@@ -22,6 +22,15 @@ export const CHAIN_IDS: any = {
   POLYGON: {
     POLYGON: BigNumber.from('137'),
     MUMBAI: BigNumber.from('80001')
+  },
+  NOVA: {
+    NOVA_MAINNET: BigNumber.from('42170'),
+  },
+  CONSENSYS: {
+    CONSENSYS_TESTNET: BigNumber.from('59140'),
+  },
+  ZKSYNC: {
+    ZKSYNC_TESTNET: BigNumber.from('280'),
   }
 }
 
@@ -40,7 +49,10 @@ export const CHAIN_IDS_TO_ACTIVATE: any = {
       OPTIMISM_MAINNET: BigNumber.from('10')
     },
     ARBITRUM: {
-      ARBITRUM_MAINNET: BigNumber.from('42161')
+      ARBITRUM_MAINNET: BigNumber.from('42161'),
+    },
+    NOVA: {
+      NOVA_MAINNET: BigNumber.from('42170')
     }
   },
   TESTNET: {
@@ -55,6 +67,12 @@ export const CHAIN_IDS_TO_ACTIVATE: any = {
     },
     ARBITRUM: {
       ARBITRUM_TESTNET: BigNumber.from('421613')
+    },
+    CONSENSYS: {
+      CONSENSYS_TESTNET: BigNumber.from('59140')
+    },
+    ZKSYNC: {
+      ZKSYNC_TESTNET: BigNumber.from('280')
     }
   }
 }
@@ -243,7 +261,17 @@ export const L2_CANONICAL_TOKEN_ADDRESSES: any = {
     ETH: '0xcb5ddfb8d0038247dc0beeecaa7f3457befcb77c', // Our deployment
     USDC: '0x17078F231AA8dc256557b49a8f2F72814A71f633', // Canonical deployment
     HOP: '0xB1ea9FeD58a317F81eEEFC18715Dd323FDEf45c4' // Our deployment
-  }
+  },
+  NOVA_MAINNET: {
+    ETH: '0x722E8BdD2ce80A4422E880164f2079488e115365'
+  },
+  CONSENSYS_TESTNET: {
+    ETH: '0x2C1b868d6596a18e32E61B901E4060C872647b6C', // Canonical deployment
+    USDC: '0x964FF70695da981027c81020B1c58d833D49A640' // Canonical deployment
+  },
+  ZKSYNC_TESTNET: {
+    ETH: '0xE4c2573bD4125270b356444B2F551c3406baC6a2', // Our deployment
+  },
 }
 
 export const GAS_PRICE_MULTIPLIERS: { [key: string]: number } = {
@@ -252,3 +280,5 @@ export const GAS_PRICE_MULTIPLIERS: { [key: string]: number } = {
 }
 
 export const HOP_DAO_ADDRESS = '0xeeA8422a08258e73c139Fc32a25e10410c14bd7a'
+export const CONSENSYS_ZK_EVM_MESSAGE_FEE = '10000000000000000'
+export const ZKSYNC_MESSAGE_FEE = 'TODO' // TODO: zksync

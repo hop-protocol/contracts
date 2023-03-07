@@ -10,6 +10,10 @@ import "@eth-optimism/hardhat-ovm"
 
 import 'hardhat-abi-exporter'
 
+import "@matterlabs/hardhat-zksync-deploy";
+import "@matterlabs/hardhat-zksync-solc";
+
+
 import { CHAIN_IDS } from './config/constants'
 import { verifyContract } from './scripts/other/verifyContract'
 
@@ -63,6 +67,12 @@ export default {
       chainId: CHAIN_IDS.ARBITRUM.ARBITRUM_MAINNET.toNumber(),
       timeout
     },
+    nova_mainnet: {
+      url: process.env.RPC_ENDPOINT_ARBITRUM_NOVA,
+      accounts: desiredAccounts,
+      chainId: CHAIN_IDS.NOVA.NOVA_MAINNET.toNumber(),
+      timeout
+    },
     arbitrum_testnet: {
       url: process.env.RPC_ENDPOINT_ARBITRUM_TESTNET,
       accounts: desiredAccounts,
@@ -104,7 +114,26 @@ export default {
       gas: 500000,
       chainId: CHAIN_IDS.POLYGON.MUMBAI.toNumber(),
       timeout
-    }
+    },
+    consensys_testnet: {
+      url: process.env.RPC_ENDPOINT_CONSENSYS_TESTNET,
+      accounts: desiredAccounts,
+      chainId: CHAIN_IDS.CONSENSYS.CONSENSYS_TESTNET.toNumber(),
+      timeout
+    },
+    zksync_testnet: {
+      url: process.env.RPC_ENDPOINT_ZKSYNC_TESTNET,
+      ethNetwork: process.env.RPC_ENDPOINT_GOERLI,
+      accounts: desiredAccounts,
+      chainId: CHAIN_IDS.ZKSYNC.ZKSYNC_TESTNET.toNumber(),
+      timeout,
+      zksync: true
+    },
+  },
+  zksolc: {
+    version: "1.3.1",
+    compilerSource: "binary",
+    settings: {},
   },
   solidity: {
     compilers: [
@@ -176,6 +205,9 @@ export default {
       xdai: process.env.XDAI_API_KEY,
       polygon: process.env.POLYGONSCAN_API_KEY,
       polygonMumbai: process.env.POLYGONSCAN_API_KEY,
+      nova_mainnet: process.env.NOVA_API_KEY,
+      consensys_testnet: process.env.CONSENSYS_API_KEY,
+      zksync_testnet: process.env.ZKSYNC_API_KEY,
     },
     customChains: [
       {
@@ -193,7 +225,31 @@ export default {
           apiURL: "https://api-goerli-optimism.etherscan.io/api",
           browserURL: "https://goerli-optimism.etherscan.io"
         }
-      }
+      },
+      {
+        network: "nova_mainnet",
+        chainId: 42170,
+        urls: {
+          apiURL: "https://api-nova.arbiscan.io/api",
+          browserURL: "https://nova.arbiscan.io"
+        }
+      },
+      {
+        network: "consensys_testnet",
+        chainId: 59140,
+        urls: {
+          apiURL: "https://explorer.goerli.zkevm.consensys.net/api",
+          browserURL: "https://explorer.goerli.zkevm.consensys.net"
+        }
+      },
+      {
+        network: "zksync_testnet",
+        chainId: 280,
+        urls: {
+          apiURL: "https://goerli.explorer.zksync.io/api",
+          browserURL: "https://goerli.explorer.zksync.io/"
+        }
+      },
     ]
   }
   // abiExporter: {

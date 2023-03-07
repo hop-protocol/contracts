@@ -12,9 +12,12 @@ import {
 import {
   isChainIdOptimism,
   isChainIdArbitrum,
+  isChainIdNova,
   isChainIdXDai,
   isChainIdPolygon,
-  isChainIdMainnet
+  isChainIdMainnet,
+  isChainIdConsensys,
+  isChainIdZkSync
 } from '../../config/utils'
 
 import {
@@ -109,12 +112,16 @@ const getNetworkSpecificFactories = async (
 ) => {
   if (isChainIdOptimism(chainId)) {
     return getOptimismContractFactories(signer, ethers)
-  } else if (isChainIdArbitrum(chainId)) {
+  } else if (isChainIdArbitrum(chainId) || isChainIdNova(chainId)) {
     return getArbitrumContractFactories(signer, ethers)
   } else if (isChainIdXDai(chainId)) {
     return getXDaiContractFactories(signer, ethers)
   } else if (isChainIdPolygon(chainId)) {
     return getPolygonContractFactories(signer, ethers)
+  } else if (isChainIdConsensys(chainId)) {
+    return getConsensysContractFactories(signer, ethers)
+  } else if (isChainIdZkSync(chainId)) {
+    return getZkSyncContractFactories(signer, ethers)
   } else {
     return {
       L1_Messenger: null,
@@ -217,6 +224,50 @@ const getPolygonContractFactories = async (signer: Signer, ethers: any) => {
     L1_MessengerWrapper,
     L2_Bridge,
     L2_MessengerProxy
+  }
+}
+
+const getConsensysContractFactories = async (signer: Signer, ethers: any) => {
+  const L1_Messenger: ContractFactory = await ethers.getContractFactory(
+    'contracts/test/consensys/mockConsensysZkEvm_L1Bridge.sol:mockConsensysZkEvm_L1Bridge',
+    { signer }
+  )
+  const L1_MessengerWrapper: ContractFactory = await ethers.getContractFactory(
+    'contracts/wrappers/ConsensysZkEvmMessengerWrapper.sol:ConsensysZkEvmMessengerWrapper',
+    { signer }
+  )
+  const L2_Bridge: ContractFactory = await ethers.getContractFactory(
+    'contracts/bridges/L2_ConsensysZkEvmBridge.sol:L2_ConsensysZkEvmBridge',
+    { signer }
+  )
+
+  return {
+    L1_Messenger,
+    L1_MessengerWrapper,
+    L2_Bridge,
+    L2_MessengerProxy: null
+  }
+}
+
+const getZkSyncContractFactories = async (signer: Signer, ethers: any) => {
+  const L1_Messenger: ContractFactory = await ethers.getContractFactory(
+    'contracts/test/zksync/mockZkSync_L1Bridge.sol:mockZkSync_L1Bridge',
+    { signer }
+  )
+  const L1_MessengerWrapper: ContractFactory = await ethers.getContractFactory(
+    'contracts/wrappers/ZkSyncMessengerWrapper.sol:ZkSyncMessengerWrapper',
+    { signer }
+  )
+  const L2_Bridge: ContractFactory = await ethers.getContractFactory(
+    'contracts/bridges/L2_ZkSyncBridge.sol:L2_ZkSyncBridge',
+    { signer }
+  )
+
+  return {
+    L1_Messenger,
+    L1_MessengerWrapper,
+    L2_Bridge,
+    L2_MessengerProxy: null
   }
 }
 

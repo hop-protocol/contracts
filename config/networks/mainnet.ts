@@ -210,5 +210,25 @@ export const networkData: NetworkData = {
         ...DEFAULT_NETWORK_DATA.HOP
       },
     }
+  },
+  nova: {
+    l2NetworkName: 'nova',
+    l1ChainId,
+    l2ChainId: CHAIN_IDS.NOVA.NOVA_MAINNET.toString(),
+    l1MessengerAddress: '0xc4448b71118c9071Bcb9734A0EAc55D18A153949',
+    l2TokenBridgeAddress: ZERO_ADDRESS,
+    l2MessengerAddress: '0x0000000000000000000000000000000000000064',
+    tokens: {
+      USDC: {
+        l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.MAINNET.USDC,
+        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.NOVA_MAINNET.USDC,
+        ...DEFAULT_NETWORK_DATA.USDC
+      },
+      ETH: {
+        l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.MAINNET.ETH,
+        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.NOVA_MAINNET.ETH,
+        ...DEFAULT_NETWORK_DATA.ETH
+      }
+    }
   }
 }

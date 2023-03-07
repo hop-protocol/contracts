@@ -22,6 +22,8 @@ type ContractNames = {
   swapUtils?: string[]
   mathUtils?: string[]
   l2SaddleLpToken?: string[]
+  l2AmmWrapper?: string[]
+  l2HopBridgeToken?: string[]
 }
 
 const decodeTypes: Record<string, ContractNames> = {
@@ -36,7 +38,19 @@ const decodeTypes: Record<string, ContractNames> = {
     swap: [],
     swapUtils: [],
     mathUtils: [],
-    l2SaddleLpToken: ['string', 'string', 'uint8']
+    l2SaddleLpToken: ['string', 'string', 'uint8'],
+    l2AmmWrapper: ['address', 'address', 'bool', 'address', 'address'],
+    l2HopBridgeToken: ['string', 'string', 'uint8']
+  },
+  nova_mainnet: {
+    l1MessengerWrapper: ['address', 'address', 'address'],
+    l2Bridge: ['address', 'address', 'address', 'address', 'uint256[]', 'address[]'],
+    swap: [],
+    swapUtils: [],
+    mathUtils: [],
+    l2SaddleLpToken: ['string', 'string', 'uint8'],
+    l2AmmWrapper: ['address', 'address', 'bool', 'address', 'address'],
+    l2HopBridgeToken: ['string', 'string', 'uint8']
   },
   optimism: {
     l1MessengerWrapper: ['address', 'address', 'address', 'uint256', 'uint256'],
@@ -44,7 +58,9 @@ const decodeTypes: Record<string, ContractNames> = {
     swap: [],
     swapUtils: [],
     mathUtils: [],
-    l2SaddleLpToken: ['string', 'string', 'uint8']
+    l2SaddleLpToken: ['string', 'string', 'uint8'],
+    l2AmmWrapper: ['address', 'address', 'bool', 'address', 'address'],
+    l2HopBridgeToken: ['string', 'string', 'uint8']
   },
   polygon: {
     l1MessengerWrapper: ['address', 'address', 'address', 'address', 'uint256'],
@@ -52,7 +68,9 @@ const decodeTypes: Record<string, ContractNames> = {
     swap: [],
     swapUtils: [],
     mathUtils: [],
-    l2SaddleLpToken: ['string', 'string', 'uint8']
+    l2SaddleLpToken: ['string', 'string', 'uint8'],
+    l2AmmWrapper: ['address', 'address', 'bool', 'address', 'address'],
+    l2HopBridgeToken: ['string', 'string', 'uint8']
   },
   xdai: {
     l1MessengerWrapper: ['address', 'address', 'address', 'uint256', 'uint256', 'address'],
@@ -60,6 +78,28 @@ const decodeTypes: Record<string, ContractNames> = {
     swap: [],
     swapUtils: [],
     mathUtils: [],
-    l2SaddleLpToken: ['string', 'string', 'uint8']
-  }
+    l2SaddleLpToken: ['string', 'string', 'uint8'],
+    l2AmmWrapper: ['address', 'address', 'bool', 'address', 'address'],
+    l2HopBridgeToken: ['string', 'string', 'uint8']
+  },
+  consensys_mainnet: {
+    l1MessengerWrapper: ['address', 'address', 'address'],
+    l2Bridge: ['address', 'address', 'address', 'address', 'uint256[]', 'address[]'],
+    swap: [],
+    swapUtils: [],
+    mathUtils: [],
+    l2SaddleLpToken: ['string', 'string', 'uint8'],
+    l2AmmWrapper: ['address', 'address', 'bool', 'address', 'address'],
+    l2HopBridgeToken: ['string', 'string', 'uint8']
+  },
+  zksync_mainnet: {
+    l1MessengerWrapper: ['address', 'address', 'address'],
+    l2Bridge: ['address', 'address', 'address', 'address', 'uint256[]', 'address[]'],
+    swap: [],
+    swapUtils: [],
+    mathUtils: [],
+    l2SaddleLpToken: ['string', 'string', 'uint8'],
+    l2AmmWrapper: ['address', 'address', 'bool', 'address', 'address'],
+    l2HopBridgeToken: ['string', 'string', 'uint8']
+  },
 }
