@@ -23,6 +23,7 @@ import {
   isChainIdPolygon,
   isChainIdConsensys,
   isChainIdZkSync,
+  isChainIdBase,
   isChainIdL1,
   generateArbitrumAliasAddress
 } from '../../config/utils'
@@ -127,6 +128,10 @@ export const executeCanonicalMessengerSendMessage = async (
       value
     }
     tx = await l1_messenger.connect(sender).requestL2Transaction(...consensysZkEvmParams, overrides)
+  } else if (isChainIdBase(l2ChainId)) {
+    const optimismGasLimit: BigNumber = BigNumber.from('5000000')
+    const optimismParams: any[] = [l2_bridge.address, message, optimismGasLimit]
+    tx = await l1_messenger.connect(sender).sendMessage(...optimismParams, modifiedGasPrice)
   } else {
     tx = await l1_messenger.connect(sender).sendMessage(...params, modifiedGasPrice)
   }

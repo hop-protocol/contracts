@@ -18,7 +18,8 @@ const chains: Record<string, string> = {
   Arbitrum: 'arbitrum',
   Nova: 'nova',
   Consensys: 'consensys',
-  ZkSync: 'zksync'
+  ZkSync: 'zksync',
+  Base: 'base'
 }
 const tokens: string[] = [
   'USDC',
@@ -73,7 +74,10 @@ const targetAddresses: Record<string, Record<string, string>> = {
   },
   zksync: {
     ETH: 'TODO' // TODO: zksync - for prod deployment
-  }
+  },
+  base: {
+    ETH: 'TODO' // TODO: base - for prod deployment
+  },
 }
 
 const l1BridgeAddresses: Record<string, string> = {
@@ -126,6 +130,9 @@ const l2BridgeAddresses: Record<string, Record<string, string>> = {
   },
   zksync: {
     ETH: 'TODO' // TODO: zksync - for prod deployment
+  },
+  base: {
+    ETH: 'TODO' // TODO: base - for prod deployment
   }
 
 }
@@ -224,6 +231,9 @@ async function main () {
   // )
   // value = 0
   // logData(chains.ZkSync, abi, token, data, value, timestamp, fee)
+
+  // // base
+  // todo
 }
 
 const getPromptRes = async() => {

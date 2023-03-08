@@ -129,6 +129,12 @@ export default {
       timeout,
       zksync: true
     },
+    base_testnet: {
+      url: process.env.RPC_ENDPOINT_BASE_TESTNET,
+      accounts: desiredAccounts,
+      chainId: CHAIN_IDS.BASE.BASE_TESTNET.toNumber(),
+      timeout
+    },
   },
   zksolc: {
     version: "1.3.1",
@@ -208,6 +214,7 @@ export default {
       nova_mainnet: process.env.NOVA_API_KEY,
       consensys_testnet: process.env.CONSENSYS_API_KEY,
       zksync_testnet: process.env.ZKSYNC_API_KEY,
+      base_testnet: process.env.BASE_API_KEY,
     },
     customChains: [
       {
@@ -248,6 +255,14 @@ export default {
         urls: {
           apiURL: "https://goerli.explorer.zksync.io/api",
           browserURL: "https://goerli.explorer.zksync.io/"
+        }
+      },
+      {
+        network: "base_testnet",
+        chainId: 84531,
+        urls: {
+          apiURL: "https://api-goerli.basescan.org/api",
+          browserURL: "https://goerli.basescan.org"
         }
       },
     ]
