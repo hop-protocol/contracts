@@ -31,6 +31,9 @@ export const CHAIN_IDS: any = {
   },
   ZKSYNC: {
     ZKSYNC_TESTNET: BigNumber.from('280'),
+  },
+  BASE: {
+    BASE_TESTNET: BigNumber.from('84531'),
   }
 }
 
@@ -73,6 +76,9 @@ export const CHAIN_IDS_TO_ACTIVATE: any = {
     },
     ZKSYNC: {
       ZKSYNC_TESTNET: BigNumber.from('280')
+    },
+    BASE: {
+      BASE_TESTNET: BigNumber.from('84531'),
     }
   }
 }
@@ -271,6 +277,9 @@ export const L2_CANONICAL_TOKEN_ADDRESSES: any = {
   },
   ZKSYNC_TESTNET: {
     ETH: '0xE4c2573bD4125270b356444B2F551c3406baC6a2', // Our deployment
+  },
+  BASE_TESTNET: {
+    ETH: '0x4200000000000000000000000000000000000006', // Canonical deployment
   },
 }
 

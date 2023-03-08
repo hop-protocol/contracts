@@ -17,7 +17,8 @@ import {
   isChainIdPolygon,
   isChainIdMainnet,
   isChainIdConsensys,
-  isChainIdZkSync
+  isChainIdZkSync,
+  isChainIdBase
 } from '../../config/utils'
 
 import {
@@ -122,6 +123,8 @@ const getNetworkSpecificFactories = async (
     return getConsensysContractFactories(signer, ethers)
   } else if (isChainIdZkSync(chainId)) {
     return getZkSyncContractFactories(signer, ethers)
+  } else if (isChainIdBase(chainId)) {
+    return getBaseContractFactories(signer, ethers)
   } else {
     return {
       L1_Messenger: null,
@@ -270,6 +273,32 @@ const getZkSyncContractFactories = async (signer: Signer, ethers: any) => {
     L2_MessengerProxy: null
   }
 }
+
+const getBaseContractFactories = async (
+  signer: Signer,
+  ethers: any
+) => {
+  const L1_Messenger: ContractFactory = await ethers.getContractFactory(
+    'contracts/test/optimism/mockOVM_CrossDomainMessenger.sol:mockOVM_CrossDomainMessenger',
+    { signer }
+  )
+  const L1_MessengerWrapper: ContractFactory = await ethers.getContractFactory(
+    'contracts/wrappers/BaseMessengerWrapper.sol:BaseMessengerWrapper',
+    { signer }
+  )
+  const L2_Bridge: ContractFactory = await ethers.getContractFactory(
+    'contracts/bridges/L2_BaseBridge.sol:L2_BaseBridge',
+    { signer }
+  )
+
+  return {
+    L1_Messenger,
+    L1_MessengerWrapper,
+    L2_Bridge,
+    L2_MessengerProxy: null
+  }
+}
+
 
 const configFilepath = path.resolve(__dirname, '../deployAndSetupHop/deploy_config.json')
 

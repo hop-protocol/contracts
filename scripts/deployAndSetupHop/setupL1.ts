@@ -29,6 +29,7 @@ import {
   isChainIdArbitrum,
   isChainIdNova,
   isChainIdConsensys,
+  isChainIdBase,
   getActiveChainIds
 } from '../../config/utils'
 
@@ -193,7 +194,7 @@ export async function setupL1 (config: Config) {
       )
   }
 
-  if (isChainIdOptimism(l2ChainId)) {
+  if (isChainIdOptimism(l2ChainId) || isChainIdBase(l2ChainId)) {
     logger.log('setting custom L2 gasLimit for signature')
     // setTransferRoot(bytes32,uint256) = 0xfd31c5ba
     const setTransferRootSig = '0xfd31c5ba'
@@ -210,7 +211,7 @@ export async function setupL1 (config: Config) {
 
   logger.log('messengerWrapperAddress', l1_messengerWrapper.address)
 
-  if (isChainIdArbitrum(l2ChainId) || isChainIdOptimism(l2ChainId) || isChainIdNova(l2ChainId)) {
+  if (isChainIdArbitrum(l2ChainId) || isChainIdOptimism(l2ChainId) || isChainIdNova(l2ChainId) || isChainIdBase(l2ChainId)) {
     // Transfer ownership of the messenger wrapper to governance
     logger.log('transferring ownership of L1 messenger wrapper')
     let transferOwnershipParams: any[] = [await governance.getAddress()]

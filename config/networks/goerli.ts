@@ -121,4 +121,19 @@ export const networkData: NetworkData = {
       }
     }
   },
+  base: {
+    l2NetworkName: 'base',
+    l1ChainId,
+    l2ChainId: CHAIN_IDS.BASE.BASE_TESTNET.toString(),
+    l1MessengerAddress: '0x8e5693140eA606bcEB98761d9beB1BC87383706D',
+    l2TokenBridgeAddress: '0x4200000000000000000000000000000000000010',
+    l2MessengerAddress: '0x4200000000000000000000000000000000000007',
+    tokens: {
+      ETH: {
+        l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.GOERLI.ETH,
+        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.BASE_TESTNET.ETH,
+        ...DEFAULT_NETWORK_DATA.ETH
+      }
+    }
+  },
 }

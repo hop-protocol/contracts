@@ -269,6 +269,7 @@ function setNetworkParams (
 function handleCustomL2NetworkName(l1NetworkName: string, l2NetworkName: string) {
   if (
     l2NetworkName === 'optimism' || 
+    l2NetworkName === 'base' || 
     l2NetworkName === 'arbitrum' || 
     l2NetworkName === 'nova' || 
     l2NetworkName === 'consensys' ||

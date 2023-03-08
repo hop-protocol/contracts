@@ -45,7 +45,7 @@ export const getMessengerWrapperDefaults = (
     data.push(
       ...defaults
     )
-  } else if (isChainIdOptimism(l2ChainId)) {
+  } else if (isChainIdOptimism(l2ChainId) || isChainIdBase(l2ChainId)) {
     const gasLimit: number = DEFAULT_MESSENGER_WRAPPER_GAS_LIMIT
 
     data.push(
@@ -103,7 +103,7 @@ export const getL2BridgeDefaults = (
 
   if (isChainIdArbitrum(chainId) || isChainIdNova(chainId)) {
     governanceAddress = generateArbitrumAliasAddress(governanceAddress)
-  } else if (isChainIdOptimism(chainId)) {
+  } else if (isChainIdOptimism(chainId) || isChainIdBase(chainId)) {
     const defaultGasLimit = DEFAULT_L2_BRIDGE_GAS_LIMIT
     additionalData.push(defaultGasLimit)
   } else if (isChainIdXDai(chainId)) {
@@ -139,6 +139,16 @@ export const isChainIdOptimism = (chainId: BigNumber): boolean => {
   if (
     chainId.eq(CHAIN_IDS.OPTIMISM.OPTIMISM_TESTNET) ||
     chainId.eq(CHAIN_IDS.OPTIMISM.OPTIMISM_MAINNET)
+  ) {
+    return true
+  }
+
+  return false
+}
+
+export const isChainIdBase = (chainId: BigNumber): boolean => {
+  if (
+    chainId.eq(CHAIN_IDS.BASE.BASE_TESTNET)
   ) {
     return true
   }
@@ -246,7 +256,8 @@ export const isChainIdTestnet = (chainId: BigNumber): boolean => {
     chainId.eq(CHAIN_IDS.ARBITRUM.ARBITRUM_TESTNET) ||
     chainId.eq(CHAIN_IDS.OPTIMISM.OPTIMISM_TESTNET) ||
     chainId.eq(CHAIN_IDS.CONSENSYS.CONSENSYS_TESTNET) ||
-    chainId.eq(CHAIN_IDS.ZKSYNC.ZKSYNC_TESTNET)
+    chainId.eq(CHAIN_IDS.ZKSYNC.ZKSYNC_TESTNET) ||
+    chainId.eq(CHAIN_IDS.BASE.BASE_TESTNET)
   ) {
     return true
   }
@@ -325,7 +336,8 @@ export const getTxOverridesPerChain = (l2ChainId: BigNumber): Overrides => {
     isChainIdArbitrum(l2ChainId) ||
     isChainIdNova(l2ChainId) ||
     isChainIdConsensys(l2ChainId) ||
-    isChainIdZkSync(l2ChainId)
+    isChainIdZkSync(l2ChainId) ||
+    isChainIdBase(l2ChainId)
   ) {
     return {}
   } else if (isChainIdXDai(l2ChainId)) {
