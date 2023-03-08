@@ -103,7 +103,8 @@ export const executeCanonicalMessengerSendMessage = async (
     ]
     const value: BigNumber = ethersUtils.parseEther('0.01')
     const overrides = {
-      value
+      value,
+      ...modifiedGasPrice
     }
     tx = await l1_messenger.connect(sender).unsafeCreateRetryableTicket(...arbitrumParams, overrides)
   } else if (isChainIdOptimism(l2ChainId)) {
@@ -118,7 +119,8 @@ export const executeCanonicalMessengerSendMessage = async (
     const consensysZkEvmParams = [l2_bridge.address, CONSENSYS_ZK_EVM_MESSAGE_FEE, DEFAULT_DEADLINE, message]
     const value: BigNumber = BigNumber.from(CONSENSYS_ZK_EVM_MESSAGE_FEE)
     const overrides = {
-      value
+      value,
+      ...modifiedGasPrice
     }
     tx = await l1_messenger.connect(sender).dispatchMessage(...consensysZkEvmParams, overrides)
   } else if (isChainIdZkSync(l2ChainId)) {
