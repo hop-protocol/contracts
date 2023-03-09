@@ -37,7 +37,7 @@ contract ScrollZkEvmMessengerWrapper is MessengerWrapper, Ownable {
      */
     function sendCrossDomainMessage(bytes memory _calldata) public override onlyL1Bridge {
         uint256 fee = 0.01 ether; // TODO: fetch fee
-        uint256 gasLimit = 500000; // TODO: determine appropriate gas fee
+        uint256 gasLimit = 500000; // TODO: determine appropriate gas limit
         scrollL1Bridge.sendMessage{value: fee}(
             l2BridgeAddress,
             0, // value

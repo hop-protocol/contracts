@@ -40,7 +40,7 @@ contract L2_ScrollZkEvmBridge is L2_Bridge {
 
     function _sendCrossDomainMessage(bytes memory message) internal override {
         uint256 fee = 0.01 ether; // TODO: fetch fee
-        uint256 gasLimit = 500000; // TODO: determine appropriate gas fee
+        uint256 gasLimit = 500000; // TODO: determine appropriate gas limit
         scrollMessengerAddress.sendMessage{value: fee}(
             l1BridgeAddress,
             0, // value
