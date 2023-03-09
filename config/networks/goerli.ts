@@ -136,4 +136,19 @@ export const networkData: NetworkData = {
       }
     }
   },
+  scroll: {
+    l2NetworkName: 'scroll',
+    l1ChainId,
+    l2ChainId: CHAIN_IDS.SCROLL.SCROLL_TESTNET.toString(),
+    l1MessengerAddress: '0x5260e38080BFe97e6C4925d9209eCc5f964373b6',
+    l2TokenBridgeAddress: '0x0000000000000000000000000000000000000000',
+    l2MessengerAddress: '0xb75d7e84517e1504C151B270255B087Fd746D34C',
+    tokens: {
+      ETH: {
+        l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.GOERLI.ETH,
+        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.SCROLL_TESTNET.ETH,
+        ...DEFAULT_NETWORK_DATA.ETH
+      },
+    }
+  },
 }

@@ -40,6 +40,7 @@ import {
   isChainIdPolygon,
   isChainIdConsensys,
   isChainIdZkSync,
+  isChainIdScroll,
   isChainIdBase,
   isChainIdMainnet,
   isChainIdGoerli,
@@ -404,6 +405,11 @@ export const getL2SpecificArtifact = (chainId: BigNumber) => {
     l1_messengerArtifact = 'contracts/test/Mock_L1_Messenger.sol:Mock_L1_Messenger'
     l1_messengerWrapperArtifact =
       'contracts/wrappers/ZkSyncMessengerWrapper.sol:ZkSyncMessengerWrapper'
+  } else if (isChainIdScroll(chainId)) {
+    l2_bridgeArtifact = 'Mock_L2_ScrollBridge.sol:Mock_L2_ScrollBridge'
+    l1_messengerArtifact = 'contracts/test/Mock_L1_Messenger.sol:Mock_L1_Messenger'
+    l1_messengerWrapperArtifact =
+      'contracts/wrappers/ScrollZkEvmMessengerWrapper.sol:ScrollZkEvmMessengerWrapper'
   } else if (isChainIdOptimism(chainId)) {
     l2_bridgeArtifact = 'Mock_L2_BaseBridge.sol:Mock_L2_BaseBridge'
     l1_messengerArtifact = 'contracts/test/Mock_L1_Messenger.sol:Mock_L1_Messenger'

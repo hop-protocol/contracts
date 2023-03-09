@@ -19,7 +19,8 @@ const chains: Record<string, string> = {
   Nova: 'nova',
   Consensys: 'consensys',
   ZkSync: 'zksync',
-  Base: 'base'
+  Base: 'base',
+  Scroll: 'scroll'
 }
 const tokens: string[] = [
   'USDC',
@@ -78,6 +79,9 @@ const targetAddresses: Record<string, Record<string, string>> = {
   base: {
     ETH: 'TODO' // TODO: base - for prod deployment
   },
+  scroll: {
+    ETH: 'TODO' // TODO: scroll - for prod deployment
+  },
 }
 
 const l1BridgeAddresses: Record<string, string> = {
@@ -133,8 +137,10 @@ const l2BridgeAddresses: Record<string, Record<string, string>> = {
   },
   base: {
     ETH: 'TODO' // TODO: base - for prod deployment
+  },
+  scroll: {
+    ETH: 'TODO' // TODO: scroll - for prod deployment
   }
-
 }
 
 async function main () {
@@ -290,7 +296,7 @@ const logData = (
     console.log(`\nSkipping ${chain} because there is no deployment`)
     return
   }
-  let target = isL1 ? l1BridgeAddresses?.[token] : targetAddresses?.[chain]?.[token] 
+  let target = isL1 ? l1BridgeAddresses?.[token] : targetAddresses?.[chain]?.[token]
 
   console.log(`\n${chain}`)
   console.log(`target: ${target}`)

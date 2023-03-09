@@ -135,6 +135,12 @@ export default {
       chainId: CHAIN_IDS.BASE.BASE_TESTNET.toNumber(),
       timeout
     },
+    scroll_testnet: {
+      url: process.env.RPC_ENDPOINT_SCROLL_TESTNET,
+      accounts: desiredAccounts,
+      chainId: CHAIN_IDS.SCROLL.SCROLL_TESTNET.toNumber(),
+      timeout
+    },
   },
   zksolc: {
     version: "1.3.1",
@@ -215,6 +221,7 @@ export default {
       consensys_testnet: process.env.CONSENSYS_API_KEY,
       zksync_testnet: process.env.ZKSYNC_API_KEY,
       base_testnet: process.env.BASE_API_KEY,
+      scroll_testnet: process.env.SCROLL_API_KEY,
     },
     customChains: [
       {
@@ -263,6 +270,14 @@ export default {
         urls: {
           apiURL: "https://api-goerli.basescan.org/api",
           browserURL: "https://goerli.basescan.org"
+        }
+      },
+      {
+        network: "scroll_testnet",
+        chainId: 534353,
+        urls: {
+          apiURL: "https://blockscout.scroll.io/api",
+          browserURL: "https://blockscout.scroll.io"
         }
       },
     ]

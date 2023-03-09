@@ -18,7 +18,8 @@ import {
   isChainIdMainnet,
   isChainIdConsensys,
   isChainIdZkSync,
-  isChainIdBase
+  isChainIdBase,
+  isChainIdScroll,
 } from '../../config/utils'
 
 import {
@@ -125,6 +126,8 @@ const getNetworkSpecificFactories = async (
     return getZkSyncContractFactories(signer, ethers)
   } else if (isChainIdBase(chainId)) {
     return getBaseContractFactories(signer, ethers)
+  } else if (isChainIdScroll(chainId)) {
+    return getScrollContractFactories(signer, ethers)
   } else {
     return {
       L1_Messenger: null,
@@ -288,6 +291,28 @@ const getBaseContractFactories = async (
   )
   const L2_Bridge: ContractFactory = await ethers.getContractFactory(
     'contracts/bridges/L2_BaseBridge.sol:L2_BaseBridge',
+    { signer }
+  )
+
+  return {
+    L1_Messenger,
+    L1_MessengerWrapper,
+    L2_Bridge,
+    L2_MessengerProxy: null
+  }
+}
+
+const getScrollContractFactories = async (signer: Signer, ethers: any) => {
+  const L1_Messenger: ContractFactory = await ethers.getContractFactory(
+    'contracts/test/scroll/mockScrollZkEvm_L1Bridge.sol:mockScrollZkEvm_L1Bridge',
+    { signer }
+  )
+  const L1_MessengerWrapper: ContractFactory = await ethers.getContractFactory(
+    'contracts/wrappers/ScrollZkEvmMessengerWrapper.sol:ScrollZkEvmMessengerWrapper',
+    { signer }
+  )
+  const L2_Bridge: ContractFactory = await ethers.getContractFactory(
+    'contracts/bridges/L2_ScrollZkEvmBridge.sol:L2_ScrollZkEvmBridge',
     { signer }
   )
 

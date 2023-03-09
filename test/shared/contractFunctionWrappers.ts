@@ -24,11 +24,13 @@ import {
   isChainIdConsensys,
   isChainIdZkSync,
   isChainIdBase,
+  isChainIdScroll,
   isChainIdL1,
   generateArbitrumAliasAddress
 } from '../../config/utils'
 import {
   CONSENSYS_ZK_EVM_MESSAGE_FEE,
+  SCROLL_ZK_EVM_MESSAGE_FEE,
   ZKSYNC_MESSAGE_FEE,
   CHAIN_IDS,
   DEFAULT_DEADLINE,
@@ -124,12 +126,20 @@ export const executeCanonicalMessengerSendMessage = async (
     }
     tx = await l1_messenger.connect(sender).dispatchMessage(...consensysZkEvmParams, overrides)
   } else if (isChainIdZkSync(l2ChainId)) {
-    const consensysZkEvmParams = [l2_bridge.address, 0, message, ZKSYNC_MESSAGE_FEE, ['']]
+    const zkSyncParams = [l2_bridge.address, 0, message, ZKSYNC_MESSAGE_FEE, ['']]
     const value: BigNumber = BigNumber.from(ZKSYNC_MESSAGE_FEE)
     const overrides = {
       value
     }
-    tx = await l1_messenger.connect(sender).requestL2Transaction(...consensysZkEvmParams, overrides)
+    tx = await l1_messenger.connect(sender).requestL2Transaction(...zkSyncParams, overrides)
+  } else if (isChainIdScroll(l2ChainId)) {
+    const scrollZkEvmParams = [l2_bridge.address, SCROLL_ZK_EVM_MESSAGE_FEE, DEFAULT_DEADLINE, message]
+    const value: BigNumber = BigNumber.from(SCROLL_ZK_EVM_MESSAGE_FEE)
+    const overrides = {
+      value,
+      ...modifiedGasPrice
+    }
+    tx = await l1_messenger.connect(sender).dispatchMessage(...scrollZkEvmParams, overrides)
   } else if (isChainIdBase(l2ChainId)) {
     const optimismGasLimit: BigNumber = BigNumber.from('5000000')
     const optimismParams: any[] = [l2_bridge.address, message, optimismGasLimit]
@@ -475,7 +485,7 @@ export const executeL1BridgeBondTransferRoot = async (
     transfer.amount
   )
 
-  // NOTE: This is going to fail sometimes, as `currentTime` will be different from the expected time, causing a 
+  // NOTE: This is going to fail sometimes, as `currentTime` will be different from the expected time, causing a
   // timeSlot mismatch
   expect(timeSlotToAmountBonded).to.eq(bondAmount)
   expect(transferBond).to.eq(bondAmount)
@@ -1103,7 +1113,7 @@ export const executeL2BridgeCommitTransfers = async (
 
   // Verify state post-transaction
   pendingAmountForChainId = await l2_bridge.pendingAmountForChainId(
-    destinationChainId  
+    destinationChainId
   )
   expect(pendingAmountForChainId).to.eq('0')
 
@@ -1174,7 +1184,7 @@ export const executeL2BridgeBondWithdrawalAndDistribute = async (
       transfer.amountOutMin,
       transfer.deadline
     )
-  
+
   // Validate state after transaction
   await expectBalanceOf(l2_hopBridgeToken, transfer.recipient, 0)
 
