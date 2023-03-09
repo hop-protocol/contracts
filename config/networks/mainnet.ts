@@ -5,7 +5,7 @@ import {
   CHAIN_IDS,
   ZERO_ADDRESS,
   L1_CANONICAL_TOKEN_ADDRESSES,
-  L2_CANONICAL_TOKEN_ADDRESSES,
+  L2_CANONICAL_TOKEN_ADDRESSES
 } from '../constants'
 
 const l1ChainId: string = CHAIN_IDS.ETHEREUM.MAINNET.toString()
@@ -58,7 +58,7 @@ export const networkData: NetworkData = {
         l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.MAINNET.HOP,
         l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.POLYGON.HOP,
         ...DEFAULT_NETWORK_DATA.HOP
-      },
+      }
     }
   },
   xdai: {
@@ -103,7 +103,7 @@ export const networkData: NetworkData = {
         l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.MAINNET.HOP,
         l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.XDAI.HOP,
         ...DEFAULT_NETWORK_DATA.HOP
-      },
+      }
     }
   },
   optimism: {
@@ -116,54 +116,64 @@ export const networkData: NetworkData = {
     tokens: {
       USDC: {
         l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.MAINNET.USDC,
-        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.OPTIMISM_MAINNET.USDC,
+        l2CanonicalTokenAddress:
+          L2_CANONICAL_TOKEN_ADDRESSES.OPTIMISM_MAINNET.USDC,
         ...DEFAULT_NETWORK_DATA.USDC
       },
       USDT: {
         l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.MAINNET.USDT,
-        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.OPTIMISM_MAINNET.USDT,
+        l2CanonicalTokenAddress:
+          L2_CANONICAL_TOKEN_ADDRESSES.OPTIMISM_MAINNET.USDT,
         ...DEFAULT_NETWORK_DATA.USDT
       },
       MATIC: {
         l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.MAINNET.MATIC,
-        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.OPTIMISM_MAINNET.MATIC,
+        l2CanonicalTokenAddress:
+          L2_CANONICAL_TOKEN_ADDRESSES.OPTIMISM_MAINNET.MATIC,
         ...DEFAULT_NETWORK_DATA.MATIC
       },
       DAI: {
         l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.MAINNET.DAI,
-        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.OPTIMISM_MAINNET.DAI,
+        l2CanonicalTokenAddress:
+          L2_CANONICAL_TOKEN_ADDRESSES.OPTIMISM_MAINNET.DAI,
         ...DEFAULT_NETWORK_DATA.DAI
       },
       ETH: {
         l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.MAINNET.ETH,
-        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.OPTIMISM_MAINNET.ETH,
+        l2CanonicalTokenAddress:
+          L2_CANONICAL_TOKEN_ADDRESSES.OPTIMISM_MAINNET.ETH,
         ...DEFAULT_NETWORK_DATA.ETH
       },
       WBTC: {
         l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.MAINNET.WBTC,
-        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.OPTIMISM_MAINNET.WBTC,
+        l2CanonicalTokenAddress:
+          L2_CANONICAL_TOKEN_ADDRESSES.OPTIMISM_MAINNET.WBTC,
         ...DEFAULT_NETWORK_DATA.WBTC
       },
       FRAX: {
         l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.MAINNET.FRAX,
-        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.OPTIMISM_MAINNET.FRAX,
+        l2CanonicalTokenAddress:
+          L2_CANONICAL_TOKEN_ADDRESSES.OPTIMISM_MAINNET.FRAX,
         ...DEFAULT_NETWORK_DATA.FRAX
       },
       HOP: {
         l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.MAINNET.HOP,
-        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.OPTIMISM_MAINNET.HOP,
+        l2CanonicalTokenAddress:
+          L2_CANONICAL_TOKEN_ADDRESSES.OPTIMISM_MAINNET.HOP,
         ...DEFAULT_NETWORK_DATA.HOP
       },
       SNX: {
         l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.MAINNET.SNX,
-        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.OPTIMISM_MAINNET.SNX,
+        l2CanonicalTokenAddress:
+          L2_CANONICAL_TOKEN_ADDRESSES.OPTIMISM_MAINNET.SNX,
         ...DEFAULT_NETWORK_DATA.SNX
       },
       sUSD: {
         l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.MAINNET.sUSD,
-        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.OPTIMISM_MAINNET.sUSD,
+        l2CanonicalTokenAddress:
+          L2_CANONICAL_TOKEN_ADDRESSES.OPTIMISM_MAINNET.sUSD,
         ...DEFAULT_NETWORK_DATA.sUSD
-      },
+      }
     }
   },
   arbitrum: {
@@ -176,39 +186,46 @@ export const networkData: NetworkData = {
     tokens: {
       USDC: {
         l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.MAINNET.USDC,
-        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.ARBITRUM_MAINNET.USDC,
+        l2CanonicalTokenAddress:
+          L2_CANONICAL_TOKEN_ADDRESSES.ARBITRUM_MAINNET.USDC,
         ...DEFAULT_NETWORK_DATA.USDC
       },
       USDT: {
         l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.MAINNET.USDT,
-        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.ARBITRUM_MAINNET.USDT,
+        l2CanonicalTokenAddress:
+          L2_CANONICAL_TOKEN_ADDRESSES.ARBITRUM_MAINNET.USDT,
         ...DEFAULT_NETWORK_DATA.USDT
       },
       DAI: {
         l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.MAINNET.DAI,
-        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.ARBITRUM_MAINNET.DAI,
+        l2CanonicalTokenAddress:
+          L2_CANONICAL_TOKEN_ADDRESSES.ARBITRUM_MAINNET.DAI,
         ...DEFAULT_NETWORK_DATA.DAI
       },
       ETH: {
         l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.MAINNET.ETH,
-        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.ARBITRUM_MAINNET.ETH,
+        l2CanonicalTokenAddress:
+          L2_CANONICAL_TOKEN_ADDRESSES.ARBITRUM_MAINNET.ETH,
         ...DEFAULT_NETWORK_DATA.ETH
       },
       WBTC: {
         l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.MAINNET.WBTC,
-        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.ARBITRUM_MAINNET.WBTC,
+        l2CanonicalTokenAddress:
+          L2_CANONICAL_TOKEN_ADDRESSES.ARBITRUM_MAINNET.WBTC,
         ...DEFAULT_NETWORK_DATA.WBTC
       },
       FRAX: {
         l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.MAINNET.FRAX,
-        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.ARBITRUM_MAINNET.FRAX,
+        l2CanonicalTokenAddress:
+          L2_CANONICAL_TOKEN_ADDRESSES.ARBITRUM_MAINNET.FRAX,
         ...DEFAULT_NETWORK_DATA.FRAX
       },
       HOP: {
         l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.MAINNET.HOP,
-        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.ARBITRUM_MAINNET.HOP,
+        l2CanonicalTokenAddress:
+          L2_CANONICAL_TOKEN_ADDRESSES.ARBITRUM_MAINNET.HOP,
         ...DEFAULT_NETWORK_DATA.HOP
-      },
+      }
     }
   },
   nova: {

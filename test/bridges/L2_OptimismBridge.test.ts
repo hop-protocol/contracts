@@ -181,7 +181,9 @@ describe.skip('L2_Optimism_Bridge', () => {
     const l1GovernanceAddress: string = await l2_bridge.l1Governance()
     const hopBridgeTokenAddress: string = await l2_bridge.hToken()
     const l1BridgeAddress: string = await l2_bridge.l1BridgeAddress()
-    const isBonder: string = await l2_bridge.getIsBonder(await bonder.getAddress())
+    const isBonder: string = await l2_bridge.getIsBonder(
+      await bonder.getAddress()
+    )
     const defaultGasLimit: number = await l2_bridge.defaultGasLimit()
 
     expect(expectedMessengerAddress).to.eq(messengerAddress)
@@ -193,9 +195,7 @@ describe.skip('L2_Optimism_Bridge', () => {
 
     for (let i = 0; i < ALL_SUPPORTED_CHAIN_IDS.length; i++) {
       const chainId: BigNumber = ALL_SUPPORTED_CHAIN_IDS[i]
-      const isChainIdSupported = await l2_bridge.activeChainIds(
-        chainId
-      )
+      const isChainIdSupported = await l2_bridge.activeChainIds(chainId)
       expect(isChainIdSupported).to.eq(true)
     }
   })
@@ -207,9 +207,7 @@ describe.skip('L2_Optimism_Bridge', () => {
   it('Should set an arbitrary messenger', async () => {
     const expectedMessengerAddress: string = ONE_ADDRESS
 
-    const message: string = getSetMessengerMessage(
-      expectedMessengerAddress
-    )
+    const message: string = getSetMessengerMessage(expectedMessengerAddress)
     await executeCanonicalMessengerSendMessage(
       l1_messenger,
       l1_messengerWrapper,
@@ -244,7 +242,6 @@ describe.skip('L2_Optimism_Bridge', () => {
     expect(defaultGasLimit).to.eq(expectedDefaultGasLimit)
   })
 
-
   /**
    * Non-Happy Path
    */
@@ -263,9 +260,7 @@ describe.skip('L2_Optimism_Bridge', () => {
 
     const expectedMessengerAddress: string = ONE_ADDRESS
 
-    const message: string = getSetMessengerMessage(
-      expectedMessengerAddress
-    )
+    const message: string = getSetMessengerMessage(expectedMessengerAddress)
 
     await expect(
       executeCanonicalMessengerSendMessage(

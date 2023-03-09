@@ -100,7 +100,10 @@ export const setUpL2HopBridgeToken = async (fixture: IFixture) => {
   await l2_hopBridgeToken.transferOwnership(l2_bridge.address)
 }
 
-export const setUpL1AndL2Messengers = async (fixture: IFixture, setUpL1AndL2MessengersOpts: any) => {
+export const setUpL1AndL2Messengers = async (
+  fixture: IFixture,
+  setUpL1AndL2MessengersOpts: any
+) => {
   const {
     l2_bridge,
     l1_messenger,
@@ -150,10 +153,12 @@ export const setUpL1AndL2Bridges = async (fixture: IFixture, opts: any) => {
   const { messengerWrapperChainId } = opts
 
   // Set up L1
-  await l1_bridge.connect(governance).setCrossDomainMessengerWrapper(
-    messengerWrapperChainId,
-    l1_messengerWrapper.address
-  )
+  await l1_bridge
+    .connect(governance)
+    .setCrossDomainMessengerWrapper(
+      messengerWrapperChainId,
+      l1_messengerWrapper.address
+    )
 
   // Set up L2
   let message: string = getSetL1BridgeAddressMessage(l1_bridge)
@@ -167,7 +172,9 @@ export const setUpL1AndL2Bridges = async (fixture: IFixture, opts: any) => {
     messengerWrapperChainId
   )
 
-  const contractToUse: Contract = isChainIdPolygon(l2ChainId) ? l1_bridge : l1_messengerWrapper
+  const contractToUse: Contract = isChainIdPolygon(l2ChainId)
+    ? l1_bridge
+    : l1_messengerWrapper
   message = getSetL1BridgeCallerMessage(contractToUse)
   await executeCanonicalMessengerSendMessage(
     l1_messenger,
@@ -222,7 +229,10 @@ export const distributeCanonicalTokens = async (
     await challenger.getAddress(),
     challengerInitialBalance
   )
-  await l1_canonicalToken.mint(await relayer.getAddress(), relayerInitialBalance)
+  await l1_canonicalToken.mint(
+    await relayer.getAddress(),
+    relayerInitialBalance
+  )
 }
 
 export const setUpBonderStake = async (fixture: IFixture, opts: any) => {
@@ -331,28 +341,18 @@ export const setUpL2AmmMarket = async (fixture: IFixture, opts: any) => {
   await expectBalanceOf(l2_canonicalToken, liquidityProvider, '0')
   await expectBalanceOf(l2_hopBridgeToken, liquidityProvider, '0')
 
-  const ERC20 = await ethers.getContractFactory('@openzeppelin/contracts/token/ERC20/ERC20.sol:ERC20')
+  const ERC20 = await ethers.getContractFactory(
+    '@openzeppelin/contracts/token/ERC20/ERC20.sol:ERC20'
+  )
 
   const swapStorage = await l2_swap.swapStorage()
   const lpTokenAddress = swapStorage.lpToken
   const lpToken = ERC20.attach(lpTokenAddress)
 
   const lpTokenTotalBalance: BigNumber = await lpToken.totalSupply()
-  await expectBalanceOf(
-    lpToken,
-    liquidityProvider,
-    lpTokenTotalBalance
-  )
-  await expectBalanceOf(
-    l2_canonicalToken,
-    l2_swap,
-    liquidityProviderBalance
-  )
-  await expectBalanceOf(
-    l2_hopBridgeToken,
-    l2_swap,
-    liquidityProviderBalance
-  )
+  await expectBalanceOf(lpToken, liquidityProvider, lpTokenTotalBalance)
+  await expectBalanceOf(l2_canonicalToken, l2_swap, liquidityProviderBalance)
+  await expectBalanceOf(l2_hopBridgeToken, l2_swap, liquidityProviderBalance)
 }
 
 /**
@@ -377,42 +377,50 @@ export const getL2SpecificArtifact = (chainId: BigNumber) => {
 
   if (isChainIdOptimism(chainId)) {
     l2_bridgeArtifact = 'Mock_L2_OptimismBridge.sol:Mock_L2_OptimismBridge'
-    l1_messengerArtifact = 'contracts/test/Mock_L1_Messenger.sol:Mock_L1_Messenger'
+    l1_messengerArtifact =
+      'contracts/test/Mock_L1_Messenger.sol:Mock_L1_Messenger'
     l1_messengerWrapperArtifact =
       'contracts/wrappers/OptimismMessengerWrapper.sol:OptimismMessengerWrapper'
   } else if (isChainIdArbitrum(chainId) || isChainIdNova(chainId)) {
     l2_bridgeArtifact = 'Mock_L2_ArbitrumBridge.sol:Mock_L2_ArbitrumBridge'
-    l1_messengerArtifact = 'contracts/test/Mock_L1_Messenger.sol:Mock_L1_Messenger'
+    l1_messengerArtifact =
+      'contracts/test/Mock_L1_Messenger.sol:Mock_L1_Messenger'
     l1_messengerWrapperArtifact =
       'contracts/wrappers/ArbitrumMessengerWrapper.sol:ArbitrumMessengerWrapper'
   } else if (isChainIdXDai(chainId)) {
     l2_bridgeArtifact = 'Mock_L2_XDaiBridge.sol:Mock_L2_XDaiBridge'
-    l1_messengerArtifact = 'contracts/test/Mock_L1_Messenger.sol:Mock_L1_Messenger'
+    l1_messengerArtifact =
+      'contracts/test/Mock_L1_Messenger.sol:Mock_L1_Messenger'
     l1_messengerWrapperArtifact =
       'contracts/wrappers/XDaiMessengerWrapper.sol:XDaiMessengerWrapper'
   } else if (isChainIdPolygon(chainId)) {
     l2_bridgeArtifact = 'Mock_L2_PolygonBridge.sol:Mock_L2_PolygonBridge'
-    l1_messengerArtifact = 'contracts/test/Mock_L1_Messenger.sol:Mock_L1_Messenger'
+    l1_messengerArtifact =
+      'contracts/test/Mock_L1_Messenger.sol:Mock_L1_Messenger'
     l1_messengerWrapperArtifact =
       'contracts/test/MockPolygonMessengerWrapper.sol:MockPolygonMessengerWrapper'
   } else if (isChainIdConsensys(chainId)) {
     l2_bridgeArtifact = 'Mock_L2_ConsensysBridge.sol:Mock_L2_ConsensysBridge'
-    l1_messengerArtifact = 'contracts/test/Mock_L1_Messenger.sol:Mock_L1_Messenger'
+    l1_messengerArtifact =
+      'contracts/test/Mock_L1_Messenger.sol:Mock_L1_Messenger'
     l1_messengerWrapperArtifact =
       'contracts/wrappers/ConsensysZkEvmMessengerWrapper.sol:ConsensysZkEvmMessengerWrapper'
   } else if (isChainIdZkSync(chainId)) {
     l2_bridgeArtifact = 'mockZkSync_L2Bridge.sol:mockZkSync_L2Bridge'
-    l1_messengerArtifact = 'contracts/test/Mock_L1_Messenger.sol:Mock_L1_Messenger'
+    l1_messengerArtifact =
+      'contracts/test/Mock_L1_Messenger.sol:Mock_L1_Messenger'
     l1_messengerWrapperArtifact =
       'contracts/wrappers/ZkSyncMessengerWrapper.sol:ZkSyncMessengerWrapper'
   } else if (isChainIdScroll(chainId)) {
     l2_bridgeArtifact = 'Mock_L2_ScrollBridge.sol:Mock_L2_ScrollBridge'
-    l1_messengerArtifact = 'contracts/test/Mock_L1_Messenger.sol:Mock_L1_Messenger'
+    l1_messengerArtifact =
+      'contracts/test/Mock_L1_Messenger.sol:Mock_L1_Messenger'
     l1_messengerWrapperArtifact =
       'contracts/wrappers/ScrollZkEvmMessengerWrapper.sol:ScrollZkEvmMessengerWrapper'
   } else if (isChainIdOptimism(chainId)) {
     l2_bridgeArtifact = 'Mock_L2_BaseBridge.sol:Mock_L2_BaseBridge'
-    l1_messengerArtifact = 'contracts/test/Mock_L1_Messenger.sol:Mock_L1_Messenger'
+    l1_messengerArtifact =
+      'contracts/test/Mock_L1_Messenger.sol:Mock_L1_Messenger'
     l1_messengerWrapperArtifact =
       'contracts/wrappers/BaseMessengerWrapper.sol:BaseMessengerWrapper'
   }
@@ -484,8 +492,10 @@ export const didAttemptedSwapSucceed = async (
   recipient: Signer,
   balanceBeforeAttemptedSwap: BigNumber
 ): Promise<boolean> => {
-  const currentBalance: BigNumber = await canonicalToken.balanceOf(await recipient.getAddress())
-  return !(currentBalance.eq(balanceBeforeAttemptedSwap))
+  const currentBalance: BigNumber = await canonicalToken.balanceOf(
+    await recipient.getAddress()
+  )
+  return !currentBalance.eq(balanceBeforeAttemptedSwap)
 }
 
 export const relayNextMessage = async (

@@ -175,7 +175,9 @@ describe('Accounting', () => {
     const otherBonder: Signer = governance
     const stakeAmount: BigNumber = BigNumber.from(10)
 
-    await mockAccounting.connect(governance).addBonder(await otherBonder.getAddress())
+    await mockAccounting
+      .connect(governance)
+      .addBonder(await otherBonder.getAddress())
 
     await mockAccounting.stake(await bonder.getAddress(), stakeAmount)
     let credit = await mockAccounting.getCredit(await bonder.getAddress())
@@ -256,7 +258,6 @@ describe('Accounting', () => {
 
     await mockAccounting.connect(otherUser).unstake(stakeAmount)
   })
-
 
   /**
    * Non-Happy Path

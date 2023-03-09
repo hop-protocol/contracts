@@ -243,9 +243,7 @@ describe('L2_Bridge', () => {
     it('Should set the amm wrapper address arbitrarily', async () => {
       const expectedAmmWrapperAddress: string = ONE_ADDRESS
 
-      const message: string = getSetAmmWrapperMessage(
-        expectedAmmWrapperAddress
-      )
+      const message: string = getSetAmmWrapperMessage(expectedAmmWrapperAddress)
       await executeCanonicalMessengerSendMessage(
         l1_messenger,
         l1_messengerWrapper,
@@ -441,7 +439,8 @@ describe('L2_Bridge', () => {
     })
 
     it('Should get the next transfer nonce', async () => {
-      const expectedNextTransferNonce: string = '0xa8318a28a1fe6af053ce810a7524c1e62804c5ec4627168b3a8e68dc430b1183'
+      const expectedNextTransferNonce: string =
+        '0xa8318a28a1fe6af053ce810a7524c1e62804c5ec4627168b3a8e68dc430b1183'
       const nextTransferNonce = await l2_bridge.getNextTransferNonce()
       expect(nextTransferNonce).to.eq(expectedNextTransferNonce)
     })
@@ -460,7 +459,7 @@ describe('L2_Bridge', () => {
       customTransfer.bonderFee = BigNumber.from('0')
 
       const maxPendingTransfers: BigNumber = await l2_bridge.maxPendingTransfers()
-      for (let i = 0; i <= (Number(maxPendingTransfers)); i++) {
+      for (let i = 0; i <= Number(maxPendingTransfers); i++) {
         await executeL2BridgeSend(l2_hopBridgeToken, l2_bridge, customTransfer)
       }
 
@@ -546,11 +545,7 @@ describe('L2_Bridge', () => {
         expectedTransferIndex
       )
 
-      await executeL2BridgeCommitTransfers(
-        l2_bridge,
-        [customTransfer],
-        bonder
-      )
+      await executeL2BridgeCommitTransfers(l2_bridge, [customTransfer], bonder)
 
       const startingIndex: BigNumber = BigNumber.from('1')
       await executeL2BridgeCommitTransfers(
@@ -716,9 +711,7 @@ describe('L2_Bridge', () => {
       const expectedErrorMsg: string = 'L2_OVM_BRG: Invalid cross-domain sender'
       const expectedAmmWrapperAddress: string = ONE_ADDRESS
 
-      const message: string = getSetAmmWrapperMessage(
-        expectedAmmWrapperAddress
-      )
+      const message: string = getSetAmmWrapperMessage(expectedAmmWrapperAddress)
       await expect(
         executeCanonicalMessengerSendMessage(
           l1_messenger,
@@ -909,7 +902,8 @@ describe('L2_Bridge', () => {
     })
 
     it('Should not allow minimum bonder BPS to exceed 10,000', async () => {
-      const expectedErrorMsg: string = 'L2_BRG: minBonderBps must not exceed 1000'
+      const expectedErrorMsg: string =
+        'L2_BRG: minBonderBps must not exceed 1000'
       const expectedMinBonderBps: BigNumber = BigNumber.from('13371337')
       const expectedMinBonderFeeAbsolute: BigNumber = BigNumber.from('73317331')
 
@@ -960,7 +954,8 @@ describe('L2_Bridge', () => {
     })
 
     it('Should not allow a send with a bonder fee less than the min bonder fee', async () => {
-      const expectedErrorMsg: string = 'L2_BRG: bonderFee must meet minimum requirements'
+      const expectedErrorMsg: string =
+        'L2_BRG: bonderFee must meet minimum requirements'
       const customTransfer: Transfer = new Transfer(transfer)
       customTransfer.bonderFee = BigNumber.from('1')
       await expect(
@@ -970,8 +965,12 @@ describe('L2_Bridge', () => {
 
     it('Should not allow a send if the user does not have enough tokens to send', async () => {
       const expectedErrorMsg: string = 'ERC20: burn amount exceeds balance'
-      const senderBalance: BigNumber = await l2_hopBridgeToken.balanceOf(await transfer.sender.getAddress())
-      await l2_hopBridgeToken.connect(transfer.sender).transfer(ONE_ADDRESS, senderBalance)
+      const senderBalance: BigNumber = await l2_hopBridgeToken.balanceOf(
+        await transfer.sender.getAddress()
+      )
+      await l2_hopBridgeToken
+        .connect(transfer.sender)
+        .transfer(ONE_ADDRESS, senderBalance)
       await expect(
         executeL2BridgeSend(l2_hopBridgeToken, l2_bridge, transfer)
       ).to.be.revertedWith(expectedErrorMsg)
@@ -980,7 +979,8 @@ describe('L2_Bridge', () => {
 
   describe('commitTransfers', async () => {
     it('Should not allow a commitTransfers if an arbitrary user calls it before the min time', async () => {
-      const expectedErrorMsg: string = 'L2_BRG: Only Bonder can commit before min delay'
+      const expectedErrorMsg: string =
+        'L2_BRG: Only Bonder can commit before min delay'
 
       await executeL1BridgeSendToL2(
         l1_canonicalToken,
@@ -1018,7 +1018,8 @@ describe('L2_Bridge', () => {
 
   describe('distribute', async () => {
     it('Should not allow an arbitrary address to call distribute', async () => {
-      const expectedErrorMsg: string = 'L2_OVM_BRG: Caller is not the expected sender'
+      const expectedErrorMsg: string =
+        'L2_OVM_BRG: Caller is not the expected sender'
       await expect(
         l2_bridge
           .connect(transfer.sender)
@@ -1127,7 +1128,8 @@ describe('L2_Bridge', () => {
     })
 
     it('Should not allow a different bonder to call bondWithdrawalAndDistribute if it has already been bonded', async () => {
-      const expectedErrorMsg: string = 'BRG: The transfer has already been withdrawn'
+      const expectedErrorMsg: string =
+        'BRG: The transfer has already been withdrawn'
 
       const message: string = getAddBonderMessage(await otherUser.getAddress())
       await executeCanonicalMessengerSendMessage(
@@ -1307,7 +1309,7 @@ describe('L2_Bridge', () => {
 
     const message: string = getSetMinimumBonderFeeRequirementsMessage(
       minBonderBps,
-      minBonderFeeAbsolute 
+      minBonderFeeAbsolute
     )
 
     await executeCanonicalMessengerSendMessage(
@@ -1363,7 +1365,7 @@ describe('L2_Bridge', () => {
 
     const message: string = getSetMinimumBonderFeeRequirementsMessage(
       minBonderBps,
-      minBonderFeeAbsolute 
+      minBonderFeeAbsolute
     )
 
     await executeCanonicalMessengerSendMessage(
@@ -1419,7 +1421,7 @@ describe('L2_Bridge', () => {
 
     const message: string = getSetMinimumBonderFeeRequirementsMessage(
       minBonderBps,
-      minBonderFeeAbsolute 
+      minBonderFeeAbsolute
     )
 
     await executeCanonicalMessengerSendMessage(
@@ -1475,7 +1477,7 @@ describe('L2_Bridge', () => {
 
     const message: string = getSetMinimumBonderFeeRequirementsMessage(
       minBonderBps,
-      minBonderFeeAbsolute 
+      minBonderFeeAbsolute
     )
 
     await executeCanonicalMessengerSendMessage(
@@ -1530,7 +1532,7 @@ describe('L2_Bridge', () => {
 
     const message: string = getSetMinimumBonderFeeRequirementsMessage(
       minBonderBps,
-      minBonderFeeAbsolute 
+      minBonderFeeAbsolute
     )
 
     await executeCanonicalMessengerSendMessage(
@@ -1585,7 +1587,7 @@ describe('L2_Bridge', () => {
 
     const message: string = getSetMinimumBonderFeeRequirementsMessage(
       minBonderBps,
-      minBonderFeeAbsolute 
+      minBonderFeeAbsolute
     )
 
     await executeCanonicalMessengerSendMessage(
@@ -1640,7 +1642,7 @@ describe('L2_Bridge', () => {
 
     const message: string = getSetMinimumBonderFeeRequirementsMessage(
       minBonderBps,
-      minBonderFeeAbsolute 
+      minBonderFeeAbsolute
     )
 
     await executeCanonicalMessengerSendMessage(
@@ -1695,7 +1697,7 @@ describe('L2_Bridge', () => {
 
     const message: string = getSetMinimumBonderFeeRequirementsMessage(
       minBonderBps,
-      minBonderFeeAbsolute 
+      minBonderFeeAbsolute
     )
 
     await executeCanonicalMessengerSendMessage(
@@ -1750,7 +1752,7 @@ describe('L2_Bridge', () => {
 
     const message: string = getSetMinimumBonderFeeRequirementsMessage(
       minBonderBps,
-      minBonderFeeAbsolute 
+      minBonderFeeAbsolute
     )
 
     await executeCanonicalMessengerSendMessage(
@@ -1813,7 +1815,9 @@ describe('L2_Bridge', () => {
       l2ChainId
     )
 
-    const isChainIdSupported: boolean = await l2_bridge.activeChainIds(transfer.chainId)
+    const isChainIdSupported: boolean = await l2_bridge.activeChainIds(
+      transfer.chainId
+    )
     expect(isChainIdSupported).to.eq(false)
 
     await executeBridgeBondWithdrawal(

@@ -18,10 +18,7 @@ import {
   generateArbitrumAliasAddress,
   getTxOverridesPerChain
 } from '../../config/utils'
-import {
-  ALL_SUPPORTED_CHAIN_IDS,
-  ZERO_ADDRESS
-} from '../../config/constants'
+import { ALL_SUPPORTED_CHAIN_IDS, ZERO_ADDRESS } from '../../config/constants'
 import {
   isChainIdMainnet,
   isChainIdPolygon,
@@ -133,7 +130,13 @@ export async function setupL1 (config: Config) {
     L1_MessengerWrapper,
     L2_Bridge,
     L2_MessengerProxy
-  } = await getContractFactories(l2ChainId, deployer, ethers, isEthDeployment, isHopDeployment))
+  } = await getContractFactories(
+    l2ChainId,
+    deployer,
+    ethers,
+    isEthDeployment,
+    isHopDeployment
+  ))
 
   logger.log('attaching deployed contracts')
   // Attach already deployed contracts
@@ -185,13 +188,17 @@ export async function setupL1 (config: Config) {
       l1_messengerWrapper,
       l2_messengerProxy
     )
-  } else if (isChainIdArbitrum(l2ChainId) || isChainIdNova(l2ChainId) || isChainIdConsensys(l2ChainId)) {
-      logger.log(
-        `-------------------`,
-        `IMPORTANT: Please manually send funds to ${l1_messengerWrapper.address} on L1`,
-        `in order to complete the token send across the bridge.`,
-        `-------------------`
-      )
+  } else if (
+    isChainIdArbitrum(l2ChainId) ||
+    isChainIdNova(l2ChainId) ||
+    isChainIdConsensys(l2ChainId)
+  ) {
+    logger.log(
+      `-------------------`,
+      `IMPORTANT: Please manually send funds to ${l1_messengerWrapper.address} on L1`,
+      `in order to complete the token send across the bridge.`,
+      `-------------------`
+    )
   }
 
   if (isChainIdOptimism(l2ChainId) || isChainIdBase(l2ChainId)) {
@@ -199,7 +206,10 @@ export async function setupL1 (config: Config) {
     // setTransferRoot(bytes32,uint256) = 0xfd31c5ba
     const setTransferRootSig = '0xfd31c5ba'
     const setTransferRootGas = 1000000
-    let setL2GasLimitForSignatureParams: any[] = [setTransferRootGas, setTransferRootSig]
+    let setL2GasLimitForSignatureParams: any[] = [
+      setTransferRootGas,
+      setTransferRootSig
+    ]
     modifiedGasPrice = await getModifiedGasPrice(ethers, l1ChainId)
     const tx = await l1_messengerWrapper.setL2GasLimitForSignature(
       ...setL2GasLimitForSignatureParams,
@@ -211,7 +221,12 @@ export async function setupL1 (config: Config) {
 
   logger.log('messengerWrapperAddress', l1_messengerWrapper.address)
 
-  if (isChainIdArbitrum(l2ChainId) || isChainIdOptimism(l2ChainId) || isChainIdNova(l2ChainId) || isChainIdBase(l2ChainId)) {
+  if (
+    isChainIdArbitrum(l2ChainId) ||
+    isChainIdOptimism(l2ChainId) ||
+    isChainIdNova(l2ChainId) ||
+    isChainIdBase(l2ChainId)
+  ) {
     // Transfer ownership of the messenger wrapper to governance
     logger.log('transferring ownership of L1 messenger wrapper')
     let transferOwnershipParams: any[] = [await governance.getAddress()]
@@ -231,11 +246,13 @@ export async function setupL1 (config: Config) {
   logger.log('setting cross domain messenger wrapper on L1 bridge')
   // Set up the L1 bridge
   modifiedGasPrice = await getModifiedGasPrice(ethers, l1ChainId)
-  tx = await l1_bridge.connect(governance).setCrossDomainMessengerWrapper(
-    l2ChainId,
-    l1_messengerWrapper.address,
-    modifiedGasPrice
-  )
+  tx = await l1_bridge
+    .connect(governance)
+    .setCrossDomainMessengerWrapper(
+      l2ChainId,
+      l1_messengerWrapper.address,
+      modifiedGasPrice
+    )
   await tx.wait()
   await waitAfterTransaction()
 
@@ -244,13 +261,13 @@ export async function setupL1 (config: Config) {
   if (isChainIdPolygon(l2ChainId)) {
     setL1BridgeCallerParams = l1_bridge.address
   } else if (isChainIdArbitrum(l2ChainId) || isChainIdNova(l2ChainId)) {
-    setL1BridgeCallerParams = generateArbitrumAliasAddress(l1_messengerWrapper.address)
+    setL1BridgeCallerParams = generateArbitrumAliasAddress(
+      l1_messengerWrapper.address
+    )
   } else {
     setL1BridgeCallerParams = l1_messengerWrapper.address
   }
-  let message: string = getSetL1BridgeCallerMessage(
-    setL1BridgeCallerParams
-  )
+  let message: string = getSetL1BridgeCallerMessage(setL1BridgeCallerParams)
 
   logger.log('setting L1 messenger wrapper address on L2 bridge')
   modifiedGasPrice = await getModifiedGasPrice(ethers, l1ChainId)
@@ -272,7 +289,8 @@ export async function setupL1 (config: Config) {
 
   logger.log('setting supported chain IDs on L2 bridge')
   logger.log(
-    'chain IDs:', JSON.stringify(addActiveChainIdsParams.map(x => x.toString()))
+    'chain IDs:',
+    JSON.stringify(addActiveChainIdsParams.map(x => x.toString()))
   )
   modifiedGasPrice = await getModifiedGasPrice(ethers, l1ChainId)
   tx = await executeCanonicalMessengerSendMessage(
@@ -332,11 +350,7 @@ export async function setupL1 (config: Config) {
     modifiedGasPrice = await getModifiedGasPrice(ethers, l1ChainId)
     tx = await l1_canonicalToken
       .connect(deployer)
-      .approve(
-        l1_bridge.address,
-        liquidityProviderSendAmount,
-        modifiedGasPrice
-      )
+      .approve(l1_bridge.address, liquidityProviderSendAmount, modifiedGasPrice)
     await tx.wait()
     await waitAfterTransaction()
   }
@@ -360,7 +374,7 @@ export async function setupL1 (config: Config) {
     }
   } else {
     modifiedSendValues = {
-      gasPrice: modifiedGasPrice.gasPrice,
+      gasPrice: modifiedGasPrice.gasPrice
     }
   }
 
@@ -394,9 +408,16 @@ const updatePolygonState = async (
   l2_messengerProxy: Contract
 ) => {
   const polygonRpcEndpoint = getPolygonRpcEndpoint(l1ChainId)
-  const l2EthersProvider = new l2Ethers.providers.JsonRpcProvider(polygonRpcEndpoint)
-  const l2EthersWallet = new l2Ethers.Wallet(process.env.DEPLOYER_PRIVATE_KEY, l2EthersProvider)
-  const polygonTransactionData: string = getSetFxRootTunnelMessage(l1_messengerWrapper.address)
+  const l2EthersProvider = new l2Ethers.providers.JsonRpcProvider(
+    polygonRpcEndpoint
+  )
+  const l2EthersWallet = new l2Ethers.Wallet(
+    process.env.DEPLOYER_PRIVATE_KEY,
+    l2EthersProvider
+  )
+  const polygonTransactionData: string = getSetFxRootTunnelMessage(
+    l1_messengerWrapper.address
+  )
   const { gasLimit, gasPrice } = getTxOverridesPerChain(l2ChainId)
 
   const setFxRootTunnelTransaction = {
@@ -406,7 +427,9 @@ const updatePolygonState = async (
     data: polygonTransactionData
   }
 
-  const transaction = await l2EthersWallet.sendTransaction(setFxRootTunnelTransaction)
+  const transaction = await l2EthersWallet.sendTransaction(
+    setFxRootTunnelTransaction
+  )
   return transaction.wait()
 }
 

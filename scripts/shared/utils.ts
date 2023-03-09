@@ -19,7 +19,7 @@ import {
   isChainIdConsensys,
   isChainIdZkSync,
   isChainIdBase,
-  isChainIdScroll,
+  isChainIdScroll
 } from '../../config/utils'
 
 import {
@@ -40,7 +40,6 @@ export const getContractFactories = async (
   isEthDeployment: boolean = false,
   isHopDeployment: boolean = false
 ) => {
-
   let l1BridgeArtifact: string
   if (isEthDeployment) {
     l1BridgeArtifact = 'contracts/bridges/L1_ETH_Bridge.sol:L1_ETH_Bridge'
@@ -71,16 +70,16 @@ export const getContractFactories = async (
   // The linking must only be done for the deployment of this contract. Rather than doing it in this getter function,
   // it is done in the appropriate location in code. This is because the linked libraries are not deployed sometimes
   // when this function is called.
-  const L2_Swap: ContractFactory = await ethers.getContractFactory(
-    'Swap',
-    {
-      signer,
-      libraries: {
-        'SwapUtils': ZERO_ADDRESS
-      }
+  const L2_Swap: ContractFactory = await ethers.getContractFactory('Swap', {
+    signer,
+    libraries: {
+      SwapUtils: ZERO_ADDRESS
     }
+  })
+  const L2_AmmWrapper: ContractFactory = await ethers.getContractFactory(
+    'L2_AmmWrapper',
+    { signer }
   )
-  const L2_AmmWrapper: ContractFactory = await ethers.getContractFactory('L2_AmmWrapper', { signer })
 
   let L1_Messenger: ContractFactory
   let L1_MessengerWrapper: ContractFactory
@@ -138,10 +137,7 @@ const getNetworkSpecificFactories = async (
   }
 }
 
-const getOptimismContractFactories = async (
-  signer: Signer,
-  ethers: any
-) => {
+const getOptimismContractFactories = async (signer: Signer, ethers: any) => {
   const L1_Messenger: ContractFactory = await ethers.getContractFactory(
     'contracts/test/optimism/mockOVM_CrossDomainMessenger.sol:mockOVM_CrossDomainMessenger',
     { signer }
@@ -277,10 +273,7 @@ const getZkSyncContractFactories = async (signer: Signer, ethers: any) => {
   }
 }
 
-const getBaseContractFactories = async (
-  signer: Signer,
-  ethers: any
-) => {
+const getBaseContractFactories = async (signer: Signer, ethers: any) => {
   const L1_Messenger: ContractFactory = await ethers.getContractFactory(
     'contracts/test/optimism/mockOVM_CrossDomainMessenger.sol:mockOVM_CrossDomainMessenger',
     { signer }
@@ -324,8 +317,10 @@ const getScrollContractFactories = async (signer: Signer, ethers: any) => {
   }
 }
 
-
-const configFilepath = path.resolve(__dirname, '../deployAndSetupHop/deploy_config.json')
+const configFilepath = path.resolve(
+  __dirname,
+  '../deployAndSetupHop/deploy_config.json'
+)
 
 export const updateConfigFile = (newData: any) => {
   const data = readConfigFile()
@@ -458,7 +453,7 @@ export const getTokenSymbolLetterCase = (tokenSymbol: string): string => {
   else if (tokenSymbol.toLowerCase() === 'snx') return 'SNX'
   else if (tokenSymbol.toLowerCase() === 'susd') return 'sUSD'
   else {
-    throw new Error ('Invalid token symbol getter')
+    throw new Error('Invalid token symbol getter')
   }
 }
 
@@ -472,7 +467,9 @@ export const getModifiedGasPrice = async (ethers, l1ChainId: BigNumber) => {
 
   const tempMultiplier = 100
   const wholeGasPriceMultiplier = gasPriceMultiplier * tempMultiplier
-  const gasPrice: BigNumber = (await ethers.provider.getGasPrice()).mul(wholeGasPriceMultiplier).div(tempMultiplier)
+  const gasPrice: BigNumber = (await ethers.provider.getGasPrice())
+    .mul(wholeGasPriceMultiplier)
+    .div(tempMultiplier)
   return {
     gasPrice
   }

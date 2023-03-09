@@ -3,37 +3,28 @@ import { ethers } from 'hardhat'
 import { BigNumber, Signer, Contract, ContractFactory } from 'ethers'
 
 import { CHAIN_IDS, ZERO_ADDRESS } from '../../config/constants'
-import {
-  getActiveChainIds,
-  isChainIdTestnet
-} from '../../config/utils'
+import { getActiveChainIds, isChainIdTestnet } from '../../config/utils'
 import {
   getContractFactories,
-  getNetworkDataByNetworkName,
+  getNetworkDataByNetworkName
 } from '../shared/utils'
 
 import {
   executeCanonicalMessengerSendMessage,
   getSetL1BridgeAddressMessage,
   getAddBonderMessage,
-  getAddActiveChainIdsMessage,
+  getAddActiveChainIdsMessage
 } from '../../test/shared/contractFunctionWrappers'
 
 // Send an arbitrary message over the Canonical Bridge. Useful for updating L2 Bridge state
 // Example usage:
 // $ npx hardhat run scripts/other/sendMessageOverCanonicalBridge.ts --network goerli
 async function main () {
-
   // message
   const message: string = getAddActiveChainIdsMessage([BigNumber.from('84531')])
 
   // ChainIds
-  const l2ChainIds: string[] = [
-    '80001',
-    '420',
-    '421613',
-    '59140',
-  ]
+  const l2ChainIds: string[] = ['80001', '420', '421613', '59140']
 
   // TODO: Not manual mapping
   const l2ChainSlugs: Record<string, string> = {
@@ -47,23 +38,35 @@ async function main () {
     '80001': '0x34E8251051687BfF4EA23C18e466b3Ed13492abd',
     '421613': '0xb276BC046DFf5024D20A3947475eA20C9F08eB1F',
     '420': '0x2708E5C7087d4C6D295c8B58b2D452c360D505C7',
-    '59140': '0x3E4a3a4796d16c0Cd582C382691998f7c06420B6',
+    '59140': '0x3E4a3a4796d16c0Cd582C382691998f7c06420B6'
   }
 
   for (const l2ChainId of l2ChainIds) {
     console.log(`executing ${l2ChainId.toString()}...`)
 
     const l2BridgeAddress = l2BridgeAddresses[l2ChainId]
-    const l1NetworkName = isChainIdTestnet(BigNumber.from(l2ChainId)) ? 'goerli' : 'mainnet'
+    const l1NetworkName = isChainIdTestnet(BigNumber.from(l2ChainId))
+      ? 'goerli'
+      : 'mainnet'
     const networkData = getNetworkDataByNetworkName(l1NetworkName)
     const l2ChainSlug = l2ChainSlugs[l2ChainId]
     const { l1MessengerAddress } = networkData[l2ChainSlug]
 
-    await executeMessage(l2ChainId, l1MessengerAddress, l2BridgeAddress, message)
+    await executeMessage(
+      l2ChainId,
+      l1MessengerAddress,
+      l2BridgeAddress,
+      message
+    )
   }
 }
 
-async function executeMessage(l2ChainId: string, l1MessengerAddress: string, l2BridgeAddress: string, message: string) {
+async function executeMessage (
+  l2ChainId: string,
+  l1MessengerAddress: string,
+  l2BridgeAddress: string,
+  message: string
+) {
   const l2_chainId = BigNumber.from(l2ChainId)
 
   // Signers
@@ -79,7 +82,6 @@ async function executeMessage(l2ChainId: string, l1MessengerAddress: string, l2B
   let l1_messenger: Contract
   let l1_messengerWrapper: Contract
   let l2_bridge: Contract
-
   ;({
     L1_Messenger,
     L1_MessengerWrapper,

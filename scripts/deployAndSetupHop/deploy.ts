@@ -24,7 +24,6 @@ async function main () {
   let isL1BridgeDeploy: boolean
   let l2CanonicalTokenIsEth: boolean
   let deploymentStep: number
-
   ;({
     l1NetworkName,
     l2NetworkName,
@@ -32,7 +31,7 @@ async function main () {
     bonderAddress,
     isL1BridgeDeploy,
     l2CanonicalTokenIsEth,
-    deploymentStep 
+    deploymentStep
   } = await getPrompts())
 
   validateInput(l1NetworkName, l2NetworkName, tokenSymbol, bonderAddress)
@@ -40,8 +39,15 @@ async function main () {
   const basePath: string = 'scripts/deployAndSetupHop'
   const scripts: string[] = []
   if (isL1BridgeDeploy) {
-    setL1BridgeNetworkParams(l1NetworkName, l2NetworkName, tokenSymbol, bonderAddress)
-    scripts.push(`hardhat run ${basePath}/deployL1.ts --network ${l1NetworkName}`)
+    setL1BridgeNetworkParams(
+      l1NetworkName,
+      l2NetworkName,
+      tokenSymbol,
+      bonderAddress
+    )
+    scripts.push(
+      `hardhat run ${basePath}/deployL1.ts --network ${l1NetworkName}`
+    )
   }
 
   setNetworkParams(
@@ -57,11 +63,7 @@ async function main () {
   const setupL1Cmd = `hardhat run ${basePath}/setupL1.ts --network ${l1NetworkName}`
   const setupL2Cmd = `hardhat run ${basePath}/setupL2.ts --network ${l2NetworkName}`
   if (deploymentStep === 0) {
-    scripts.push(
-      deployL2Cmd,
-      setupL1Cmd,
-      setupL2Cmd
-    )
+    scripts.push(deployL2Cmd, setupL1Cmd, setupL2Cmd)
   } else if (deploymentStep === 1) {
     scripts.push(deployL2Cmd)
   } else if (deploymentStep === 2) {
@@ -84,57 +86,67 @@ async function getPrompts () {
   prompt.message = ''
   prompt.delimiter = ''
 
-  const res = await prompt.get([{
-    name: 'l1NetworkName',
-    description: 'L1 Network Name:',
-    type: 'string',
-    required: true,
-  }, {
-    name: 'l2NetworkName',
-    description: 'L2 Network Name:',
-    type: 'string',
-    required: true
-  }, {
-    name: 'tokenSymbol',
-    description: 'Token Symbol:',
-    type: 'string',
-    required: true
-  }, {
-    name: 'bonderAddress',
-    description: 'Bonder Address:',
-    type: 'string',
-    required: true,
-    default: ZERO_ADDRESS
-  }, {
-    name: 'isL1BridgeDeploy',
-    description: 'Is this an L1 Bridge Deployment:',
-    type: 'boolean',
-    required: true,
-    default: false
-  }, {
-    name: 'l2CanonicalTokenIsEth',
-    description: 'Is the l2 canonical token a native asset',
-    type: 'boolean',
-    required: true,
-    default: false
-  }, {
-    name: 'deploymentStep',
-    description: 'Deployment Step (0 for all) (0, 1, 2, or 3)',
-    type: 'number',
-    required: true,
-    default: 0
-  }, {
-    name: 'didSendBridgeFunds',
-    description: 'Do you have tokens on L1 & did you send tokens over the native bridge for LP AND convert to wrapped if needed?',
-    type: 'boolean',
-    required: true,
-    default: true
-  }])
+  const res = await prompt.get([
+    {
+      name: 'l1NetworkName',
+      description: 'L1 Network Name:',
+      type: 'string',
+      required: true
+    },
+    {
+      name: 'l2NetworkName',
+      description: 'L2 Network Name:',
+      type: 'string',
+      required: true
+    },
+    {
+      name: 'tokenSymbol',
+      description: 'Token Symbol:',
+      type: 'string',
+      required: true
+    },
+    {
+      name: 'bonderAddress',
+      description: 'Bonder Address:',
+      type: 'string',
+      required: true,
+      default: ZERO_ADDRESS
+    },
+    {
+      name: 'isL1BridgeDeploy',
+      description: 'Is this an L1 Bridge Deployment:',
+      type: 'boolean',
+      required: true,
+      default: false
+    },
+    {
+      name: 'l2CanonicalTokenIsEth',
+      description: 'Is the l2 canonical token a native asset',
+      type: 'boolean',
+      required: true,
+      default: false
+    },
+    {
+      name: 'deploymentStep',
+      description: 'Deployment Step (0 for all) (0, 1, 2, or 3)',
+      type: 'number',
+      required: true,
+      default: 0
+    },
+    {
+      name: 'didSendBridgeFunds',
+      description:
+        'Do you have tokens on L1 & did you send tokens over the native bridge for LP AND convert to wrapped if needed?',
+      type: 'boolean',
+      required: true,
+      default: true
+    }
+  ])
 
   const l1NetworkName: string = (res.l1NetworkName as string).toLowerCase()
   const l2NetworkName: string = (res.l2NetworkName as string).toLowerCase()
   const tokenSymbol: string = (res.tokenSymbol as string).toLowerCase()
-  const bonderAddress: string = (res.bonderAddress as string)
+  const bonderAddress: string = res.bonderAddress as string
   const isL1BridgeDeploy: boolean = res.isL1BridgeDeploy as boolean
   const l2CanonicalTokenIsEth: boolean = res.l2CanonicalTokenIsEth as boolean
   const deploymentStep: number = res.deploymentStep as number
@@ -179,11 +191,15 @@ function setL1BridgeNetworkParams (
   tokenSymbol: string,
   bonderAddress: string
 ) {
-  const expectedTokenSymbolLetterCase: string = getTokenSymbolLetterCase(tokenSymbol)
+  const expectedTokenSymbolLetterCase: string = getTokenSymbolLetterCase(
+    tokenSymbol
+  )
   const networkData: NetworkData = getNetworkDataByNetworkName(l1NetworkName)
 
   const l1ChainId = networkData[l2NetworkName].l1ChainId
-  const l1CanonicalTokenAddress = networkData[l2NetworkName].tokens[expectedTokenSymbolLetterCase].l1CanonicalTokenAddress
+  const l1CanonicalTokenAddress =
+    networkData[l2NetworkName].tokens[expectedTokenSymbolLetterCase]
+      .l1CanonicalTokenAddress
 
   updateConfigFile({
     l1ChainId,
@@ -201,7 +217,9 @@ function setNetworkParams (
 ) {
   const { l1BridgeAddress } = readConfigFile()
 
-  const expectedTokenSymbolLetterCase: string = getTokenSymbolLetterCase(tokenSymbol)
+  const expectedTokenSymbolLetterCase: string = getTokenSymbolLetterCase(
+    tokenSymbol
+  )
   const networkData: NetworkData = getNetworkDataByNetworkName(l1NetworkName)
 
   const {
@@ -238,7 +256,9 @@ function setNetworkParams (
     throw new Error('Cannot deploy both ETH and HOP')
   }
 
-  const liquidityProviderAmmAmount: BigNumber = BigNumber.from(liquidityProviderSendAmount).div(2)
+  const liquidityProviderAmmAmount: BigNumber = BigNumber.from(
+    liquidityProviderSendAmount
+  ).div(2)
 
   const data = {
     l1ChainId,
@@ -266,15 +286,18 @@ function setNetworkParams (
   updateConfigFile(data)
 }
 
-function handleCustomL2NetworkName(l1NetworkName: string, l2NetworkName: string) {
+function handleCustomL2NetworkName (
+  l1NetworkName: string,
+  l2NetworkName: string
+) {
   if (
-    l2NetworkName === 'optimism' || 
-    l2NetworkName === 'base' || 
-    l2NetworkName === 'arbitrum' || 
-    l2NetworkName === 'nova' || 
+    l2NetworkName === 'optimism' ||
+    l2NetworkName === 'base' ||
+    l2NetworkName === 'arbitrum' ||
+    l2NetworkName === 'nova' ||
     l2NetworkName === 'consensys' ||
     l2NetworkName === 'zksync'
-    ) {
+  ) {
     if (l1NetworkName === 'mainnet') {
       return `${l2NetworkName}_mainnet`
     } else if (l1NetworkName === 'goerli') {

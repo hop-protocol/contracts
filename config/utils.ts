@@ -1,7 +1,5 @@
 import { BigNumber, utils as ethersUtils } from 'ethers'
-import {
-  IGetL2BridgeDefaults
-} from './interfaces'
+import { IGetL2BridgeDefaults } from './interfaces'
 import {
   CHAIN_IDS,
   CHAIN_IDS_TO_ACTIVATE,
@@ -35,35 +33,23 @@ export const getMessengerWrapperDefaults = (
   let data: any = []
 
   // Defaults for most chains
-  let defaults: any[] = [
-    l1BridgeAddress,
-    l2BridgeAddress,
-    l1MessengerAddress
-  ]
+  let defaults: any[] = [l1BridgeAddress, l2BridgeAddress, l1MessengerAddress]
 
   if (isChainIdArbitrum(l2ChainId) || isChainIdNova(l2ChainId)) {
-    data.push(
-      ...defaults
-    )
+    data.push(...defaults)
   } else if (isChainIdOptimism(l2ChainId) || isChainIdBase(l2ChainId)) {
     const gasLimit: number = DEFAULT_MESSENGER_WRAPPER_GAS_LIMIT
 
-    data.push(
-      ...defaults,
-      gasLimit
-    )
+    data.push(...defaults, gasLimit)
   } else if (isChainIdXDai(l2ChainId)) {
     const gasLimit: number = 1000000
     const ambAddress: string = getXDaiAmbAddresses(l1ChainId)
 
-    data.push(
-      ...defaults,
-      gasLimit,
-      l2ChainId.toString(),
-      ambAddress
-    )
+    data.push(...defaults, gasLimit, l2ChainId.toString(), ambAddress)
   } else if (isChainIdPolygon(l2ChainId)) {
-    const checkpointManager: string = getPolygonCheckpointManagerAddress(l1ChainId)
+    const checkpointManager: string = getPolygonCheckpointManagerAddress(
+      l1ChainId
+    )
     fxRootAddress = fxRootAddress || getPolygonFxRootAddress(l1ChainId)
 
     data.push(
@@ -73,17 +59,11 @@ export const getMessengerWrapperDefaults = (
       fxChildTunnelAddress
     )
   } else if (isChainIdConsensys(l2ChainId)) {
-    data.push(
-      ...defaults
-    )
+    data.push(...defaults)
   } else if (isChainIdZkSync(l2ChainId)) {
-    data.push(
-      ...defaults
-    )
+    data.push(...defaults)
   } else if (isChainIdScroll(l2ChainId)) {
-    data.push(
-      ...defaults
-    )
+    data.push(...defaults)
   }
 
   return data
@@ -111,10 +91,7 @@ export const getL2BridgeDefaults = (
     const defaultGasLimit = DEFAULT_L2_BRIDGE_GAS_LIMIT
     additionalData.push(defaultGasLimit)
   } else if (isChainIdXDai(chainId)) {
-    additionalData.push(
-      l1ChainId,
-      DEFAULT_L2_BRIDGE_GAS_LIMIT
-    )
+    additionalData.push(l1ChainId, DEFAULT_L2_BRIDGE_GAS_LIMIT)
   } else if (isChainIdPolygon(chainId)) {
     actualL2MessengerAddress = l2MessengerProxyAddress
   } else if (isChainIdConsensys(chainId)) {
@@ -153,9 +130,7 @@ export const isChainIdOptimism = (chainId: BigNumber): boolean => {
 }
 
 export const isChainIdBase = (chainId: BigNumber): boolean => {
-  if (
-    chainId.eq(CHAIN_IDS.BASE.BASE_TESTNET)
-  ) {
+  if (chainId.eq(CHAIN_IDS.BASE.BASE_TESTNET)) {
     return true
   }
 
@@ -174,9 +149,7 @@ export const isChainIdArbitrum = (chainId: BigNumber): boolean => {
 }
 
 export const isChainIdNova = (chainId: BigNumber): boolean => {
-  if (
-    chainId.eq(CHAIN_IDS.NOVA.NOVA_MAINNET)
-  ) {
+  if (chainId.eq(CHAIN_IDS.NOVA.NOVA_MAINNET)) {
     return true
   }
 
@@ -184,9 +157,7 @@ export const isChainIdNova = (chainId: BigNumber): boolean => {
 }
 
 export const isChainIdXDai = (chainId: BigNumber): boolean => {
-  if (
-      chainId.eq(CHAIN_IDS.XDAI.XDAI)
-  ) {
+  if (chainId.eq(CHAIN_IDS.XDAI.XDAI)) {
     return true
   }
 
@@ -205,9 +176,7 @@ export const isChainIdPolygon = (chainId: BigNumber): boolean => {
 }
 
 export const isChainIdConsensys = (chainId: BigNumber): boolean => {
-  if (
-    chainId.eq(CHAIN_IDS.CONSENSYS.CONSENSYS_TESTNET)
-  ) {
+  if (chainId.eq(CHAIN_IDS.CONSENSYS.CONSENSYS_TESTNET)) {
     return true
   }
 
@@ -215,9 +184,7 @@ export const isChainIdConsensys = (chainId: BigNumber): boolean => {
 }
 
 export const isChainIdZkSync = (chainId: BigNumber): boolean => {
-  if (
-    chainId.eq(CHAIN_IDS.ZKSYNC.ZKSYNC_TESTNET)
-  ) {
+  if (chainId.eq(CHAIN_IDS.ZKSYNC.ZKSYNC_TESTNET)) {
     return true
   }
 
@@ -225,9 +192,7 @@ export const isChainIdZkSync = (chainId: BigNumber): boolean => {
 }
 
 export const isChainIdScroll = (chainId: BigNumber): boolean => {
-  if (
-    chainId.eq(CHAIN_IDS.SCROLL.SCROLL)
-  ) {
+  if (chainId.eq(CHAIN_IDS.SCROLL.SCROLL)) {
     return true
   }
 
@@ -235,9 +200,7 @@ export const isChainIdScroll = (chainId: BigNumber): boolean => {
 }
 
 export const isChainIdMainnet = (chainId: BigNumber): boolean => {
-  if (
-    chainId.eq(CHAIN_IDS.ETHEREUM.MAINNET)
-  ) {
+  if (chainId.eq(CHAIN_IDS.ETHEREUM.MAINNET)) {
     return true
   }
 
@@ -245,9 +208,7 @@ export const isChainIdMainnet = (chainId: BigNumber): boolean => {
 }
 
 export const isChainIdGoerli = (chainId: BigNumber): boolean => {
-  if (
-    chainId.eq(CHAIN_IDS.ETHEREUM.GOERLI)
-  ) {
+  if (chainId.eq(CHAIN_IDS.ETHEREUM.GOERLI)) {
     return true
   }
 
@@ -255,10 +216,7 @@ export const isChainIdGoerli = (chainId: BigNumber): boolean => {
 }
 
 export const isChainIdL1 = (chainId: BigNumber): boolean => {
-  if (
-    isChainIdMainnet(chainId) ||
-    isChainIdGoerli(chainId)
-  ) {
+  if (isChainIdMainnet(chainId) || isChainIdGoerli(chainId)) {
     return true
   }
 
@@ -309,7 +267,9 @@ export const getPolygonRpcEndpoint = (l1ChainId: BigNumber): string => {
   }
 }
 
-export const getPolygonCheckpointManagerAddress = (l1ChainId: BigNumber): string => {
+export const getPolygonCheckpointManagerAddress = (
+  l1ChainId: BigNumber
+): string => {
   if (isChainIdMainnet(l1ChainId)) {
     return CHECKPOINT_MANAGER_ADDRESSES.MAINNET
   } else if (isChainIdGoerli(l1ChainId)) {
@@ -343,8 +303,13 @@ export const generateArbitrumAliasAddress = (address: string): string => {
   const addressBn: BigNumber = BigNumber.from(address)
   const aliasMask: string = '0x1111000000000000000000000000000000001111'
   const aliasMaskBn: BigNumber = BigNumber.from(aliasMask)
-  const boundary: BigNumber = BigNumber.from('0x10000000000000000000000000000000000000000')
-  return ((addressBn.add(aliasMaskBn)).mod(boundary)).toHexString()
+  const boundary: BigNumber = BigNumber.from(
+    '0x10000000000000000000000000000000000000000'
+  )
+  return addressBn
+    .add(aliasMaskBn)
+    .mod(boundary)
+    .toHexString()
 }
 
 export const getTxOverridesPerChain = (l2ChainId: BigNumber): Overrides => {
@@ -379,5 +344,7 @@ export const getActiveChainIds = (chainId: BigNumber): BigNumber[] => {
     chainIds
   ) as any[]).reduce((a: any[], b: any) => [...a, ...Object.values(b)], [])
 
-  return allActiveChainIds.filter(activeChainId => activeChainId.toString() !== chainId.toString())
+  return allActiveChainIds.filter(
+    activeChainId => activeChainId.toString() !== chainId.toString()
+  )
 }

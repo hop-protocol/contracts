@@ -5,7 +5,7 @@ import {
   CHAIN_IDS,
   ZERO_ADDRESS,
   L1_CANONICAL_TOKEN_ADDRESSES,
-  L2_CANONICAL_TOKEN_ADDRESSES,
+  L2_CANONICAL_TOKEN_ADDRESSES
 } from '../constants'
 
 const l1ChainId: string = CHAIN_IDS.ETHEREUM.GOERLI.toString()
@@ -33,7 +33,7 @@ export const networkData: NetworkData = {
         l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.GOERLI.HOP,
         l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.MUMBAI.HOP,
         ...DEFAULT_NETWORK_DATA.HOP
-      },
+      }
     }
   },
   optimism: {
@@ -46,19 +46,22 @@ export const networkData: NetworkData = {
     tokens: {
       ETH: {
         l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.GOERLI.ETH,
-        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.OPTIMISM_TESTNET.ETH,
+        l2CanonicalTokenAddress:
+          L2_CANONICAL_TOKEN_ADDRESSES.OPTIMISM_TESTNET.ETH,
         ...DEFAULT_NETWORK_DATA.ETH
       },
       USDC: {
         l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.GOERLI.USDC,
-        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.OPTIMISM_TESTNET.USDC,
+        l2CanonicalTokenAddress:
+          L2_CANONICAL_TOKEN_ADDRESSES.OPTIMISM_TESTNET.USDC,
         ...DEFAULT_NETWORK_DATA.USDC
       },
       HOP: {
         l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.GOERLI.HOP,
-        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.OPTIMISM_TESTNET.HOP,
+        l2CanonicalTokenAddress:
+          L2_CANONICAL_TOKEN_ADDRESSES.OPTIMISM_TESTNET.HOP,
         ...DEFAULT_NETWORK_DATA.HOP
-      },
+      }
     }
   },
   arbitrum: {
@@ -71,19 +74,22 @@ export const networkData: NetworkData = {
     tokens: {
       ETH: {
         l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.GOERLI.ETH,
-        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.ARBITRUM_TESTNET.ETH,
+        l2CanonicalTokenAddress:
+          L2_CANONICAL_TOKEN_ADDRESSES.ARBITRUM_TESTNET.ETH,
         ...DEFAULT_NETWORK_DATA.ETH
       },
       USDC: {
         l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.GOERLI.USDC,
-        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.ARBITRUM_TESTNET.USDC,
+        l2CanonicalTokenAddress:
+          L2_CANONICAL_TOKEN_ADDRESSES.ARBITRUM_TESTNET.USDC,
         ...DEFAULT_NETWORK_DATA.USDC
       },
       HOP: {
         l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.GOERLI.HOP,
-        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.ARBITRUM_TESTNET.HOP,
+        l2CanonicalTokenAddress:
+          L2_CANONICAL_TOKEN_ADDRESSES.ARBITRUM_TESTNET.HOP,
         ...DEFAULT_NETWORK_DATA.HOP
-      },
+      }
     }
   },
   consensys: {
@@ -96,12 +102,14 @@ export const networkData: NetworkData = {
     tokens: {
       ETH: {
         l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.GOERLI.ETH,
-        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.CONSENSYS_TESTNET.ETH,
+        l2CanonicalTokenAddress:
+          L2_CANONICAL_TOKEN_ADDRESSES.CONSENSYS_TESTNET.ETH,
         ...DEFAULT_NETWORK_DATA.ETH
       },
       USDC: {
         l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.GOERLI.USDC,
-        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.CONSENSYS_TESTNET.USDC,
+        l2CanonicalTokenAddress:
+          L2_CANONICAL_TOKEN_ADDRESSES.CONSENSYS_TESTNET.USDC,
         ...DEFAULT_NETWORK_DATA.USDC
       }
     }
@@ -116,7 +124,8 @@ export const networkData: NetworkData = {
     tokens: {
       ETH: {
         l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.GOERLI.ETH,
-        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.ZKSYNC_TESTNET.ETH,
+        l2CanonicalTokenAddress:
+          L2_CANONICAL_TOKEN_ADDRESSES.ZKSYNC_TESTNET.ETH,
         ...DEFAULT_NETWORK_DATA.ETH
       }
     }
@@ -146,9 +155,10 @@ export const networkData: NetworkData = {
     tokens: {
       ETH: {
         l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.GOERLI.ETH,
-        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.SCROLL_TESTNET.ETH,
+        l2CanonicalTokenAddress:
+          L2_CANONICAL_TOKEN_ADDRESSES.SCROLL_TESTNET.ETH,
         ...DEFAULT_NETWORK_DATA.ETH
-      },
+      }
     }
-  },
+  }
 }

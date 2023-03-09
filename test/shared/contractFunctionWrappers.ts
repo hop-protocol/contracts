@@ -63,7 +63,12 @@ export const executeCanonicalBridgeSendTokens = async (
   const isPolygon: boolean = isChainIdPolygon(l2ChainId)
   await l1_canonicalBridge
     .connect(account)
-    .sendTokens(l2_canonicalToken.address, await account.getAddress(), amount, isPolygon)
+    .sendTokens(
+      l2_canonicalToken.address,
+      await account.getAddress(),
+      amount,
+      isPolygon
+    )
   await l2_messenger.relayNextMessage()
   await expectBalanceOf(l2_canonicalToken, account, amount)
 }
@@ -108,44 +113,78 @@ export const executeCanonicalMessengerSendMessage = async (
       value,
       ...modifiedGasPrice
     }
-    tx = await l1_messenger.connect(sender).unsafeCreateRetryableTicket(...arbitrumParams, overrides)
+    tx = await l1_messenger
+      .connect(sender)
+      .unsafeCreateRetryableTicket(...arbitrumParams, overrides)
   } else if (isChainIdOptimism(l2ChainId)) {
     const optimismGasLimit: BigNumber = BigNumber.from('5000000')
     const optimismParams: any[] = [l2_bridge.address, message, optimismGasLimit]
-    tx = await l1_messenger.connect(sender).sendMessage(...optimismParams, modifiedGasPrice)
+    tx = await l1_messenger
+      .connect(sender)
+      .sendMessage(...optimismParams, modifiedGasPrice)
   } else if (isChainIdXDai(l2ChainId)) {
-    tx = await l1_messenger.connect(sender).requireToPassMessage(...params, modifiedGasPrice)
+    tx = await l1_messenger
+      .connect(sender)
+      .requireToPassMessage(...params, modifiedGasPrice)
   } else if (isChainIdPolygon(l2ChainId)) {
-    tx = await l1_messengerWrapper.connect(sender).sendCrossDomainMessage(message, modifiedGasPrice)
+    tx = await l1_messengerWrapper
+      .connect(sender)
+      .sendCrossDomainMessage(message, modifiedGasPrice)
   } else if (isChainIdConsensys(l2ChainId)) {
-    const consensysZkEvmParams = [l2_bridge.address, CONSENSYS_ZK_EVM_MESSAGE_FEE, DEFAULT_DEADLINE, message]
+    const consensysZkEvmParams = [
+      l2_bridge.address,
+      CONSENSYS_ZK_EVM_MESSAGE_FEE,
+      DEFAULT_DEADLINE,
+      message
+    ]
     const value: BigNumber = BigNumber.from(CONSENSYS_ZK_EVM_MESSAGE_FEE)
     const overrides = {
       value,
       ...modifiedGasPrice
     }
-    tx = await l1_messenger.connect(sender).dispatchMessage(...consensysZkEvmParams, overrides)
+    tx = await l1_messenger
+      .connect(sender)
+      .dispatchMessage(...consensysZkEvmParams, overrides)
   } else if (isChainIdZkSync(l2ChainId)) {
-    const zkSyncParams = [l2_bridge.address, 0, message, ZKSYNC_MESSAGE_FEE, ['']]
+    const zkSyncParams = [
+      l2_bridge.address,
+      0,
+      message,
+      ZKSYNC_MESSAGE_FEE,
+      ['']
+    ]
     const value: BigNumber = BigNumber.from(ZKSYNC_MESSAGE_FEE)
     const overrides = {
       value
     }
-    tx = await l1_messenger.connect(sender).requestL2Transaction(...zkSyncParams, overrides)
+    tx = await l1_messenger
+      .connect(sender)
+      .requestL2Transaction(...zkSyncParams, overrides)
   } else if (isChainIdScroll(l2ChainId)) {
-    const scrollZkEvmParams = [l2_bridge.address, SCROLL_ZK_EVM_MESSAGE_FEE, DEFAULT_DEADLINE, message]
+    const scrollZkEvmParams = [
+      l2_bridge.address,
+      SCROLL_ZK_EVM_MESSAGE_FEE,
+      DEFAULT_DEADLINE,
+      message
+    ]
     const value: BigNumber = BigNumber.from(SCROLL_ZK_EVM_MESSAGE_FEE)
     const overrides = {
       value,
       ...modifiedGasPrice
     }
-    tx = await l1_messenger.connect(sender).dispatchMessage(...scrollZkEvmParams, overrides)
+    tx = await l1_messenger
+      .connect(sender)
+      .dispatchMessage(...scrollZkEvmParams, overrides)
   } else if (isChainIdBase(l2ChainId)) {
     const optimismGasLimit: BigNumber = BigNumber.from('5000000')
     const optimismParams: any[] = [l2_bridge.address, message, optimismGasLimit]
-    tx = await l1_messenger.connect(sender).sendMessage(...optimismParams, modifiedGasPrice)
+    tx = await l1_messenger
+      .connect(sender)
+      .sendMessage(...optimismParams, modifiedGasPrice)
   } else {
-    tx = await l1_messenger.connect(sender).sendMessage(...params, modifiedGasPrice)
+    tx = await l1_messenger
+      .connect(sender)
+      .sendMessage(...params, modifiedGasPrice)
   }
 
   // Prod deployments should pass in ZERO_ADDRESS for the l2_messenger param
@@ -181,7 +220,10 @@ export const executeL1BridgeSendToL2 = async (
   // The test suite setup might not have defined the Amm Router yet
   let expectedAmountAfterSlippage: BigNumber
   if (!amountOutMin.eq(0) || !deadline.eq(0)) {
-    expectedAmountAfterSlippage = await l2_swap.calculateSwap(...H_TO_C_SWAP_INDICES, amount.sub(relayerFee))
+    expectedAmountAfterSlippage = await l2_swap.calculateSwap(
+      ...H_TO_C_SWAP_INDICES,
+      amount.sub(relayerFee)
+    )
   }
 
   const senderL1CanonicalTokenBalanceBefore: BigNumber = await l1_canonicalToken.balanceOf(
@@ -215,7 +257,11 @@ export const executeL1BridgeSendToL2 = async (
   // Validate state after transaction
   const isRelayerRecipient: boolean = recipient === relayer
   const didSwap: boolean = !amountOutMin.eq(0) || !deadline.eq(0)
-  const didSwapSucceed: boolean = await didAttemptedSwapSucceed(l2_canonicalToken, recipient, recipientL2CanonicalTokenBalanceBefore)
+  const didSwapSucceed: boolean = await didAttemptedSwapSucceed(
+    l2_canonicalToken,
+    recipient,
+    recipientL2CanonicalTokenBalanceBefore
+  )
 
   // Verify sender balance
   await expectBalanceOf(
@@ -236,7 +282,9 @@ export const executeL1BridgeSendToL2 = async (
     if (isRelayerRecipient) {
       // Validate that the values are the same and then only validate balances against one account
       expect(recipient).to.eq(relayer)
-      expect(recipientL2HopBridgeTokenBalanceBefore).to.eq(relayerL2HopBridgeTokenBalanceBefore)
+      expect(recipientL2HopBridgeTokenBalanceBefore).to.eq(
+        relayerL2HopBridgeTokenBalanceBefore
+      )
 
       await expectBalanceOf(
         l2_hopBridgeToken,
@@ -266,7 +314,9 @@ export const executeL1BridgeSendToL2 = async (
     if (isRelayerRecipient) {
       // Validate that the values are the same and then only validate balances against one account
       expect(recipient).to.eq(relayer)
-      expect(recipientL2HopBridgeTokenBalanceBefore).to.eq(relayerL2HopBridgeTokenBalanceBefore)
+      expect(recipientL2HopBridgeTokenBalanceBefore).to.eq(
+        relayerL2HopBridgeTokenBalanceBefore
+      )
 
       await expectBalanceOf(
         l2_hopBridgeToken,
@@ -304,7 +354,10 @@ export const executeBridgeWithdraw = async (
   destinationHopToken: Contract = null
 ) => {
   const transferNonce: string = await getTransferNonceFromEvent(sourceBridge)
-  const transferId: Buffer = await transfer.getTransferId(transferNonce, isSwapAndSend)
+  const transferId: Buffer = await transfer.getTransferId(
+    transferNonce,
+    isSwapAndSend
+  )
   const tree: MerkleTree = getNewMerkleTree([transferId])
   const transferRootHash: Buffer = tree.getRoot()
   const proof: Buffer[] = tree.getProof(transferId)
@@ -334,8 +387,12 @@ export const executeBridgeWithdraw = async (
   )
   expect(isTransferIdSpent).to.eq(false)
 
-  const deadline: BigNumber = isSwapAndSend ? transfer.destinationDeadline : transfer.deadline
-  const amountOutMin: BigNumber = isSwapAndSend ? transfer.destinationAmountOutMin : transfer.destinationDeadline
+  const deadline: BigNumber = isSwapAndSend
+    ? transfer.destinationDeadline
+    : transfer.deadline
+  const amountOutMin: BigNumber = isSwapAndSend
+    ? transfer.destinationAmountOutMin
+    : transfer.destinationDeadline
   // Perform transaction
   await destinationBridge
     .connect(bonder)
@@ -359,7 +416,9 @@ export const executeBridgeWithdraw = async (
   )[1]
 
   // NOTE: Unbonded withdrawals do not pay the bonder
-  const isSwap = !(transfer.destinationAmountOutMin.eq(0) && transfer.destinationDeadline.eq(0))
+  const isSwap = !(
+    transfer.destinationAmountOutMin.eq(0) && transfer.destinationDeadline.eq(0)
+  )
   const isDestinationL1 = isChainIdL1(transfer.chainId)
   if (isSwap || isDestinationL1) {
     await expectBalanceOf(
@@ -393,7 +452,10 @@ export const executeBridgeBondWithdrawal = async (
   transferIndex: BigNumber = BigNumber.from('0')
 ) => {
   // Get state before transaction
-  const transferNonce = await getTransferNonceFromEvent(sourceBridge, transferIndex)
+  const transferNonce = await getTransferNonceFromEvent(
+    sourceBridge,
+    transferIndex
+  )
   const senderBalanceBefore: BigNumber = await destinationReceiptToken.balanceOf(
     await transfer.sender.getAddress()
   )
@@ -562,10 +624,12 @@ export const executeBridgeSettleBondedWithdrawals = async (
   let transferNonces: string[] = []
   let transferIds: Buffer[] = []
   for (let i = 0; i < numTransfers.toNumber(); i++) {
-    transferNonces.push(await getTransferNonceFromEvent(
-      destinationBridge,
-      BigNumber.from(i).add(startingIndex)
-    ))
+    transferNonces.push(
+      await getTransferNonceFromEvent(
+        destinationBridge,
+        BigNumber.from(i).add(startingIndex)
+      )
+    )
     transferIds.push(await transfers[i].getTransferId(transferNonces[i]))
     totalTransferAmount = totalTransferAmount.add(transfers[i].amount)
   }
@@ -652,7 +716,9 @@ export const executeL1BridgeChallengeTransferBond = async (
   await l1_canonicalToken
     .connect(challenger)
     .approve(l1_bridge.address, challengeAmount)
-  await l1_bridge.connect(challenger).challengeTransferBond(rootHash, amount, chainId)
+  await l1_bridge
+    .connect(challenger)
+    .challengeTransferBond(rootHash, amount, chainId)
 
   // Validate state after transaction
   await expectBalanceOf(
@@ -770,7 +836,9 @@ export const executeL1BridgeResolveChallenge = async (
 
     // Challenger should have tokens
     // NOTE: the challenge amount is subtracted to mimic the amount sent to the contract during the challenge
-    const expectedChallengerTokenAmount: BigNumber = challengerBalanceBefore.add(expectedChallengerBalance)
+    const expectedChallengerTokenAmount: BigNumber = challengerBalanceBefore.add(
+      expectedChallengerBalance
+    )
     await expectBalanceOf(
       l1_canonicalToken,
       challenger,
@@ -808,11 +876,7 @@ export const executeBridgeRescueTransferRoot = async (
   // Perform transaction
   await receivingBridge
     .connect(governance)
-    .rescueTransferRoot(
-      rootHash,
-      amount,
-      await governance.getAddress()
-    )
+    .rescueTransferRoot(rootHash, amount, await governance.getAddress())
 
   // Validate state after transaction
   const transferRootAmountWithdrawnAfter: BigNumber = (
@@ -850,7 +914,10 @@ export const executeL2BridgeSend = async (
   const maxPendingTransfers = await sourceBridge.maxPendingTransfers()
   let transferWillCommitTransfers = false
   try {
-    await sourceBridge.pendingTransferIdsForChainId(transfer.chainId, maxPendingTransfers.sub(1))
+    await sourceBridge.pendingTransferIdsForChainId(
+      transfer.chainId,
+      maxPendingTransfers.sub(1)
+    )
     transferWillCommitTransfers = true
   } catch (e) {}
 
@@ -891,12 +958,10 @@ export const executeL2BridgeSend = async (
     transfer.chainId
   )
   let expectedPendingAmount: BigNumber
-  if(transferWillCommitTransfers) {
+  if (transferWillCommitTransfers) {
     expectedPendingAmount = transfer.amount
   } else {
-    expectedPendingAmount = pendingAmountBefore.add(
-      transfer.amount
-    )
+    expectedPendingAmount = pendingAmountBefore.add(transfer.amount)
   }
   expect(pendingAmount).to.eq(expectedPendingAmount)
 
@@ -908,7 +973,9 @@ export const executeL2BridgeSend = async (
     '0x' + expectedPendingTransferHash.toString('hex')
   )
   expect(transferSentArgs.chainId).to.eq(transfer.chainId)
-  expect(transferSentArgs.recipient).to.eq(await transfer.recipient.getAddress())
+  expect(transferSentArgs.recipient).to.eq(
+    await transfer.recipient.getAddress()
+  )
   expect(transferSentArgs.amount).to.eq(transfer.amount)
   expect(transferSentArgs.transferNonce).to.eq(transferNonce)
   expect(transferSentArgs.bonderFee).to.eq(transfer.bonderFee)
@@ -977,7 +1044,9 @@ export const executeL2AmmWrapperSwapAndSend = async (
     '0x' + expectedPendingTransferHash.toString('hex')
   )
   expect(transferSentArgs.chainId).to.eq(transfer.chainId)
-  expect(transferSentArgs.recipient).to.eq(await transfer.recipient.getAddress())
+  expect(transferSentArgs.recipient).to.eq(
+    await transfer.recipient.getAddress()
+  )
   expect(transferSentArgs.amount).to.eq(transferAfterSlippage.amount)
   expect(transferSentArgs.transferNonce).to.eq(transferNonce)
   expect(transferSentArgs.bonderFee).to.eq(transfer.bonderFee)
@@ -1006,20 +1075,16 @@ export const executeL2AmmWrapperAttemptSwap = async (
     await recipient.getAddress()
   )
 
-  const expectedAmountAfterSlippage: BigNumber = await l2_swap.calculateSwap(...H_TO_C_SWAP_INDICES, amount)
+  const expectedAmountAfterSlippage: BigNumber = await l2_swap.calculateSwap(
+    ...H_TO_C_SWAP_INDICES,
+    amount
+  )
 
   // Perform transaction
-  await l2_hopBridgeToken
-    .connect(sender)
-    .approve(l2_ammWrapper.address, amount)
+  await l2_hopBridgeToken.connect(sender).approve(l2_ammWrapper.address, amount)
   await l2_ammWrapper
     .connect(sender)
-    .attemptSwap(
-      await recipient.getAddress(),
-      amount,
-      amountOutMin,
-      deadline
-    )
+    .attemptSwap(await recipient.getAddress(), amount, amountOutMin, deadline)
 
   // Validate state after transaction
   await expectBalanceOf(
@@ -1069,16 +1134,17 @@ export const executeL2BridgeCommitTransfers = async (
       i
     )
 
-    const expectedPendingTransferIdsForChainId: string = await transfers[i].getTransferIdHex(
-      transferNonce,
-      didSwapAndSend
-    )
+    const expectedPendingTransferIdsForChainId: string = await transfers[
+      i
+    ].getTransferIdHex(transferNonce, didSwapAndSend)
 
     expect(pendingTransferIdsForChainId).to.eq(
       expectedPendingTransferIdsForChainId
     )
 
-    expectedPendingAmountForChainId = expectedPendingAmountForChainId.add(transfers[i].amount)
+    expectedPendingAmountForChainId = expectedPendingAmountForChainId.add(
+      transfers[i].amount
+    )
   }
 
   let pendingAmountForChainId: BigNumber = await l2_bridge.pendingAmountForChainId(
@@ -1123,17 +1189,21 @@ export const executeL2BridgeCommitTransfers = async (
       l2_bridge,
       BigNumber.from(i).add(startingIndex)
     )
-    const transferId: Buffer = await transfers[i].getTransferId(transferNonce, didSwapAndSend)
+    const transferId: Buffer = await transfers[i].getTransferId(
+      transferNonce,
+      didSwapAndSend
+    )
     transferIds.push(transferId)
   }
   const expectedMerkleTree: MerkleTree = getNewMerkleTree(transferIds)
 
   // There should only be a single TransfersCommitted event
-  const transfersCommittedEvent = (
-    await l2_bridge.queryFilter(l2_bridge.filters.TransfersCommitted())
+  const transfersCommittedEvent = await l2_bridge.queryFilter(
+    l2_bridge.filters.TransfersCommitted()
   )
 
-  const transfersCommittedArgs = transfersCommittedEvent[transfersCommittedEvent.length - 1].args
+  const transfersCommittedArgs =
+    transfersCommittedEvent[transfersCommittedEvent.length - 1].args
   expect(transfersCommittedArgs.rootHash).to.eq(expectedMerkleTree.getHexRoot())
   const pendingChainAmounts = transfersCommittedArgs.totalAmount
   expect(pendingChainAmounts).to.eq(expectedPendingAmountForChainId)
@@ -1196,7 +1266,9 @@ export const executeL2BridgeBondWithdrawalAndDistribute = async (
   await expectBalanceOf(
     l2_canonicalToken,
     transfer.recipient,
-    recipientCanonicalTokenBalanceBefore.add(expectedRecipientAmountAfterSlippage)
+    recipientCanonicalTokenBalanceBefore.add(
+      expectedRecipientAmountAfterSlippage
+    )
   )
 }
 
@@ -1204,34 +1276,24 @@ export const executeL2BridgeBondWithdrawalAndDistribute = async (
  * Canonical Bridge Messages
  */
 
-export const getAddBonderMessage = (
-  newBonderAddress: string
-) => {
-  const ABI = [
-    'function addBonder(address bonder)'
-  ]
+export const getAddBonderMessage = (newBonderAddress: string) => {
+  const ABI = ['function addBonder(address bonder)']
   const ethersInterface = new ethersUtils.Interface(ABI)
-  return ethersInterface.encodeFunctionData('addBonder', [
-    newBonderAddress
-  ])
+  return ethersInterface.encodeFunctionData('addBonder', [newBonderAddress])
 }
 
-export const getRemoveBonderMessage = (
-  bonderAddress: string
-) => {
-  const ABI = [
-    'function removeBonder(address bonder)'
-  ]
+export const getRemoveBonderMessage = (bonderAddress: string) => {
+  const ABI = ['function removeBonder(address bonder)']
   const ethersInterface = new ethersUtils.Interface(ABI)
-  return ethersInterface.encodeFunctionData('removeBonder', [
-    bonderAddress
-  ])
+  return ethersInterface.encodeFunctionData('removeBonder', [bonderAddress])
 }
 
 export const getSetL1GovernanceMessage = (l1_governanceAddress: string) => {
   const ABI = ['function setL1Governance(address _l1Governance)']
   const ethersInterface = new ethersUtils.Interface(ABI)
-  return ethersInterface.encodeFunctionData('setL1Governance', [l1_governanceAddress])
+  return ethersInterface.encodeFunctionData('setL1Governance', [
+    l1_governanceAddress
+  ])
 }
 
 export const getSetL1BridgeAddressMessage = (l1_bridge: Contract | string) => {
@@ -1245,18 +1307,12 @@ export const getSetL1BridgeCallerMessage = (
   l1_messengerWrapper: Contract | string
 ) => {
   const address = getAddressFromContractOrString(l1_messengerWrapper)
-  const ABI = [
-    'function setL1BridgeCaller(address _l1BridgeCaller)'
-  ]
+  const ABI = ['function setL1BridgeCaller(address _l1BridgeCaller)']
   const ethersInterface = new ethersUtils.Interface(ABI)
-  return ethersInterface.encodeFunctionData('setL1BridgeCaller', [
-    address
-  ])
+  return ethersInterface.encodeFunctionData('setL1BridgeCaller', [address])
 }
 
-export const getSetAmmWrapperMessage = (
-  l2_ammWrapper: Contract | string
-) => {
+export const getSetAmmWrapperMessage = (l2_ammWrapper: Contract | string) => {
   const address = getAddressFromContractOrString(l2_ammWrapper)
   const ABI = ['function setAmmWrapper(address _ammWrapper)']
   const ethersInterface = new ethersUtils.Interface(ABI)
@@ -1300,9 +1356,7 @@ export const getAddActiveChainIdsMessage = (chainIds: BigNumber[]) => {
 export const getRemoveActiveChainIdsMessage = (chainIds: BigNumber[]) => {
   const ABI = ['function removeActiveChainIds(uint256[] calldata chainIds)']
   const ethersInterface = new ethersUtils.Interface(ABI)
-  return ethersInterface.encodeFunctionData('removeActiveChainIds', [
-    chainIds
-  ])
+  return ethersInterface.encodeFunctionData('removeActiveChainIds', [chainIds])
 }
 
 export const getSetMaxPendingTransfersMessage = (
@@ -1341,9 +1395,7 @@ export const getSetMinimumBonderFeeRequirementsMessage = (
   ])
 }
 
-export const getSetMessengerMessage = (
-  messenger: Contract | string
-) => {
+export const getSetMessengerMessage = (messenger: Contract | string) => {
   const address = getAddressFromContractOrString(messenger)
   const ABI = ['function setMessenger(address _messenger)']
   const ethersInterface = new ethersUtils.Interface(ABI)
@@ -1360,7 +1412,7 @@ export const getSetMessengerProxyMessage = (
 }
 
 export const getSetFxRootTunnelMessage = (
-  l1_messengerWrapperAddress:  string
+  l1_messengerWrapperAddress: string
 ) => {
   const address = getAddressFromContractOrString(l1_messengerWrapperAddress)
   const ABI = ['function setFxRootTunnel(address _fxRootTunnel)']

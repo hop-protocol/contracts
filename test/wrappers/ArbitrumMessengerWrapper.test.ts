@@ -5,9 +5,7 @@ import { Contract, BigNumber } from 'ethers'
 import { fixture } from '../shared/fixtures'
 import { setUpDefaults } from '../shared/utils'
 import { IFixture } from '../shared/interfaces'
-import {
-  generateArbitrumAliasAddress
-} from '../../config/utils'
+import { generateArbitrumAliasAddress } from '../../config/utils'
 
 import {
   CHAIN_IDS,
@@ -47,7 +45,9 @@ describe('Arbitrum Messenger Wrapper', () => {
     const expectedL2BridgeAddress: string = l2_bridge.address
     const expectedArbInbox: string = l1_messenger.address
     const expectedMaxSubmissionCost: BigNumber = DEFAULT_MAX_SUBMISSION_COST
-    const expectedL1MessengerWrapperAlias: string = generateArbitrumAliasAddress(l1_messengerWrapper.address)
+    const expectedL1MessengerWrapperAlias: string = generateArbitrumAliasAddress(
+      l1_messengerWrapper.address
+    )
     const expectedMaxGas: number = DEFAULT_MAX_GAS
     const expectedGasPriceBid: number = DEFAULT_GAS_PRICE_BID
 
