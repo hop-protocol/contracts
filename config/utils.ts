@@ -192,7 +192,7 @@ export const isChainIdZkSync = (chainId: BigNumber): boolean => {
 }
 
 export const isChainIdScroll = (chainId: BigNumber): boolean => {
-  if (chainId.eq(CHAIN_IDS.SCROLL.SCROLL)) {
+  if (chainId.eq(CHAIN_IDS.SCROLL.SCROLL_TESTNET)) {
     return true
   }
 

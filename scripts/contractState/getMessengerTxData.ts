@@ -343,7 +343,8 @@ const logData = (
   if (
     chain === chains.Arbitrum ||
     chain === chains.Nova ||
-    chain === chains.Consensys
+    chain === chains.Consensys ||
+    chain === chains.Scroll
   ) {
     console.log(`value to send: ${fee}`)
   }

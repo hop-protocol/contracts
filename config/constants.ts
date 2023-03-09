@@ -84,7 +84,7 @@ export const CHAIN_IDS_TO_ACTIVATE: any = {
       BASE_TESTNET: BigNumber.from('84531')
     },
     SCROLL: {
-      BASE_TESTNET: BigNumber.from('534353')
+      SCROLL_TESTNET: BigNumber.from('534353')
     }
   }
 }

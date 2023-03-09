@@ -27,6 +27,7 @@ import {
   isChainIdNova,
   isChainIdConsensys,
   isChainIdBase,
+  isChainIdScroll,
   getActiveChainIds
 } from '../../config/utils'
 
@@ -191,7 +192,8 @@ export async function setupL1 (config: Config) {
   } else if (
     isChainIdArbitrum(l2ChainId) ||
     isChainIdNova(l2ChainId) ||
-    isChainIdConsensys(l2ChainId)
+    isChainIdConsensys(l2ChainId) ||
+    isChainIdScroll(l2ChainId)
   ) {
     logger.log(
       `-------------------`,
@@ -225,7 +227,8 @@ export async function setupL1 (config: Config) {
     isChainIdArbitrum(l2ChainId) ||
     isChainIdOptimism(l2ChainId) ||
     isChainIdNova(l2ChainId) ||
-    isChainIdBase(l2ChainId)
+    isChainIdBase(l2ChainId) ||
+    isChainIdScroll(l2ChainId)
   ) {
     // Transfer ownership of the messenger wrapper to governance
     logger.log('transferring ownership of L1 messenger wrapper')
