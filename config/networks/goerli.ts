@@ -5,7 +5,7 @@ import {
   CHAIN_IDS,
   ZERO_ADDRESS,
   L1_CANONICAL_TOKEN_ADDRESSES,
-  L2_CANONICAL_TOKEN_ADDRESSES,
+  L2_CANONICAL_TOKEN_ADDRESSES
 } from '../constants'
 
 const l1ChainId: string = CHAIN_IDS.ETHEREUM.GOERLI.toString()
@@ -33,7 +33,7 @@ export const networkData: NetworkData = {
         l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.GOERLI.HOP,
         l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.MUMBAI.HOP,
         ...DEFAULT_NETWORK_DATA.HOP
-      },
+      }
     }
   },
   optimism: {
@@ -46,19 +46,22 @@ export const networkData: NetworkData = {
     tokens: {
       ETH: {
         l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.GOERLI.ETH,
-        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.OPTIMISM_TESTNET.ETH,
+        l2CanonicalTokenAddress:
+          L2_CANONICAL_TOKEN_ADDRESSES.OPTIMISM_TESTNET.ETH,
         ...DEFAULT_NETWORK_DATA.ETH
       },
       USDC: {
         l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.GOERLI.USDC,
-        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.OPTIMISM_TESTNET.USDC,
+        l2CanonicalTokenAddress:
+          L2_CANONICAL_TOKEN_ADDRESSES.OPTIMISM_TESTNET.USDC,
         ...DEFAULT_NETWORK_DATA.USDC
       },
       HOP: {
         l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.GOERLI.HOP,
-        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.OPTIMISM_TESTNET.HOP,
+        l2CanonicalTokenAddress:
+          L2_CANONICAL_TOKEN_ADDRESSES.OPTIMISM_TESTNET.HOP,
         ...DEFAULT_NETWORK_DATA.HOP
-      },
+      }
     }
   },
   arbitrum: {
@@ -71,19 +74,22 @@ export const networkData: NetworkData = {
     tokens: {
       ETH: {
         l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.GOERLI.ETH,
-        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.ARBITRUM_TESTNET.ETH,
+        l2CanonicalTokenAddress:
+          L2_CANONICAL_TOKEN_ADDRESSES.ARBITRUM_TESTNET.ETH,
         ...DEFAULT_NETWORK_DATA.ETH
       },
       USDC: {
         l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.GOERLI.USDC,
-        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.ARBITRUM_TESTNET.USDC,
+        l2CanonicalTokenAddress:
+          L2_CANONICAL_TOKEN_ADDRESSES.ARBITRUM_TESTNET.USDC,
         ...DEFAULT_NETWORK_DATA.USDC
       },
       HOP: {
         l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.GOERLI.HOP,
-        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.ARBITRUM_TESTNET.HOP,
+        l2CanonicalTokenAddress:
+          L2_CANONICAL_TOKEN_ADDRESSES.ARBITRUM_TESTNET.HOP,
         ...DEFAULT_NETWORK_DATA.HOP
-      },
+      }
     }
   },
   consensys: {
@@ -96,12 +102,14 @@ export const networkData: NetworkData = {
     tokens: {
       ETH: {
         l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.GOERLI.ETH,
-        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.CONSENSYS_TESTNET.ETH,
+        l2CanonicalTokenAddress:
+          L2_CANONICAL_TOKEN_ADDRESSES.CONSENSYS_TESTNET.ETH,
         ...DEFAULT_NETWORK_DATA.ETH
       },
       USDC: {
         l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.GOERLI.USDC,
-        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.CONSENSYS_TESTNET.USDC,
+        l2CanonicalTokenAddress:
+          L2_CANONICAL_TOKEN_ADDRESSES.CONSENSYS_TESTNET.USDC,
         ...DEFAULT_NETWORK_DATA.USDC
       }
     }
@@ -116,7 +124,8 @@ export const networkData: NetworkData = {
     tokens: {
       ETH: {
         l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.GOERLI.ETH,
-        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.ZKSYNC_TESTNET.ETH,
+        l2CanonicalTokenAddress:
+          L2_CANONICAL_TOKEN_ADDRESSES.ZKSYNC_TESTNET.ETH,
         ...DEFAULT_NETWORK_DATA.ETH
       }
     }
@@ -136,4 +145,20 @@ export const networkData: NetworkData = {
       }
     }
   },
+  scroll: {
+    l2NetworkName: 'scroll',
+    l1ChainId,
+    l2ChainId: CHAIN_IDS.SCROLL.SCROLL_TESTNET.toString(),
+    l1MessengerAddress: '0x5260e38080BFe97e6C4925d9209eCc5f964373b6',
+    l2TokenBridgeAddress: '0x0000000000000000000000000000000000000000',
+    l2MessengerAddress: '0xb75d7e84517e1504C151B270255B087Fd746D34C',
+    tokens: {
+      ETH: {
+        l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.GOERLI.ETH,
+        l2CanonicalTokenAddress:
+          L2_CANONICAL_TOKEN_ADDRESSES.SCROLL_TESTNET.ETH,
+        ...DEFAULT_NETWORK_DATA.ETH
+      }
+    }
+  }
 }

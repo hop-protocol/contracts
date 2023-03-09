@@ -19,7 +19,8 @@ const chains: Record<string, string> = {
   Nova: 'nova',
   Consensys: 'consensys',
   ZkSync: 'zksync',
-  Base: 'base'
+  Base: 'base',
+  Scroll: 'scroll'
 }
 const tokens: string[] = [
   'USDC',
@@ -38,7 +39,7 @@ const targetAddresses: Record<string, Record<string, string>> = {
     DAI: '0x4C36d2919e407f0Cc2Ee3c993ccF8ac26d9CE64e',
     MATIC: '0x4C36d2919e407f0Cc2Ee3c993ccF8ac26d9CE64e',
     ETH: '0x4C36d2919e407f0Cc2Ee3c993ccF8ac26d9CE64e',
-    HOP: '0x4C36d2919e407f0Cc2Ee3c993ccF8ac26d9CE64e',
+    HOP: '0x4C36d2919e407f0Cc2Ee3c993ccF8ac26d9CE64e'
   },
   polygon: {
     USDC: '0xD89ea85ee5dD2027dbC29Fbc198DC197D44c3d70',
@@ -46,7 +47,7 @@ const targetAddresses: Record<string, Record<string, string>> = {
     DAI: '0x2e929203D8F2Fcf88C4Ff7b7362d08169b6F661c',
     MATIC: '0xe6bfe2ac487EA9A6c58108FBcb6d2DB96b667cc0',
     ETH: '0xdeC8005ca1a3f90168C211406feFafA412467D81',
-    HOP: '0xaE6Dc7fED207FB7bF3F406Fc197f70607CeA618a',
+    HOP: '0xaE6Dc7fED207FB7bF3F406Fc197f70607CeA618a'
   },
   optimism: {
     USDC: '0x25ace71c97B33Cc4729CF772ae268934F7ab5fA1',
@@ -56,7 +57,7 @@ const targetAddresses: Record<string, Record<string, string>> = {
     ETH: '0x25ace71c97B33Cc4729CF772ae268934F7ab5fA1',
     HOP: '0x25ace71c97B33Cc4729CF772ae268934F7ab5fA1',
     SNX: '0x25ace71c97B33Cc4729CF772ae268934F7ab5fA1',
-    sUSD: '0x25ace71c97B33Cc4729CF772ae268934F7ab5fA1',
+    sUSD: '0x25ace71c97B33Cc4729CF772ae268934F7ab5fA1'
   },
   arbitrum: {
     USDC: '0x4Dbd4fc535Ac27206064B68FfCf827b0A60BAB3f',
@@ -64,7 +65,7 @@ const targetAddresses: Record<string, Record<string, string>> = {
     DAI: '0x4Dbd4fc535Ac27206064B68FfCf827b0A60BAB3f',
     MATIC: '0x4Dbd4fc535Ac27206064B68FfCf827b0A60BAB3f',
     ETH: '0x4Dbd4fc535Ac27206064B68FfCf827b0A60BAB3f',
-    HOP: '0x4Dbd4fc535Ac27206064B68FfCf827b0A60BAB3f',
+    HOP: '0x4Dbd4fc535Ac27206064B68FfCf827b0A60BAB3f'
   },
   nova: {
     ETH: '0xc4448b71118c9071Bcb9734A0EAc55D18A153949'
@@ -78,6 +79,9 @@ const targetAddresses: Record<string, Record<string, string>> = {
   base: {
     ETH: 'TODO' // TODO: base - for prod deployment
   },
+  scroll: {
+    ETH: 'TODO' // TODO: scroll - for prod deployment
+  }
 }
 
 const l1BridgeAddresses: Record<string, string> = {
@@ -86,7 +90,7 @@ const l1BridgeAddresses: Record<string, string> = {
   DAI: '0x3d4Cc8A61c7528Fd86C55cfe061a78dCBA48EDd1',
   MATIC: '0x22B1Cbb8D98a01a3B71D034BB899775A76Eb1cc2',
   ETH: '0xb8901acB165ed027E32754E0FFe830802919727f',
-  HOP: '0x914f986a44AcB623A277d6Bd17368171FCbe4273',
+  HOP: '0x914f986a44AcB623A277d6Bd17368171FCbe4273'
 }
 
 const l2BridgeAddresses: Record<string, Record<string, string>> = {
@@ -96,7 +100,7 @@ const l2BridgeAddresses: Record<string, Record<string, string>> = {
     DAI: '0x0460352b91D7CF42B0E1C1c30f06B602D9ef2238',
     MATIC: '0x7ac71c29fEdF94BAc5A5C9aB76E1Dd12Ea885CCC',
     ETH: '0xD8926c12C0B2E5Cd40cFdA49eCaFf40252Af491B',
-    HOP: '0x6F03052743CD99ce1b29265E377e320CD24Eb632',
+    HOP: '0x6F03052743CD99ce1b29265E377e320CD24Eb632'
   },
   polygon: {
     USDC: '0x25D8039bB044dC227f741a9e381CA4cEAE2E6aE8',
@@ -104,7 +108,7 @@ const l2BridgeAddresses: Record<string, Record<string, string>> = {
     DAI: '0xEcf268Be00308980B5b3fcd0975D47C4C8e1382a',
     MATIC: '0x553bC791D746767166fA3888432038193cEED5E2',
     ETH: '0xb98454270065A31D71Bf635F6F7Ee6A518dFb849',
-    HOP: '0x58c61AeE5eD3D748a1467085ED2650B697A66234',
+    HOP: '0x58c61AeE5eD3D748a1467085ED2650B697A66234'
   },
   optimism: {
     USDC: '0xa81D244A1814468C734E5b4101F7b9c0c577a8fC',
@@ -113,14 +117,14 @@ const l2BridgeAddresses: Record<string, Record<string, string>> = {
     ETH: '0x83f6244Bd87662118d96D9a6D44f09dffF14b30E',
     HOP: '0x03D7f750777eC48d39D080b020D83Eb2CB4e3547',
     SNX: '0x16284c7323c35F4960540583998C98B1CfC581a7',
-    sUSD: '0x33Fe5bB8DA466dA55a8A32D6ADE2BB104E2C5201',
+    sUSD: '0x33Fe5bB8DA466dA55a8A32D6ADE2BB104E2C5201'
   },
   arbitrum: {
     USDC: '0x0e0E3d2C5c292161999474247956EF542caBF8dd',
     USDT: '0x72209Fe68386b37A40d6bCA04f78356fd342491f',
     DAI: '0x7aC115536FE3A185100B2c4DE4cb328bf3A58Ba6',
     ETH: '0x3749C4f034022c39ecafFaBA182555d4508caCCC',
-    HOP: '0x25FB92E505F752F730cAD0Bd4fa17ecE4A384266',
+    HOP: '0x25FB92E505F752F730cAD0Bd4fa17ecE4A384266'
   },
   nova: {
     ETH: '0x8796860ca1677Bf5d54cE5A348Fe4b779a8212f3'
@@ -133,8 +137,10 @@ const l2BridgeAddresses: Record<string, Record<string, string>> = {
   },
   base: {
     ETH: 'TODO' // TODO: base - for prod deployment
+  },
+  scroll: {
+    ETH: 'TODO' // TODO: scroll - for prod deployment
   }
-
 }
 
 async function main () {
@@ -156,26 +162,28 @@ async function main () {
   const paramTypes = 'uint256'
   abi = [`function ${functionToCall}(${paramTypes})`]
   ethersInterface = new ethersUtils.Interface(abi)
-  data = ethersInterface.encodeFunctionData(
-    functionToCall, [input]
-  )
+  data = ethersInterface.encodeFunctionData(functionToCall, [input])
   logData(chains.Ethereum, abi, token, data, defaultValue, timestamp)
 
   // Gnosis
   abi = ['function requireToPassMessage(address,bytes,uint256)']
   ethersInterface = new ethersUtils.Interface(abi)
   l2BridgeAddress = l2BridgeAddresses?.['gnosis']?.[token]
-  data = !l2BridgeAddress ? null : ethersInterface.encodeFunctionData(
-    'requireToPassMessage', [l2BridgeAddress, calldata, '1500000']
-  )
+  data = !l2BridgeAddress
+    ? null
+    : ethersInterface.encodeFunctionData('requireToPassMessage', [
+        l2BridgeAddress,
+        calldata,
+        '1500000'
+      ])
   logData(chains.Gnosis, abi, token, data, defaultValue, timestamp)
 
   // Polygon
   abi = ['function sendCrossDomainMessage(bytes)']
   ethersInterface = new ethersUtils.Interface(abi)
-  data = ethersInterface.encodeFunctionData(
-    'sendCrossDomainMessage', [calldata]
-  )
+  data = ethersInterface.encodeFunctionData('sendCrossDomainMessage', [
+    calldata
+  ])
   logData(chains.Polygon, abi, token, data, defaultValue, timestamp)
 
   if (token === 'MATIC') return
@@ -184,30 +192,56 @@ async function main () {
   abi = ['function sendMessage(address,bytes,uint32)']
   ethersInterface = new ethersUtils.Interface(abi)
   l2BridgeAddress = l2BridgeAddresses?.['optimism']?.[token]
-  data = !l2BridgeAddress ? null : ethersInterface.encodeFunctionData(
-    'sendMessage', [l2BridgeAddress, calldata, '5000000']
-  )
+  data = !l2BridgeAddress
+    ? null
+    : ethersInterface.encodeFunctionData('sendMessage', [
+        l2BridgeAddress,
+        calldata,
+        '5000000'
+      ])
   logData(chains.Optimism, abi, token, data, defaultValue, timestamp)
 
   // Arbitrum
-  abi = ['function createRetryableTicket(address,uint256,uint256,address,address,uint256,uint256,bytes)']
+  abi = [
+    'function createRetryableTicket(address,uint256,uint256,address,address,uint256,uint256,bytes)'
+  ]
   ethersInterface = new ethersUtils.Interface(abi)
   l2BridgeAddress = l2BridgeAddresses?.['arbitrum']?.[token]
   let fee = '10000000000000000'
-  data = !l2BridgeAddress ? null : ethersInterface.encodeFunctionData(
-    'createRetryableTicket', [l2BridgeAddress, 0, '100000000000000', governanceAddress, governanceAddress, '1000000', '5000000000', calldata]
-  )
+  data = !l2BridgeAddress
+    ? null
+    : ethersInterface.encodeFunctionData('createRetryableTicket', [
+        l2BridgeAddress,
+        0,
+        '100000000000000',
+        governanceAddress,
+        governanceAddress,
+        '1000000',
+        '5000000000',
+        calldata
+      ])
   let value = 0.01
   logData(chains.Arbitrum, abi, token, data, value, timestamp, fee)
 
   // Nova
-  abi = ['function createRetryableTicket(address,uint256,uint256,address,address,uint256,uint256,bytes)']
+  abi = [
+    'function createRetryableTicket(address,uint256,uint256,address,address,uint256,uint256,bytes)'
+  ]
   ethersInterface = new ethersUtils.Interface(abi)
   l2BridgeAddress = l2BridgeAddresses?.['nova']?.[token]
   fee = '10000000000000000'
-  data = !l2BridgeAddress ? null : ethersInterface.encodeFunctionData(
-    'createRetryableTicket', [l2BridgeAddress, 0, '100000000000000', governanceAddress, governanceAddress, '1000000', '5000000000', calldata]
-  )
+  data = !l2BridgeAddress
+    ? null
+    : ethersInterface.encodeFunctionData('createRetryableTicket', [
+        l2BridgeAddress,
+        0,
+        '100000000000000',
+        governanceAddress,
+        governanceAddress,
+        '1000000',
+        '5000000000',
+        calldata
+      ])
   logData(chains.Nova, abi, token, data, value, timestamp, fee)
 
   // // Consensys
@@ -236,36 +270,41 @@ async function main () {
   // todo
 }
 
-const getPromptRes = async() => {
+const getPromptRes = async () => {
   prompt.start()
   prompt.message = ''
   prompt.delimiter = ''
 
-  const res = await prompt.get([{
-    name: 'timestamp',
-    type: 'number',
-    description: 'Timestamp to execute',
-    required: true
-  }, {
-    name: 'token',
-    type: 'string',
-    description: 'Token of bridge being updated',
-    required: true
-  }, {
-    name: 'functionToCall',
-    type: 'string',
-    description: 'Function signature',
-    required: true,
-  }, {
-    name: 'input',
-    type: 'any',
-    description: 'Function input',
-    required: true
-  }])
+  const res = await prompt.get([
+    {
+      name: 'timestamp',
+      type: 'number',
+      description: 'Timestamp to execute',
+      required: true
+    },
+    {
+      name: 'token',
+      type: 'string',
+      description: 'Token of bridge being updated',
+      required: true
+    },
+    {
+      name: 'functionToCall',
+      type: 'string',
+      description: 'Function signature',
+      required: true
+    },
+    {
+      name: 'input',
+      type: 'any',
+      description: 'Function input',
+      required: true
+    }
+  ])
 
-  const timestamp: any = (res.timestamp as number)
-  const token: string = (res.token as string)
-  const functionToCall: string = (res.functionToCall as string)
+  const timestamp: any = res.timestamp as number
+  const token: string = res.token as string
+  const functionToCall: string = res.functionToCall as string
   const input: any = res.input
 
   return {
@@ -290,7 +329,9 @@ const logData = (
     console.log(`\nSkipping ${chain} because there is no deployment`)
     return
   }
-  let target = isL1 ? l1BridgeAddresses?.[token] : targetAddresses?.[chain]?.[token] 
+  let target = isL1
+    ? l1BridgeAddresses?.[token]
+    : targetAddresses?.[chain]?.[token]
 
   console.log(`\n${chain}`)
   console.log(`target: ${target}`)
@@ -299,7 +340,12 @@ const logData = (
   console.log(`data: 0x${data.substring(10)}`)
   console.log(`eta: ${eta} (${new Date(eta * 1000)})`)
 
-  if (chain === chains.Arbitrum || chain === chains.Nova || chain === chains.Consensys) {
+  if (
+    chain === chains.Arbitrum ||
+    chain === chains.Nova ||
+    chain === chains.Consensys ||
+    chain === chains.Scroll
+  ) {
     console.log(`value to send: ${fee}`)
   }
 }

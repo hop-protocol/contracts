@@ -28,10 +28,7 @@ async function main () {
     address = await deploy(erc20Name, erc20Symbol)
   }
   console.log('erc20 address:', address)
-  console.log(
-    'deployed bytecode:',
-    await ethers.provider.getCode(address)
-    )
+  console.log('deployed bytecode:', await ethers.provider.getCode(address))
   console.log('complete')
 }
 
@@ -44,10 +41,7 @@ async function deploy (name: string, symbol: string): Promise<string> {
     { signer }
   )
 
-  const erc20 = await MockERC20.deploy(
-    name,
-    symbol
-  )
+  const erc20 = await MockERC20.deploy(name, symbol)
   await erc20.deployed()
 
   return erc20.address
@@ -56,7 +50,9 @@ async function deploy (name: string, symbol: string): Promise<string> {
 async function deployZkSync (name: string, symbol: string): Promise<string> {
   const wallet = new Wallet(process.env.DEPLOYER_PRIVATE_KEY!)
   const deployer = new Deployer(hre, wallet)
-  const artifact = await deployer.loadArtifact('contracts/test/MockERC20WithDeposit.sol:MockERC20WithDeposit')
+  const artifact = await deployer.loadArtifact(
+    'contracts/test/MockERC20WithDeposit.sol:MockERC20WithDeposit'
+  )
   const l2Contract = await deployer.deploy(artifact, [name, symbol])
   return l2Contract.address
 }

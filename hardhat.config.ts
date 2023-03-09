@@ -6,13 +6,12 @@ import '@nomiclabs/hardhat-waffle'
 import '@nomiclabs/hardhat-etherscan'
 
 // import '@eth-optimism/plugins/hardhat/compiler'
-import "@eth-optimism/hardhat-ovm"
+import '@eth-optimism/hardhat-ovm'
 
 import 'hardhat-abi-exporter'
 
-import "@matterlabs/hardhat-zksync-deploy";
-import "@matterlabs/hardhat-zksync-solc";
-
+import '@matterlabs/hardhat-zksync-deploy'
+import '@matterlabs/hardhat-zksync-solc'
 
 import { CHAIN_IDS } from './config/constants'
 import { verifyContract } from './scripts/other/verifyContract'
@@ -31,10 +30,10 @@ const desiredAccounts: string[] = [
 const timeout: number = 480e3
 
 task('verify-contract', 'Verify a contract')
-  .addParam("chain", "The chain of the contract to verify")
-  .addParam("name", "The contract name")
-  .addParam("address", "The contract address")
-  .addParam("data", "The deployment data")
+  .addParam('chain', 'The chain of the contract to verify')
+  .addParam('name', 'The contract name')
+  .addParam('address', 'The contract address')
+  .addParam('data', 'The deployment data')
   .setAction(async (taskArgs, hre) => {
     const { chain, name, address, data } = taskArgs
     await verifyContract(hre, chain, name, address, data)
@@ -135,11 +134,17 @@ export default {
       chainId: CHAIN_IDS.BASE.BASE_TESTNET.toNumber(),
       timeout
     },
+    scroll_testnet: {
+      url: process.env.RPC_ENDPOINT_SCROLL_TESTNET,
+      accounts: desiredAccounts,
+      chainId: CHAIN_IDS.SCROLL.SCROLL_TESTNET.toNumber(),
+      timeout
+    }
   },
   zksolc: {
-    version: "1.3.1",
-    compilerSource: "binary",
-    settings: {},
+    version: '1.3.1',
+    compilerSource: 'binary',
+    settings: {}
   },
   solidity: {
     compilers: [
@@ -215,56 +220,65 @@ export default {
       consensys_testnet: process.env.CONSENSYS_API_KEY,
       zksync_testnet: process.env.ZKSYNC_API_KEY,
       base_testnet: process.env.BASE_API_KEY,
+      scroll_testnet: process.env.SCROLL_API_KEY
     },
     customChains: [
       {
-        network: "xdai",
+        network: 'xdai',
         chainId: 100,
         urls: {
-          apiURL: "https://api.gnosisscan.io/api",
-          browserURL: "https://gnosisscan.io"
+          apiURL: 'https://api.gnosisscan.io/api',
+          browserURL: 'https://gnosisscan.io'
         }
       },
       {
-        network: "optimism_testnet",
+        network: 'optimism_testnet',
         chainId: 420,
         urls: {
-          apiURL: "https://api-goerli-optimism.etherscan.io/api",
-          browserURL: "https://goerli-optimism.etherscan.io"
+          apiURL: 'https://api-goerli-optimism.etherscan.io/api',
+          browserURL: 'https://goerli-optimism.etherscan.io'
         }
       },
       {
-        network: "nova_mainnet",
+        network: 'nova_mainnet',
         chainId: 42170,
         urls: {
-          apiURL: "https://api-nova.arbiscan.io/api",
-          browserURL: "https://nova.arbiscan.io"
+          apiURL: 'https://api-nova.arbiscan.io/api',
+          browserURL: 'https://nova.arbiscan.io'
         }
       },
       {
-        network: "consensys_testnet",
+        network: 'consensys_testnet',
         chainId: 59140,
         urls: {
-          apiURL: "https://explorer.goerli.zkevm.consensys.net/api",
-          browserURL: "https://explorer.goerli.zkevm.consensys.net"
+          apiURL: 'https://explorer.goerli.zkevm.consensys.net/api',
+          browserURL: 'https://explorer.goerli.zkevm.consensys.net'
         }
       },
       {
-        network: "zksync_testnet",
+        network: 'zksync_testnet',
         chainId: 280,
         urls: {
-          apiURL: "https://goerli.explorer.zksync.io/api",
-          browserURL: "https://goerli.explorer.zksync.io/"
+          apiURL: 'https://goerli.explorer.zksync.io/api',
+          browserURL: 'https://goerli.explorer.zksync.io/'
         }
       },
       {
-        network: "base_testnet",
+        network: 'base_testnet',
         chainId: 84531,
         urls: {
-          apiURL: "https://api-goerli.basescan.org/api",
-          browserURL: "https://goerli.basescan.org"
+          apiURL: 'https://api-goerli.basescan.org/api',
+          browserURL: 'https://goerli.basescan.org'
         }
       },
+      {
+        network: 'scroll_testnet',
+        chainId: 534353,
+        urls: {
+          apiURL: 'https://blockscout.scroll.io/api',
+          browserURL: 'https://blockscout.scroll.io'
+        }
+      }
     ]
   }
   // abiExporter: {

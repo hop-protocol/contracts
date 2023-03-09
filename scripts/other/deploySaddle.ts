@@ -2,10 +2,12 @@ import { ethers } from 'hardhat'
 import { Contract, ContractFactory, providers } from 'ethers'
 const ovmEthers = ethers
 
-async function main() {
+async function main () {
   const provider: providers.Provider = ethers.provider
 
-  const MathUtils: ContractFactory = await ethers.getContractFactory("MathUtils")
+  const MathUtils: ContractFactory = await ethers.getContractFactory(
+    'MathUtils'
+  )
   const mathUtils: Contract = await MathUtils.deploy()
   await mathUtils.deployed()
   const mathUtilsCode = await provider.getCode(mathUtils.address)
@@ -13,10 +15,10 @@ async function main() {
   logCode(mathUtilsCode)
 
   const SwapUtils: ContractFactory = await ethers.getContractFactory(
-    "SwapUtils",
+    'SwapUtils',
     {
       libraries: {
-        'MathUtils': mathUtils.address
+        MathUtils: mathUtils.address
       }
     }
   )
@@ -26,14 +28,11 @@ async function main() {
   console.log('SwapUtils: ', swapUtils.address)
   logCode(swapUtilsCode)
 
-  const Swap: ContractFactory = await ethers.getContractFactory(
-    "Swap",
-    {
-      libraries: {
-        'SwapUtils': swapUtils.address
-      }
+  const Swap: ContractFactory = await ethers.getContractFactory('Swap', {
+    libraries: {
+      SwapUtils: swapUtils.address
     }
-  )
+  })
   const swap: Contract = await Swap.deploy()
   await swap.deployed()
   const swapCode = await provider.getCode(swap.address)
@@ -48,7 +47,7 @@ async function main() {
   const token0 = await swap.getToken(0, { gasLimit: 500000 })
   console.log('token0: ', token0)
 
-  function logCode(code: string) {
+  function logCode (code: string) {
     let str = ''
     if (code && code.length > 20) {
       str += code.slice(0, 19)

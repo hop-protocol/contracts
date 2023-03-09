@@ -1,13 +1,7 @@
 require('dotenv').config()
 
 import { ethers } from 'hardhat'
-import {
-  ContractFactory,
-  Signer,
-  Contract,
-  BigNumber,
-  providers
-} from 'ethers'
+import { ContractFactory, Signer, Contract, BigNumber, providers } from 'ethers'
 
 import {
   getContractFactories,
@@ -53,7 +47,6 @@ interface Config {
   isHopDeployment: boolean
 }
 
-
 export async function deployL2 (config: Config) {
   logger.log('deploy L2')
 
@@ -86,8 +79,7 @@ export async function deployL2 (config: Config) {
             bonderAddress: ${bonderAddress}
             l2CanonicalTokenIsEth: ${l2CanonicalTokenIsEth}
             isEthDeployment: ${isEthDeployment}
-            isHopDeployment: ${isHopDeployment}`
-            )
+            isHopDeployment: ${isHopDeployment}`)
 
   l1ChainId = BigNumber.from(l1ChainId)
   l2ChainId = BigNumber.from(l2ChainId)
@@ -134,20 +126,24 @@ export async function deployL2 (config: Config) {
     L2_Bridge,
     L2_AmmWrapper,
     L2_MessengerProxy
-  } = await getContractFactories(l2ChainId, deployer, ethers, isEthDeployment, isHopDeployment))
+  } = await getContractFactories(
+    l2ChainId,
+    deployer,
+    ethers,
+    isEthDeployment,
+    isHopDeployment
+  ))
 
   logger.log('attaching deployed contracts')
   // Attach already deployed contracts
   l1_bridge = L1_Bridge.attach(l1BridgeAddress)
   l2_canonicalToken = L2_MockERC20.attach(l2CanonicalTokenAddress)
 
-
   overrides = getTxOverridesPerChain(l2ChainId)
 
   /**
    * Deployments
    */
-
 
   let l2MessengerProxyAddress: string = ''
   if (isChainIdPolygon(l2ChainId)) {
@@ -215,7 +211,10 @@ export async function deployL2 (config: Config) {
     let transferOwnershipParams: any[] = [l2_bridge.address]
 
     logger.log('transferring ownership of L2 hop bridge token')
-    tx = await l2_hopBridgeToken.transferOwnership(...transferOwnershipParams, overrides)
+    tx = await l2_hopBridgeToken.transferOwnership(
+      ...transferOwnershipParams,
+      overrides
+    )
     await tx.wait()
     await waitAfterTransaction()
   }
@@ -273,15 +272,24 @@ const deployAmm = async (
   l2SwapLpTokenSymbol: string,
   logger: any
 ) => {
-
   let decimalParams: any[] = []
 
-  const l2CanonicalTokenDecimals = await l2_canonicalToken.decimals(...decimalParams, overrides)
-  const l2HopBridgeTokenDecimals = await l2_hopBridgeToken.decimals(...decimalParams, overrides)
+  const l2CanonicalTokenDecimals = await l2_canonicalToken.decimals(
+    ...decimalParams,
+    overrides
+  )
+  const l2HopBridgeTokenDecimals = await l2_hopBridgeToken.decimals(
+    ...decimalParams,
+    overrides
+  )
 
   // Deploy AMM contracts
   logger.log('Deploying L2 Swap Libs')
-  const L2_SwapContractFactory: ContractFactory = await deployL2SwapLibs(deployer, ethers, logger)
+  const L2_SwapContractFactory: ContractFactory = await deployL2SwapLibs(
+    deployer,
+    ethers,
+    logger
+  )
   logger.log('Deploying L2 Swap')
   const l2_swap = await L2_SwapContractFactory.deploy(overrides)
   await waitAfterTransaction(l2_swap, ethers)
@@ -307,38 +315,33 @@ const deployAmm = async (
   }
 }
 
-const deployL2SwapLibs = async (
-  signer: Signer,
-  ethers: any,
-  logger: any
-) => {
-  const L2_MathUtils: ContractFactory = await ethers.getContractFactory('MathUtils', { signer })
+const deployL2SwapLibs = async (signer: Signer, ethers: any, logger: any) => {
+  const L2_MathUtils: ContractFactory = await ethers.getContractFactory(
+    'MathUtils',
+    { signer }
+  )
   logger.log('Deploying L2 Math Utils')
   const l2_mathUtils = await L2_MathUtils.deploy(overrides)
   await waitAfterTransaction(l2_mathUtils, ethers)
 
-  const L2_SwapUtils = await ethers.getContractFactory(
-    'SwapUtils',
-    {
-      libraries: {
-        'MathUtils': l2_mathUtils.address
-      }
+  const L2_SwapUtils = await ethers.getContractFactory('SwapUtils', {
+    libraries: {
+      MathUtils: l2_mathUtils.address
     }
-  )
+  })
 
   logger.log('Deploying L2 Swap Utils')
-  logger.log('IMPORTANT: This transaction needs 4.5 million gas to be deployed on Polygon & 200 million gas on Arbitrum & Nova')
+  logger.log(
+    'IMPORTANT: This transaction needs 4.5 million gas to be deployed on Polygon & 200 million gas on Arbitrum & Nova'
+  )
   const l2_swapUtils = await L2_SwapUtils.deploy(overrides)
   await waitAfterTransaction(l2_swapUtils, ethers)
 
-  return await ethers.getContractFactory(
-    'Swap',
-    {
-      libraries: {
-        'SwapUtils': l2_swapUtils.address
-      }
+  return await ethers.getContractFactory('Swap', {
+    libraries: {
+      SwapUtils: l2_swapUtils.address
     }
-  )
+  })
 }
 
 const deployBridge = async (
@@ -377,7 +380,10 @@ const deployBridge = async (
   )
 
   logger.log('Deploying L2 Bridge')
-  l2_bridge = await L2_Bridge.connect(deployer).deploy(...l2BridgeDeploymentParams, overrides)
+  l2_bridge = await L2_Bridge.connect(deployer).deploy(
+    ...l2BridgeDeploymentParams,
+    overrides
+  )
   await waitAfterTransaction(l2_bridge, ethers)
 
   if (isHopDeployment) {

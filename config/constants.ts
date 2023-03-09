@@ -10,7 +10,7 @@ export const CHAIN_IDS: any = {
   },
   OPTIMISM: {
     OPTIMISM_TESTNET: BigNumber.from('420'),
-    OPTIMISM_MAINNET: BigNumber.from('10'),
+    OPTIMISM_MAINNET: BigNumber.from('10')
   },
   ARBITRUM: {
     ARBITRUM_TESTNET: BigNumber.from('421613'),
@@ -24,16 +24,19 @@ export const CHAIN_IDS: any = {
     MUMBAI: BigNumber.from('80001')
   },
   NOVA: {
-    NOVA_MAINNET: BigNumber.from('42170'),
+    NOVA_MAINNET: BigNumber.from('42170')
   },
   CONSENSYS: {
-    CONSENSYS_TESTNET: BigNumber.from('59140'),
+    CONSENSYS_TESTNET: BigNumber.from('59140')
   },
   ZKSYNC: {
-    ZKSYNC_TESTNET: BigNumber.from('280'),
+    ZKSYNC_TESTNET: BigNumber.from('280')
   },
   BASE: {
-    BASE_TESTNET: BigNumber.from('84531'),
+    BASE_TESTNET: BigNumber.from('84531')
+  },
+  SCROLL: {
+    SCROLL_TESTNET: BigNumber.from('534353')
   }
 }
 
@@ -52,7 +55,7 @@ export const CHAIN_IDS_TO_ACTIVATE: any = {
       OPTIMISM_MAINNET: BigNumber.from('10')
     },
     ARBITRUM: {
-      ARBITRUM_MAINNET: BigNumber.from('42161'),
+      ARBITRUM_MAINNET: BigNumber.from('42161')
     },
     NOVA: {
       NOVA_MAINNET: BigNumber.from('42170')
@@ -78,7 +81,10 @@ export const CHAIN_IDS_TO_ACTIVATE: any = {
       ZKSYNC_TESTNET: BigNumber.from('280')
     },
     BASE: {
-      BASE_TESTNET: BigNumber.from('84531'),
+      BASE_TESTNET: BigNumber.from('84531')
+    },
+    SCROLL: {
+      SCROLL_TESTNET: BigNumber.from('534353')
     }
   }
 }
@@ -103,7 +109,9 @@ export const DEFAULT_MESSENGER_WRAPPER_GAS_LIMIT: number = 1920000
 export const DEFAULT_MESSENGER_WRAPPER_GAS_PRICE: number = 0
 export const DEFAULT_MESSENGER_WRAPPER_CALL_VALUE: number = 0
 
-export const DEFAULT_MAX_SUBMISSION_COST: BigNumber = BigNumber.from('10000000000000000')
+export const DEFAULT_MAX_SUBMISSION_COST: BigNumber = BigNumber.from(
+  '10000000000000000'
+)
 export const DEFAULT_MAX_GAS: number = 5000000
 export const DEFAULT_GAS_PRICE_BID: number = 100000000000
 
@@ -204,7 +212,7 @@ export const L1_CANONICAL_TOKEN_ADDRESSES: any = {
     FRAX: '0x853d955aCEf822Db058eb8505911ED77F175b99e',
     HOP: '0xc5102fE9359FD9a28f877a67E36B0F050d81a3CC',
     SNX: '0xC011a73ee8576Fb46F5E1c5751cA3B9Fe0af2a6F',
-    sUSD: '0x57Ab1ec28D129707052df4dF418D58a2D46d5f51',
+    sUSD: '0x57Ab1ec28D129707052df4dF418D58a2D46d5f51'
   },
   GOERLI: {
     ETH: '0x0000000000000000000000000000000000000000',
@@ -276,11 +284,14 @@ export const L2_CANONICAL_TOKEN_ADDRESSES: any = {
     USDC: '0x964FF70695da981027c81020B1c58d833D49A640' // Canonical deployment
   },
   ZKSYNC_TESTNET: {
-    ETH: '0xE4c2573bD4125270b356444B2F551c3406baC6a2', // Our deployment
+    ETH: '0xE4c2573bD4125270b356444B2F551c3406baC6a2' // Our deployment
   },
   BASE_TESTNET: {
-    ETH: '0x4200000000000000000000000000000000000006', // Canonical deployment
+    ETH: '0x4200000000000000000000000000000000000006' // Canonical deployment
   },
+  SCROLL_TESTNET: {
+    ETH: '0x5300000000000000000000000000000000000004' // Canonical deployment
+  }
 }
 
 export const GAS_PRICE_MULTIPLIERS: { [key: string]: number } = {
@@ -291,3 +302,4 @@ export const GAS_PRICE_MULTIPLIERS: { [key: string]: number } = {
 export const HOP_DAO_ADDRESS = '0xeeA8422a08258e73c139Fc32a25e10410c14bd7a'
 export const CONSENSYS_ZK_EVM_MESSAGE_FEE = '10000000000000000'
 export const ZKSYNC_MESSAGE_FEE = 'TODO' // TODO: zksync
+export const SCROLL_ZK_EVM_MESSAGE_FEE = '10000000000000000' // TODO

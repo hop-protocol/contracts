@@ -6,18 +6,11 @@ import { fixture } from '../shared/fixtures'
 import { setUpDefaults } from '../shared/utils'
 import { IFixture } from '../shared/interfaces'
 
-import {
-  CHAIN_IDS,
-  ONE_ADDRESS
-} from '../../config/constants'
+import { CHAIN_IDS, ONE_ADDRESS } from '../../config/constants'
 
-import {
-  getPolygonCheckpointManagerAddress
-} from '../../config/utils'
+import { getPolygonCheckpointManagerAddress } from '../../config/utils'
 
-import {
-  getSetL1BridgeAddressMessage
-} from '../shared/contractFunctionWrappers'
+import { getSetL1BridgeAddressMessage } from '../shared/contractFunctionWrappers'
 
 export const MAX_NUM_SENDS_BEFORE_COMMIT = 10
 
@@ -58,7 +51,9 @@ describe('Polygon Wrapper', () => {
 
   it('Should set the correct values in the constructor', async () => {
     const expectedL1BridgeAddress: string = l1_bridge.address
-    const expectedCheckpointManager: string = getPolygonCheckpointManagerAddress(l1ChainId)
+    const expectedCheckpointManager: string = getPolygonCheckpointManagerAddress(
+      l1ChainId
+    )
     const expectedFxRoot: string = fxRoot.address
     const expectedFxChildTunnel: string = l2_messengerProxy.address
 
@@ -84,7 +79,11 @@ describe('Polygon Wrapper', () => {
 
     const fxRootMessage: string = ethersUtils.defaultAbiCoder.encode(
       ['address', 'address', 'bytes'],
-      [l1_messengerWrapper.address, l2_messengerProxy.address, messengerWrapperMessage]
+      [
+        l1_messengerWrapper.address,
+        l2_messengerProxy.address,
+        messengerWrapperMessage
+      ]
     )
 
     const actualNextMessage: string = (await l2_messenger.nextMessage()).message
@@ -97,7 +96,10 @@ describe('Polygon Wrapper', () => {
       ['address'],
       [ONE_ADDRESS]
     )
-    await l1_messengerWrapper.verifySender(l1_messengerWrapper.address, arbitraryMessage)
+    await l1_messengerWrapper.verifySender(
+      l1_messengerWrapper.address,
+      arbitraryMessage
+    )
   })
 
   /**
@@ -111,20 +113,15 @@ describe('Polygon Wrapper', () => {
       [ONE_ADDRESS]
     )
     await expect(
-      l1_messengerWrapper.verifySender(
-        ONE_ADDRESS,
-        arbitraryMessage
-      )
+      l1_messengerWrapper.verifySender(ONE_ADDRESS, arbitraryMessage)
     ).to.be.revertedWith(expectedErrorMsg)
   })
 
   it('Should throw because the fxChildTunnel can only be set once', async () => {
-    const expectedErrorMsg: string = 'FxBaseRootTunnel: CHILD_TUNNEL_ALREADY_SET'
+    const expectedErrorMsg: string =
+      'FxBaseRootTunnel: CHILD_TUNNEL_ALREADY_SET'
     await expect(
-      l1_messengerWrapper.setFxChildTunnel(
-        ONE_ADDRESS
-      )
+      l1_messengerWrapper.setFxChildTunnel(ONE_ADDRESS)
     ).to.be.revertedWith(expectedErrorMsg)
   })
-
 })

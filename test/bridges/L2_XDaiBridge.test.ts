@@ -182,7 +182,9 @@ describe('L2_XDai_Bridge', () => {
     const l1GovernanceAddress: string = await l2_bridge.l1Governance()
     const hopBridgeTokenAddress: string = await l2_bridge.hToken()
     const l1BridgeAddress: string = await l2_bridge.l1BridgeAddress()
-    const isBonder: string = await l2_bridge.getIsBonder(await bonder.getAddress())
+    const isBonder: string = await l2_bridge.getIsBonder(
+      await bonder.getAddress()
+    )
     const actualL1ChainId: BigNumber = await l2_bridge.l1ChainId()
     const actualGasLimit: BigNumber = await l2_bridge.defaultGasLimit()
 
@@ -196,9 +198,7 @@ describe('L2_XDai_Bridge', () => {
 
     for (let i = 0; i < ALL_SUPPORTED_CHAIN_IDS.length; i++) {
       const chainId: BigNumber = ALL_SUPPORTED_CHAIN_IDS[i]
-      const isChainIdSupported = await l2_bridge.activeChainIds(
-        chainId
-      )
+      const isChainIdSupported = await l2_bridge.activeChainIds(chainId)
       expect(isChainIdSupported).to.eq(true)
     }
   })
@@ -210,9 +210,7 @@ describe('L2_XDai_Bridge', () => {
   it('Should set an arbitrary messenger', async () => {
     const expectedMessengerAddress: string = ONE_ADDRESS
 
-    const message: string = getSetMessengerMessage(
-      expectedMessengerAddress
-    )
+    const message: string = getSetMessengerMessage(expectedMessengerAddress)
     await executeCanonicalMessengerSendMessage(
       l1_messenger,
       l1_messengerWrapper,
@@ -255,7 +253,9 @@ describe('L2_XDai_Bridge', () => {
     const expectedErrorMsg: string = 'L2_XDAI_BRG: Invalid cross-domain sender'
 
     const expectedMessengerAddress: string = ONE_ADDRESS
-    await expect(l2_bridge.setMessenger(expectedMessengerAddress)).to.be.revertedWith(expectedErrorMsg)
+    await expect(
+      l2_bridge.setMessenger(expectedMessengerAddress)
+    ).to.be.revertedWith(expectedErrorMsg)
   })
 
   it('Should not set an arbitrary messenger because the transaction was not sent by governance', async () => {
@@ -263,9 +263,7 @@ describe('L2_XDai_Bridge', () => {
 
     const expectedMessengerAddress: string = ONE_ADDRESS
 
-    const message: string = getSetMessengerMessage(
-      expectedMessengerAddress
-    )
+    const message: string = getSetMessengerMessage(expectedMessengerAddress)
 
     await expect(
       executeCanonicalMessengerSendMessage(
