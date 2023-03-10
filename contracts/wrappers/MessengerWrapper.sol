@@ -51,7 +51,7 @@ abstract contract MessengerWrapper is IMessengerWrapper {
     }
 
     /**
-     * @dev Confirm roots that have bonded on L1 and passed the challenge period
+     * @dev Confirm roots that have bonded on L1 and passed the challenge period with no challenge
      * @param rootHashes The root hashes to confirm
      * @param destinationChainIds The destinationChainId of the roots to confirm
      * @param totalAmounts The totalAmount of the roots to confirm

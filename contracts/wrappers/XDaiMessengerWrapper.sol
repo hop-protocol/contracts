@@ -56,7 +56,7 @@ contract XDaiMessengerWrapper is MessengerWrapper {
 
         // With the xDai AMB, it is best practice to also check the source chainId
         // https://docs.tokenbridge.net/amb-bridge/how-to-develop-xchain-apps-by-amb#receive-a-method-call-from-the-amb-bridge
-        /// The xDai AMB uses bytes32 for chainId instead of uint256
+        // The xDai AMB uses bytes32 for chainId instead of uint256
         require(l1MessengerAddress.messageSourceChainId() == bytes32(l2ChainId), "L2_XDAI_BRG: Invalid source Chain ID");
     }
 }

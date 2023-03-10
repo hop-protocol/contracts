@@ -20,10 +20,11 @@ contract ConsensysZkEvmMessengerWrapper is MessengerWrapper, Ownable {
     constructor(
         address _l1BridgeAddress,
         address _l2BridgeAddress,
-        IBridge _consensysL1Bridge
+        IBridge _consensysL1Bridge,
+        uint256 _l2ChainId
     )
         public
-        MessengerWrapper(_l1BridgeAddress)
+        MessengerWrapper(_l1BridgeAddress, _l2ChainId)
     {
         l2BridgeAddress = _l2BridgeAddress;
         consensysL1Bridge = _consensysL1Bridge;
@@ -47,6 +48,8 @@ contract ConsensysZkEvmMessengerWrapper is MessengerWrapper, Ownable {
 
 
     function verifySender(address l1BridgeCaller, bytes memory) public override {
+        if (isRootConfirmation) return;
+
         require(consensysL1Bridge.sender() == l2BridgeAddress, "L1_CSYS_MSG_WRP: Invalid cross-domain sender");
         require(l1BridgeCaller == address(consensysL1Bridge), "L1_CSYS_MSG_WRP: Caller is not the expected sender");
     }
