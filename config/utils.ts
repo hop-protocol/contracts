@@ -33,7 +33,12 @@ export const getMessengerWrapperDefaults = (
   let data: any = []
 
   // Defaults for most chains
-  let defaults: any[] = [l1BridgeAddress, l2BridgeAddress, l1MessengerAddress]
+  let defaults: any[] = [
+    l1BridgeAddress,
+    l2BridgeAddress,
+    l1MessengerAddress,
+    l2ChainId.toString()
+  ]
 
   if (isChainIdArbitrum(l2ChainId) || isChainIdNova(l2ChainId)) {
     data.push(...defaults)
@@ -45,7 +50,11 @@ export const getMessengerWrapperDefaults = (
     const gasLimit: number = 1000000
     const ambAddress: string = getXDaiAmbAddresses(l1ChainId)
 
-    data.push(...defaults, gasLimit, l2ChainId.toString(), ambAddress)
+    data.push(
+      ...defaults,
+      gasLimit,
+      ambAddress
+    )
   } else if (isChainIdPolygon(l2ChainId)) {
     const checkpointManager: string = getPolygonCheckpointManagerAddress(
       l1ChainId
@@ -56,7 +65,8 @@ export const getMessengerWrapperDefaults = (
       l1BridgeAddress,
       checkpointManager,
       fxRootAddress,
-      fxChildTunnelAddress
+      fxChildTunnelAddress,
+      l2ChainId.toString()
     )
   } else if (isChainIdConsensys(l2ChainId)) {
     data.push(...defaults)

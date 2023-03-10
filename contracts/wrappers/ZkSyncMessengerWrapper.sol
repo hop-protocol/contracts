@@ -20,10 +20,11 @@ contract ZkSyncMessengerWrapper is MessengerWrapper {
     constructor(
         address _l1BridgeAddress,
         address _l2BridgeAddress,
-        IMailbox _zkSyncL1Bridge
+        IMailbox _zkSyncL1Bridge,
+        uint256 _l2ChainId
     )
         public
-        MessengerWrapper(_l1BridgeAddress)
+        MessengerWrapper(_l1BridgeAddress, _l2ChainId)
     {
         l2BridgeAddress = _l2BridgeAddress;
         zkSyncL1Bridge = _zkSyncL1Bridge;
@@ -49,6 +50,8 @@ contract ZkSyncMessengerWrapper is MessengerWrapper {
     }
 
     function verifySender(address l1BridgeCaller, bytes memory) public override {
+        if (isRootConfirmation) return;
+
         require(l1BridgeCaller == address(this), "L1_ZKSYNC_WPR: Caller must be this contract");
     }
 

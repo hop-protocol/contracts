@@ -12,14 +12,16 @@ contract MockPolygonMessengerWrapper is PolygonMessengerWrapper {
         address _l1BridgeAddress,
         address _checkpointManager,
         address _fxRoot,
-        address _fxChildTunnel
+        address _fxChildTunnel,
+        uint256 _l2ChainId
     )
         public
         PolygonMessengerWrapper(
             _l1BridgeAddress,
             _checkpointManager,
             _fxRoot,
-            _fxChildTunnel
+            _fxChildTunnel,
+            _l2ChainId
         )
     {}
 

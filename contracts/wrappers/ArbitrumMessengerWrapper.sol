@@ -23,10 +23,11 @@ contract ArbitrumMessengerWrapper is MessengerWrapper, Ownable {
     constructor(
         address _l1BridgeAddress,
         address _l2BridgeAddress,
-        IInbox _l1MessengerAddress
+        IInbox _l1MessengerAddress,
+        uint256 _l2ChainId
     )
         public
-        MessengerWrapper(_l1BridgeAddress)
+        MessengerWrapper(_l1BridgeAddress, _l2ChainId)
     {
         l2BridgeAddress = _l2BridgeAddress;
         l1MessengerAddress = _l1MessengerAddress;
@@ -53,6 +54,8 @@ contract ArbitrumMessengerWrapper is MessengerWrapper, Ownable {
     }
 
     function verifySender(address l1BridgeCaller, bytes memory /*_data*/) public override {
+        if (isRootConfirmation) return;
+
         // Reference: https://github.com/OffchainLabs/arbitrum/blob/5c06d89daf8fa6088bcdba292ffa6ed0c72afab2/packages/arb-bridge-peripherals/contracts/tokenbridge/ethereum/L1ArbitrumMessenger.sol#L89
         IBridge arbBridge = l1MessengerAddress.bridge();
         IOutbox outbox = IOutbox(arbBridge.activeOutbox());

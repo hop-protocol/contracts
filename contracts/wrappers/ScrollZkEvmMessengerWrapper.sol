@@ -20,10 +20,11 @@ contract ScrollZkEvmMessengerWrapper is MessengerWrapper, Ownable {
     constructor(
         address _l1BridgeAddress,
         address _l2BridgeAddress,
-        IScrollMessenger _scrollL1Bridge
+        IScrollMessenger _scrollL1Bridge,
+        uint256 _l2ChainId
     )
         public
-        MessengerWrapper(_l1BridgeAddress)
+        MessengerWrapper(_l1BridgeAddress, _l2ChainId)
     {
         l2BridgeAddress = _l2BridgeAddress;
         scrollL1Bridge = _scrollL1Bridge;
@@ -48,6 +49,8 @@ contract ScrollZkEvmMessengerWrapper is MessengerWrapper, Ownable {
 
 
     function verifySender(address l1BridgeCaller, bytes memory) public override {
+        if (isRootConfirmation) return;
+
         require(scrollL1Bridge.xDomainMessageSender() == l2BridgeAddress, "L1_SCRL_MSG_WRP: Invalid cross-domain sender");
         require(l1BridgeCaller == address(scrollL1Bridge), "L1_SCRL_MSG_WRP: Caller is not the expected sender");
     }

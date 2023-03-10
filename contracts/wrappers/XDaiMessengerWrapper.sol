@@ -14,8 +14,6 @@ import "./MessengerWrapper.sol";
 contract XDaiMessengerWrapper is MessengerWrapper {
 
     IArbitraryMessageBridge public l1MessengerAddress;
-    /// @notice The xDai AMB uses bytes32 for chainId instead of uint256
-    bytes32 public l2ChainId;
     address public ambBridge;
     address public immutable l2BridgeAddress;
     uint256 public immutable defaultGasLimit;
@@ -24,17 +22,16 @@ contract XDaiMessengerWrapper is MessengerWrapper {
         address _l1BridgeAddress,
         address _l2BridgeAddress,
         IArbitraryMessageBridge _l1MessengerAddress,
-        uint256 _defaultGasLimit,
         uint256 _l2ChainId,
+        uint256 _defaultGasLimit,
         address _ambBridge
     )
         public
-        MessengerWrapper(_l1BridgeAddress)
+        MessengerWrapper(_l1BridgeAddress, _l2ChainId)
     {
         l2BridgeAddress = _l2BridgeAddress;
         l1MessengerAddress = _l1MessengerAddress;
         defaultGasLimit = _defaultGasLimit;
-        l2ChainId = bytes32(_l2ChainId);
         ambBridge = _ambBridge;
     }
 
@@ -52,11 +49,14 @@ contract XDaiMessengerWrapper is MessengerWrapper {
 
     /// @notice message data is not needed for message verification with the xDai AMB
     function verifySender(address l1BridgeCaller, bytes memory) public override {
+        if (isRootConfirmation) return;
+
         require(l1MessengerAddress.messageSender() == l2BridgeAddress, "L2_XDAI_BRG: Invalid cross-domain sender");
         require(l1BridgeCaller == ambBridge, "L2_XDAI_BRG: Caller is not the expected sender");
 
         // With the xDai AMB, it is best practice to also check the source chainId
         // https://docs.tokenbridge.net/amb-bridge/how-to-develop-xchain-apps-by-amb#receive-a-method-call-from-the-amb-bridge
-        require(l1MessengerAddress.messageSourceChainId() == l2ChainId, "L2_XDAI_BRG: Invalid source Chain ID");
+        // The xDai AMB uses bytes32 for chainId instead of uint256
+        require(l1MessengerAddress.messageSourceChainId() == bytes32(l2ChainId), "L2_XDAI_BRG: Invalid source Chain ID");
     }
 }
