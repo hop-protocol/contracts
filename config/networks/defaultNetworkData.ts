@@ -94,5 +94,5 @@ export const DEFAULT_NETWORK_DATA = {
     l2SwapLpTokenName: 'Hop sUSD LP Token',
     l2SwapLpTokenSymbol: 'HOP-LP-sUSD',
     liquidityProviderSendAmount: '1000000000000000000'
-  },
+  }
 }

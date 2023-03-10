@@ -182,7 +182,9 @@ describe('L2_Polygon_Bridge', () => {
     const l1GovernanceAddress: string = await l2_bridge.l1Governance()
     const hopBridgeTokenAddress: string = await l2_bridge.hToken()
     const l1BridgeAddress: string = await l2_bridge.l1BridgeAddress()
-    const isBonder: string = await l2_bridge.getIsBonder(await bonder.getAddress())
+    const isBonder: string = await l2_bridge.getIsBonder(
+      await bonder.getAddress()
+    )
 
     expect(expectedMessengerProxyAddress).to.eq(messengerProxyAddress)
     expect(expectedL1GovernanceAddress).to.eq(l1GovernanceAddress)
@@ -192,9 +194,7 @@ describe('L2_Polygon_Bridge', () => {
 
     for (let i = 0; i < ALL_SUPPORTED_CHAIN_IDS.length; i++) {
       const chainId: BigNumber = ALL_SUPPORTED_CHAIN_IDS[i]
-      const isChainIdSupported = await l2_bridge.activeChainIds(
-        chainId
-      )
+      const isChainIdSupported = await l2_bridge.activeChainIds(chainId)
       expect(isChainIdSupported).to.eq(true)
     }
   })
@@ -209,7 +209,9 @@ describe('L2_Polygon_Bridge', () => {
     await executeL2BridgeCommitTransfers(l2_bridge, [transfer], bonder)
 
     const messageSentEvent = (
-      await l2_messengerProxy.queryFilter(l2_messengerProxy.filters.MessageSent())
+      await l2_messengerProxy.queryFilter(
+        l2_messengerProxy.filters.MessageSent()
+      )
     )[0]
     const message = messageSentEvent.args[0]
 
@@ -251,10 +253,13 @@ describe('L2_Polygon_Bridge', () => {
    */
 
   it('Should not set an arbitrary messenger proxy because the transaction was on L2 directly', async () => {
-    const expectedErrorMsg: string = 'L2_PLGN_BRG: Caller is not the expected sender'
+    const expectedErrorMsg: string =
+      'L2_PLGN_BRG: Caller is not the expected sender'
 
     const expectedMessengerProxyAddress: string = ONE_ADDRESS
-    await expect(l2_bridge.setMessengerProxy(expectedMessengerProxyAddress)).to.be.revertedWith(expectedErrorMsg)
+    await expect(
+      l2_bridge.setMessengerProxy(expectedMessengerProxyAddress)
+    ).to.be.revertedWith(expectedErrorMsg)
   })
 
   it('Should not set an arbitrary messenger proxy because the transaction was not sent by governance', async () => {

@@ -47,7 +47,10 @@ describe('XDai Messenger Wrapper', () => {
     const expectedL2BridgeAddress: string = l2_bridge.address
     const expectedL1MessengerAddress: string = l1_messenger.address
     const expectedDefaultGasLimit: number = 1000000
-    const expectedL2ChainId: string = ethersUtils.hexZeroPad(l2ChainId.toHexString(), 32)
+    const expectedL2ChainId: string = ethersUtils.hexZeroPad(
+      l2ChainId.toHexString(),
+      32
+    )
     const expectedAmbBridge: string = getXDaiAmbAddresses(l1ChainId)
 
     const l1BridgeAddress: string = await l1_messengerWrapper.l1BridgeAddress()
@@ -76,9 +79,7 @@ describe('XDai Messenger Wrapper', () => {
       [ONE_ADDRESS]
     )
     await expect(
-      l1_messengerWrapper.sendCrossDomainMessage(
-        arbitraryMessage
-      )
+      l1_messengerWrapper.sendCrossDomainMessage(arbitraryMessage)
     ).to.be.revertedWith(expectedErrorMsg)
   })
 
@@ -89,10 +90,7 @@ describe('XDai Messenger Wrapper', () => {
       [ONE_ADDRESS]
     )
     await expect(
-      l1_messengerWrapper.verifySender(
-        ONE_ADDRESS,
-        arbitraryMessage
-      )
+      l1_messengerWrapper.verifySender(ONE_ADDRESS, arbitraryMessage)
     ).to.be.revertedWith(expectedErrorMsg)
   })
 })

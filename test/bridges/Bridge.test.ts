@@ -161,7 +161,7 @@ describe('Bridge', () => {
       BigNumber.from('0'),
       transfer.chainId
     )
-    const transferIdPromises = transfers.map( _transfer =>
+    const transferIdPromises = transfers.map(_transfer =>
       _transfer.getTransferId(transferNonce)
     )
     const transferIds = await Promise.all(transferIdPromises)

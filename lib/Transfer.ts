@@ -72,8 +72,14 @@ export default class Transfer {
     return Buffer.from(hash.slice(2), 'hex')
   }
 
-  async getTransferIdHex (transferNonce: string, isSwapAndSend: boolean = false): Promise<string> {
-    const transferId: Buffer = await this.getTransferId(transferNonce, isSwapAndSend)
+  async getTransferIdHex (
+    transferNonce: string,
+    isSwapAndSend: boolean = false
+  ): Promise<string> {
+    const transferId: Buffer = await this.getTransferId(
+      transferNonce,
+      isSwapAndSend
+    )
     return '0x' + transferId.toString('hex')
   }
 }

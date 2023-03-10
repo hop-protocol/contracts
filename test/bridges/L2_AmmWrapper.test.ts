@@ -329,7 +329,8 @@ describe('L2_AmmWrapper', () => {
 
   describe('swapAndSend', async () => {
     it('Should not be able to swapAndSend because the bonder fee is greater than the transfer amount', async () => {
-      const expectedErrorMsg: string = 'L2_AMM_W: Bonder fee cannot exceed amount'
+      const expectedErrorMsg: string =
+        'L2_AMM_W: Bonder fee cannot exceed amount'
       const customTransfer: Transfer = new Transfer(l2Transfer)
       customTransfer.bonderFee = customTransfer.amount.add(1)
 
@@ -396,7 +397,7 @@ describe('L2_AmmWrapper', () => {
 
       const message: string = getSetMinimumBonderFeeRequirementsMessage(
         minBonderBps,
-        minBonderFeeAbsolute 
+        minBonderFeeAbsolute
       )
 
       await executeCanonicalMessengerSendMessage(
@@ -436,7 +437,8 @@ describe('L2_AmmWrapper', () => {
 
   describe('attemptSwap', async () => {
     it('Should not attempt swap because h token was not approved', async () => {
-      const expectedErrorMsg: string = 'ERC20: transfer amount exceeds allowance'
+      const expectedErrorMsg: string =
+        'ERC20: transfer amount exceeds allowance'
       await expect(
         l2_ammWrapper
           .connect(transfer.sender)
@@ -461,7 +463,7 @@ describe('L2_AmmWrapper', () => {
 
       const message: string = getSetMinimumBonderFeeRequirementsMessage(
         minBonderBps,
-        minBonderFeeAbsolute 
+        minBonderFeeAbsolute
       )
 
       await executeCanonicalMessengerSendMessage(
@@ -503,7 +505,7 @@ describe('L2_AmmWrapper', () => {
 
       const message: string = getSetMinimumBonderFeeRequirementsMessage(
         minBonderBps,
-        minBonderFeeAbsolute 
+        minBonderFeeAbsolute
       )
 
       await executeCanonicalMessengerSendMessage(

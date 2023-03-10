@@ -1,11 +1,6 @@
 import '@nomiclabs/hardhat-waffle'
 import { expect } from 'chai'
-import {
-  Signer,
-  Contract,
-  BigNumber,
-  utils as ethersUtils
-} from 'ethers'
+import { Signer, Contract, BigNumber, utils as ethersUtils } from 'ethers'
 import { parseEther } from 'ethers/lib/utils'
 import Transfer from '../../lib/Transfer'
 
@@ -65,7 +60,7 @@ import {
   DEFAULT_H_BRIDGE_TOKEN_DECIMALS,
   DEFAULT_L2_BRIDGE_GAS_LIMIT,
   DEFAULT_TIME_TO_WAIT,
-  DEFAULT_RELAYER_FEE,
+  DEFAULT_RELAYER_FEE
 } from '../../config/constants'
 
 describe('L2_Polygon_Messenger_Proxy', () => {
@@ -179,7 +174,9 @@ describe('L2_Polygon_Messenger_Proxy', () => {
     const expectedXDomainMessageSenderAddress: string = DEAD_ADDRESS
     const xDomainMessageSenderAddress: string = await l2_messengerProxy.xDomainMessageSender()
 
-    expect(expectedXDomainMessageSenderAddress).to.eq(xDomainMessageSenderAddress)
+    expect(expectedXDomainMessageSenderAddress).to.eq(
+      xDomainMessageSenderAddress
+    )
   })
 
   /**
@@ -206,9 +203,9 @@ describe('L2_Polygon_Messenger_Proxy', () => {
 
   it('Should not set the L2 Bridge address because it has already been set', async () => {
     const expectedErrorMsg: string = 'L2_PLGN_MSG: L2 Bridge already set'
-    await expect(
-      l2_messengerProxy.setL2Bridge(ONE_ADDRESS)
-    ).to.be.revertedWith(expectedErrorMsg)
+    await expect(l2_messengerProxy.setL2Bridge(ONE_ADDRESS)).to.be.revertedWith(
+      expectedErrorMsg
+    )
   })
 
   it('Should not send a cross domain message because it was called by an arbitrary address', async () => {
@@ -220,18 +217,14 @@ describe('L2_Polygon_Messenger_Proxy', () => {
     await expect(
       l2_messengerProxy
         .connect(otherUser)
-        .sendCrossDomainMessage(
-          arbitraryMessage
-        )
+        .sendCrossDomainMessage(arbitraryMessage)
     ).to.be.revertedWith(expectedErrorMsg)
   })
 
   it('Should not allow _processMessageFromRoot to succeed because the transaction fails', async () => {
     const expectedErrorMsg: string = 'L2_PLGN_MSG: Failed to proxy message'
 
-    const message: string = getSetL1GovernanceMessage(
-      DEAD_ADDRESS
-    )
+    const message: string = getSetL1GovernanceMessage(DEAD_ADDRESS)
 
     // Trying to set state with an account that is not the governance address will fail
     await expect(
@@ -244,7 +237,6 @@ describe('L2_Polygon_Messenger_Proxy', () => {
         message,
         l2ChainId
       )
-
     ).to.be.revertedWith(expectedErrorMsg)
   })
 })

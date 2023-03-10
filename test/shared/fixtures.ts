@@ -10,9 +10,7 @@ import {
   getMessengerWrapperDefaults,
   getL2BridgeDefaults
 } from '../../config/utils'
-import {
-  IGetL2BridgeDefaults
-} from '../../config/interfaces'
+import { IGetL2BridgeDefaults } from '../../config/interfaces'
 import {
   CHAIN_IDS,
   DEFAULT_DEADLINE,
@@ -29,7 +27,6 @@ import {
   DEFAULT_SWAP_FEE,
   DEFAULT_SWAP_ADMIN_FEE,
   DEFAULT_SWAP_WITHDRAWAL_FEE
-
 } from '../../config/constants'
 
 export async function fixture (
@@ -63,9 +60,7 @@ export async function fixture (
   const L2_Bridge = await ethers.getContractFactory(
     `contracts/test/${l2_bridgeArtifact}`
   )
-  const L1_Messenger = await ethers.getContractFactory(
-    l1_messengerArtifact
-  )
+  const L1_Messenger = await ethers.getContractFactory(l1_messengerArtifact)
   const L1_MessengerWrapper = await ethers.getContractFactory(
     l1_messengerWrapperArtifact
   )
@@ -91,25 +86,19 @@ export async function fixture (
   const mathUtils = await MathUtils.deploy()
   await mathUtils.deployed()
 
-  const SwapUtils = await ethers.getContractFactory(
-    'SwapUtils',
-    {
-      libraries: {
-        'MathUtils': mathUtils.address
-      }
+  const SwapUtils = await ethers.getContractFactory('SwapUtils', {
+    libraries: {
+      MathUtils: mathUtils.address
     }
-  )
+  })
   const swapUtils = await SwapUtils.deploy()
   await swapUtils.deployed()
 
-  const L2_Swap = await ethers.getContractFactory(
-    'Swap',
-    {
-      libraries: {
-        'SwapUtils': swapUtils.address
-      }
+  const L2_Swap = await ethers.getContractFactory('Swap', {
+    libraries: {
+      SwapUtils: swapUtils.address
     }
-  )
+  })
 
   const L2_AmmWrapper = await ethers.getContractFactory('L2_AmmWrapper')
 
@@ -158,7 +147,11 @@ export async function fixture (
   if (l1AlreadySetOpts?.l1BridgeAddress) {
     l1_bridge = L1_Bridge.attach(l1AlreadySetOpts.l1BridgeAddress)
   } else {
-    l1_bridge = await L1_Bridge.deploy(l1_canonicalToken.address, [await bonder.getAddress()], await governance.getAddress())
+    l1_bridge = await L1_Bridge.deploy(
+      l1_canonicalToken.address,
+      [await bonder.getAddress()],
+      await governance.getAddress()
+    )
   }
 
   // Deploy Hop bridge token
@@ -169,11 +162,15 @@ export async function fixture (
   )
 
   // Deploy Messenger Proxy
-  const l2_messengerProxy: Contract = await L2_MessengerProxy.deploy(fxChild.address)
+  const l2_messengerProxy: Contract = await L2_MessengerProxy.deploy(
+    fxChild.address
+  )
 
   // Deploy Hop L2 contracts
   let supportedChainIds: BigNumber[] = ALL_SUPPORTED_CHAIN_IDS
-  supportedChainIds = supportedChainIds.filter(chainId => chainId.toString() !== l2ChainId.toString())
+  supportedChainIds = supportedChainIds.filter(
+    chainId => chainId.toString() !== l2ChainId.toString()
+  )
   let l2BridgeDefaults: IGetL2BridgeDefaults[] = getL2BridgeDefaults(
     l2ChainId,
     l2_messenger.address,
@@ -190,7 +187,7 @@ export async function fixture (
 
   // Deploy Messenger Wrapper
   const fxChildTunnelAddress: string = l2_messengerProxy.address
-  const messengerWrapperDefaults:any[] = getMessengerWrapperDefaults(
+  const messengerWrapperDefaults: any[] = getMessengerWrapperDefaults(
     l1ChainId,
     l2ChainId,
     l1_bridge.address,

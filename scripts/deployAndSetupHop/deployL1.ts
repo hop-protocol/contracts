@@ -1,12 +1,7 @@
 require('dotenv').config()
 
 import { ethers } from 'hardhat'
-import {
-  ContractFactory,
-  Contract,
-  Signer,
-  BigNumber
-} from 'ethers'
+import { ContractFactory, Contract, Signer, BigNumber } from 'ethers'
 
 import {
   getContractFactories,
@@ -17,9 +12,7 @@ import {
   Logger
 } from '../shared/utils'
 
-import {
-  HOP_DAO_ADDRESS
-} from '../../config/constants'
+import { HOP_DAO_ADDRESS } from '../../config/constants'
 
 const logger = Logger('deployL1')
 
@@ -66,17 +59,20 @@ export async function deployL1 (config: Config) {
 
   // Contracts
   let l1_bridge: Contract
-  ;({ L1_Bridge } = await getContractFactories(l1ChainId, deployer, ethers, isEthDeployment, isHopDeployment))
+  ;({ L1_Bridge } = await getContractFactories(
+    l1ChainId,
+    deployer,
+    ethers,
+    isEthDeployment,
+    isHopDeployment
+  ))
 
   /**
    * Deployments
    */
 
   logger.log('deploying L1 bridge')
-  let l1BridgeParams: any[] = [
-    [bonderAddress],
-    await governance.getAddress(),
-  ]
+  let l1BridgeParams: any[] = [[bonderAddress], await governance.getAddress()]
   if (!isEthDeployment) {
     l1BridgeParams.unshift(l1CanonicalTokenAddress)
   }
@@ -84,12 +80,10 @@ export async function deployL1 (config: Config) {
     l1BridgeParams.push(HOP_DAO_ADDRESS)
   }
 
-  l1_bridge = await L1_Bridge
-    .connect(deployer)
-    .deploy(
-      ...l1BridgeParams,
-      await getModifiedGasPrice(ethers, l1ChainId)
-    )
+  l1_bridge = await L1_Bridge.connect(deployer).deploy(
+    ...l1BridgeParams,
+    await getModifiedGasPrice(ethers, l1ChainId)
+  )
   await waitAfterTransaction(l1_bridge)
 
   const l1BridgeAddress = l1_bridge.address
