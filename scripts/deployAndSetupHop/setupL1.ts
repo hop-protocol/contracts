@@ -2,7 +2,7 @@ require('dotenv').config()
 
 import { ethers as l2Ethers } from 'ethers'
 import { ethers } from 'hardhat'
-import { BigNumber, ContractFactory, Signer, Contract, providers } from 'ethers'
+import { BigNumber, ContractFactory, Signer, Contract, providers, utils as ethersUtils } from 'ethers'
 
 import {
   getContractFactories,
@@ -195,12 +195,13 @@ export async function setupL1 (config: Config) {
     isChainIdConsensys(l2ChainId) ||
     isChainIdScroll(l2ChainId)
   ) {
-    logger.log(
-      `-------------------`,
-      `IMPORTANT: Please manually send funds to ${l1_messengerWrapper.address} on L1`,
-      `in order to complete the token send across the bridge.`,
-      `-------------------`
-    )
+    logger.log('Sending initial funds to L1_MessengerWrapper')
+    const tx = await deployer.sendTransaction({
+      to: l1_messengerWrapper.address,
+      value: ethersUtils.parseEther('0.02')
+    })
+    await tx.wait()
+    await waitAfterTransaction()
   }
 
   if (isChainIdOptimism(l2ChainId) || isChainIdBase(l2ChainId)) {
