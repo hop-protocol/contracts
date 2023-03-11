@@ -39,7 +39,7 @@ const decodeTypes: Record<string, ContractNames> = {
     l1HopBridge: ['address', 'address[]', 'address', 'address']
   },
   arbitrum: {
-    l1MessengerWrapper: ['address', 'address', 'address'],
+    l1MessengerWrapper: ['address', 'address', 'address', 'uint256'],
     l2Bridge: [
       'address',
       'address',
@@ -56,7 +56,7 @@ const decodeTypes: Record<string, ContractNames> = {
     l2HopBridgeToken: ['string', 'string', 'uint8']
   },
   nova_mainnet: {
-    l1MessengerWrapper: ['address', 'address', 'address'],
+    l1MessengerWrapper: ['address', 'address', 'address', 'uint256'],
     l2Bridge: [
       'address',
       'address',
@@ -134,7 +134,7 @@ const decodeTypes: Record<string, ContractNames> = {
     l2HopBridgeToken: ['string', 'string', 'uint8']
   },
   consensys_mainnet: {
-    l1MessengerWrapper: ['address', 'address', 'address'],
+    l1MessengerWrapper: ['address', 'address', 'address', 'uint256'],
     l2Bridge: [
       'address',
       'address',
@@ -151,7 +151,7 @@ const decodeTypes: Record<string, ContractNames> = {
     l2HopBridgeToken: ['string', 'string', 'uint8']
   },
   zksync_mainnet: {
-    l1MessengerWrapper: ['address', 'address', 'address'],
+    l1MessengerWrapper: ['address', 'address', 'address', 'uint256'],
     l2Bridge: [
       'address',
       'address',
@@ -186,7 +186,7 @@ const decodeTypes: Record<string, ContractNames> = {
     l2HopBridgeToken: ['string', 'string', 'uint8']
   },
   scroll_mainnet: {
-    l1MessengerWrapper: ['address', 'address', 'address'],
+    l1MessengerWrapper: ['address', 'address', 'address', 'uint256'],
     l2Bridge: [
       'address',
       'address',
