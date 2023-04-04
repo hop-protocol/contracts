@@ -42,12 +42,12 @@ const targetAddresses: Record<string, Record<string, string>> = {
     HOP: '0x4C36d2919e407f0Cc2Ee3c993ccF8ac26d9CE64e'
   },
   polygon: {
-    USDC: '0xD89ea85ee5dD2027dbC29Fbc198DC197D44c3d70',
-    USDT: '0xFC047884dE7797A3D9cbA42FBc3b675388A110d5',
-    DAI: '0x2e929203D8F2Fcf88C4Ff7b7362d08169b6F661c',
-    MATIC: '0xe6bfe2ac487EA9A6c58108FBcb6d2DB96b667cc0',
-    ETH: '0xdeC8005ca1a3f90168C211406feFafA412467D81',
-    HOP: '0xaE6Dc7fED207FB7bF3F406Fc197f70607CeA618a'
+    USDC: '0x1e1607db33D38715544E595A5D8f94557C487DfA',
+    USDT: '0x1CD391bd1D915D189dE162F0F1963C07E60E4CD6',
+    DAI: '0x172cAbe34c757472249aD4Bd97560373fBbf0DA3',
+    MATIC: '0x29d591fF46194cE3B0B813CE7940569Fa06bE7fa',
+    ETH: '0x26a1fDdaCfb9F6F5072eE5636ED3429101E6C069',
+    HOP: '0xAa1603822b43e592e33b58d34B4423E1bcD8b4dC'
   },
   optimism: {
     USDC: '0x25ace71c97B33Cc4729CF772ae268934F7ab5fA1',
@@ -143,106 +143,148 @@ const l2BridgeAddresses: Record<string, Record<string, string>> = {
   }
 }
 
-async function main () {
-  const res = await getPromptRes()
-  const { token, functionToCall, input, timestamp } = res
+const l2ChainIds = [
+  '100',
+  '137',
+  '10',
+  '42161',
+  '42170',
+]
+
+// async function main () {
+//   const res = await getPromptRes()
+//   const { token, functionToCall, input, timestamp, l2ChainId } = res
+
+export async function main(destChain: string, token: string, functionToCall: string, input: string, timestamp: number, l2ChainId: string) {
+// export async function main(destChain: string, token: string, functionToCall: string, input: string, timestamp: number, l2ChainId: string) {
+  console.log('!!!!!!!!!!!', destChain)
+  // const res = await getPromptRes()
+  // const { token, functionToCall, input, timestamp, l2ChainId } = res
+
+  if (!destChain) return
+
+  if (!l2ChainIds.includes(l2ChainId)) {
+    throw new Error('Invalid chainId')
+  }
+
   if (!tokens.includes(token)) {
     throw new Error('Invalid token')
   }
 
   const defaultValue = 0
-  const calldata = await getUpdateContractStateMessage(functionToCall, input)
+  let calldata = ''
+  if (functionToCall !== 'setCrossDomainMessengerWrapper') {
+    calldata = getUpdateContractStateMessage(functionToCall, input)
+  }
 
   let abi: string[] = []
   let ethersInterface: ethersUtils.Interface
   let data: string
   let l2BridgeAddress: string | undefined
 
-  // Ethereum
-  const paramTypes = 'uint256'
-  abi = [`function ${functionToCall}(${paramTypes})`]
-  ethersInterface = new ethersUtils.Interface(abi)
-  data = ethersInterface.encodeFunctionData(functionToCall, [input])
-  logData(chains.Ethereum, abi, token, data, defaultValue, timestamp)
+  if (destChain === chains.Ethereum) {
+    // Ethereum
+    const paramTypes = 'uint256,address'
+    abi = [`function ${functionToCall}(${paramTypes})`]
+    ethersInterface = new ethersUtils.Interface(abi)
+    data = ethersInterface.encodeFunctionData(functionToCall, [l2ChainId, input])
+    logData(chains.Ethereum, abi, token, data, defaultValue, timestamp)
 
-  // Gnosis
-  abi = ['function requireToPassMessage(address,bytes,uint256)']
-  ethersInterface = new ethersUtils.Interface(abi)
-  l2BridgeAddress = l2BridgeAddresses?.['gnosis']?.[token]
-  data = !l2BridgeAddress
-    ? null
-    : ethersInterface.encodeFunctionData('requireToPassMessage', [
-        l2BridgeAddress,
-        calldata,
-        '1500000'
-      ])
-  logData(chains.Gnosis, abi, token, data, defaultValue, timestamp)
+    if (functionToCall === 'setCrossDomainMessengerWrapper') {
+      return
+    }
+  }
 
-  // Polygon
-  abi = ['function sendCrossDomainMessage(bytes)']
-  ethersInterface = new ethersUtils.Interface(abi)
-  data = ethersInterface.encodeFunctionData('sendCrossDomainMessage', [
-    calldata
-  ])
-  logData(chains.Polygon, abi, token, data, defaultValue, timestamp)
+  if (destChain === chains.Gnosis) {
+    // Gnosis
+    abi = ['function requireToPassMessage(address,bytes,uint256)']
+    ethersInterface = new ethersUtils.Interface(abi)
+    l2BridgeAddress = l2BridgeAddresses?.['gnosis']?.[token]
+    data = !l2BridgeAddress
+      ? null
+      : ethersInterface.encodeFunctionData('requireToPassMessage', [
+          l2BridgeAddress,
+          calldata,
+          '1500000'
+        ])
+    logData(chains.Gnosis, abi, token, data, defaultValue, timestamp)
+  }
 
-  if (token === 'MATIC') return
+  if (destChain === chains.Polygon) {
+    // Polygon
+    abi = ['function sendCrossDomainMessage(bytes)']
+    ethersInterface = new ethersUtils.Interface(abi)
+    data = ethersInterface.encodeFunctionData('sendCrossDomainMessage', [
+      calldata
+    ])
+    logData(chains.Polygon, abi, token, data, defaultValue, timestamp)
 
-  // Optimism
-  abi = ['function sendMessage(address,bytes,uint32)']
-  ethersInterface = new ethersUtils.Interface(abi)
-  l2BridgeAddress = l2BridgeAddresses?.['optimism']?.[token]
-  data = !l2BridgeAddress
-    ? null
-    : ethersInterface.encodeFunctionData('sendMessage', [
-        l2BridgeAddress,
-        calldata,
-        '5000000'
-      ])
-  logData(chains.Optimism, abi, token, data, defaultValue, timestamp)
+    if (token === 'MATIC') return
+  }
 
-  // Arbitrum
-  abi = [
-    'function createRetryableTicket(address,uint256,uint256,address,address,uint256,uint256,bytes)'
-  ]
-  ethersInterface = new ethersUtils.Interface(abi)
-  l2BridgeAddress = l2BridgeAddresses?.['arbitrum']?.[token]
-  let fee = '10000000000000000'
-  data = !l2BridgeAddress
-    ? null
-    : ethersInterface.encodeFunctionData('createRetryableTicket', [
-        l2BridgeAddress,
-        0,
-        '100000000000000',
-        governanceAddress,
-        governanceAddress,
-        '1000000',
-        '5000000000',
-        calldata
-      ])
-  let value = 0.01
-  logData(chains.Arbitrum, abi, token, data, value, timestamp, fee)
 
-  // Nova
-  abi = [
-    'function createRetryableTicket(address,uint256,uint256,address,address,uint256,uint256,bytes)'
-  ]
-  ethersInterface = new ethersUtils.Interface(abi)
-  l2BridgeAddress = l2BridgeAddresses?.['nova']?.[token]
-  fee = '10000000000000000'
-  data = !l2BridgeAddress
-    ? null
-    : ethersInterface.encodeFunctionData('createRetryableTicket', [
-        l2BridgeAddress,
-        0,
-        '100000000000000',
-        governanceAddress,
-        governanceAddress,
-        '1000000',
-        '5000000000',
-        calldata
-      ])
-  logData(chains.Nova, abi, token, data, value, timestamp, fee)
+
+  if (destChain === chains.Optimism) {
+    // Optimism
+    abi = ['function sendMessage(address,bytes,uint32)']
+    ethersInterface = new ethersUtils.Interface(abi)
+    l2BridgeAddress = l2BridgeAddresses?.['optimism']?.[token]
+    data = !l2BridgeAddress
+      ? null
+      : ethersInterface.encodeFunctionData('sendMessage', [
+          l2BridgeAddress,
+          calldata,
+          '5000000'
+        ])
+    logData(chains.Optimism, abi, token, data, defaultValue, timestamp)
+  }
+
+  if (destChain === chains.Arbitrum) {
+    // Arbitrum
+    abi = [
+      'function createRetryableTicket(address,uint256,uint256,address,address,uint256,uint256,bytes)'
+    ]
+    ethersInterface = new ethersUtils.Interface(abi)
+    l2BridgeAddress = l2BridgeAddresses?.['arbitrum']?.[token]
+    let fee = '10000000000000000'
+    data = !l2BridgeAddress
+      ? null
+      : ethersInterface.encodeFunctionData('createRetryableTicket', [
+          l2BridgeAddress,
+          0,
+          '1000000000000000',
+          governanceAddress,
+          governanceAddress,
+          '1000000',
+          '5000000000',
+          calldata
+        ])
+    let value = 0.01
+    logData(chains.Arbitrum, abi, token, data, value, timestamp, fee)
+  }
+
+  if (destChain === chains.Nova) {
+    // Nova
+    abi = [
+      'function createRetryableTicket(address,uint256,uint256,address,address,uint256,uint256,bytes)'
+    ]
+    ethersInterface = new ethersUtils.Interface(abi)
+    l2BridgeAddress = l2BridgeAddresses?.['nova']?.[token]
+    fee = '10000000000000000'
+    data = !l2BridgeAddress
+      ? null
+      : ethersInterface.encodeFunctionData('createRetryableTicket', [
+          l2BridgeAddress,
+          0,
+          '1000000000000000',
+          governanceAddress,
+          governanceAddress,
+          '1000000',
+          '5000000000',
+          calldata
+        ])
+    logData(chains.Nova, abi, token, data, value, timestamp, fee)
+  }
 
   // // Consensys
   // abi = ['function dispatchMessage(address,uint256,uint256,bytes)']
@@ -299,19 +341,27 @@ const getPromptRes = async () => {
       type: 'any',
       description: 'Function input',
       required: true
-    }
+    },
+    {
+      name: 'l2ChainId',
+      type: 'string',
+      description: 'L2 Chain ID',
+      required: true
+    },
   ])
 
   const timestamp: any = res.timestamp as number
   const token: string = res.token as string
   const functionToCall: string = res.functionToCall as string
   const input: any = res.input
+  const l2ChainId: any = res.l2ChainId as string
 
   return {
     token,
     functionToCall,
     input,
-    timestamp
+    timestamp,
+    l2ChainId
   }
 }
 
