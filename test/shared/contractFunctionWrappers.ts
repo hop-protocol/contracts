@@ -40,7 +40,6 @@ import {
   C_TO_H_SWAP_INDICES,
   DEFAULT_MAX_GAS,
   DEFAULT_GAS_PRICE_BID,
-  DEFAULT_MAX_SUBMISSION_COST
 } from '../../config/constants'
 
 /**
@@ -94,7 +93,7 @@ export const executeCanonicalMessengerSendMessage = async (
     const excessFeeRefundAddress: string = await sender.getAddress()
     const callValueRefundAddress: string = await sender.getAddress()
     // Governance updates don't need high values
-    const maxSubmissionCost: BigNumber = ethersUtils.parseEther('0.0001')
+    const maxSubmissionCost: BigNumber = ethersUtils.parseEther('0.001')
     const maxGas: BigNumber = BigNumber.from('1000000')
     const gasPriceBid: BigNumber = BigNumber.from('5000000000')
     const data: string = message

@@ -10,7 +10,6 @@ import {
   FX_CHILD_ADDRESSES,
   POLYGON_RPC_ENDPOINTS,
   AMB_PROXY_ADDRESSES,
-  DEFAULT_MAX_SUBMISSION_COST,
   DEFAULT_MAX_GAS,
   DEFAULT_GAS_PRICE_BID
 } from './constants'
@@ -340,7 +339,7 @@ export const getTxOverridesPerChain = (l2ChainId: BigNumber): Overrides => {
   } else if (isChainIdPolygon(l2ChainId)) {
     return {
       // For Mumbai, a gasPrice any lower than this will not get mined
-      gasPrice: 100_000_000_000,
+      gasPrice: 500_000_000_000,
       // A polygon transactions require this much gas
       gasLimit: 4_500_000
     }

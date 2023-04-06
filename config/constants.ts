@@ -109,9 +109,6 @@ export const DEFAULT_MESSENGER_WRAPPER_GAS_LIMIT: number = 1920000
 export const DEFAULT_MESSENGER_WRAPPER_GAS_PRICE: number = 0
 export const DEFAULT_MESSENGER_WRAPPER_CALL_VALUE: number = 0
 
-export const DEFAULT_MAX_SUBMISSION_COST: BigNumber = BigNumber.from(
-  '10000000000000000'
-)
 export const DEFAULT_MAX_GAS: number = 5000000
 export const DEFAULT_GAS_PRICE_BID: number = 100000000000
 
@@ -303,3 +300,5 @@ export const HOP_DAO_ADDRESS = '0xeeA8422a08258e73c139Fc32a25e10410c14bd7a'
 export const CONSENSYS_ZK_EVM_MESSAGE_FEE = '10000000000000000'
 export const ZKSYNC_MESSAGE_FEE = 'TODO' // TODO: zksync
 export const SCROLL_ZK_EVM_MESSAGE_FEE = '10000000000000000' // TODO
+
+export const DefaultChallengePeriod: string = '86400'

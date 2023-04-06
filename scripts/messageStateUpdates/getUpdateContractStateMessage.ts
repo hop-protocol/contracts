@@ -40,10 +40,10 @@ const FUNCTIONS = {
   SET_MESSENGER_PROXY: 'setMessengerProxy'
 }
 
-export async function getUpdateContractStateMessage (
+export function getUpdateContractStateMessage (
   functionToCall: string,
   input: any
-) {
+): string {
   const messageToSend: string = getMessageToSend(functionToCall, input)
   return messageToSend
 }

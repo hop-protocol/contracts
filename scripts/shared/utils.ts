@@ -365,7 +365,7 @@ export const getNetworkDataByNetworkName = (networkName: string) => {
 }
 
 export const waitAfterTransaction = async (
-  contract: Contract = null,
+  contract: Contract | null = null,
   ethers = null
 ) => {
   // Ethers does not wait long enough after `deployed()` on some networks

@@ -23,7 +23,7 @@
     "deploy:l2-optimism-canonical-bridge": "hardhat run scripts/deployAndSetupHop/optimism-canonical-bridge/deployL2.ts --network optimism",
     "setup:l2-optimism-canonical-bridge": "hardhat run scripts/deployAndSetupHop/optimism-canonical-bridge/setupL2.ts --network optimism",
     "check-l2-bridge-bytecode-size": "cat artifacts/contracts/bridges/L2_OptimismBridge.sol/L2_OptimismBridge.ovm.json | jq -r '.deployedBytecode' | wc -c",
-    "get-messenger-tx-data": "hardhat run scripts/contractState/getMessengerTxData.ts"
+    "get-messenger-tx-data": "hardhat run scripts/messengeStateUpdates/getMessengerTxData.ts"
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.6",
