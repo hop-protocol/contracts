@@ -143,148 +143,106 @@ const l2BridgeAddresses: Record<string, Record<string, string>> = {
   }
 }
 
-const l2ChainIds = [
-  '100',
-  '137',
-  '10',
-  '42161',
-  '42170',
-]
-
-// async function main () {
-//   const res = await getPromptRes()
-//   const { token, functionToCall, input, timestamp, l2ChainId } = res
-
-export async function main(destChain: string, token: string, functionToCall: string, input: string, timestamp: number, l2ChainId: string) {
-// export async function main(destChain: string, token: string, functionToCall: string, input: string, timestamp: number, l2ChainId: string) {
-  console.log('!!!!!!!!!!!', destChain)
-  // const res = await getPromptRes()
-  // const { token, functionToCall, input, timestamp, l2ChainId } = res
-
-  if (!destChain) return
-
-  if (!l2ChainIds.includes(l2ChainId)) {
-    throw new Error('Invalid chainId')
-  }
-
+async function main () {
+  const res = await getPromptRes()
+  const { token, functionToCall, input, timestamp } = res
   if (!tokens.includes(token)) {
     throw new Error('Invalid token')
   }
 
   const defaultValue = 0
-  let calldata = ''
-  if (functionToCall !== 'setCrossDomainMessengerWrapper') {
-    calldata = getUpdateContractStateMessage(functionToCall, input)
-  }
+  const calldata = await getUpdateContractStateMessage(functionToCall, input)
 
   let abi: string[] = []
   let ethersInterface: ethersUtils.Interface
   let data: string
   let l2BridgeAddress: string | undefined
 
-  if (destChain === chains.Ethereum) {
-    // Ethereum
-    const paramTypes = 'uint256,address'
-    abi = [`function ${functionToCall}(${paramTypes})`]
-    ethersInterface = new ethersUtils.Interface(abi)
-    data = ethersInterface.encodeFunctionData(functionToCall, [l2ChainId, input])
-    logData(chains.Ethereum, abi, token, data, defaultValue, timestamp)
+  // Ethereum
+  const paramTypes = 'uint256'
+  abi = [`function ${functionToCall}(${paramTypes})`]
+  ethersInterface = new ethersUtils.Interface(abi)
+  data = ethersInterface.encodeFunctionData(functionToCall, [input])
+  logData(chains.Ethereum, abi, token, data, defaultValue, timestamp)
 
-    if (functionToCall === 'setCrossDomainMessengerWrapper') {
-      return
-    }
-  }
+  // Gnosis
+  abi = ['function requireToPassMessage(address,bytes,uint256)']
+  ethersInterface = new ethersUtils.Interface(abi)
+  l2BridgeAddress = l2BridgeAddresses?.['gnosis']?.[token]
+  data = !l2BridgeAddress
+    ? null
+    : ethersInterface.encodeFunctionData('requireToPassMessage', [
+        l2BridgeAddress,
+        calldata,
+        '1500000'
+      ])
+  logData(chains.Gnosis, abi, token, data, defaultValue, timestamp)
 
-  if (destChain === chains.Gnosis) {
-    // Gnosis
-    abi = ['function requireToPassMessage(address,bytes,uint256)']
-    ethersInterface = new ethersUtils.Interface(abi)
-    l2BridgeAddress = l2BridgeAddresses?.['gnosis']?.[token]
-    data = !l2BridgeAddress
-      ? null
-      : ethersInterface.encodeFunctionData('requireToPassMessage', [
-          l2BridgeAddress,
-          calldata,
-          '1500000'
-        ])
-    logData(chains.Gnosis, abi, token, data, defaultValue, timestamp)
-  }
+  // Polygon
+  abi = ['function sendCrossDomainMessage(bytes)']
+  ethersInterface = new ethersUtils.Interface(abi)
+  data = ethersInterface.encodeFunctionData('sendCrossDomainMessage', [
+    calldata
+  ])
+  logData(chains.Polygon, abi, token, data, defaultValue, timestamp)
 
-  if (destChain === chains.Polygon) {
-    // Polygon
-    abi = ['function sendCrossDomainMessage(bytes)']
-    ethersInterface = new ethersUtils.Interface(abi)
-    data = ethersInterface.encodeFunctionData('sendCrossDomainMessage', [
-      calldata
-    ])
-    logData(chains.Polygon, abi, token, data, defaultValue, timestamp)
+  if (token === 'MATIC') return
 
-    if (token === 'MATIC') return
-  }
+  // Optimism
+  abi = ['function sendMessage(address,bytes,uint32)']
+  ethersInterface = new ethersUtils.Interface(abi)
+  l2BridgeAddress = l2BridgeAddresses?.['optimism']?.[token]
+  data = !l2BridgeAddress
+    ? null
+    : ethersInterface.encodeFunctionData('sendMessage', [
+        l2BridgeAddress,
+        calldata,
+        '5000000'
+      ])
+  logData(chains.Optimism, abi, token, data, defaultValue, timestamp)
 
+  // Arbitrum
+  abi = [
+    'function createRetryableTicket(address,uint256,uint256,address,address,uint256,uint256,bytes)'
+  ]
+  ethersInterface = new ethersUtils.Interface(abi)
+  l2BridgeAddress = l2BridgeAddresses?.['arbitrum']?.[token]
+  let fee = '10000000000000000'
+  data = !l2BridgeAddress
+    ? null
+    : ethersInterface.encodeFunctionData('createRetryableTicket', [
+        l2BridgeAddress,
+        0,
+        '100000000000000',
+        governanceAddress,
+        governanceAddress,
+        '1000000',
+        '5000000000',
+        calldata
+      ])
+  let value = 0.01
+  logData(chains.Arbitrum, abi, token, data, value, timestamp, fee)
 
-
-  if (destChain === chains.Optimism) {
-    // Optimism
-    abi = ['function sendMessage(address,bytes,uint32)']
-    ethersInterface = new ethersUtils.Interface(abi)
-    l2BridgeAddress = l2BridgeAddresses?.['optimism']?.[token]
-    data = !l2BridgeAddress
-      ? null
-      : ethersInterface.encodeFunctionData('sendMessage', [
-          l2BridgeAddress,
-          calldata,
-          '5000000'
-        ])
-    logData(chains.Optimism, abi, token, data, defaultValue, timestamp)
-  }
-
-  if (destChain === chains.Arbitrum) {
-    // Arbitrum
-    abi = [
-      'function createRetryableTicket(address,uint256,uint256,address,address,uint256,uint256,bytes)'
-    ]
-    ethersInterface = new ethersUtils.Interface(abi)
-    l2BridgeAddress = l2BridgeAddresses?.['arbitrum']?.[token]
-    let fee = '10000000000000000'
-    data = !l2BridgeAddress
-      ? null
-      : ethersInterface.encodeFunctionData('createRetryableTicket', [
-          l2BridgeAddress,
-          0,
-          '1000000000000000',
-          governanceAddress,
-          governanceAddress,
-          '1000000',
-          '5000000000',
-          calldata
-        ])
-    let value = 0.01
-    logData(chains.Arbitrum, abi, token, data, value, timestamp, fee)
-  }
-
-  if (destChain === chains.Nova) {
-    // Nova
-    abi = [
-      'function createRetryableTicket(address,uint256,uint256,address,address,uint256,uint256,bytes)'
-    ]
-    ethersInterface = new ethersUtils.Interface(abi)
-    l2BridgeAddress = l2BridgeAddresses?.['nova']?.[token]
-    fee = '10000000000000000'
-    data = !l2BridgeAddress
-      ? null
-      : ethersInterface.encodeFunctionData('createRetryableTicket', [
-          l2BridgeAddress,
-          0,
-          '1000000000000000',
-          governanceAddress,
-          governanceAddress,
-          '1000000',
-          '5000000000',
-          calldata
-        ])
-    logData(chains.Nova, abi, token, data, value, timestamp, fee)
-  }
+  // Nova
+  abi = [
+    'function createRetryableTicket(address,uint256,uint256,address,address,uint256,uint256,bytes)'
+  ]
+  ethersInterface = new ethersUtils.Interface(abi)
+  l2BridgeAddress = l2BridgeAddresses?.['nova']?.[token]
+  fee = '10000000000000000'
+  data = !l2BridgeAddress
+    ? null
+    : ethersInterface.encodeFunctionData('createRetryableTicket', [
+        l2BridgeAddress,
+        0,
+        '100000000000000',
+        governanceAddress,
+        governanceAddress,
+        '1000000',
+        '5000000000',
+        calldata
+      ])
+  logData(chains.Nova, abi, token, data, value, timestamp, fee)
 
   // // Consensys
   // abi = ['function dispatchMessage(address,uint256,uint256,bytes)']
@@ -341,27 +299,19 @@ const getPromptRes = async () => {
       type: 'any',
       description: 'Function input',
       required: true
-    },
-    {
-      name: 'l2ChainId',
-      type: 'string',
-      description: 'L2 Chain ID',
-      required: true
-    },
+    }
   ])
 
   const timestamp: any = res.timestamp as number
   const token: string = res.token as string
   const functionToCall: string = res.functionToCall as string
   const input: any = res.input
-  const l2ChainId: any = res.l2ChainId as string
 
   return {
     token,
     functionToCall,
     input,
-    timestamp,
-    l2ChainId
+    timestamp
   }
 }
 
