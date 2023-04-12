@@ -2,7 +2,14 @@ require('dotenv').config()
 
 import { ethers as l2Ethers } from 'ethers'
 import { ethers } from 'hardhat'
-import { BigNumber, ContractFactory, Signer, Contract, providers, utils as ethersUtils } from 'ethers'
+import {
+  BigNumber,
+  ContractFactory,
+  Signer,
+  Contract,
+  providers,
+  utils as ethersUtils
+} from 'ethers'
 
 import {
   getContractFactories,
@@ -28,6 +35,7 @@ import {
   isChainIdConsensys,
   isChainIdBase,
   isChainIdScroll,
+  isChainIdPolygonZkEvm,
   getActiveChainIds
 } from '../../config/utils'
 

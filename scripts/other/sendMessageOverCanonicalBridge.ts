@@ -31,14 +31,16 @@ async function main () {
     '80001': 'mumbai',
     '420': 'optimism',
     '421613': 'arbitrum',
-    '59140': 'consensys'
+    '59140': 'consensys',
+    '1442': 'polygonzkevm'
   }
 
   const l2BridgeAddresses: Record<string, string> = {
     '80001': '0x34E8251051687BfF4EA23C18e466b3Ed13492abd',
     '421613': '0xb276BC046DFf5024D20A3947475eA20C9F08eB1F',
     '420': '0x2708E5C7087d4C6D295c8B58b2D452c360D505C7',
-    '59140': '0x3E4a3a4796d16c0Cd582C382691998f7c06420B6'
+    '59140': '0x3E4a3a4796d16c0Cd582C382691998f7c06420B6',
+    '1442': '0xF6BEEeBB578e214CA9E23B0e9683454Ff88Ed2A7'
   }
 
   for (const l2ChainId of l2ChainIds) {

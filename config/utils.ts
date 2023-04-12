@@ -49,11 +49,7 @@ export const getMessengerWrapperDefaults = (
     const gasLimit: number = 1000000
     const ambAddress: string = getXDaiAmbAddresses(l1ChainId)
 
-    data.push(
-      ...defaults,
-      gasLimit,
-      ambAddress
-    )
+    data.push(...defaults, gasLimit, ambAddress)
   } else if (isChainIdPolygon(l2ChainId)) {
     const checkpointManager: string = getPolygonCheckpointManagerAddress(
       l1ChainId
@@ -72,6 +68,8 @@ export const getMessengerWrapperDefaults = (
   } else if (isChainIdZkSync(l2ChainId)) {
     data.push(...defaults)
   } else if (isChainIdScroll(l2ChainId)) {
+    data.push(...defaults)
+  } else if (isChainIdPolygonZkEvm(l2ChainId)) {
     data.push(...defaults)
   }
 
@@ -108,6 +106,8 @@ export const getL2BridgeDefaults = (
   } else if (isChainIdZkSync(chainId)) {
     // no additional data
   } else if (isChainIdScroll(chainId)) {
+    // no additional data
+  } else if (isChainIdPolygonZkEvm(chainId)) {
     // no additional data
   }
 
@@ -208,6 +208,14 @@ export const isChainIdScroll = (chainId: BigNumber): boolean => {
   return false
 }
 
+export const isChainIdPolygonZkEvm = (chainId: BigNumber): boolean => {
+  if (chainId.eq(CHAIN_IDS.POLYGONZKEVM.POLYGONZKEVM_TESTNET)) {
+    return true
+  }
+
+  return false
+}
+
 export const isChainIdMainnet = (chainId: BigNumber): boolean => {
   if (chainId.eq(CHAIN_IDS.ETHEREUM.MAINNET)) {
     return true
@@ -241,7 +249,8 @@ export const isChainIdTestnet = (chainId: BigNumber): boolean => {
     chainId.eq(CHAIN_IDS.CONSENSYS.CONSENSYS_TESTNET) ||
     chainId.eq(CHAIN_IDS.ZKSYNC.ZKSYNC_TESTNET) ||
     chainId.eq(CHAIN_IDS.SCROLL.SCROLL_TESTNET) ||
-    chainId.eq(CHAIN_IDS.BASE.BASE_TESTNET)
+    chainId.eq(CHAIN_IDS.BASE.BASE_TESTNET) ||
+    chainId.eq(CHAIN_IDS.POLYGONZKEVM.POLYGONZKEVM_TESTNET)
   ) {
     return true
   }
@@ -329,7 +338,8 @@ export const getTxOverridesPerChain = (l2ChainId: BigNumber): Overrides => {
     isChainIdConsensys(l2ChainId) ||
     isChainIdZkSync(l2ChainId) ||
     isChainIdBase(l2ChainId) ||
-    isChainIdScroll(l2ChainId)
+    isChainIdScroll(l2ChainId) ||
+    isChainIdPolygonZkEvm(l2ChainId)
   ) {
     return {}
   } else if (isChainIdXDai(l2ChainId)) {

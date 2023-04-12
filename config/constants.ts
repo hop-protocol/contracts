@@ -37,6 +37,9 @@ export const CHAIN_IDS: any = {
   },
   SCROLL: {
     SCROLL_TESTNET: BigNumber.from('534353')
+  },
+  POLYGONZKEVM: {
+    POLYGONZKEVM_TESTNET: BigNumber.from('1442')
   }
 }
 
@@ -85,6 +88,9 @@ export const CHAIN_IDS_TO_ACTIVATE: any = {
     },
     SCROLL: {
       SCROLL_TESTNET: BigNumber.from('534353')
+    },
+    POLYGONZKEVM: {
+      POLYGONZKEVM_TESTNET: BigNumber.from('1442')
     }
   }
 }
@@ -288,6 +294,10 @@ export const L2_CANONICAL_TOKEN_ADDRESSES: any = {
   },
   SCROLL_TESTNET: {
     ETH: '0x5300000000000000000000000000000000000004' // Canonical deployment
+  },
+  POLYGONZKEVM_TESTNET: {
+    // TODO: find address
+    ETH: '0x0000000000000000000000000000000000000000' // Canonical deployment
   }
 }
 
@@ -300,5 +310,6 @@ export const HOP_DAO_ADDRESS = '0xeeA8422a08258e73c139Fc32a25e10410c14bd7a'
 export const CONSENSYS_ZK_EVM_MESSAGE_FEE = '10000000000000000'
 export const ZKSYNC_MESSAGE_FEE = 'TODO' // TODO: zksync
 export const SCROLL_ZK_EVM_MESSAGE_FEE = '10000000000000000' // TODO
+export const POLYGONZKEVM_MESSAGE_FEE = '0'
 
 export const DefaultChallengePeriod: string = '86400'

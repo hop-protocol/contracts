@@ -7,7 +7,6 @@ const hre = require('hardhat')
 // $ npm run deploy:staking-rewards
 
 async function main () {
-
   const rewardsDistribution = ''
   const rewardsToken = ''
   const stakingToken = ''
@@ -23,11 +22,18 @@ async function main () {
     { signer }
   )
 
-  const rewards = await StakingRewards.deploy(rewardsDistribution, rewardsToken, stakingToken)
+  const rewards = await StakingRewards.deploy(
+    rewardsDistribution,
+    rewardsToken,
+    stakingToken
+  )
   await rewards.deployed()
 
   console.log('rewards address:', rewards.address)
-  console.log('deployed bytecode:', await ethers.provider.getCode(rewards.address))
+  console.log(
+    'deployed bytecode:',
+    await ethers.provider.getCode(rewards.address)
+  )
   console.log('complete')
 }
 
