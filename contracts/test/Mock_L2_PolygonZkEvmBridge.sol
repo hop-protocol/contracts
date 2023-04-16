@@ -4,10 +4,11 @@ pragma solidity 0.6.12;
 pragma experimental ABIEncoderV2;
 
 import "../bridges/L2_PolygonZkEvmBridge.sol";
+import "../interfaces/polygonzkevm/messengers/I_L2_PolygonZkEvmMessengerProxy.sol";
 
 contract Mock_L2_PolygonZkEvmBridge is L2_PolygonZkEvmBridge  {
     constructor (
-        IL2PolygonZkEvmMessenger messenger,
+        I_L2_PolygonZkEvmMessengerProxy messenger,
         address l1Governance,
         HopBridgeToken hToken,
         address l1BridgeAddress,

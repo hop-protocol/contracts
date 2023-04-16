@@ -3,7 +3,7 @@
 pragma solidity 0.6.12;
 pragma experimental ABIEncoderV2;
 
-import "../interfaces/polygonzkevm/messengers/IL2PolygonZkEvmMessenger.sol";
+import "../interfaces/polygonzkevm/messengers/I_L2_PolygonZkEvmMessengerProxy.sol";
 import "./L2_Bridge.sol";
 
 /**
@@ -11,10 +11,10 @@ import "./L2_Bridge.sol";
  */
 
 contract L2_PolygonZkEvmBridge is L2_Bridge {
-    IL2PolygonZkEvmMessenger public polygonZkEvmMessengerAddress;
+    I_L2_PolygonZkEvmMessengerProxy public messengerProxy;
 
     constructor (
-        IL2PolygonZkEvmMessenger _polygonZkEvmMessengerAddress,
+        I_L2_PolygonZkEvmMessengerProxy _messengerProxy,
         address l1Governance,
         HopBridgeToken hToken,
         address l1BridgeAddress,
@@ -30,22 +30,24 @@ contract L2_PolygonZkEvmBridge is L2_Bridge {
             bonders
         )
     {
-        polygonZkEvmMessengerAddress = _polygonZkEvmMessengerAddress;
+        messengerProxy = _messengerProxy;
     }
 
     function _sendCrossDomainMessage(bytes memory message) internal override {
-        uint32 destinationNetwork = 0; // L1
-        bool forceUpdateGlobalExitRoot = true;
-        polygonZkEvmMessengerAddress.bridgeMessage{value: 0}(
-          destinationNetwork,
-          l1BridgeAddress,
-          forceUpdateGlobalExitRoot,
-          message
-        );
+        messengerProxy.sendCrossDomainMessage(message);
     }
 
-    // TODO: verify sender
     function _verifySender(address expectedSender) internal override {
-        require(msg.sender == address(polygonZkEvmMessengerAddress), "L2_PLGNZK_BRG: Caller is not the expected sender");
+        require(msg.sender == address(messengerProxy), "L2_PLGNZK_BRG: Caller is not the expected sender");
+        // Verify that cross-domain sender is expectedSender
+        require(messengerProxy.xDomainMessageSender() == expectedSender, "L2_PLGNZK_BRG: Invalid cross-domain sender");
+    }
+
+    /**
+     * @dev Allows the L1 Bridge to set the messengerProxy proxy
+     * @param _messengerProxy The new messengerProxy address
+     */
+    function setMessengerProxy(I_L2_PolygonZkEvmMessengerProxy _messengerProxy) external onlyGovernance {
+        messengerProxy = _messengerProxy;
     }
 }
