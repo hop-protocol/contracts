@@ -24,16 +24,26 @@ export const networkData: NetworkData = {
         l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.MUMBAI.ETH,
         ...DEFAULT_NETWORK_DATA.ETH
       },
-      USDC: {
-        l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.GOERLI.USDC,
-        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.MUMBAI.USDC,
-        ...DEFAULT_NETWORK_DATA.USDC
-      },
       HOP: {
         l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.GOERLI.HOP,
         l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.MUMBAI.HOP,
         ...DEFAULT_NETWORK_DATA.HOP
-      }
+      },
+      USDT: {
+        l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.GOERLI.USDT,
+        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.MUMBAI.USDT,
+        ...DEFAULT_NETWORK_DATA.USDT
+      },
+      DAI: {
+        l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.GOERLI.DAI,
+        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.MUMBAI.DAI,
+        ...DEFAULT_NETWORK_DATA.DAI
+      },
+      UNI: {
+        l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.GOERLI.UNI,
+        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.MUMBAI.UNI,
+        ...DEFAULT_NETWORK_DATA.UNI
+      },
     }
   },
   optimism: {
@@ -50,18 +60,27 @@ export const networkData: NetworkData = {
           L2_CANONICAL_TOKEN_ADDRESSES.OPTIMISM_TESTNET.ETH,
         ...DEFAULT_NETWORK_DATA.ETH
       },
-      USDC: {
-        l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.GOERLI.USDC,
-        l2CanonicalTokenAddress:
-          L2_CANONICAL_TOKEN_ADDRESSES.OPTIMISM_TESTNET.USDC,
-        ...DEFAULT_NETWORK_DATA.USDC
-      },
       HOP: {
         l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.GOERLI.HOP,
         l2CanonicalTokenAddress:
           L2_CANONICAL_TOKEN_ADDRESSES.OPTIMISM_TESTNET.HOP,
         ...DEFAULT_NETWORK_DATA.HOP
-      }
+      },
+      USDT: {
+        l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.GOERLI.USDT,
+        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.OPTIMISM_TESTNET.USDT,
+        ...DEFAULT_NETWORK_DATA.USDT
+      },
+      DAI: {
+        l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.GOERLI.DAI,
+        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.OPTIMISM_TESTNET.DAI,
+        ...DEFAULT_NETWORK_DATA.DAI
+      },
+      UNI: {
+        l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.GOERLI.UNI,
+        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.OPTIMISM_TESTNET.UNI,
+        ...DEFAULT_NETWORK_DATA.UNI
+      },
     }
   },
   arbitrum: {
@@ -78,18 +97,27 @@ export const networkData: NetworkData = {
           L2_CANONICAL_TOKEN_ADDRESSES.ARBITRUM_TESTNET.ETH,
         ...DEFAULT_NETWORK_DATA.ETH
       },
-      USDC: {
-        l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.GOERLI.USDC,
-        l2CanonicalTokenAddress:
-          L2_CANONICAL_TOKEN_ADDRESSES.ARBITRUM_TESTNET.USDC,
-        ...DEFAULT_NETWORK_DATA.USDC
-      },
       HOP: {
         l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.GOERLI.HOP,
         l2CanonicalTokenAddress:
           L2_CANONICAL_TOKEN_ADDRESSES.ARBITRUM_TESTNET.HOP,
         ...DEFAULT_NETWORK_DATA.HOP
-      }
+      },
+      USDT: {
+        l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.GOERLI.USDT,
+        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.ARBITRUM_TESTNET.USDT,
+        ...DEFAULT_NETWORK_DATA.USDT
+      },
+      DAI: {
+        l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.GOERLI.DAI,
+        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.ARBITRUM_TESTNET.DAI,
+        ...DEFAULT_NETWORK_DATA.DAI
+      },
+      UNI: {
+        l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.GOERLI.UNI,
+        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.ARBITRUM_TESTNET.UNI,
+        ...DEFAULT_NETWORK_DATA.UNI
+      },
     }
   },
   consensys: {
@@ -106,12 +134,21 @@ export const networkData: NetworkData = {
           L2_CANONICAL_TOKEN_ADDRESSES.CONSENSYS_TESTNET.ETH,
         ...DEFAULT_NETWORK_DATA.ETH
       },
-      USDC: {
-        l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.GOERLI.USDC,
-        l2CanonicalTokenAddress:
-          L2_CANONICAL_TOKEN_ADDRESSES.CONSENSYS_TESTNET.USDC,
-        ...DEFAULT_NETWORK_DATA.USDC
-      }
+      USDT: {
+        l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.GOERLI.USDT,
+        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.CONSENSYS_TESTNET.USDT,
+        ...DEFAULT_NETWORK_DATA.USDT
+      },
+      DAI: {
+        l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.GOERLI.DAI,
+        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.CONSENSYS_TESTNET.DAI,
+        ...DEFAULT_NETWORK_DATA.DAI
+      },
+      UNI: {
+        l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.GOERLI.UNI,
+        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.CONSENSYS_TESTNET.UNI,
+        ...DEFAULT_NETWORK_DATA.UNI
+      },
     }
   },
   zksync: {
@@ -142,7 +179,22 @@ export const networkData: NetworkData = {
         l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.GOERLI.ETH,
         l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.BASE_TESTNET.ETH,
         ...DEFAULT_NETWORK_DATA.ETH
-      }
+      },
+      USDT: {
+        l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.GOERLI.USDT,
+        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.BASE_TESTNET.USDT,
+        ...DEFAULT_NETWORK_DATA.USDT
+      },
+      DAI: {
+        l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.GOERLI.DAI,
+        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.BASE_TESTNET.DAI,
+        ...DEFAULT_NETWORK_DATA.DAI
+      },
+      UNI: {
+        l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.GOERLI.UNI,
+        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.BASE_TESTNET.UNI,
+        ...DEFAULT_NETWORK_DATA.UNI
+      },
     }
   },
   scroll: {

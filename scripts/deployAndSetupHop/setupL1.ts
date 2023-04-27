@@ -54,6 +54,7 @@ interface Config {
   liquidityProviderSendAmount: BigNumber
   isEthDeployment: boolean
   isHopDeployment: boolean
+  isOmnichainToken: boolean
 }
 
 export async function setupL1 (config: Config) {
@@ -70,7 +71,8 @@ export async function setupL1 (config: Config) {
     l2AmmWrapperAddress,
     liquidityProviderSendAmount,
     isEthDeployment,
-    isHopDeployment
+    isHopDeployment,
+    isOmnichainToken
   } = config
 
   logger.log(`config:
@@ -84,7 +86,8 @@ export async function setupL1 (config: Config) {
             l2AmmWrapperAddress: ${l2AmmWrapperAddress}
             liquidityProviderSendAmount: ${liquidityProviderSendAmount}
             isEthDeployment: ${isEthDeployment}
-            isHopDeployment: ${isHopDeployment}`)
+            isHopDeployment: ${isHopDeployment}
+            isOmnichainToken: ${isOmnichainToken}`)
 
   l1ChainId = BigNumber.from(l1ChainId)
   l2ChainId = BigNumber.from(l2ChainId)
@@ -310,7 +313,7 @@ export async function setupL1 (config: Config) {
   await tx.wait()
   await waitAfterTransaction()
 
-  if (!isHopDeployment) {
+  if (!isOmnichainToken) {
     message = getSetAmmWrapperMessage(l2AmmWrapperAddress)
 
     logger.log('setting amm wrapper address on L2 bridge')
@@ -449,7 +452,8 @@ if (require.main === module) {
     l2AmmWrapperAddress,
     liquidityProviderSendAmount,
     isEthDeployment,
-    isHopDeployment
+    isHopDeployment,
+    isOmnichainToken
   } = readConfigFile()
   setupL1({
     l1ChainId,
@@ -462,7 +466,8 @@ if (require.main === module) {
     l2AmmWrapperAddress,
     liquidityProviderSendAmount,
     isEthDeployment,
-    isHopDeployment
+    isHopDeployment,
+    isOmnichainToken
   })
     .then(() => {
       process.exit(0)

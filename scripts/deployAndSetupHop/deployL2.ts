@@ -44,7 +44,7 @@ interface Config {
   bonderAddress: string
   l2CanonicalTokenIsEth: boolean
   isEthDeployment: boolean
-  isHopDeployment: boolean
+  isOmnichainToken: boolean
 }
 
 export async function deployL2 (config: Config) {
@@ -64,7 +64,7 @@ export async function deployL2 (config: Config) {
     bonderAddress,
     l2CanonicalTokenIsEth,
     isEthDeployment,
-    isHopDeployment
+   isOmnichainToken 
   } = config
 
   logger.log(`config:
@@ -79,7 +79,7 @@ export async function deployL2 (config: Config) {
             bonderAddress: ${bonderAddress}
             l2CanonicalTokenIsEth: ${l2CanonicalTokenIsEth}
             isEthDeployment: ${isEthDeployment}
-            isHopDeployment: ${isHopDeployment}`)
+            isOmnichainToken: ${isOmnichainToken}`)
 
   l1ChainId = BigNumber.from(l1ChainId)
   l2ChainId = BigNumber.from(l2ChainId)
@@ -131,7 +131,7 @@ export async function deployL2 (config: Config) {
     deployer,
     ethers,
     isEthDeployment,
-    isHopDeployment
+   isOmnichainToken 
   ))
 
   logger.log('attaching deployed contracts')
@@ -156,7 +156,7 @@ export async function deployL2 (config: Config) {
     l2MessengerProxyAddress = l2_messengerProxy.address
   }
 
-  if (!isHopDeployment) {
+  if (!isOmnichainToken) {
     logger.log('deploying L2 hop bridge token')
     l2_hopBridgeToken = await L2_HopBridgeToken.deploy(
       l2HBridgeTokenName,
@@ -200,13 +200,13 @@ export async function deployL2 (config: Config) {
     l2MessengerAddress,
     l2MessengerProxyAddress,
     l2CanonicalTokenIsEth,
-    isHopDeployment,
+    isOmnichainToken,
     logger
   ))
 
   logger.log('deploying network specific contracts')
 
-  if (!isHopDeployment) {
+  if (!isOmnichainToken) {
     // Transfer ownership of the Hop Bridge Token to the L2 Bridge
     let transferOwnershipParams: any[] = [l2_bridge.address]
 
@@ -362,7 +362,7 @@ const deployBridge = async (
   l2MessengerAddress: string,
   l2MessengerProxyAddress: string,
   l2CanonicalTokenIsEth: boolean,
-  isHopDeployment: boolean,
+  isOmnichainToken: boolean,
   logger: any
 ) => {
   // NOTE: Adding more CHAIN_IDs here will push the OVM deployment over the contract size limit
@@ -386,7 +386,7 @@ const deployBridge = async (
   )
   await waitAfterTransaction(l2_bridge, ethers)
 
-  if (isHopDeployment) {
+  if (isOmnichainToken) {
     return {
       l2_bridge,
       l2_ammWrapper: L2_AmmWrapper.attach(ZERO_ADDRESS)
@@ -424,7 +424,7 @@ if (require.main === module) {
     bonderAddress,
     l2CanonicalTokenIsEth,
     isEthDeployment,
-    isHopDeployment
+   isOmnichainToken 
   } = readConfigFile()
   deployL2({
     l1ChainId,
@@ -440,7 +440,7 @@ if (require.main === module) {
     bonderAddress,
     l2CanonicalTokenIsEth,
     isEthDeployment,
-    isHopDeployment
+   isOmnichainToken 
   })
     .then(() => {
       process.exit(0)

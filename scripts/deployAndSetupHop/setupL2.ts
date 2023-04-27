@@ -39,7 +39,7 @@ interface Config {
   liquidityProviderAmmAmount: BigNumber
   l2CanonicalTokenIsEth: boolean
   isEthDeployment: boolean
-  isHopDeployment: boolean
+  isOmnichainDeployment: boolean
 }
 
 export async function setupL2 (config: Config) {
@@ -56,7 +56,7 @@ export async function setupL2 (config: Config) {
     liquidityProviderAmmAmount,
     l2CanonicalTokenIsEth,
     isEthDeployment,
-    isHopDeployment
+   isOmnichainDeployment 
   } = config
 
   logger.log(`config:
@@ -70,7 +70,7 @@ export async function setupL2 (config: Config) {
             liquidityProviderAmmAmount: ${liquidityProviderAmmAmount}
             l2CanonicalTokenIsEth: ${l2CanonicalTokenIsEth}
             isEthDeployment: ${isEthDeployment}
-            isHopDeployment: ${isHopDeployment}`)
+            isOmnichainDeployment: ${isOmnichainDeployment}`)
 
   l1ChainId = BigNumber.from(l1ChainId)
   l2ChainId = BigNumber.from(l2ChainId)
@@ -138,11 +138,11 @@ export async function setupL2 (config: Config) {
     l2_bridge,
     l2CanonicalTokenIsEth,
     l2ChainId,
-    isHopDeployment
+   isOmnichainDeployment 
   )
 
   logger.log('L2 state verified')
-  if (isHopDeployment) {
+  if (isOmnichainDeployment) {
     const l2LpTokenAddress = ZERO_ADDRESS
     logAddresses(l2ChainId, l2CanonicalTokenIsEth, l2LpTokenAddress)
     return
@@ -213,7 +213,7 @@ const waitForL2StateVerification = async (
   l2_bridge: Contract,
   l2CanonicalTokenIsEth: boolean,
   l2ChainId: BigNumber,
-  isHopDeployment: boolean
+  isOmnichainDeployment: boolean
 ) => {
   let checkCount: number = 0
   let isStateSet: boolean = false
@@ -252,8 +252,8 @@ const waitForL2StateVerification = async (
 
     let hopBridgeTokenBalance: BigNumber
     let ammWrapperAddress: string
-    if (isHopDeployment) {
-      // These are arbitrary, as they do not exist for a Hop deployment
+    if (isOmnichainDeployment) {
+      // These are arbitrary, as they do not exist for an omnichain deployment
       hopBridgeTokenBalance = BigNumber.from('1')
       ammWrapperAddress = '1'
     } else {
@@ -339,7 +339,7 @@ if (require.main === module) {
     liquidityProviderAmmAmount,
     l2CanonicalTokenIsEth,
     isEthDeployment,
-    isHopDeployment
+   isOmnichainDeployment 
   } = readConfigFile()
   setupL2({
     l1ChainId,
@@ -352,7 +352,7 @@ if (require.main === module) {
     liquidityProviderAmmAmount,
     l2CanonicalTokenIsEth,
     isEthDeployment,
-    isHopDeployment
+   isOmnichainDeployment 
   })
     .then(() => {
       process.exit(0)
