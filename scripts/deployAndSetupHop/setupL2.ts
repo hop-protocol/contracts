@@ -28,6 +28,10 @@ import {
 const logger = Logger('setupL2')
 let overrides: any = {}
 
+import {
+  getModifiedGasPrice,
+} from '../shared/utils'
+
 interface Config {
   l1ChainId: BigNumber
   l2ChainId: BigNumber
@@ -130,6 +134,19 @@ export async function setupL2 (config: Config) {
             l2CanonicalToken: ${l2_canonicalToken.address}
             l2HopBridgeToken: ${l2_hopBridgeToken.address}
             l2Bridge: ${l2_bridge.address}`)
+
+  // Transfer ownership of the messenger wrapper to governance
+  if (isOmnichainDeployment) {
+    logger.log('transferring ownership of L2 token')
+    let transferOwnershipParams: any[] = [l2_bridge.address]
+    const modifiedGasPrice = await getModifiedGasPrice(ethers, l1ChainId)
+    tx = await l2_hopBridgeToken.transferOwnership(
+      ...transferOwnershipParams,
+      modifiedGasPrice
+    )
+    await tx.wait()
+    await waitAfterTransaction()
+  }
   // Some chains take a while to send state from L1 -> L2. Wait until the state have been fully sent.
   await waitForL2StateVerification(
     deployer,
@@ -138,7 +155,7 @@ export async function setupL2 (config: Config) {
     l2_bridge,
     l2CanonicalTokenIsEth,
     l2ChainId,
-   isOmnichainDeployment 
+    isOmnichainDeployment 
   )
 
   logger.log('L2 state verified')

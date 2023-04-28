@@ -134,6 +134,11 @@ export const networkData: NetworkData = {
           L2_CANONICAL_TOKEN_ADDRESSES.CONSENSYS_TESTNET.ETH,
         ...DEFAULT_NETWORK_DATA.ETH
       },
+      HOP: {
+        l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.GOERLI.HOP,
+        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.CONSENSYS_TESTNET.HOP,
+        ...DEFAULT_NETWORK_DATA.HOP
+      },
       USDT: {
         l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.GOERLI.USDT,
         l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.CONSENSYS_TESTNET.USDT,
@@ -148,6 +153,11 @@ export const networkData: NetworkData = {
         l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.GOERLI.UNI,
         l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.CONSENSYS_TESTNET.UNI,
         ...DEFAULT_NETWORK_DATA.UNI
+      },
+      USDC: {
+        l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.GOERLI.USDC,
+        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.CONSENSYS_TESTNET.USDC,
+        ...DEFAULT_NETWORK_DATA.USDC
       },
     }
   },
