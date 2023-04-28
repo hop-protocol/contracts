@@ -5,7 +5,7 @@ pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "../interfaces/consensys/messengers/IBridge.sol";
-import "../MessengerWrapper.sol";
+import "./MessengerWrapper.sol";
 
 /**
  * @dev A MessengerWrapper for the ConsenSys zkEVM - https://consensys.net/docs/zk-evm/en/latest/

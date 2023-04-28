@@ -8,7 +8,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "../interfaces/arbitrum/messengers/IInbox.sol";
 import "../interfaces/arbitrum/messengers/IBridge.sol";
 import "../interfaces/arbitrum/messengers/IOutbox.sol";
-import "../MessengerWrapper.sol";
+import "./MessengerWrapper.sol";
 
 /**
  * @dev A MessengerWrapper for Arbitrum - https://developer.offchainlabs.com/

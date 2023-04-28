@@ -5,7 +5,7 @@ pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "../interfaces/scroll/messengers/IScrollMessenger.sol";
-import "../MessengerWrapper.sol";
+import "./MessengerWrapper.sol";
 
 /**
  * @dev A MessengerWrapper for the Scroll zkEVM - https://scroll.io/alpha

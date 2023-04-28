@@ -5,7 +5,7 @@ pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "../interfaces/optimism/messengers/iOVM_L1CrossDomainMessenger.sol";
-import "../MessengerWrapper.sol";
+import "./MessengerWrapper.sol";
 
 /**
  * @dev A MessengerWrapper for Base - https://docs.base.org/
