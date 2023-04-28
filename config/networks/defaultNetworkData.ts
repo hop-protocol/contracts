@@ -103,4 +103,12 @@ export const DEFAULT_NETWORK_DATA = {
     l2SwapLpTokenSymbol: 'HOP-LP-UNI',
     liquidityProviderSendAmount: '1000000000000000000'
   },
+  rETH: {
+    l2HBridgeTokenName: 'Rocket Pool ETH Hop Token',
+    l2HBridgeTokenSymbol: 'hrETH',
+    l2HBridgeTokenDecimals: 18,
+    l2SwapLpTokenName: 'Hop rETH LP Token',
+    l2SwapLpTokenSymbol: 'HOP-LP-rETH',
+    liquidityProviderSendAmount: '100000000000000'
+  },
 }

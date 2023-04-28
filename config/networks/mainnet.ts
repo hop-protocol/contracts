@@ -173,6 +173,12 @@ export const networkData: NetworkData = {
         l2CanonicalTokenAddress:
           L2_CANONICAL_TOKEN_ADDRESSES.OPTIMISM_MAINNET.sUSD,
         ...DEFAULT_NETWORK_DATA.sUSD
+      },
+      rETH: {
+        l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.MAINNET.rETH,
+        l2CanonicalTokenAddress:
+          L2_CANONICAL_TOKEN_ADDRESSES.OPTIMISM_MAINNET.rETH,
+        ...DEFAULT_NETWORK_DATA.rETH
       }
     }
   },
@@ -225,6 +231,12 @@ export const networkData: NetworkData = {
         l2CanonicalTokenAddress:
           L2_CANONICAL_TOKEN_ADDRESSES.ARBITRUM_MAINNET.HOP,
         ...DEFAULT_NETWORK_DATA.HOP
+      },
+      rETH: {
+        l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.MAINNET.rETH,
+        l2CanonicalTokenAddress:
+          L2_CANONICAL_TOKEN_ADDRESSES.ARBITRUM_MAINNET.rETH,
+        ...DEFAULT_NETWORK_DATA.rETH
       }
     }
   },

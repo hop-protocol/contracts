@@ -31,7 +31,8 @@ const tokens: string[] = [
   'HOP',
   'SNX',
   'sUSD',
-  'UNI'
+  'UNI',
+  'rETH'
 ]
 const targetAddresses: Record<string, Record<string, string>> = {
   gnosis: {
