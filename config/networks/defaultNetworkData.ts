@@ -94,5 +94,13 @@ export const DEFAULT_NETWORK_DATA = {
     l2SwapLpTokenName: 'Hop sUSD LP Token',
     l2SwapLpTokenSymbol: 'HOP-LP-sUSD',
     liquidityProviderSendAmount: '1000000000000000000'
-  }
+  },
+  UNI: {
+    l2HBridgeTokenName: 'Uniswap Hop Token',
+    l2HBridgeTokenSymbol: 'hUNI',
+    l2HBridgeTokenDecimals: 18,
+    l2SwapLpTokenName: 'Hop UNI LP Token',
+    l2SwapLpTokenSymbol: 'HOP-LP-UNI',
+    liquidityProviderSendAmount: '1000000000000000000'
+  },
 }

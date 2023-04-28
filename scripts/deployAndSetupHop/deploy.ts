@@ -24,6 +24,7 @@ async function main () {
   let isL1BridgeDeploy: boolean
   let l2CanonicalTokenIsEth: boolean
   let deploymentStep: number
+  let isOmnichainToken: boolean
   ;({
     l1NetworkName,
     l2NetworkName,
@@ -31,7 +32,8 @@ async function main () {
     bonderAddress,
     isL1BridgeDeploy,
     l2CanonicalTokenIsEth,
-    deploymentStep
+    deploymentStep,
+    isOmnichainToken
   } = await getPrompts())
 
   validateInput(l1NetworkName, l2NetworkName, tokenSymbol, bonderAddress)
@@ -55,7 +57,8 @@ async function main () {
     l2NetworkName,
     tokenSymbol,
     bonderAddress,
-    l2CanonicalTokenIsEth
+    l2CanonicalTokenIsEth,
+    isOmnichainToken
   )
 
   l2NetworkName = handleCustomL2NetworkName(l1NetworkName, l2NetworkName)
@@ -140,7 +143,14 @@ async function getPrompts () {
       type: 'boolean',
       required: true,
       default: true
-    }
+    },
+    {
+      name: 'isOmnichainToken',
+      description: 'Is this an omnichain token deployment?',
+      type: 'boolean',
+      required: true,
+      default: false
+    },
   ])
 
   const l1NetworkName: string = (res.l1NetworkName as string).toLowerCase()
@@ -150,6 +160,7 @@ async function getPrompts () {
   const isL1BridgeDeploy: boolean = res.isL1BridgeDeploy as boolean
   const l2CanonicalTokenIsEth: boolean = res.l2CanonicalTokenIsEth as boolean
   const deploymentStep: number = res.deploymentStep as number
+  const isOmnichainToken: boolean = res.isOmnichainToken as boolean
 
   return {
     l1NetworkName,
@@ -158,7 +169,8 @@ async function getPrompts () {
     bonderAddress,
     isL1BridgeDeploy,
     l2CanonicalTokenIsEth,
-    deploymentStep
+    deploymentStep,
+    isOmnichainToken
   }
 }
 
@@ -213,7 +225,8 @@ function setNetworkParams (
   l2NetworkName: string,
   tokenSymbol: string,
   bonderAddress: string,
-  l2CanonicalTokenIsEth: boolean
+  l2CanonicalTokenIsEth: boolean,
+  isOmnichainToken: boolean
 ) {
   const { l1BridgeAddress } = readConfigFile()
 
@@ -279,7 +292,8 @@ function setNetworkParams (
     bonderAddress,
     l2CanonicalTokenIsEth,
     isEthDeployment,
-    isHopDeployment
+    isHopDeployment,
+    isOmnichainToken
   }
 
   console.log('data:', data)

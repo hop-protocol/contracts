@@ -10,9 +10,9 @@ const hre = require('hardhat')
 // Example usage:
 // $ npm run deploy:erc20
 async function main () {
-  const erc20Name = 'Wrapped Ether'
-  const erc20Symbol = 'WETH'
-  const erc20Decimals = 18
+  const erc20Name = 'Tether USD'
+  const erc20Symbol = 'USDT'
+  const erc20Decimals = 6
 
   const network = await ethers.provider.getNetwork()
   console.log('network:', network)
@@ -36,7 +36,7 @@ async function deploy (name: string, symbol: string, decimals: number): Promise<
   console.log('signer:', await signer.getAddress())
 
   const MockERC20 = await ethers.getContractFactory(
-    'contracts/test/SybilResistantERC20.sol:SybilResistantERC20',
+    'contracts/test/TestnetERC20.sol:TestnetERC20',
     { signer }
   )
 
