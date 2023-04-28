@@ -3,16 +3,16 @@
 pragma solidity 0.6.12;
 pragma experimental ABIEncoderV2;
 
-// import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 import "../interfaces/scroll/messengers/IScrollMessenger.sol";
-import "../test/MessengerWrapper.sol";
+import "../MessengerWrapper.sol";
 
 /**
  * @dev A MessengerWrapper for the Scroll zkEVM - https://scroll.io/alpha
  * @notice Deployed on layer-1
  */
 
-contract ScrollZkEvmMessengerWrapper is MessengerWrapper {
+contract ScrollZkEvmMessengerWrapper is MessengerWrapper, Ownable {
 
     IScrollMessenger public scrollL1Bridge;
     address public l2BridgeAddress;
@@ -39,10 +39,6 @@ contract ScrollZkEvmMessengerWrapper is MessengerWrapper {
     function sendCrossDomainMessage(bytes memory _calldata) public override onlyL1Bridge {
         uint256 fee = 0.01 ether; // TODO: fetch fee
         uint256 gasLimit = 2000000;
-
-        bool isValidMessage = validateMessage(_calldata);
-        require(isValidMessage, "L1_SCRL_MSG_WRP: Invalid message");
-
         scrollL1Bridge.sendMessage{value: fee}(
             l2BridgeAddress,
             0, // value

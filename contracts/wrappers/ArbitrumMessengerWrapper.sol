@@ -4,18 +4,18 @@
 pragma solidity 0.6.12;
 pragma experimental ABIEncoderV2;
 
-// import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 import "../interfaces/arbitrum/messengers/IInbox.sol";
 import "../interfaces/arbitrum/messengers/IBridge.sol";
 import "../interfaces/arbitrum/messengers/IOutbox.sol";
-import "../test/MessengerWrapper.sol";
+import "../MessengerWrapper.sol";
 
 /**
  * @dev A MessengerWrapper for Arbitrum - https://developer.offchainlabs.com/
  * @notice Deployed on layer-1
  */
 
-contract ArbitrumMessengerWrapper is MessengerWrapper {
+contract ArbitrumMessengerWrapper is MessengerWrapper, Ownable {
 
     IInbox public immutable l1MessengerAddress;
     address public l2BridgeAddress;
@@ -41,10 +41,6 @@ contract ArbitrumMessengerWrapper is MessengerWrapper {
      */
     function sendCrossDomainMessage(bytes memory _calldata) public override onlyL1Bridge {
         uint256 submissionFee = l1MessengerAddress.calculateRetryableSubmissionFee(_calldata.length, 0);
-
-        bool isValidMessage = validateMessage(_calldata);
-        require(isValidMessage, "ARB_MSG_WPR: Invalid message");
-
         l1MessengerAddress.unsafeCreateRetryableTicket{value: submissionFee}(
             l2BridgeAddress,
             0,

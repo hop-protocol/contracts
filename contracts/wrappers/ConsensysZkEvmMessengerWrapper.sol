@@ -3,16 +3,16 @@
 pragma solidity 0.6.12;
 pragma experimental ABIEncoderV2;
 
-// import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 import "../interfaces/consensys/messengers/IBridge.sol";
-import "../test/MessengerWrapper.sol";
+import "../MessengerWrapper.sol";
 
 /**
  * @dev A MessengerWrapper for the ConsenSys zkEVM - https://consensys.net/docs/zk-evm/en/latest/
  * @notice Deployed on layer-1
  */
 
-contract ConsensysZkEvmMessengerWrapper is MessengerWrapper {
+contract ConsensysZkEvmMessengerWrapper is MessengerWrapper, Ownable {
 
     IBridge public consensysL1Bridge;
     address public l2BridgeAddress;
@@ -38,10 +38,6 @@ contract ConsensysZkEvmMessengerWrapper is MessengerWrapper {
      */
     function sendCrossDomainMessage(bytes memory _calldata) public override onlyL1Bridge {
         uint256 fee = consensysL1Bridge.minimumFee(); 
-
-        bool isValidMessage = validateMessage(_calldata);
-        require(isValidMessage, "L1_CSYS_MSG_WRP: Invalid message");
-
         consensysL1Bridge.dispatchMessage{value: fee}(
             l2BridgeAddress,
             fee,

@@ -3,16 +3,16 @@
 pragma solidity 0.6.12;
 pragma experimental ABIEncoderV2;
 
-// import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 import "../interfaces/optimism/messengers/iOVM_L1CrossDomainMessenger.sol";
-import "../test/MessengerWrapper.sol";
+import "../MessengerWrapper.sol";
 
 /**
  * @dev A MessengerWrapper for Base - https://docs.base.org/
  * @notice Deployed on layer-1
  */
 
-contract BaseMessengerWrapper is MessengerWrapper {
+contract BaseMessengerWrapper is MessengerWrapper, Ownable {
 
     iOVM_L1CrossDomainMessenger public immutable l1MessengerAddress;
     address public immutable l2BridgeAddress;
@@ -40,9 +40,6 @@ contract BaseMessengerWrapper is MessengerWrapper {
      */
     function sendCrossDomainMessage(bytes memory _calldata) public override onlyL1Bridge {
         uint256 l2GasLimit = l2GasLimitForCalldata(_calldata);
-
-        bool isValidMessage = validateMessage(_calldata);
-        require(isValidMessage, "BASE_MSG_WPR: Invalid message");
 
         l1MessengerAddress.sendMessage(
             l2BridgeAddress,
