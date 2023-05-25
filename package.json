@@ -23,8 +23,8 @@
     "deploy:l2-optimism-canonical-bridge": "hardhat run scripts/deployAndSetupHop/optimism-canonical-bridge/deployL2.ts --network optimism",
     "setup:l2-optimism-canonical-bridge": "hardhat run scripts/deployAndSetupHop/optimism-canonical-bridge/setupL2.ts --network optimism",
     "check-l2-bridge-bytecode-size": "cat artifacts/contracts/bridges/L2_OptimismBridge.sol/L2_OptimismBridge.ovm.json | jq -r '.deployedBytecode' | wc -c",
-    "get-messenger-tx-data": "hardhat run scripts/messengeStateUpdates/getMessengerTxData.ts",
-    "deploy:staking-rewards": "hardhat run scripts/other/deployStakingRewards.ts --network optimism_mainnet",
+    "get-messenger-tx-data": "hardhat run scripts/messageStateUpdates/getMessengerTxData.ts",
+    "deploy:staking-rewards": "hardhat run scripts/other/deployStakingRewards.ts --network arbitrum_mainnet",
     "deploy:erc20": "hardhat run scripts/erc20/deploy.ts"
   },
   "devDependencies": {

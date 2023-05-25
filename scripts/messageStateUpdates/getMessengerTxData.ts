@@ -59,7 +59,8 @@ const targetAddresses: Record<string, Record<string, string>> = {
     ETH: '0x25ace71c97B33Cc4729CF772ae268934F7ab5fA1',
     HOP: '0x25ace71c97B33Cc4729CF772ae268934F7ab5fA1',
     SNX: '0x25ace71c97B33Cc4729CF772ae268934F7ab5fA1',
-    sUSD: '0x25ace71c97B33Cc4729CF772ae268934F7ab5fA1'
+    sUSD: '0x25ace71c97B33Cc4729CF772ae268934F7ab5fA1',
+    rETH: '0x25ace71c97B33Cc4729CF772ae268934F7ab5fA1',
   },
   arbitrum: {
     USDC: '0x4Dbd4fc535Ac27206064B68FfCf827b0A60BAB3f',
@@ -67,7 +68,8 @@ const targetAddresses: Record<string, Record<string, string>> = {
     DAI: '0x4Dbd4fc535Ac27206064B68FfCf827b0A60BAB3f',
     MATIC: '0x4Dbd4fc535Ac27206064B68FfCf827b0A60BAB3f',
     ETH: '0x4Dbd4fc535Ac27206064B68FfCf827b0A60BAB3f',
-    HOP: '0x4Dbd4fc535Ac27206064B68FfCf827b0A60BAB3f'
+    HOP: '0x4Dbd4fc535Ac27206064B68FfCf827b0A60BAB3f',
+    rETH: '0x4Dbd4fc535Ac27206064B68FfCf827b0A60BAB3f',
   },
   nova: {
     ETH: '0xc4448b71118c9071Bcb9734A0EAc55D18A153949'
@@ -92,7 +94,10 @@ const l1BridgeAddresses: Record<string, string> = {
   DAI: '0x3d4Cc8A61c7528Fd86C55cfe061a78dCBA48EDd1',
   MATIC: '0x22B1Cbb8D98a01a3B71D034BB899775A76Eb1cc2',
   ETH: '0xb8901acB165ed027E32754E0FFe830802919727f',
-  HOP: '0x914f986a44AcB623A277d6Bd17368171FCbe4273'
+  HOP: '0x914f986a44AcB623A277d6Bd17368171FCbe4273',
+  SNX: '0x893246FACF345c99e4235E5A7bbEE7404c988b96',
+  sSUD: '0x36443fC70E073fe9D50425f82a3eE19feF697d62',
+  rETH: '0x87269B23e73305117D0404557bAdc459CEd0dbEc',
 }
 
 const l2BridgeAddresses: Record<string, Record<string, string>> = {
@@ -119,14 +124,16 @@ const l2BridgeAddresses: Record<string, Record<string, string>> = {
     ETH: '0x83f6244Bd87662118d96D9a6D44f09dffF14b30E',
     HOP: '0x03D7f750777eC48d39D080b020D83Eb2CB4e3547',
     SNX: '0x16284c7323c35F4960540583998C98B1CfC581a7',
-    sUSD: '0x33Fe5bB8DA466dA55a8A32D6ADE2BB104E2C5201'
+    sUSD: '0x33Fe5bB8DA466dA55a8A32D6ADE2BB104E2C5201',
+    rETH: '0xA0075E8cE43dcB9970cB7709b9526c1232cc39c2'
   },
   arbitrum: {
     USDC: '0x0e0E3d2C5c292161999474247956EF542caBF8dd',
     USDT: '0x72209Fe68386b37A40d6bCA04f78356fd342491f',
     DAI: '0x7aC115536FE3A185100B2c4DE4cb328bf3A58Ba6',
     ETH: '0x3749C4f034022c39ecafFaBA182555d4508caCCC',
-    HOP: '0x25FB92E505F752F730cAD0Bd4fa17ecE4A384266'
+    HOP: '0x25FB92E505F752F730cAD0Bd4fa17ecE4A384266',
+    rETH: '0xc315239cFb05F1E130E7E28E603CEa4C014c57f0'
   },
   nova: {
     ETH: '0x8796860ca1677Bf5d54cE5A348Fe4b779a8212f3'
@@ -161,7 +168,7 @@ async function main () {
   let l2BridgeAddress: string | undefined
 
   // Ethereum
-  const paramTypes = 'uint256'
+  const paramTypes = 'address'
   abi = [`function ${functionToCall}(${paramTypes})`]
   ethersInterface = new ethersUtils.Interface(abi)
   data = ethersInterface.encodeFunctionData(functionToCall, [input])
@@ -341,6 +348,8 @@ const logData = (
   console.log(`sig: ${abi?.[0] && abi[0].substring(9)}`)
   console.log(`data: 0x${data.substring(10)}`)
   console.log(`eta: ${eta} (${new Date(eta * 1000)})`)
+
+
 
   if (
     chain === chains.Arbitrum ||
