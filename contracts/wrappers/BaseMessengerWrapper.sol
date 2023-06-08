@@ -23,8 +23,8 @@ contract BaseMessengerWrapper is MessengerWrapper, Ownable {
         address _l1BridgeAddress,
         address _l2BridgeAddress,
         iOVM_L1CrossDomainMessenger _l1MessengerAddress,
-        uint256 _defaultL2GasLimit,
-        uint256 _l2ChainId
+        uint256 _l2ChainId,
+        uint256 _defaultL2GasLimit
     )
         public
         MessengerWrapper(_l1BridgeAddress, _l2ChainId)
