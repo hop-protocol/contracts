@@ -237,6 +237,12 @@ export const networkData: NetworkData = {
         l2CanonicalTokenAddress:
           L2_CANONICAL_TOKEN_ADDRESSES.ARBITRUM_MAINNET.rETH,
         ...DEFAULT_NETWORK_DATA.rETH
+      },
+      MAGIC: {
+        l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.MAINNET.MAGIC,
+        l2CanonicalTokenAddress:
+          L2_CANONICAL_TOKEN_ADDRESSES.ARBITRUM_MAINNET.MAGIC,
+        ...DEFAULT_NETWORK_DATA.MAGIC
       }
     }
   },
@@ -248,15 +254,15 @@ export const networkData: NetworkData = {
     l2TokenBridgeAddress: ZERO_ADDRESS,
     l2MessengerAddress: '0x0000000000000000000000000000000000000064',
     tokens: {
-      USDC: {
-        l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.MAINNET.USDC,
-        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.NOVA_MAINNET.USDC,
-        ...DEFAULT_NETWORK_DATA.USDC
-      },
       ETH: {
         l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.MAINNET.ETH,
         l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.NOVA_MAINNET.ETH,
         ...DEFAULT_NETWORK_DATA.ETH
+      },
+      MAGIC: {
+        l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.MAINNET.MAGIC,
+        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.NOVA_MAINNET.MAGIC,
+        ...DEFAULT_NETWORK_DATA.MAGIC
       }
     }
   }

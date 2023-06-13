@@ -32,7 +32,8 @@ const tokens: string[] = [
   'SNX',
   'sUSD',
   'UNI',
-  'rETH'
+  'rETH',
+  'MAGIC'
 ]
 const targetAddresses: Record<string, Record<string, string>> = {
   gnosis: {
@@ -70,9 +71,11 @@ const targetAddresses: Record<string, Record<string, string>> = {
     ETH: '0x4Dbd4fc535Ac27206064B68FfCf827b0A60BAB3f',
     HOP: '0x4Dbd4fc535Ac27206064B68FfCf827b0A60BAB3f',
     rETH: '0x4Dbd4fc535Ac27206064B68FfCf827b0A60BAB3f',
+    MAGIC: '0x4Dbd4fc535Ac27206064B68FfCf827b0A60BAB3f',
   },
   nova: {
-    ETH: '0xc4448b71118c9071Bcb9734A0EAc55D18A153949'
+    ETH: '0xc4448b71118c9071Bcb9734A0EAc55D18A153949',
+    MAGIC: '0xc4448b71118c9071Bcb9734A0EAc55D18A153949'
   },
   consensys: {
     ETH: 'TODO' // TODO: consensys - for prod deployment
@@ -133,7 +136,8 @@ const l2BridgeAddresses: Record<string, Record<string, string>> = {
     DAI: '0x7aC115536FE3A185100B2c4DE4cb328bf3A58Ba6',
     ETH: '0x3749C4f034022c39ecafFaBA182555d4508caCCC',
     HOP: '0x25FB92E505F752F730cAD0Bd4fa17ecE4A384266',
-    rETH: '0xc315239cFb05F1E130E7E28E603CEa4C014c57f0'
+    rETH: '0xc315239cFb05F1E130E7E28E603CEa4C014c57f0',
+    MAGIC: '0xEa5abf2C909169823d939de377Ef2Bf897A6CE98'
   },
   nova: {
     ETH: '0x8796860ca1677Bf5d54cE5A348Fe4b779a8212f3'

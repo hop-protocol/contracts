@@ -111,4 +111,12 @@ export const DEFAULT_NETWORK_DATA = {
     l2SwapLpTokenSymbol: 'HOP-LP-rETH',
     liquidityProviderSendAmount: '100000000000000'
   },
+  MAGIC: {
+    l2HBridgeTokenName: 'MAGIC Hop Token',
+    l2HBridgeTokenSymbol: 'hMAGIC',
+    l2HBridgeTokenDecimals: 18,
+    l2SwapLpTokenName: 'Hop MAGIC LP Token',
+    l2SwapLpTokenSymbol: 'HOP-LP-MAGIC',
+    liquidityProviderSendAmount: '100000000000000000'
+  },
 }

@@ -454,6 +454,7 @@ export const getTokenSymbolLetterCase = (tokenSymbol: string): string => {
   else if (tokenSymbol.toLowerCase() === 'susd') return 'sUSD'
   else if (tokenSymbol.toLowerCase() === 'uni') return 'UNI'
   else if (tokenSymbol.toLowerCase() === 'reth') return 'rETH'
+  else if (tokenSymbol.toLowerCase() === 'magic') return 'MAGIC'
   else {
     throw new Error('Invalid token symbol getter')
   }
