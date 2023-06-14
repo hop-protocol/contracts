@@ -25,6 +25,7 @@ import {
   isChainIdZkSync,
   isChainIdBase,
   isChainIdScroll,
+  isChainIdPolygonZkEvm,
   isChainIdL1,
   generateArbitrumAliasAddress
 } from '../../config/utils'
@@ -32,6 +33,7 @@ import {
   CONSENSYS_ZK_EVM_MESSAGE_FEE,
   SCROLL_ZK_EVM_MESSAGE_FEE,
   ZKSYNC_MESSAGE_FEE,
+  POLYGONZKEVM_MESSAGE_FEE,
   CHAIN_IDS,
   DEFAULT_DEADLINE,
   TIMESTAMP_VARIANCE,
@@ -39,7 +41,7 @@ import {
   H_TO_C_SWAP_INDICES,
   C_TO_H_SWAP_INDICES,
   DEFAULT_MAX_GAS,
-  DEFAULT_GAS_PRICE_BID,
+  DEFAULT_GAS_PRICE_BID
 } from '../../config/constants'
 
 /**
@@ -181,6 +183,21 @@ export const executeCanonicalMessengerSendMessage = async (
     tx = await l1_messenger
       .connect(sender)
       .sendMessage(...optimismParams, modifiedGasPrice)
+  } else if (isChainIdPolygonZkEvm(l2ChainId)) {
+    const destinationNetwork = 1 // 0 = L1, 1 = L2
+    const forceUpdateGlobalExitRoot = true
+    const polygonZkEvmParams = [
+      destinationNetwork,
+      l2_bridge.address,
+      forceUpdateGlobalExitRoot,
+      message
+    ]
+    const overrides = {
+      ...modifiedGasPrice
+    }
+    tx = await l1_messenger
+      .connect(sender)
+      .bridgeMessage(...polygonZkEvmParams, overrides)
   } else {
     tx = await l1_messenger
       .connect(sender)

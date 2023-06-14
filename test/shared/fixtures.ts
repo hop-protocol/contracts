@@ -73,6 +73,9 @@ export async function fixture (
   const L2_MessengerProxy = await ethers.getContractFactory(
     'contracts/bridges/L2_PolygonMessengerProxy.sol:L2_PolygonMessengerProxy'
   )
+  const L2_PolygonZkEvmMessengerProxy = await ethers.getContractFactory(
+    'contracts/bridges/L2_PolygonZkEvmMessengerProxy.sol:L2_PolygonZkEvmMessengerProxy'
+  )
 
   const FxRoot = await ethers.getContractFactory(
     'contracts/test/MockFxRoot.sol:MockFxRoot'

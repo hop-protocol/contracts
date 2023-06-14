@@ -44,6 +44,7 @@ import {
   isChainIdBase,
   isChainIdMainnet,
   isChainIdGoerli,
+  isChainIdPolygonZkEvm,
   getPolygonCheckpointManagerAddress
 } from '../../config/utils'
 
@@ -423,6 +424,13 @@ export const getL2SpecificArtifact = (chainId: BigNumber) => {
       'contracts/test/Mock_L1_Messenger.sol:Mock_L1_Messenger'
     l1_messengerWrapperArtifact =
       'contracts/wrappers/BaseMessengerWrapper.sol:BaseMessengerWrapper'
+  } else if (isChainIdPolygonZkEvm(chainId)) {
+    l2_bridgeArtifact =
+      'Mock_L2_PolygonZkEvmBridge.sol:Mock_L2_PolygonZkEvmBridge'
+    l1_messengerArtifact =
+      'contracts/test/Mock_L1_Messenger.sol:Mock_L1_Messenger'
+    l1_messengerWrapperArtifact =
+      'contracts/wrappers/PolygonZkEvmMessengerWrapper.sol:PolygonZkEvmMessengerWrapper'
   }
 
   return {

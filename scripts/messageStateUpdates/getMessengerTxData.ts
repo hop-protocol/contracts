@@ -20,7 +20,8 @@ const chains: Record<string, string> = {
   Consensys: 'consensys',
   ZkSync: 'zksync',
   Base: 'base',
-  Scroll: 'scroll'
+  Scroll: 'scroll',
+  PolygonZkEvm: 'polygonzkevm'
 }
 const tokens: string[] = [
   'USDC',
@@ -88,6 +89,9 @@ const targetAddresses: Record<string, Record<string, string>> = {
   },
   scroll: {
     ETH: 'TODO' // TODO: scroll - for prod deployment
+  },
+  polygonzkevm: {
+    ETH: 'TODO' // TODO: polygonzkevm - for prod deployment
   }
 }
 
@@ -153,6 +157,9 @@ const l2BridgeAddresses: Record<string, Record<string, string>> = {
   },
   scroll: {
     ETH: 'TODO' // TODO: scroll - for prod deployment
+  },
+  polygonzkevm: {
+    ETH: 'TODO' // TODO: polygonzkevm - for prod deployment
   }
 }
 
@@ -359,7 +366,9 @@ const logData = (
     chain === chains.Arbitrum ||
     chain === chains.Nova ||
     chain === chains.Consensys ||
-    chain === chains.Scroll
+    chain === chains.Scroll ||
+    chain === chains.Base ||
+    chain === chains.PolgyonZkEvm
   ) {
     console.log(`value to send: ${fee}`)
   }

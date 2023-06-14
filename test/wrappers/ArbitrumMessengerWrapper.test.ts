@@ -44,7 +44,9 @@ describe('Arbitrum Messenger Wrapper', () => {
     const expectedL1BridgeAddress: string = l1_bridge.address
     const expectedL2BridgeAddress: string = l2_bridge.address
     const expectedArbInbox: string = l1_messenger.address
-    const expectedMaxSubmissionCost: BigNumber = BigNumber.from('10000000000000000')
+    const expectedMaxSubmissionCost: BigNumber = BigNumber.from(
+      '10000000000000000'
+    )
     const expectedL1MessengerWrapperAlias: string = generateArbitrumAliasAddress(
       l1_messengerWrapper.address
     )

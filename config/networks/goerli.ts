@@ -222,5 +222,21 @@ export const networkData: NetworkData = {
         ...DEFAULT_NETWORK_DATA.ETH
       }
     }
+  },
+  polygonzkevm: {
+    l2NetworkName: 'polygonzkevm',
+    l1ChainId,
+    l2ChainId: CHAIN_IDS.POLYGONZKEVM.POLYGONZKEVM_TESTNET.toString(),
+    l1MessengerAddress: '0xF6BEEeBB578e214CA9E23B0e9683454Ff88Ed2A7',
+    l2TokenBridgeAddress: '0xF6BEEeBB578e214CA9E23B0e9683454Ff88Ed2A7',
+    l2MessengerAddress: '0xF6BEEeBB578e214CA9E23B0e9683454Ff88Ed2A7',
+    tokens: {
+      ETH: {
+        l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.GOERLI.ETH,
+        l2CanonicalTokenAddress:
+          L2_CANONICAL_TOKEN_ADDRESSES.POLYGONZKEVM_TESTNET.ETH,
+        ...DEFAULT_NETWORK_DATA.ETH
+      }
+    }
   }
 }
