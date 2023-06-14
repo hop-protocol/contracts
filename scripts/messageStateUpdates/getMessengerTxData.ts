@@ -20,7 +20,8 @@ const chains: Record<string, string> = {
   Consensys: 'consensys',
   ZkSync: 'zksync',
   Base: 'base',
-  Scroll: 'scroll'
+  Scroll: 'scroll',
+  Polygonzk: 'polygonzk'
 }
 const tokens: string[] = [
   'USDC',
@@ -88,6 +89,8 @@ const targetAddresses: Record<string, Record<string, string>> = {
   },
   scroll: {
     ETH: 'TODO' // TODO: scroll - for prod deployment
+  },
+  polygonzk: {
   }
 }
 
@@ -153,7 +156,9 @@ const l2BridgeAddresses: Record<string, Record<string, string>> = {
   },
   scroll: {
     ETH: 'TODO' // TODO: scroll - for prod deployment
-  }
+  },
+  polygonzk: {
+  },
 }
 
 async function main () {

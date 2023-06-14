@@ -25,6 +25,7 @@ import {
   isChainIdZkSync,
   isChainIdBase,
   isChainIdScroll,
+  isChainIdPolygonzk,
   isChainIdL1,
   generateArbitrumAliasAddress
 } from '../../config/utils'
@@ -181,6 +182,7 @@ export const executeCanonicalMessengerSendMessage = async (
     tx = await l1_messenger
       .connect(sender)
       .sendMessage(...optimismParams, modifiedGasPrice)
+  } else if (isChainIdPolygonzk(l2ChainId)) {
   } else {
     tx = await l1_messenger
       .connect(sender)

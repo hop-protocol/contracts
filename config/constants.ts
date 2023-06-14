@@ -37,7 +37,11 @@ export const CHAIN_IDS: any = {
   },
   SCROLL: {
     SCROLL_TESTNET: BigNumber.from('534353')
-  }
+  },
+  POLYGONZK: {
+    POLYGONZK_MAINNET: BigNumber.from('1101'),
+    POLYGONZK_TESTNET: BigNumber.from('1442')
+  },
 }
 
 export const CHAIN_IDS_TO_ACTIVATE: any = {
@@ -59,6 +63,9 @@ export const CHAIN_IDS_TO_ACTIVATE: any = {
     },
     NOVA: {
       NOVA_MAINNET: BigNumber.from('42170')
+    },
+    POLYGONZK: {
+      POLYGONZK_MAINNET: BigNumber.from('1101')
     }
   },
   TESTNET: {
@@ -85,6 +92,9 @@ export const CHAIN_IDS_TO_ACTIVATE: any = {
     },
     SCROLL: {
       SCROLL_TESTNET: BigNumber.from('534353')
+    },
+    POLYGONZK: {
+      POLYGONZK_TESTNET: BigNumber.from('1442')
     }
   }
 }
@@ -310,6 +320,11 @@ export const L2_CANONICAL_TOKEN_ADDRESSES: any = {
   },
   SCROLL_TESTNET: {
     ETH: '0x5300000000000000000000000000000000000004' // Canonical deployment
+  },
+  POLYGONZK_MAINNET: {
+    ETH: '0x4F9A0e7FD2Bf6067db6994CF12E4495Df938E6e9'
+  },
+  POLYGONZK_TESTNET: {
   }
 }
 

@@ -139,7 +139,19 @@ export default {
       accounts: desiredAccounts,
       chainId: CHAIN_IDS.SCROLL.SCROLL_TESTNET.toNumber(),
       timeout
-    }
+    },
+    polygonzk_mainnet: {
+      url: process.env.RPC_ENDPOINT_POLYGONZK_MAINNET,
+      accounts: desiredAccounts,
+      chainId: CHAIN_IDS.POLYGONZK.POLYGONZK_MAINNET.toNumber(),
+      timeout
+    },
+    polygonzk_testnet: {
+      url: process.env.RPC_ENDPOINT_POLYGONZK_TESTNET,
+      accounts: desiredAccounts,
+      chainId: CHAIN_IDS.POLYGONZK.POLYGONZK_TESTNET.toNumber(),
+      timeout
+    },
   },
   zksolc: {
     version: '1.3.1',
@@ -220,7 +232,9 @@ export default {
       consensys_testnet: process.env.CONSENSYS_API_KEY,
       zksync_testnet: process.env.ZKSYNC_API_KEY,
       base_testnet: process.env.BASE_API_KEY,
-      scroll_testnet: process.env.SCROLL_API_KEY
+      scroll_testnet: process.env.SCROLL_API_KEY,
+      polygonzk_mainnet: process.env.POLYGONZK_API_KEY,
+      polygonzk_testnet: process.env.POLYGONZK_API_KEY,
     },
     customChains: [
       {
@@ -278,7 +292,23 @@ export default {
           apiURL: 'https://blockscout.scroll.io/api',
           browserURL: 'https://blockscout.scroll.io'
         }
-      }
+      },
+      {
+        network: 'polygonzk_mainnet',
+        chainId: 1101,
+        urls: {
+          apiURL: 'https://api-zkevm.polygonscan.com/api',
+          browserURL: 'https://zkevm.polygonscan.com/'
+        }
+      },
+      {
+        network: 'polygonzk_testnet',
+        chainId: 1442,
+        urls: {
+          apiURL: 'https://api-testnet-zkevm.polygonscan.com/api',
+          browserURL: 'https://testnet-zkevm.polygonscan.com/'
+        }
+      },
     ]
   }
   // abiExporter: {

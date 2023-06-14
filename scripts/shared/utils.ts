@@ -19,7 +19,8 @@ import {
   isChainIdConsensys,
   isChainIdZkSync,
   isChainIdBase,
-  isChainIdScroll
+  isChainIdScroll,
+  isChainIdPolygonzk,
 } from '../../config/utils'
 
 import {
@@ -127,6 +128,8 @@ const getNetworkSpecificFactories = async (
     return getBaseContractFactories(signer, ethers)
   } else if (isChainIdScroll(chainId)) {
     return getScrollContractFactories(signer, ethers)
+  } else if (isChainIdPolygonzk(chainId)) {
+    return getPolygonzkContractFactories(signer, ethers)
   } else {
     return {
       L1_Messenger: null,
@@ -306,6 +309,28 @@ const getScrollContractFactories = async (signer: Signer, ethers: any) => {
   )
   const L2_Bridge: ContractFactory = await ethers.getContractFactory(
     'contracts/bridges/L2_ScrollZkEvmBridge.sol:L2_ScrollZkEvmBridge',
+    { signer }
+  )
+
+  return {
+    L1_Messenger,
+    L1_MessengerWrapper,
+    L2_Bridge,
+    L2_MessengerProxy: null
+  }
+}
+
+const getPolygonzkContractFactories = async (signer: Signer, ethers: any) => {
+  const L1_Messenger: ContractFactory = await ethers.getContractFactory(
+    'contracts/test/polygonzk/Mock_L1_PolygonzkMessenger.sol:Mock_L1_PolygonzkMessenger',
+    { signer }
+  )
+  const L1_MessengerWrapper: ContractFactory = await ethers.getContractFactory(
+    'contracts/wrappers/PolygonzkEvmMessengerWrapper.sol:PolygonzkEvmMessengerWrapper',
+    { signer }
+  )
+  const L2_Bridge: ContractFactory = await ethers.getContractFactory(
+    'contracts/bridges/L2_PolygonZkEvmBridge.sol:L2_PolygonZkEvmBridge',
     { signer }
   )
 

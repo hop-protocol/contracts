@@ -222,5 +222,17 @@ export const networkData: NetworkData = {
         ...DEFAULT_NETWORK_DATA.ETH
       }
     }
+  },
+  polygonzk: {
+    l2NetworkName: 'polygonzk',
+    l1ChainId,
+    l2ChainId: CHAIN_IDS.POLYGONZK.POLYGONZK_TESTNET.toString(),
+    tokens: {
+      ETH: {
+        l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.GOERLI.ETH,
+        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.POLYGONZK_TESTNET.ETH,
+        ...DEFAULT_NETWORK_DATA.ETH
+      }
+    }
   }
 }
