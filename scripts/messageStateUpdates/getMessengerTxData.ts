@@ -104,6 +104,7 @@ const l1BridgeAddresses: Record<string, string> = {
   SNX: '0x893246FACF345c99e4235E5A7bbEE7404c988b96',
   sSUD: '0x36443fC70E073fe9D50425f82a3eE19feF697d62',
   rETH: '0x87269B23e73305117D0404557bAdc459CEd0dbEc',
+  MAGIC: '0xf074540eb83c86211F305E145eB31743E228E57d'
 }
 
 const l2BridgeAddresses: Record<string, Record<string, string>> = {
@@ -143,7 +144,8 @@ const l2BridgeAddresses: Record<string, Record<string, string>> = {
     MAGIC: '0xEa5abf2C909169823d939de377Ef2Bf897A6CE98'
   },
   nova: {
-    ETH: '0x8796860ca1677Bf5d54cE5A348Fe4b779a8212f3'
+    ETH: '0x8796860ca1677Bf5d54cE5A348Fe4b779a8212f3',
+    MAGIC: '0xE638433e2C1dF5f7a3a21b0a6b5c4b37278e55DC'
   },
   consensys: {
     ETH: 'TODO' // TODO: consensys - for prod deployment
