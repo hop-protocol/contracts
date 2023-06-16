@@ -256,7 +256,8 @@ export const isChainIdTestnet = (chainId: BigNumber): boolean => {
     chainId.eq(CHAIN_IDS.CONSENSYS.CONSENSYS_TESTNET) ||
     chainId.eq(CHAIN_IDS.ZKSYNC.ZKSYNC_TESTNET) ||
     chainId.eq(CHAIN_IDS.SCROLL.SCROLL_TESTNET) ||
-    chainId.eq(CHAIN_IDS.BASE.BASE_TESTNET)
+    chainId.eq(CHAIN_IDS.BASE.BASE_TESTNET) ||
+    chainId.eq(CHAIN_IDS.POLYGONZK.POLYGONZK_TESTNET)
   ) {
     return true
   }

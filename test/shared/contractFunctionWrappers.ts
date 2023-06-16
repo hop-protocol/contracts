@@ -191,7 +191,7 @@ export const executeCanonicalMessengerSendMessage = async (
       forceUpdateGlobalExitRoot,
       message
     ]
-    tx = await l1_messenger.bridgeMessage(...polygonzkParams)
+    tx = await l1_messenger.connect(sender).bridgeMessage(...polygonzkParams)
   } else {
     tx = await l1_messenger
       .connect(sender)
