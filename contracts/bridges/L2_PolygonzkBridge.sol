@@ -5,17 +5,20 @@ pragma solidity 0.6.12;
 pragma experimental ABIEncoderV2;
 
 import "./L2_Bridge.sol";
+import "../polygonzk/PolygonzkBridgeMessageReceiver.sol";
 import "../interfaces/polygonzk/messengers/IPolygonZkEVMBridge.sol";
-import "../interfaces/polygonzk/bridges/IBridgeMessageReceiver.sol";
 
 /**
  * @dev An L2_Bridge for Polygonzk - https://zkevm.polygon.technology/docs/protocol/transaction-execution
  */
 
-contract L2_PolygonzkBridge is L2_Bridge {
+contract L2_PolygonzkBridge is L2_Bridge, PolygonzkBridgeMessageReceiver {
 
-    IPolygonZkEVMBridge public immutable messenger;
-    IBridgeMessageReceiver public l1BridgeReceiver;
+    IPolygonZkEVMBridge public messenger;
+
+    uint256 public constant l1Network = 0;
+    bool public constant forceUpdateGlobalExitRoot = true;
+
 
     constructor (
         IPolygonZkEVMBridge _messenger,
@@ -33,20 +36,24 @@ contract L2_PolygonzkBridge is L2_Bridge {
             activeChainIds,
             bonders
         )
+        PolygonzkBridgeMessageReceiver()
     {
         messenger = _messenger;
     }
 
     function _sendCrossDomainMessage(bytes memory message) internal override {
         messenger.bridgeMessage(
-            0,
-            l1BridgeReceiver,
-            false,
+            uint32(l1Network),
+            l1BridgeCaller,
+            forceUpdateGlobalExitRoot,
             message
         );
     }
 
     function _verifySender(address expectedSender) internal override {
+        require(msg.sender == address(this), "L2_PLY_ZK_BRG: Caller is not the expected sender");
+        require(xDomainMessageSender == expectedSender, "L2_PLY_ZK_BRG: Invalid cross-domain sender");
+        require(xDomainNetwork == l1Network, "L2_PLY_ZK_BRG: Invalid cross-domain network");
     }
 
     function onMessageReceived(
@@ -54,15 +61,11 @@ contract L2_PolygonzkBridge is L2_Bridge {
         uint32 originNetwork,
         bytes memory data
     ) external {
-        require(msg.sender == address(messenger), "L2_PLY_ZK_BRG: Caller is not the messenger");
-        require(fromNetworkId == 0, "L2_PLY_ZK_BRG: Origin network is not expected");
-
-        (bool success,) = address(this).call(data);
-        require(success, "L2_PLY_ZK_BRG: Call to L1 Bridge failed");
+        _onMessageReceived(originAddress, originNetwork, data, address(messenger), l1Network, address(this));
     }
 
-    function setL1bridgeReceiver(IBridgeMessageReceiver _l1BridgeReceiver) external onlyGovernance {
-        l1BridgeReceiver = _l1BridgeReceiver;
+    function setMessenger(IPolygonZkEVMBridge _messenger) external onlyGovernance {
+        messenger = _messenger;
     }
 }
 

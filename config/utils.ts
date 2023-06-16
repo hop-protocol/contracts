@@ -74,6 +74,7 @@ export const getMessengerWrapperDefaults = (
   } else if (isChainIdScroll(l2ChainId)) {
     data.push(...defaults)
   } else if (isChainIdPolygonzk(l2ChainId)) {
+    data.push(...defaults)
   }
 
   return data
@@ -111,6 +112,7 @@ export const getL2BridgeDefaults = (
   } else if (isChainIdScroll(chainId)) {
     // no additional data
   } else if (isChainIdPolygonzk(chainId)) {
+    // no additional data
   }
 
   defaults.push(
@@ -212,8 +214,8 @@ export const isChainIdScroll = (chainId: BigNumber): boolean => {
 
 export const isChainIdPolygonzk = (chainId: BigNumber): boolean => {
   if (
-    chainId.eq(CHAIN_IDS.POLYGON_ZK.POLYGON_ZK_MAINNET) ||
-    chainId.eq(CHAIN_IDS.POLYGON_ZK.POLYGON_ZK_TESTNET)
+    chainId.eq(CHAIN_IDS.POLYGONZK.POLYGONZK_MAINNET) ||
+    chainId.eq(CHAIN_IDS.POLYGONZK.POLYGONZK_TESTNET)
   ) {
     return true
   }

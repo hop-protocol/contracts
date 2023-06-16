@@ -2,28 +2,36 @@
 
 pragma solidity 0.6.12;
 
-import '../interfaces/polygonzk/messengers/IBridgeMessageReceiver.sol';
+import '../interfaces/polygonzk/bridges/IBridgeMessageReceiver.sol';
 
-interface PolygonzkBridgeMessageReceiver {
-    address public immutable destinationBridge;
-    address public immutable caller;
-    address public immutable fromNetworkId;
+abstract contract PolygonzkBridgeMessageReceiver {
+    address public xDomainMessageSender;
+    uint256 public xDomainNetwork;
 
-    constructor(address _destinationBridge, address _caller, address _fromNetworkId ) public {
-        destinationBridge = _destinationBridge;
-        caller = _caller;
-        fromNetworkId = _fromNetworkId;
+    address constant public DEAD_ADDRESS = 0x000000000000000000000000000000000000dEaD;
+    uint256 constant public DEFAULT_NETWORK = uint256(bytes32(keccak256("Default Network")));
+
+    constructor () public {
+        xDomainMessageSender = DEAD_ADDRESS;
+        xDomainNetwork = DEFAULT_NETWORK;
     }
 
-    function onMessageReceived(
+    function _onMessageReceived(
         address originAddress,
         uint32 originNetwork,
-        bytes memory data
-    ) external {
-        require(msg.sender == caller, "PLY_ZK_BMR: Caller is not the messenger");
-        require(fromNetworkId == originNetwork, "PLY_ZK_BMR: Origin network is not expected");
+        bytes memory data,
+        address messengerAddress,
+        uint256 expectedNetwork,
+        address targetAddress
+    ) internal {
+        require(msg.sender == messengerAddress, "PLY_ZK_BRG_MR: Caller is not the messenger");
+        require(uint256(originNetwork) == expectedNetwork, "PLY_ZK_BRG_MR: Origin network is not expected");
 
-        (bool success,) = destinationBridge.call(data);
-        require(success, "PLG_ZK_BMR: Call to bridge failed");
+        xDomainMessageSender = originAddress;
+        xDomainNetwork = uint256(originNetwork);
+        (bool success,) = targetAddress.call(data);
+        require(success, "PLY_ZK_BRG_MR: Call to L1 Bridge failed");
+        xDomainMessageSender = DEAD_ADDRESS;
+        xDomainNetwork = DEFAULT_NETWORK;
     }
 }

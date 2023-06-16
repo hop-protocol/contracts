@@ -4,6 +4,7 @@ pragma solidity 0.6.12;
 pragma experimental ABIEncoderV2;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "../polygonzk/PolygonzkBridgeMessageReceiver.sol";
 import "../interfaces/polygonzk/messengers/IPolygonZkEVMBridge.sol";
 import "./MessengerWrapper.sol";
 
@@ -13,26 +14,25 @@ import "./MessengerWrapper.sol";
  */
 
 // TODO: Not ownable if it doesn't need to be
-contract PolygonzkMessengerWrapper is MessengerWrapper, Ownable {
+contract PolygonzkMessengerWrapper is MessengerWrapper, Ownable, PolygonzkBridgeMessageReceiver {
 
-    IPolygonZkEVMBridge public immutable l1MessengerAddress;
+    IPolygonZkEVMBridge public immutable l1Messenger;
     address public l2BridgeAddress;
-    // TODO: Immutable? if not, add setter and owner.
-    address public immutable polygonZkBridgeMessageReceiverAddress;
+    uint256 public constant l2Network = 1;
+    bool public constant forceUpdateGlobalExitRoot = true;
 
     constructor(
         address _l1BridgeAddress,
         address _l2BridgeAddress,
-        IPolygonZkEVMBridge _l1MessengerAddress,
-        uint256 _l2ChainId,
-        address _polygonZkBridgeMessageReceiverAddress
+        IPolygonZkEVMBridge _l1Messenger,
+        uint256 _l2ChainId
     )
         public
         MessengerWrapper(_l1BridgeAddress, _l2ChainId)
+        PolygonzkBridgeMessageReceiver()
     {
         l2BridgeAddress = _l2BridgeAddress;
-        l1MessengerAddress = _l1MessengerAddress;
-        polygonZkBridgeMessageReceiverAddress = _polygonZkBridgeMessageReceiverAddress;
+        l1Messenger = _l1Messenger;
     }
 
     /** 
@@ -40,10 +40,10 @@ contract PolygonzkMessengerWrapper is MessengerWrapper, Ownable {
      * @param _calldata The data that l2BridgeAddress will be called with
      */
     function sendCrossDomainMessage(bytes memory _calldata) public override onlyL1Bridge {
-        l1MessengerAddress.bridgeMessage(
-            l2ChainId
-            1,
-            true,
+        l1Messenger.bridgeMessage(
+            uint32(l2Network),
+            l2BridgeAddress,
+            forceUpdateGlobalExitRoot,
             _calldata
         );
     }
@@ -51,6 +51,17 @@ contract PolygonzkMessengerWrapper is MessengerWrapper, Ownable {
     function verifySender(address l1BridgeCaller, bytes memory /*_data*/) public override {
         if (isRootConfirmation) return;
 
-        require(l1BridgeCaller == polygonZkBridgeMessageReceiverAddress, "L1_PLGN_ZK_WPR: Caller must be bridge receiver contract");
+
+        require(l1BridgeCaller == address(this), "L1_PLGN_ZK_WPR: Caller must be this address");
+        require(xDomainMessageSender == l2BridgeAddress, "L1_PLGN_ZK_WPR: Invalid cross-domain sender");
+        require(xDomainNetwork == l2Network, "L1_PLGN_ZK_WPR: Invalid cross-domain network");
+    }
+
+    function onMessageReceived(
+        address originAddress,
+        uint32 originNetwork,
+        bytes memory data
+    ) external {
+        _onMessageReceived(originAddress, originNetwork, data, address(l1Messenger), l2Network, l1BridgeAddress);
     }
 }
