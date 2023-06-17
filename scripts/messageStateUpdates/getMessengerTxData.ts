@@ -91,6 +91,7 @@ const targetAddresses: Record<string, Record<string, string>> = {
     ETH: 'TODO' // TODO: scroll - for prod deployment
   },
   polygonzk: {
+    ETH: '0x2a3DD3EB832aF982ec71669E178424b10Dca2EDe' 
   }
 }
 
@@ -160,6 +161,7 @@ const l2BridgeAddresses: Record<string, Record<string, string>> = {
     ETH: 'TODO' // TODO: scroll - for prod deployment
   },
   polygonzk: {
+    ETH: 'TODO',
   },
 }
 
@@ -263,6 +265,8 @@ async function main () {
         calldata
       ])
   logData(chains.Nova, abi, token, data, value, timestamp, fee)
+
+  // Polygonzk - TODO
 
   // // Consensys
   // abi = ['function dispatchMessage(address,uint256,uint256,bytes)']
