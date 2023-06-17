@@ -19,7 +19,7 @@ contract PolygonzkMessengerWrapper is MessengerWrapper, Ownable, PolygonzkBridge
     IPolygonZkEVMBridge public immutable l1Messenger;
     address public l2BridgeAddress;
     uint256 public constant l2Network = 1;
-    bool public constant forceUpdateGlobalExitRoot = true;
+    bool public constant forceUpdateGlobalExitRoot = false;
 
     constructor(
         address _l1BridgeAddress,
@@ -50,7 +50,6 @@ contract PolygonzkMessengerWrapper is MessengerWrapper, Ownable, PolygonzkBridge
 
     function verifySender(address l1BridgeCaller, bytes memory /*_data*/) public override {
         if (isRootConfirmation) return;
-
 
         require(l1BridgeCaller == address(this), "L1_PLGN_ZK_WPR: Caller must be this address");
         require(xDomainMessageSender == l2BridgeAddress, "L1_PLGN_ZK_WPR: Invalid cross-domain sender");

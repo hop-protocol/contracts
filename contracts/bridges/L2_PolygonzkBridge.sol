@@ -17,7 +17,7 @@ contract L2_PolygonzkBridge is L2_Bridge, PolygonzkBridgeMessageReceiver {
     IPolygonZkEVMBridge public messenger;
 
     uint256 public constant l1Network = 0;
-    bool public constant forceUpdateGlobalExitRoot = true;
+    bool public constant forceUpdateGlobalExitRoot = false;
 
 
     constructor (
