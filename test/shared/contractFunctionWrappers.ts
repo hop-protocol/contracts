@@ -184,7 +184,7 @@ export const executeCanonicalMessengerSendMessage = async (
       .sendMessage(...optimismParams, modifiedGasPrice)
   } else if (isChainIdPolygonzk(l2ChainId)) {
     const l2Network = 1
-    const forceUpdateGlobalExitRoot = true
+    const forceUpdateGlobalExitRoot = false
     const polygonzkParams = [
       l2Network,
       l2_bridge.address,
