@@ -311,7 +311,8 @@ function handleCustomL2NetworkName (
     l2NetworkName === 'nova' ||
     l2NetworkName === 'consensys' ||
     l2NetworkName === 'zksync' ||
-    l2NetworkName === 'scroll'
+    l2NetworkName === 'scroll' ||
+    l2NetworkName === 'polygonzk'
   ) {
     if (l1NetworkName === 'mainnet') {
       return `${l2NetworkName}_mainnet`

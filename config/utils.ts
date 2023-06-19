@@ -73,6 +73,8 @@ export const getMessengerWrapperDefaults = (
     data.push(...defaults)
   } else if (isChainIdScroll(l2ChainId)) {
     data.push(...defaults)
+  } else if (isChainIdPolygonzk(l2ChainId)) {
+    data.push(...defaults)
   }
 
   return data
@@ -108,6 +110,8 @@ export const getL2BridgeDefaults = (
   } else if (isChainIdZkSync(chainId)) {
     // no additional data
   } else if (isChainIdScroll(chainId)) {
+    // no additional data
+  } else if (isChainIdPolygonzk(chainId)) {
     // no additional data
   }
 
@@ -208,6 +212,17 @@ export const isChainIdScroll = (chainId: BigNumber): boolean => {
   return false
 }
 
+export const isChainIdPolygonzk = (chainId: BigNumber): boolean => {
+  if (
+    chainId.eq(CHAIN_IDS.POLYGONZK.POLYGONZK_MAINNET) ||
+    chainId.eq(CHAIN_IDS.POLYGONZK.POLYGONZK_TESTNET)
+  ) {
+    return true
+  }
+
+  return false
+}
+
 export const isChainIdMainnet = (chainId: BigNumber): boolean => {
   if (chainId.eq(CHAIN_IDS.ETHEREUM.MAINNET)) {
     return true
@@ -241,7 +256,8 @@ export const isChainIdTestnet = (chainId: BigNumber): boolean => {
     chainId.eq(CHAIN_IDS.CONSENSYS.CONSENSYS_TESTNET) ||
     chainId.eq(CHAIN_IDS.ZKSYNC.ZKSYNC_TESTNET) ||
     chainId.eq(CHAIN_IDS.SCROLL.SCROLL_TESTNET) ||
-    chainId.eq(CHAIN_IDS.BASE.BASE_TESTNET)
+    chainId.eq(CHAIN_IDS.BASE.BASE_TESTNET) ||
+    chainId.eq(CHAIN_IDS.POLYGONZK.POLYGONZK_TESTNET)
   ) {
     return true
   }
@@ -329,7 +345,8 @@ export const getTxOverridesPerChain = (l2ChainId: BigNumber): Overrides => {
     isChainIdConsensys(l2ChainId) ||
     isChainIdZkSync(l2ChainId) ||
     isChainIdBase(l2ChainId) ||
-    isChainIdScroll(l2ChainId)
+    isChainIdScroll(l2ChainId) ||
+    isChainIdPolygonzk(l2ChainId)
   ) {
     return {}
   } else if (isChainIdXDai(l2ChainId)) {

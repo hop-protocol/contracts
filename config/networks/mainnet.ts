@@ -265,5 +265,20 @@ export const networkData: NetworkData = {
         ...DEFAULT_NETWORK_DATA.MAGIC
       }
     }
+  },
+  polygonzk: {
+    l2NetworkName: 'polygonzk',
+    l1ChainId,
+    l2ChainId: CHAIN_IDS.POLYGONZK.POLYGONZK_MAINNET.toString(),
+    l1MessengerAddress: '0x2a3DD3EB832aF982ec71669E178424b10Dca2EDe',
+    l2TokenBridgeAddress: ZERO_ADDRESS,
+    l2MessengerAddress: '0x2a3DD3EB832aF982ec71669E178424b10Dca2EDe',
+    tokens: {
+      ETH: {
+        l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.MAINNET.ETH,
+        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.POLYGONZK_MAINNET.ETH,
+        ...DEFAULT_NETWORK_DATA.ETH
+      }
+    }
   }
 }

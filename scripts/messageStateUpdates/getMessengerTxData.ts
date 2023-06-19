@@ -20,7 +20,8 @@ const chains: Record<string, string> = {
   Consensys: 'consensys',
   ZkSync: 'zksync',
   Base: 'base',
-  Scroll: 'scroll'
+  Scroll: 'scroll',
+  Polygonzk: 'polygonzk'
 }
 const tokens: string[] = [
   'USDC',
@@ -88,6 +89,9 @@ const targetAddresses: Record<string, Record<string, string>> = {
   },
   scroll: {
     ETH: 'TODO' // TODO: scroll - for prod deployment
+  },
+  polygonzk: {
+    ETH: '0x2a3DD3EB832aF982ec71669E178424b10Dca2EDe' 
   }
 }
 
@@ -155,7 +159,10 @@ const l2BridgeAddresses: Record<string, Record<string, string>> = {
   },
   scroll: {
     ETH: 'TODO' // TODO: scroll - for prod deployment
-  }
+  },
+  polygonzk: {
+    ETH: 'TODO',
+  },
 }
 
 async function main () {
@@ -258,6 +265,8 @@ async function main () {
         calldata
       ])
   logData(chains.Nova, abi, token, data, value, timestamp, fee)
+
+  // Polygonzk - TODO
 
   // // Consensys
   // abi = ['function dispatchMessage(address,uint256,uint256,bytes)']
