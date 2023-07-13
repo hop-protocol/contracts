@@ -19,7 +19,7 @@ contract PolygonzkMessengerWrapper is MessengerWrapper, Ownable, PolygonzkBridge
     IPolygonZkEVMBridge public immutable l1Messenger;
     address public l2BridgeAddress;
     uint256 public constant l2Network = 1;
-    bool public constant forceUpdateGlobalExitRoot = false;
+    bool public forceUpdateGlobalExitRoot = false;
 
     constructor(
         address _l1BridgeAddress,
@@ -61,6 +61,17 @@ contract PolygonzkMessengerWrapper is MessengerWrapper, Ownable, PolygonzkBridge
         uint32 originNetwork,
         bytes memory data
     ) external {
-        _onMessageReceived(originAddress, originNetwork, data, address(l1Messenger), l2Network, l1BridgeAddress);
+        _onMessageReceived(
+            originAddress,
+            originNetwork,
+            data,
+            address(l1Messenger),
+            l2Network,
+            l1BridgeAddress
+        );
+    }
+
+    function setForceUpdateGlobalExitRoot(bool _forceUpdateGlobalExitRoot) external onlyOwner {
+        forceUpdateGlobalExitRoot = _forceUpdateGlobalExitRoot;
     }
 }

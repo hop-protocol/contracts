@@ -15,10 +15,8 @@ import "../interfaces/polygonzk/messengers/IPolygonZkEVMBridge.sol";
 contract L2_PolygonzkBridge is L2_Bridge, PolygonzkBridgeMessageReceiver {
 
     IPolygonZkEVMBridge public messenger;
-
     uint256 public constant l1Network = 0;
-    bool public constant forceUpdateGlobalExitRoot = false;
-
+    bool public forceUpdateGlobalExitRoot = false;
 
     constructor (
         IPolygonZkEVMBridge _messenger,
@@ -61,11 +59,22 @@ contract L2_PolygonzkBridge is L2_Bridge, PolygonzkBridgeMessageReceiver {
         uint32 originNetwork,
         bytes memory data
     ) external {
-        _onMessageReceived(originAddress, originNetwork, data, address(messenger), l1Network, address(this));
+        _onMessageReceived(
+            originAddress,
+            originNetwork,
+            data,
+            address(messenger),
+            l1Network,
+            address(this)
+        );
     }
 
     function setMessenger(IPolygonZkEVMBridge _messenger) external onlyGovernance {
         messenger = _messenger;
+    }
+
+    function setForceUpdateGlobalExitRoot(bool _forceUpdateGlobalExitRoot) external onlyGovernance {
+        forceUpdateGlobalExitRoot = _forceUpdateGlobalExitRoot;
     }
 }
 
