@@ -280,5 +280,20 @@ export const networkData: NetworkData = {
         ...DEFAULT_NETWORK_DATA.ETH
       }
     }
+  },
+  base: {
+    l2NetworkName: 'base',
+    l1ChainId,
+    l2ChainId: CHAIN_IDS.BASE.BASE_MAINNET.toString(),
+    l1MessengerAddress: '0x710bDa329b2a6224E4B44833DE30F38E7f81d564',
+    l2TokenBridgeAddress: ZERO_ADDRESS,
+    l2MessengerAddress: '0x4200000000000000000000000000000000000007',
+    tokens: {
+      ETH: {
+        l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.MAINNET.ETH,
+        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.BASE_MAINNET.ETH,
+        ...DEFAULT_NETWORK_DATA.ETH
+      }
+    }
   }
 }

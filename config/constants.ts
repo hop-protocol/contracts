@@ -33,6 +33,7 @@ export const CHAIN_IDS: any = {
     ZKSYNC_TESTNET: BigNumber.from('280')
   },
   BASE: {
+    BASE_MAINNET: BigNumber.from('8453'),
     BASE_TESTNET: BigNumber.from('84531')
   },
   SCROLL: {
@@ -63,6 +64,9 @@ export const CHAIN_IDS_TO_ACTIVATE: any = {
     },
     NOVA: {
       NOVA_MAINNET: BigNumber.from('42170')
+    },
+    BASE: {
+      BASE_MAINNET: BigNumber.from('8453')
     },
     POLYGONZK: {
       POLYGONZK_MAINNET: BigNumber.from('1101')
@@ -327,7 +331,10 @@ export const L2_CANONICAL_TOKEN_ADDRESSES: any = {
   },
   POLYGONZK_TESTNET: {
     ETH: '0x0EEFEe679a77dC411579e520ef7535d526cED1d6' // Our deployment
-  }
+  },
+  BASE_MAINNET: {
+    ETH: '0x4200000000000000000000000000000000000006'
+  },
 }
 
 export const GAS_PRICE_MULTIPLIERS: { [key: string]: number } = {

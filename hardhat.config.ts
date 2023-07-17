@@ -152,6 +152,12 @@ export default {
       chainId: CHAIN_IDS.POLYGONZK.POLYGONZK_TESTNET.toNumber(),
       timeout
     },
+    base_mainnet: {
+      url: process.env.RPC_ENDPOINT_BASE_MAINNET,
+      accounts: desiredAccounts,
+      chainId: CHAIN_IDS.BASE.BASE_MAINNET.toNumber(),
+      timeout
+    },
   },
   zksolc: {
     version: '1.3.1',
@@ -235,6 +241,7 @@ export default {
       scroll_testnet: process.env.SCROLL_API_KEY,
       polygonzk_mainnet: process.env.POLYGONZK_API_KEY,
       polygonzk_testnet: process.env.POLYGONZK_API_KEY,
+      base_mainnet: process.env.BASE_API_KEY,
     },
     customChains: [
       {
@@ -307,6 +314,14 @@ export default {
         urls: {
           apiURL: 'https://api-testnet-zkevm.polygonscan.com/api',
           browserURL: 'https://testnet-zkevm.polygonscan.com/'
+        }
+      },
+      {
+        network: 'base_mainnet',
+        chainId: 8453,
+        urls: {
+          apiURL: 'https://api.basescan.org/api',
+          browserURL: 'https://basescan.org'
         }
       },
     ]

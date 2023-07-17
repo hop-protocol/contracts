@@ -143,7 +143,10 @@ export const isChainIdOptimism = (chainId: BigNumber): boolean => {
 }
 
 export const isChainIdBase = (chainId: BigNumber): boolean => {
-  if (chainId.eq(CHAIN_IDS.BASE.BASE_TESTNET)) {
+  if (
+    chainId.eq(CHAIN_IDS.BASE.BASE_TESTNET) ||
+    chainId.eq(CHAIN_IDS.BASE.BASE_MAINNET)
+  ) {
     return true
   }
 
