@@ -285,7 +285,7 @@ export const networkData: NetworkData = {
     l2NetworkName: 'base',
     l1ChainId,
     l2ChainId: CHAIN_IDS.BASE.BASE_MAINNET.toString(),
-    l1MessengerAddress: '0x710bDa329b2a6224E4B44833DE30F38E7f81d564',
+    l1MessengerAddress: '0x866E82a600A1414e583f7F13623F1aC5d58b0Afa',
     l2TokenBridgeAddress: ZERO_ADDRESS,
     l2MessengerAddress: '0x4200000000000000000000000000000000000007',
     tokens: {

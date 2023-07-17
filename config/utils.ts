@@ -347,11 +347,14 @@ export const getTxOverridesPerChain = (l2ChainId: BigNumber): Overrides => {
     isChainIdNova(l2ChainId) ||
     isChainIdConsensys(l2ChainId) ||
     isChainIdZkSync(l2ChainId) ||
-    isChainIdBase(l2ChainId) ||
     isChainIdScroll(l2ChainId) ||
     isChainIdPolygonzk(l2ChainId)
   ) {
     return {}
+  } else if (isChainIdBase(l2ChainId)) {
+    return {
+      gasPrice: 2_000_000_000
+    }
   } else if (isChainIdXDai(l2ChainId)) {
     return {
       gasLimit: 4_500_000
