@@ -22,6 +22,7 @@ async function main () {
   let tokenSymbol: string
   let bonderAddress: string
   let isL1BridgeDeploy: boolean
+  let existingL1BridgeAddress: string
   let l2CanonicalTokenIsEth: boolean
   let deploymentStep: number
   let isOmnichainToken: boolean
@@ -31,12 +32,20 @@ async function main () {
     tokenSymbol,
     bonderAddress,
     isL1BridgeDeploy,
+    existingL1BridgeAddress,
     l2CanonicalTokenIsEth,
     deploymentStep,
     isOmnichainToken
   } = await getPrompts())
 
-  validateInput(l1NetworkName, l2NetworkName, tokenSymbol, bonderAddress)
+  validateInput(
+    l1NetworkName,
+    l2NetworkName,
+    tokenSymbol,
+    bonderAddress,
+    isL1BridgeDeploy,
+    existingL1BridgeAddress
+  )
 
   const basePath: string = 'scripts/deployAndSetupHop'
   const scripts: string[] = []
@@ -50,6 +59,8 @@ async function main () {
     scripts.push(
       `hardhat run ${basePath}/deployL1.ts --network ${l1NetworkName}`
     )
+  } else {
+    setExistingL1BridgeAddress(existingL1BridgeAddress)
   }
 
   setNetworkParams(
@@ -123,6 +134,12 @@ async function getPrompts () {
       default: false
     },
     {
+      name: 'existingL1BridgeAddress',
+      description: 'Address of the existing L1 bridge (ignored if isL1BridgeDeploy is true):',
+      type: 'string',
+      required: true
+    },
+    {
       name: 'l2CanonicalTokenIsEth',
       description: 'Is the l2 canonical token a native asset',
       type: 'boolean',
@@ -158,6 +175,7 @@ async function getPrompts () {
   const tokenSymbol: string = (res.tokenSymbol as string).toLowerCase()
   const bonderAddress: string = res.bonderAddress as string
   const isL1BridgeDeploy: boolean = res.isL1BridgeDeploy as boolean
+  const existingL1BridgeAddress: string = res.existingL1BridgeAddress as string
   const l2CanonicalTokenIsEth: boolean = res.l2CanonicalTokenIsEth as boolean
   const deploymentStep: number = res.deploymentStep as number
   const isOmnichainToken: boolean = res.isOmnichainToken as boolean
@@ -167,6 +185,7 @@ async function getPrompts () {
     l2NetworkName,
     tokenSymbol,
     bonderAddress,
+    existingL1BridgeAddress,
     isL1BridgeDeploy,
     l2CanonicalTokenIsEth,
     deploymentStep,
@@ -178,7 +197,9 @@ function validateInput (
   l1NetworkName: string,
   l2NetworkName: string,
   tokenSymbol: string,
-  bonderAddress: string
+  bonderAddress: string,
+  isL1BridgeDeploy: boolean,
+  existingL1BridgeAddress: string
 ) {
   if (!l1NetworkName) {
     throw new Error('L1 network name is invalid')
@@ -194,6 +215,10 @@ function validateInput (
 
   if (bonderAddress.length !== 42) {
     throw new Error('Bonder address is invalid')
+  }
+
+  if (!isL1BridgeDeploy && existingL1BridgeAddress.length !== 42) {
+    throw new Error('Existing L1 bridge address is required for an existing bridge system')
   }
 }
 
@@ -218,6 +243,10 @@ function setL1BridgeNetworkParams (
     l1CanonicalTokenAddress,
     bonderAddress
   })
+}
+
+function setExistingL1BridgeAddress(l1BridgeAddress: string) {
+  updateConfigFile({ l1BridgeAddress })
 }
 
 function setNetworkParams (
