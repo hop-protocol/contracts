@@ -73,11 +73,12 @@ async function main () {
   )
 
   l2NetworkName = handleCustomL2NetworkName(l1NetworkName, l2NetworkName)
+  const deployL1Cmd = `hardhat run ${basePath}/deployL1.ts --network ${l1NetworkName}`
   const deployL2Cmd = `hardhat run ${basePath}/deployL2.ts --network ${l2NetworkName}`
   const setupL1Cmd = `hardhat run ${basePath}/setupL1.ts --network ${l1NetworkName}`
   const setupL2Cmd = `hardhat run ${basePath}/setupL2.ts --network ${l2NetworkName}`
   if (deploymentStep === 0) {
-    scripts.push(deployL2Cmd, setupL1Cmd, setupL2Cmd)
+    scripts.push(deployL1Cmd, deployL2Cmd, setupL1Cmd, setupL2Cmd)
   } else if (deploymentStep === 1) {
     scripts.push(deployL2Cmd)
   } else if (deploymentStep === 2) {
@@ -141,7 +142,7 @@ async function getPrompts () {
     },
     {
       name: 'l2CanonicalTokenIsEth',
-      description: 'Is the l2 canonical token a native asset',
+      description: 'Is the L2 canonical token a native asset',
       type: 'boolean',
       required: true,
       default: false
@@ -174,11 +175,12 @@ async function getPrompts () {
   const l2NetworkName: string = (res.l2NetworkName as string).toLowerCase()
   const tokenSymbol: string = (res.tokenSymbol as string).toLowerCase()
   const bonderAddress: string = res.bonderAddress as string
-  const isL1BridgeDeploy: boolean = res.isL1BridgeDeploy as boolean
+  const isL1BridgeDeploy: boolean = res.isL1BridgeDeploy === 'true' ? true : false
   const existingL1BridgeAddress: string = res.existingL1BridgeAddress as string
-  const l2CanonicalTokenIsEth: boolean = res.l2CanonicalTokenIsEth as boolean
+  const l2CanonicalTokenIsEth: boolean = res.l2CanonicalTokenIsEth === 'true' ? true : false
   const deploymentStep: number = res.deploymentStep as number
-  const isOmnichainToken: boolean = res.isOmnichainToken as boolean
+  const isOmnichainToken: boolean = res.isOmnichainToken === 'true' ? true : false
+
 
   return {
     l1NetworkName,

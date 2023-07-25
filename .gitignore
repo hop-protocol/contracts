@@ -17,3 +17,7 @@ yarn.lock
 abi/*
 data/*
 scripts/deployAndSetupHop/deploy_config.json
+
+contracts.sublime-workspace
+contracts.sublime-project
+.DS_Store

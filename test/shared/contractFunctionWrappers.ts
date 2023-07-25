@@ -161,7 +161,7 @@ export const executeCanonicalMessengerSendMessage = async (
       .connect(sender)
       .requestL2Transaction(...zkSyncParams, overrides)
   } else if (isChainIdScroll(l2ChainId)) {
-    const gasLimit = 500000 // TODO: determine appropriate gas limit
+    const gasLimit = "1000000" // TODO: determine appropriate gas limit
     const scrollZkEvmParams = [
       l2_bridge.address,
       SCROLL_ZK_EVM_MESSAGE_FEE,
@@ -170,8 +170,9 @@ export const executeCanonicalMessengerSendMessage = async (
     ]
     const value: BigNumber = BigNumber.from(SCROLL_ZK_EVM_MESSAGE_FEE)
     const overrides = {
-      value,
-      ...modifiedGasPrice
+      value: "120000000000000000",
+      gasLimit: gasLimit,
+      // ...modifiedGasPrice
     }
     tx = await l1_messenger
       .connect(sender)
