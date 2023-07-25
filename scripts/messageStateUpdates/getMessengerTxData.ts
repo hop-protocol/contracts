@@ -6,7 +6,8 @@ import { getUpdateContractStateMessage } from './getUpdateContractStateMessage'
 import {
   DEFAULT_DEADLINE,
   CONSENSYS_ZK_EVM_MESSAGE_FEE,
-  ZKSYNC_MESSAGE_FEE
+  ZKSYNC_MESSAGE_FEE,
+  DEFAULT_OPTIMISM_MESSENGER_WRAPPER_GAS_LIMIT
 } from '../../config/constants'
 
 const governanceAddress: string = '0xF56e305024B195383245A075737d16dBdb8487Fb'
@@ -219,7 +220,7 @@ async function main () {
     : ethersInterface.encodeFunctionData('sendMessage', [
         l2BridgeAddress,
         calldata,
-        '5000000'
+        DEFAULT_OPTIMISM_MESSENGER_WRAPPER_GAS_LIMIT.toString()
       ])
   logData(chains.Optimism, abi, token, data, defaultValue, timestamp)
 
