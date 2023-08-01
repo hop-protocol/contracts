@@ -161,7 +161,7 @@ export const executeCanonicalMessengerSendMessage = async (
       .connect(sender)
       .requestL2Transaction(...zkSyncParams, overrides)
   } else if (isChainIdScroll(l2ChainId)) {
-    const gasLimit = "1000000"
+    const gasLimit = '1000000'
     const l2Value = 0
     const scrollZkEvmParams = [
       l2_bridge.address,
