@@ -172,7 +172,6 @@ export async function setupL1 (config: Config) {
 
   logger.log('deploying L1 messenger wrapper')
   let modifiedGasPrice = await getModifiedGasPrice(ethers, l1ChainId)
-  modifiedGasPrice.gasLimit = 2000000
   l1_messengerWrapper = await L1_MessengerWrapper.connect(deployer).deploy(
     ...messengerWrapperDefaults,
     modifiedGasPrice
