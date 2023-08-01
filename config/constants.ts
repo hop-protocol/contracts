@@ -345,6 +345,6 @@ export const GAS_PRICE_MULTIPLIERS: { [key: string]: number } = {
 export const HOP_DAO_ADDRESS = '0xeeA8422a08258e73c139Fc32a25e10410c14bd7a'
 export const CONSENSYS_ZK_EVM_MESSAGE_FEE = '10000000000000000'
 export const ZKSYNC_MESSAGE_FEE = 'TODO' // TODO: zksync
-export const SCROLL_ZK_EVM_MESSAGE_FEE = 2000000000000000 // TODO: Update to be more precise
+export const SCROLL_ZK_EVM_MESSAGE_FEE = '2000000000000000' // TODO: Update to be more precise
 
 export const DefaultChallengePeriod: string = '86400'
