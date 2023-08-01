@@ -168,9 +168,9 @@ export const executeCanonicalMessengerSendMessage = async (
       message,
       gasLimit
     ]
-    const value: BigNumber = BigNumber.from(SCROLL_ZK_EVM_MESSAGE_FEE)
+    // const value: BigNumber = BigNumber.from(SCROLL_ZK_EVM_MESSAGE_FEE)
     const overrides = {
-      value: "120000000000000000",
+      value: "12000000000000000",
       gasLimit: gasLimit,
       // ...modifiedGasPrice
     }

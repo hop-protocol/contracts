@@ -60,7 +60,7 @@ export async function setupL2 (config: Config) {
     liquidityProviderAmmAmount,
     l2CanonicalTokenIsEth,
     isEthDeployment,
-   isOmnichainDeployment 
+    isOmnichainDeployment 
   } = config
 
   logger.log(`config:
@@ -203,7 +203,7 @@ export async function setupL2 (config: Config) {
   logger.log('adding liquidity to L2 amm')
   tx = await l2_swap
     .connect(deployer)
-    .addLiquidity(...addLiquidityParams, overrides)
+    .addLiquidity(...addLiquidityParams, { gasLimit: 1000000 })
   await tx.wait()
   await waitAfterTransaction()
 
@@ -263,9 +263,12 @@ const waitForL2StateVerification = async (
     } else {
       canonicalTokenBalance = await l2_canonicalToken.balanceOf(
         await account.getAddress(),
+
         overrides
       )
     }
+
+    const myAddress = await account.getAddress()
 
     let hopBridgeTokenBalance: BigNumber
     let ammWrapperAddress: string
@@ -282,6 +285,8 @@ const waitForL2StateVerification = async (
       // Validate that the Amm wrapper address has been set
       ammWrapperAddress = await l2_bridge.ammWrapper(overrides)
     }
+
+    // ammWrapperAddress = "0xfe8FAa1532112171Bc978fC104C6257d58bfa071"
 
     if (
       !areChainIdsSupported ||
