@@ -73,12 +73,11 @@ async function main () {
   )
 
   l2NetworkName = handleCustomL2NetworkName(l1NetworkName, l2NetworkName)
-  const deployL1Cmd = `hardhat run ${basePath}/deployL1.ts --network ${l1NetworkName}`
   const deployL2Cmd = `hardhat run ${basePath}/deployL2.ts --network ${l2NetworkName}`
   const setupL1Cmd = `hardhat run ${basePath}/setupL1.ts --network ${l1NetworkName}`
   const setupL2Cmd = `hardhat run ${basePath}/setupL2.ts --network ${l2NetworkName}`
   if (deploymentStep === 0) {
-    scripts.push(deployL1Cmd, deployL2Cmd, setupL1Cmd, setupL2Cmd)
+    scripts.push(deployL2Cmd, setupL1Cmd, setupL2Cmd)
   } else if (deploymentStep === 1) {
     scripts.push(deployL2Cmd)
   } else if (deploymentStep === 2) {
