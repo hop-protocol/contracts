@@ -174,12 +174,11 @@ async function getPrompts () {
   const l2NetworkName: string = (res.l2NetworkName as string).toLowerCase()
   const tokenSymbol: string = (res.tokenSymbol as string).toLowerCase()
   const bonderAddress: string = res.bonderAddress as string
-  const isL1BridgeDeploy: boolean = res.isL1BridgeDeploy === 'true' ? true : false
+  const isL1BridgeDeploy: boolean = !!res.isL1BridgeDeploy
   const existingL1BridgeAddress: string = res.existingL1BridgeAddress as string
-  const l2CanonicalTokenIsEth: boolean = res.l2CanonicalTokenIsEth === 'true' ? true : false
+  const l2CanonicalTokenIsEth: boolean = !!res.l2CanonicalTokenIsEth
   const deploymentStep: number = res.deploymentStep as number
-  const isOmnichainToken: boolean = res.isOmnichainToken === 'true' ? true : false
-
+  const isOmnichainToken: boolean = !!res.isOmnichainToken
 
   return {
     l1NetworkName,
