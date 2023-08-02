@@ -180,6 +180,7 @@ async function getPrompts () {
   const deploymentStep: number = res.deploymentStep as number
   const isOmnichainToken: boolean = !!res.isOmnichainToken
 
+
   return {
     l1NetworkName,
     l2NetworkName,
