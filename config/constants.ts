@@ -325,7 +325,7 @@ export const L2_CANONICAL_TOKEN_ADDRESSES: any = {
     UNI: '0xD063875762e760Ee787b11F6Af624058b4841A5a', // Omnichain
   },
   SCROLL_TESTNET: {
-    ETH: '0x5300000000000000000000000000000000000004' // Canonical deployment
+    ETH: '0xa1EA0B2354F5A344110af2b6AD68e75545009a03' // Canonical deployment
   },
   POLYGONZK_MAINNET: {
     ETH: '0x4F9A0e7FD2Bf6067db6994CF12E4495Df938E6e9'
@@ -346,6 +346,6 @@ export const GAS_PRICE_MULTIPLIERS: { [key: string]: number } = {
 export const HOP_DAO_ADDRESS = '0xeeA8422a08258e73c139Fc32a25e10410c14bd7a'
 export const CONSENSYS_ZK_EVM_MESSAGE_FEE = '10000000000000000'
 export const ZKSYNC_MESSAGE_FEE = 'TODO' // TODO: zksync
-export const SCROLL_ZK_EVM_MESSAGE_FEE = '10000000000000000' // TODO
+export const SCROLL_ZK_EVM_MESSAGE_FEE = '2000000000000000' // TODO: Update to be more precise
 
 export const DefaultChallengePeriod: string = '86400'

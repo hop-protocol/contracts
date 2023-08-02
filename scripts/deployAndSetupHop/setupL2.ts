@@ -60,7 +60,7 @@ export async function setupL2 (config: Config) {
     liquidityProviderAmmAmount,
     l2CanonicalTokenIsEth,
     isEthDeployment,
-   isOmnichainDeployment 
+    isOmnichainDeployment 
   } = config
 
   logger.log(`config:
