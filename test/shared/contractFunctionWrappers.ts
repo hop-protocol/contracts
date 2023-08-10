@@ -161,6 +161,7 @@ export const executeCanonicalMessengerSendMessage = async (
       .connect(sender)
       .requestL2Transaction(...zkSyncParams, overrides)
   } else if (isChainIdScroll(l2ChainId)) {
+
     const gasLimit = '1000000'
     const l2Value = 0
     const scrollZkEvmParams = [
@@ -169,12 +170,35 @@ export const executeCanonicalMessengerSendMessage = async (
       message,
       gasLimit
     ]
-    const overrides = {
-      value: SCROLL_ZK_EVM_MESSAGE_FEE
+
+    async function estimateL2Fee(tx: ContractTransaction): Promise<bigint> {
+      const RPC_URL = 'https://alpha-rpc.scroll.io/l2'
+      const CHAIN_ID = 534353
+
+      const provider = new providers.JsonRpcProvider(RPC_URL, CHAIN_ID)
+      const gasToUse = await provider.estimateGas(tx)
+      const feeData = await provider.getFeeData()
+      const gasPrice = feeData.gasPrice
+
+      if (!gasPrice) {
+        throw new Error("There was an error estimating L2 fee")
+      }
+
+      return gasToUse * gasPrice
     }
-    tx = await l1_messenger
-      .connect(sender)
-      .sendMessage(...scrollZkEvmParams, overrides)
+
+    // Use dummy transaction to estimate gas
+    const dummyTx = await l1_messenger.connect(sender).populateTransaction.sendMessage(...scrollZkEvmParams)
+    const scrollMessageFee = await estimateL2Fee(dummyTx)
+    console.log("scrollMessageFee", scrollMessageFee)
+
+    // Use estimated gas fee for real transaction
+    const overrides = {
+      value: '2000000000000000', // 22548000000
+    }
+
+    const tx = await l1_messenger.connect(sender).sendMessage(...scrollZkEvmParams, overrides)
+
   } else if (isChainIdBase(l2ChainId)) {
     const optimismGasLimit: BigNumber = BigNumber.from('5000000')
     const optimismParams: any[] = [l2_bridge.address, message, optimismGasLimit]
