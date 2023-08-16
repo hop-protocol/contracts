@@ -263,6 +263,11 @@ export const networkData: NetworkData = {
         l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.MAINNET.MAGIC,
         l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.NOVA_MAINNET.MAGIC,
         ...DEFAULT_NETWORK_DATA.MAGIC
+      },
+      HOP: {
+        l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.MAINNET.HOP,
+        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.NOVA_MAINNET.HOP,
+        ...DEFAULT_NETWORK_DATA.HOP
       }
     }
   },
@@ -293,7 +298,17 @@ export const networkData: NetworkData = {
         l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.MAINNET.ETH,
         l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.BASE_MAINNET.ETH,
         ...DEFAULT_NETWORK_DATA.ETH
-      }
+      },
+      USDC: {
+        l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.MAINNET.USDC,
+        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.BASE_MAINNET.USDC,
+        ...DEFAULT_NETWORK_DATA.USDC
+      },
+      HOP: {
+        l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.MAINNET.HOP,
+        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.BASE_MAINNET.HOP,
+        ...DEFAULT_NETWORK_DATA.HOP
+      },
     }
   }
 }

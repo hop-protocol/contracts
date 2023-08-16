@@ -77,7 +77,8 @@ const targetAddresses: Record<string, Record<string, string>> = {
   },
   nova: {
     ETH: '0xc4448b71118c9071Bcb9734A0EAc55D18A153949',
-    MAGIC: '0xc4448b71118c9071Bcb9734A0EAc55D18A153949'
+    MAGIC: '0xc4448b71118c9071Bcb9734A0EAc55D18A153949',
+    HOP: '0xc4448b71118c9071Bcb9734A0EAc55D18A153949',
   },
   consensys: {
     ETH: 'TODO' // TODO: consensys - for prod deployment
@@ -86,7 +87,9 @@ const targetAddresses: Record<string, Record<string, string>> = {
     ETH: 'TODO' // TODO: zksync - for prod deployment
   },
   base: {
-    ETH: 'TODO' // TODO: base - for prod deployment
+    ETH: '0x866E82a600A1414e583f7F13623F1aC5d58b0Afa',
+    USDC: '0x866E82a600A1414e583f7F13623F1aC5d58b0Afa',
+    HOP: '0x866E82a600A1414e583f7F13623F1aC5d58b0Afa',
   },
   scroll: {
     ETH: 'TODO' // TODO: scroll - for prod deployment
@@ -147,7 +150,8 @@ const l2BridgeAddresses: Record<string, Record<string, string>> = {
   },
   nova: {
     ETH: '0x8796860ca1677Bf5d54cE5A348Fe4b779a8212f3',
-    MAGIC: '0xE638433e2C1dF5f7a3a21b0a6b5c4b37278e55DC'
+    MAGIC: '0xE638433e2C1dF5f7a3a21b0a6b5c4b37278e55DC',
+    HOP: '0x02D47f76523d2f059b617E4346de67482792eB83'
   },
   consensys: {
     ETH: 'TODO' // TODO: consensys - for prod deployment
@@ -156,7 +160,9 @@ const l2BridgeAddresses: Record<string, Record<string, string>> = {
     ETH: 'TODO' // TODO: zksync - for prod deployment
   },
   base: {
-    ETH: 'TODO' // TODO: base - for prod deployment
+    ETH: '0x3666f603Cc164936C1b87e207F36BEBa4AC5f18a',
+    USDC: '0x46ae9BaB8CEA96610807a275EBD36f8e916b5C61',
+    HOP: '0xe22D2beDb3Eca35E6397e0C6D62857094aA26F52',
   },
   scroll: {
     ETH: 'TODO' // TODO: scroll - for prod deployment
@@ -266,6 +272,20 @@ async function main () {
         calldata
       ])
   logData(chains.Nova, abi, token, data, value, timestamp, fee)
+
+  // Base
+  value = 0
+  abi = ['function sendMessage(address,bytes,uint32)']
+  ethersInterface = new ethersUtils.Interface(abi)
+  l2BridgeAddress = l2BridgeAddresses?.['base']?.[token]
+  data = !l2BridgeAddress
+    ? null
+    : ethersInterface.encodeFunctionData('sendMessage', [
+        l2BridgeAddress,
+        calldata,
+        DEFAULT_OPTIMISM_MESSENGER_WRAPPER_GAS_LIMIT.toString()
+      ])
+  logData(chains.Base, abi, token, data, defaultValue, timestamp)
 
   // Polygonzk - TODO
 

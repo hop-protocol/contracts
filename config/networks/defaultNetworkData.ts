@@ -77,7 +77,7 @@ export const DEFAULT_NETWORK_DATA = {
     l2HBridgeTokenDecimals: 18,
     l2SwapLpTokenName: '',
     l2SwapLpTokenSymbol: '',
-    liquidityProviderSendAmount: '1000000000000000000'
+    liquidityProviderSendAmount: '10000000000000000'
   },
   SNX: {
     l2HBridgeTokenName: 'Synthetix Network Token Hop Token',
