@@ -156,27 +156,56 @@ DAI <--------------<---|---> hDAI <----(AMM)--> Arbitrum DAI
                        |
 ```
 
-## Temporary Steps for Deploying on Optimism
+## Deployments
 
-Because Optimism does not support the OpenZeppelin contracts out of the box, these steps must be followed to deploy with patched OpenZeppelin contracts.
+#### Unintuitive aspects of the deployments
 
-```
-# Deploy L1
-rm package-lock.json && rm -rf node_modules && rm -rf cache && rm -rf artifacts && npm i
-[Comment out Deploy L2, Setup L1, and Setup L2 in deploy.ts]
-npm run deploy
+**_Note: All of these items will be cleaned up and integrated into the code such that no existing knowledge is required for deployments._**
 
-# Deploy L2
-npm run patch-oz
-npm run deploy
+* The naming of networks may be unintuitive. In this repository, if a chain's mainnet and testnet have explicit names (eg, `POLYGON` (mainnet) and `MUMBAI` (testnet)), then the network names are used explicitly throughout the code. If there is not a name to differentiate the mainnet and the testnet, the networks are suffixed with `_MAINNET` and `_TESTNET` (eg, `ARBITRUM_MAINNET` and `ARBITRUM_TESTNET` [here](https://github.com/hop-protocol/contracts/blob/2658ada6b3dd419581d83079775466b6d2fd339b/config/constants.ts#L15-L18)).
+  * Intuitive solution: normalize the naming into something more consistent
+* Verification of contracts requires updating `scripts/verificationArguments.js` with the constructor arguments and running `npx hardhat verify --constructor-args ./scripts/verificationArguments.js --network <NETWORK_NAME> <CONTRACT_ADDRESS>`
+  * Intuitive solution: automatically verify the contracts on Etherscan in-line with the deployments. Note, etherscan does not support all chains, so this automation should account for this by skipping the verification if desired.
+* During a new deployment, [all known chainIds](https://github.com/hop-protocol/contracts/blob/v1/scripts/deployAndSetupHop/setupL1.ts#L278) are added as an `activeChainIds` on [the contracts](https://github.com/hop-protocol/contracts/blob/v1/contracts/bridges/L2_Bridge.sol#L92). This should only happen if a new bridge supports all chains, but recently there have been bridges that only want to interact with certain chains. The current solution is to comment out the [config](https://github.com/hop-protocol/contracts/blob/v1/config/constants.ts#L49-L74) during deployments, but that does not scale well.
+  * Intuitive solution: introduce config that specifies which chains a new deployment will support. For example, there should be a config for the MAGIC token that defines that it will only be deployed on Ethereum, Arbitrum, and Nova.
+* Deployments occur in 4 steps (deploy L1, deploy L2, setup L1, setup L2). This can be observed on the deployment prompt. Most of the time, these should be run at the same time, in order (by using step `0` on the prompt). However, sometimes only a single step is needed. This often requires some manual config updates, commenting out of already-run logic.
+  * Intuitive solution: rethink the steps and produce a more intuitive deployment process that more seamlessly handles network changes and independent deployments or state updates.
 
-# Setup L1
-rm -rf node_modules/@openzeppelin && rm -rf cache && rm -rf artifacts && npm i
-npm run deploy
+#### Deployment steps
 
-# Setup L2
-npm run patch-oz
-npm run deploy
+* Fill update config for new chain or token in all relevant locations
+* Update chain-specific differences in the deployment scripts
+  * `setupL1.ts`
+    * If the chain's L1 to L2 message requires a per-message fee to be paid on L1, add funds to the messenger wrapper [here](https://github.com/hop-protocol/contracts/blob/2658ada6b3dd419581d83079775466b6d2fd339b/scripts/deployAndSetupHop/setupL1.ts#L196-L209).
+    * If the messengerWrapper is `Ownable`, update the owner [here](https://github.com/hop-protocol/contracts/blob/2658ada6b3dd419581d83079775466b6d2fd339b/scripts/deployAndSetupHop/setupL1.ts#L213-L231)
+    * If the chain deals with an alias address, account for that [here](https://github.com/hop-protocol/contracts/blob/2658ada6b3dd419581d83079775466b6d2fd339b/scripts/deployAndSetupHop/setupL1.ts#L254-L258)
+* Run `npm run deploy` with the following 
+
+```bash
+# Example mainnet deployment
+
+> L1 Network Name: mainnet
+> L2 Network Name: optimism
+> Token Symbol: ETH
+> Bonder Address: (0x0000000000000000000000000000000000000000) 0x710bDa329b2a6224E4B44833DE30F38E7f81d564
+> Is this an L1 Bridge Deployment: (false)
+> Address of the existing L1 bridge (ignored if isL1BridgeDeploy is true): 0xb8901acB165ed027E32754E0FFe830802919727f
+> > Deployment Step (0 for all) (0, 1, 2, or 3) (0)
+> Do you have tokens on L1 & did you send tokens over the native bridge for LP AND convert to wrapped if needed? (true)
+> Is this an omnichain token deployment? (false)
+
+# Example testnet deployment
+
+> L1 Network Name: goerli
+> L2 Network Name: arbitrum
+> Token Symbol: USDT
+> Bonder Address: (0x0000000000000000000000000000000000000000) 0xa6a688F107851131F0E1dce493EbBebFAf99203e
+> Is this an L1 Bridge Deployment: (false) true
+> Address of the existing L1 bridge (ignored if isL1BridgeDeploy is true): 0x4A26dE45BD65ef6e5535846b92a8575E0A0e5CEd
+> Is the l2 canonical token a native asset (false)
+> Deployment Step (0 for all) (0, 1, 2, or 3) (0)
+> Do you have tokens on L1 & did you send tokens over the native bridge for LP AND convert to wrapped if needed? (true)
+> Is this an omnichain token deployment? (false)
 ```
 
 ## Event Signatures
