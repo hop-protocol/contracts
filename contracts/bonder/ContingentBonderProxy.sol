@@ -8,7 +8,7 @@ import "./blockHash/ContingentBlockHashValidator.sol";
 // Hidden calldata should be packed (address,bytes5,uint40) where the address is the block hash validator,
 // the bytes5 is the first five bytes of the block hash, and uint40 is the block number.
 
-contract BonderProxy is ERC721Receiver {
+contract ContingentBonderProxy is ERC721Receiver {
     using ExecutorLib for address;
 
     uint256 public constant HIDDEN_CALLDATA_LENGTH = 30;
