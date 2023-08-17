@@ -1,29 +1,34 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+pragma solidity 0.8.19;
 
 import "./libraries/ExecutorLib.sol";
 import "./token/ERC721Receiver.sol";
-import "./blockHash/BlockHashValidator.sol";
+import "./blockHash/ContingentBlockHashValidator.sol";
+
+// Hidden calldata should be packed (address,bytes5,uint40) where the address is the block hash validator,
+// the bytes5 is the first five bytes of the block hash, and uint40 is the block number.
 
 contract BonderProxy is ERC721Receiver {
     using ExecutorLib for address;
 
-    uint256 public constant HIDDEN_CALLDATA_LENGTH = 64;
+    uint256 public constant HIDDEN_CALLDATA_LENGTH = 30;
     address public immutable bonderEoa;
     address public immutable bridge;
-    address public immutable blockHashValidator;
     mapping(bytes4 => uint256) public expectedLengthPerSelector;
+
+    modifier onlyBonderEoa {
+        require(msg.sender == bonderEoa, "BP: Caller is not bonder in modifier");
+        _;
+    }
 
     constructor(
         address _bonderEoa,
         address _bridge,
-        address _blockHashValidator,
         bytes4[] memory selectors,
         uint256[] memory lengthPerSelector
     ) {
         bonderEoa = _bonderEoa;
         bridge = _bridge;
-        blockHashValidator = _blockHashValidator;
 
         require(selectors.length == lengthPerSelector.length, "BP: Lengths do not match");
         for (uint256 i = 0; i < selectors.length; i++) {
@@ -43,12 +48,15 @@ contract BonderProxy is ERC721Receiver {
 
     receive () external payable {}
 
-    function executeTransactions (bytes[] memory transactions) external payable {
-        require(msg.sender == bonderEoa, "BP: Execute caller is not bonder EOA");
+    function executeTransactions (bytes[] memory transactions) external payable onlyBonderEoa() {
         for (uint256 i = 0; i < transactions.length; i++) {
             (address to, bytes memory data, uint256 value) = abi.decode(transactions[i], (address, bytes, uint256));
             to.execute(data, value);
         }
+    }
+
+    function addExpectedLengthPerSelector(bytes4 selector, uint256 lengthPerSelector) external onlyBonderEoa {
+        expectedLengthPerSelector[selector] = lengthPerSelector;
     }
 
     /* ========== Internal functions ========== */
@@ -57,7 +65,7 @@ contract BonderProxy is ERC721Receiver {
         uint256 expectedLength = expectedLengthPerSelector[msg.sig];
         if (
             expectedLength != 0 &&
-            expectedLength == msg.data.length + HIDDEN_CALLDATA_LENGTH
+            expectedLength == msg.data.length +HIDDEN_CALLDATA_LENGTH 
         ) {
             return true;
         }
@@ -65,27 +73,32 @@ contract BonderProxy is ERC721Receiver {
     }
 
     function _decodeAndValidateBlockHashData() internal view returns (bytes memory) {
-        (bytes memory bridgeCalldata, bytes32 blockHash, uint256 blockNum) = _decodeCalldata();
-        bool isValid = BlockHashValidator(blockHashValidator).isBlockHashValid(blockHash, blockNum);
-        require(isValid, "BP: BlockHash data is invalid");
+        (bytes memory bridgeCalldata, address blockHashValidator, bytes5 blockHash, uint40 blockNum) = _decodeCalldata();
+        ContingentBlockHashValidator(blockHashValidator).validateBlockHash(blockHash, blockNum);
         return bridgeCalldata;
     }
 
     function _decodeCalldata()
         internal
         pure
-        returns (bytes memory bridgeCalldata, bytes32 blockHash, uint256 blockNum)
+        returns (
+            bytes memory bridgeCalldata,
+            address blockHashValidator,
+            bytes5 blockHash,
+            uint40 blockNum
+        )
     {
-        // The correct length is guaranteed because of the check in _isHiddenCalldata()
+        // The correct msg.data.length is guaranteed because of the check in _isHiddenCalldata()
         bridgeCalldata = new bytes(msg.data.length - HIDDEN_CALLDATA_LENGTH);
 
         assembly {
             // Assign the unhidden calldata to bridgeCalldata
-            calldatacopy(add(bridgeCalldata, 32), 0, sub(calldatasize(), 64))
+            calldatacopy(add(bridgeCalldata, 32), 0, sub(calldatasize(), HIDDEN_CALLDATA_LENGTH))
 
             // Parse the hidden calldata
-            blockHash := calldataload(sub(calldatasize(), 64))
-            blockNum := calldataload(sub(calldatasize(), 32))
+            blockHashValidator := shr(96, calldataload(sub(calldatasize(), 30)))
+            blockHash := calldataload(sub(calldatasize(), 10))
+            blockNum := shr(216, calldataload(sub(calldatasize(), 5)))
         }
     }
 }
