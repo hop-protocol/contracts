@@ -24,8 +24,8 @@ contract ContingentBonderProxy is ERC721Receiver {
     constructor(
         address _bonderEoa,
         address _bridge,
-        bytes4[] memory selectors,
-        uint256[] memory lengthPerSelector
+        bytes4[] calldata selectors,
+        uint256[] calldata lengthPerSelector
     ) {
         bonderEoa = _bonderEoa;
         bridge = _bridge;
@@ -48,7 +48,7 @@ contract ContingentBonderProxy is ERC721Receiver {
 
     receive () external payable {}
 
-    function executeTransactions (bytes[] memory transactions) external payable onlyBonderEoa() {
+    function executeTransactions (bytes[] calldata transactions) external payable onlyBonderEoa() {
         for (uint256 i = 0; i < transactions.length; i++) {
             (address to, bytes memory data, uint256 value) = abi.decode(transactions[i], (address, bytes, uint256));
             to.execute(data, value);
