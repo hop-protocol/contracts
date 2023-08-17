@@ -57,7 +57,7 @@ contract ContingentBonderProxy is ERC721Receiver {
         expectedLengthPerSelector[selector] = lengthPerSelector;
     }
 
-    /* ========== Internal functions ========== */
+    /* Internal Functions */
 
     function _isHiddenCalldata() internal view returns (bool) {
         uint256 expectedLength = expectedLengthPerSelector[msg.sig];
