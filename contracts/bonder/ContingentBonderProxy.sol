@@ -3,7 +3,7 @@ pragma solidity 0.8.19;
 
 import "./libraries/ExecutorLib.sol";
 import "./token/ERC721Receiver.sol";
-import "./blockHash/ContingentBlockHashValidator.sol";
+import "./blockHash/BlockHashValidator.sol";
 
 // Hidden calldata should be packed (address,bytes5,uint40) where the address is the block hash validator,
 // the bytes5 is the first five bytes of the block hash, and uint40 is the block number.
@@ -74,7 +74,7 @@ contract ContingentBonderProxy is ERC721Receiver {
 
     function _decodeAndValidateBlockHashData() internal view returns (bytes memory) {
         (bytes memory bridgeCalldata, address blockHashValidator, bytes5 blockHash, uint40 blockNum) = _decodeCalldata();
-        ContingentBlockHashValidator(blockHashValidator).validateBlockHash(blockHash, blockNum);
+        BlockHashValidator(blockHashValidator).validateBlockHash(blockHash, blockNum);
         return bridgeCalldata;
     }
 
