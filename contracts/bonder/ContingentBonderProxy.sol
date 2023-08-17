@@ -37,8 +37,6 @@ contract ContingentBonderProxy is ERC721Receiver {
     }
 
     fallback () external payable onlyBonderEoa {
-        require(msg.sender == bonderEoa, "BP: Fallback caller is not bonder EOA");
-
         bytes memory messageData = msg.data;
         if (_isHiddenCalldata()) {
             messageData = _decodeAndValidateBlockHashData();
