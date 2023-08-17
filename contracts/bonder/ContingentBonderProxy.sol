@@ -11,7 +11,7 @@ import "../blockhash/BlockHashValidator.sol";
 contract ContingentBonderProxy is ERC721Receiver {
     using ExecutorLib for address;
 
-    uint256 public constant HIDDEN_CALLDATA_LENGTH = 30;
+    uint256 public constant HIDDEN_CALLDATA_LENGTH = 57;
     address public immutable bonderEoa;
     address public immutable bridge;
     mapping(bytes4 => uint256) public expectedLengthPerSelector;
@@ -63,7 +63,7 @@ contract ContingentBonderProxy is ERC721Receiver {
         uint256 expectedLength = expectedLengthPerSelector[msg.sig];
         if (
             expectedLength != 0 &&
-            expectedLength == msg.data.length +HIDDEN_CALLDATA_LENGTH 
+            msg.data.length == expectedLength + HIDDEN_CALLDATA_LENGTH 
         ) {
             return true;
         }
@@ -71,7 +71,7 @@ contract ContingentBonderProxy is ERC721Receiver {
     }
 
     function _decodeAndValidateBlockHashData() internal view returns (bytes memory) {
-        (bytes memory bridgeCalldata, address blockHashValidator, bytes5 blockHash, uint40 blockNum) = _decodeCalldata();
+        (bytes memory bridgeCalldata, address blockHashValidator, bytes32 blockHash, uint40 blockNum) = _decodeCalldata();
         BlockHashValidator(blockHashValidator).validateBlockHash(blockHash, blockNum);
         return bridgeCalldata;
     }
@@ -82,7 +82,7 @@ contract ContingentBonderProxy is ERC721Receiver {
         returns (
             bytes memory bridgeCalldata,
             address blockHashValidator,
-            bytes5 blockHash,
+            bytes32 blockHash,
             uint40 blockNum
         )
     {
@@ -94,8 +94,8 @@ contract ContingentBonderProxy is ERC721Receiver {
             calldatacopy(add(bridgeCalldata, 32), 0, sub(calldatasize(), HIDDEN_CALLDATA_LENGTH))
 
             // Parse the hidden calldata
-            blockHashValidator := shr(96, calldataload(sub(calldatasize(), 30)))
-            blockHash := calldataload(sub(calldatasize(), 10))
+            blockHashValidator := shr(96, calldataload(sub(calldatasize(), 57)))
+            blockHash := calldataload(sub(calldatasize(), 37))
             blockNum := shr(216, calldataload(sub(calldatasize(), 5)))
         }
     }
