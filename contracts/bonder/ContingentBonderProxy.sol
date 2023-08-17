@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.19;
 
-import "./libraries/ExecutorLib.sol";
-import "./token/ERC721Receiver.sol";
-import "./blockHash/BlockHashValidator.sol";
+import "../libraries/ExecutorLib.sol";
+import "../token/ERC721Receiver.sol";
+import "../blockhash/BlockHashValidator.sol";
 
 // Hidden calldata should be packed (address,bytes5,uint40) where the address is the block hash validator,
 // the bytes5 is the first five bytes of the block hash, and uint40 is the block number.
@@ -24,8 +24,8 @@ contract ContingentBonderProxy is ERC721Receiver {
     constructor(
         address _bonderEoa,
         address _bridge,
-        bytes4[] calldata selectors,
-        uint256[] calldata lengthPerSelector
+        bytes4[] memory selectors,
+        uint256[] memory lengthPerSelector
     ) {
         bonderEoa = _bonderEoa;
         bridge = _bridge;
