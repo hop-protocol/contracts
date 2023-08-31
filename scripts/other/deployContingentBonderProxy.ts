@@ -6,8 +6,8 @@ import { ethers } from 'hardhat'
 
 async function main () {
 
-  const bonderEoa: string = '0xfEfeC7D3EB14a004029D278393e6AB8B46fb4FCa'
-  const bridge: string = '0xfEfeC7D3EB14a004029D278393e6AB8B46fb4FCa'
+  const bonderEoa: string = ''
+  const bridge: string = ''
   const selectors: string[] = []
   const lengthPerSelector: Number[] = []
 
