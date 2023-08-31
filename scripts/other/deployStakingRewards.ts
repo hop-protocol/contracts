@@ -1,8 +1,6 @@
 require('dotenv').config()
 import { ethers } from 'hardhat'
 
-const hre = require('hardhat')
-
 // Example usage:
 // $ npm run deploy:staking-rewards
 

@@ -46,7 +46,7 @@ contract ContingentBonderProxy is ERC721Receiver {
 
     receive () external payable {}
 
-    function executeTransactions (bytes[] calldata transactions) external payable onlyBonderEoa {
+    function executeTransactions(bytes[] calldata transactions) external payable onlyBonderEoa {
         for (uint256 i = 0; i < transactions.length; i++) {
             (address to, bytes memory data, uint256 value) = abi.decode(transactions[i], (address, bytes, uint256));
             to.execute(data, value);

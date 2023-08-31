@@ -169,6 +169,15 @@ export default {
       {
         settings: {
           optimizer: {
+            enabled: false,
+            runs: numOptimizerRuns
+          }
+        },
+        version: '0.8.19'
+      },
+      {
+        settings: {
+          optimizer: {
             enabled: isOptimizerEnabled,
             runs: numOptimizerRuns
           }
