@@ -251,6 +251,8 @@ export default {
       polygonzk_mainnet: process.env.POLYGONZK_API_KEY,
       polygonzk_testnet: process.env.POLYGONZK_API_KEY,
       base_mainnet: process.env.BASE_API_KEY,
+      optimism_testnet: process.env.OPTIMISM_API_KEY,
+      arbitrum_testnet: process.env.ARBITRUM_API_KEY,
     },
     customChains: [
       {
@@ -267,6 +269,14 @@ export default {
         urls: {
           apiURL: 'https://api-goerli-optimism.etherscan.io/api',
           browserURL: 'https://goerli-optimism.etherscan.io'
+        }
+      },
+      {
+        network: 'arbitrum_testnet',
+        chainId: 421613,
+        urls: {
+          apiURL: 'https://api-goerli.arbiscan.io/api',
+          browserURL: 'https://goerli.arbiscan.io'
         }
       },
       {

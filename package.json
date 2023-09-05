@@ -26,7 +26,7 @@
     "get-messenger-tx-data": "hardhat run scripts/messageStateUpdates/getMessengerTxData.ts",
     "deploy:staking-rewards": "hardhat run scripts/other/deployStakingRewards.ts --network arbitrum_mainnet",
     "deploy:erc20": "hardhat run scripts/erc20/deploy.ts",
-    "deploy:contingent-bonder-proxy": "hardhat run scripts/other/deployContingentBonderProxy.ts --network",
+    "deploy:validation-bridge-proxy": "hardhat run scripts/other/deployValidationBridgeProxy.ts --network",
     "deploy:block-hash-validator": "hardhat run scripts/other/deployBlockHashValidator.ts --network"
   },
   "devDependencies": {

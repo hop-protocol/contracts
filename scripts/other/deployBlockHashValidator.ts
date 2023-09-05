@@ -1,6 +1,8 @@
 require('dotenv').config()
 import { ethers } from 'hardhat'
 
+const hre = require('hardhat')
+
 // Example usage:
 // $ npm run deploy:blockhash-validator <network>
 
@@ -12,7 +14,7 @@ async function main () {
   console.log('signer:', await signer.getAddress())
 
   const BlockHashValidator = await ethers.getContractFactory(
-    'contracts/blockhash/BlockHashValidator.sol:BlockHashValidator',
+    'contracts/validator/BlockHashValidator.sol:BlockHashValidator',
     { signer }
   )
 
@@ -22,6 +24,10 @@ async function main () {
   console.log('blockHashValidator address:', blockHashValidator.address)
   console.log('deployed bytecode:', await ethers.provider.getCode(blockHashValidator.address))
   console.log('complete')
+
+  console.log('\n verifying on etherscan')
+  await hre.run('verify:verify', {})
+  console.log('etherscan verification complete')
 }
 
 main()

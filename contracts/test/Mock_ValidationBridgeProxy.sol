@@ -3,12 +3,12 @@
 pragma solidity 0.6.12;
 pragma experimental ABIEncoderV2;
 
-contract Mock_ContingentBridge{
+contract Mock_ValidationBridgeProxy{
     address public bonder;
     uint256 public lastCalledFunction;
 
     modifier onlyBonder {
-        require(msg.sender == bonder, "MCB: Not bonder");
+        require(msg.sender == bonder, "MVBP: Not bonder");
         _;
     }
 

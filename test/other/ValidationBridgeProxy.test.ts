@@ -5,12 +5,8 @@ import { Signer, Contract, utils } from 'ethers'
 
 import { revertSnapshot, takeSnapshot } from '../shared/utils'
 import { parseEther } from 'ethers/lib/utils'
-describe('Contingent Bonder Proxy', () => {
 
-
-  /**
-   * Important: To run this, 
-   */
+describe('Validation Bridge Proxy', () => {
 
   /**
    * Setup
@@ -27,8 +23,8 @@ describe('Contingent Bonder Proxy', () => {
   let otherUser: Signer
 
   // Contracts
-  let mockContingentBridge: Contract
-  let contingentBonderProxy: Contract
+  let mockValidationBridgeProxy: Contract
+  let validationBridgeProxy: Contract
   let blockHashValidator: Contract
   let mockErc20: Contract
   let mockErc721: Contract
@@ -56,14 +52,15 @@ describe('Contingent Bonder Proxy', () => {
     }
 
     // Prepare mock bridge
-    const Mock_ContingentBridge = await ethers.getContractFactory(
-      'contracts/test/Mock_ContingentBridge.sol:Mock_ContingentBridge'
+    const Mock_ValidationBridgeProxy = await ethers.getContractFactory(
+      'contracts/test/Mock_ValidationBridgeProxy.sol:Mock_ValidationBridgeProxy'
     )
-    mockContingentBridge = await Mock_ContingentBridge.deploy()
+
+    validationBridgeProxy = await Mock_ValidationBridgeProxy.deploy()
 
     // Prepare Bonder proxy
-    const ContingentBonderProxy = await ethers.getContractFactory(
-      'contracts/bonder/ContingentBonderProxy.sol:ContingentBonderProxy',
+    const ValidationBridgeProxy = await ethers.getContractFactory(
+      'contracts/bridges/ValidationBridgeProxy.sol:ValidationBridgeProxy',
       bonder
     )
 
@@ -73,9 +70,9 @@ describe('Contingent Bonder Proxy', () => {
     // 0x23c452cd000000000000000000000000817c4749ff5d7738dee0a0be4da03665e1def4d10000000000000000000000000000000000000000000000000000000001dcd119529cfa98570b70f4d23f202e3f8f505af2d7b9e99ff53726230f349df830751000000000000000000000000000000000000000000000000000000000007747a3
     // bondWithdrawalAndDistribute
     // 0x3d12a85a0000000000000000000000004fd75b8d11709ac53cf578a4c5ce9e05b451c8830000000000000000000000000000000000000000000000000023320a8381d15404662bbc80b53f63c7719240761b180faad39c641a928c14205292f2be3144fb0000000000000000000000000000000000000000000000000000d02f9502df98000000000000000000000000000000000000000000000000002236efbe488d1a0000000000000000000000000000000000000000000000000000000064e7c14b
-    contingentBonderProxy = await ContingentBonderProxy.deploy(
+    validationBridgeProxy = await ValidationBridgeProxy.deploy(
       await bonder.getAddress(),
-      mockContingentBridge.address,
+      mockValidationBridgeProxy.address,
       [
         '0x8d8798bf',
         '0x23c452cd',
@@ -90,18 +87,18 @@ describe('Contingent Bonder Proxy', () => {
 
     // Prepare the blockhash validator
     const BlockHashValidator = await ethers.getContractFactory(
-      'contracts/blockhash/BlockHashValidator.sol:BlockHashValidator',
+      'contracts/validator/BlockHashValidator.sol:BlockHashValidator',
       bonder
     )
     blockHashValidator = await BlockHashValidator.deploy()
 
     // Set up config - contract state
-    await mockContingentBridge.setBonder(contingentBonderProxy.address)
+    await mockValidationBridgeProxy.setBonder(validationBridgeProxy.address)
 
     // Set up config - calldata config
     baseCalldata = '0x23c452cd000000000000000000000000bb0f753321e2b5fd29bd1d14b532f5b54959ae63000000000000000000000000000000000000000000000000058b9a1b1ddf8b3cf287e45be4b44d92226a8fa555e07155dbed032af2864d60db69b0f787413e70000000000000000000000000000000000000000000000000000bf3c3061d1e63'
     tx = {
-      to: contingentBonderProxy.address,
+      to: validationBridgeProxy.address,
     }
 
     // Other contracts
@@ -140,7 +137,7 @@ describe('Contingent Bonder Proxy', () => {
       tx.data = baseCalldata
       await bonder.sendTransaction(tx)
       
-      const functionCalled = await mockContingentBridge.lastCalledFunction()
+      const functionCalled = await mockValidationBridgeProxy.lastCalledFunction()
       expect(Number(functionCalled)).to.eq(BridgeTxs.bondWithdrawalAndDistribute)
     })
 
@@ -148,7 +145,7 @@ describe('Contingent Bonder Proxy', () => {
       tx.data = await getTxCalldata(bonder)
       await bonder.sendTransaction(tx)
 
-      const functionCalled = await mockContingentBridge.lastCalledFunction()
+      const functionCalled = await mockValidationBridgeProxy.lastCalledFunction()
       expect(Number(functionCalled)).to.eq(BridgeTxs.bondWithdrawalAndDistribute)
     })
 
@@ -191,24 +188,24 @@ describe('Contingent Bonder Proxy', () => {
     it('Should allow the bonder to add an expected length per selector', async () => {
       const expectedSel = '0x12345678'
       const expectedLen = 123
-      await contingentBonderProxy.connect(bonder).addExpectedLengthPerSelector(expectedSel, expectedLen)
+      await validationBridgeProxy.connect(bonder).addExpectedLengthPerSelector(expectedSel, expectedLen)
 
-      const newLen = await contingentBonderProxy.expectedLengthPerSelector(expectedSel)
+      const newLen = await validationBridgeProxy.expectedLengthPerSelector(expectedSel)
       expect(newLen).to.eq(expectedLen)
     })
 
-    it('Should allow the bonder to claim funds from the contract', async () => {
+    it('Should allow anyone bonder to claim funds from the contract', async () => {
       const amount = parseEther('1')
       // Send funds to the contract
       let bonderBalance = await bonder.getBalance()
-      let contractBalance = await bonder.provider!.getBalance(contingentBonderProxy.address)
+      let contractBalance = await bonder.provider!.getBalance(validationBridgeProxy.address)
 
       // Another address sends funds
       tx.value = amount
       await otherUser.sendTransaction(tx)
 
       let newBonderBalance = await bonder.getBalance()
-      let newContractBalance = await bonder.provider!.getBalance(contingentBonderProxy.address)
+      let newContractBalance = await bonder.provider!.getBalance(validationBridgeProxy.address)
 
       expect(bonderBalance).to.eq(newBonderBalance)
       expect(contractBalance).to.eq(newContractBalance.sub(amount))
@@ -217,14 +214,11 @@ describe('Contingent Bonder Proxy', () => {
       contractBalance = newContractBalance
 
       // Retrieve funds from the contract
-      const encodedTx = utils.defaultAbiCoder.encode(
-        ['address', 'bytes', 'uint256'],
-        [await bonder.getAddress(), '0x', amount]
-      )
-      await contingentBonderProxy.connect(bonder).executeTransactions([encodedTx])
+      // TODO
+      await validationBridgeProxy.connect(bonder).executeTransactions()
 
       newBonderBalance = await bonder.getBalance()
-      newContractBalance = await bonder.provider!.getBalance(contingentBonderProxy.address)
+      newContractBalance = await bonder.provider!.getBalance(validationBridgeProxy.address)
 
       // Since the bonder pays gas for the tx, check diff
       const gasCost = parseEther('0.0001')
@@ -237,17 +231,17 @@ describe('Contingent Bonder Proxy', () => {
 
       // Check starting balances
       let bonderBalance = await mockErc20.balanceOf(await bonder.getAddress())
-      let contractBalance = await mockErc20.balanceOf(contingentBonderProxy.address)
+      let contractBalance = await mockErc20.balanceOf(validationBridgeProxy.address)
 
       expect(bonderBalance).to.eq(0)
       expect(contractBalance).to.eq(0)
 
       // Mint tokens to the contract
-      await mockErc20.mint(contingentBonderProxy.address, amount.mul(2))
+      await mockErc20.mint(validationBridgeProxy.address, amount.mul(2))
 
       // Check balances
       bonderBalance = await mockErc20.balanceOf(await bonder.getAddress())
-      contractBalance = await mockErc20.balanceOf(contingentBonderProxy.address)
+      contractBalance = await mockErc20.balanceOf(validationBridgeProxy.address)
 
       expect(bonderBalance).to.eq(0)
       expect(contractBalance).to.eq(amount.mul(2))
@@ -268,11 +262,12 @@ describe('Contingent Bonder Proxy', () => {
         ['address', 'bytes', 'uint256'],
         [mockErc20.address, encodedErc20Transfer, '0x00']
       )
-      await contingentBonderProxy.connect(bonder).executeTransactions([encodedTransferTx])
+      // TODO
+      await validationBridgeProxy.connect(bonder).executeTransactions([encodedTransferTx])
 
       // Check balances
       bonderBalance = await mockErc20.balanceOf(await bonder.getAddress())
-      contractBalance = await mockErc20.balanceOf(contingentBonderProxy.address)
+      contractBalance = await mockErc20.balanceOf(validationBridgeProxy.address)
 
       expect(bonderBalance).to.eq(amount)
       expect(contractBalance).to.eq(amount)
@@ -287,11 +282,12 @@ describe('Contingent Bonder Proxy', () => {
         [mockErc20.address, encodedErc20Approve, '0x00']
       )
 
-      await contingentBonderProxy.connect(bonder).executeTransactions([encodedApproveTx])
-      await mockErc20.transferFrom(contingentBonderProxy.address, await bonder.getAddress(), amount)
+      // TODO
+      await validationBridgeProxy.connect(bonder).executeTransactions([encodedApproveTx])
+      await mockErc20.transferFrom(validationBridgeProxy.address, await bonder.getAddress(), amount)
 
       bonderBalance = await mockErc20.balanceOf(await bonder.getAddress())
-      contractBalance = await mockErc20.balanceOf(contingentBonderProxy.address)
+      contractBalance = await mockErc20.balanceOf(validationBridgeProxy.address)
 
       expect(bonderBalance).to.eq(amount.mul(2))
       expect(contractBalance).to.eq(0)
@@ -302,17 +298,17 @@ describe('Contingent Bonder Proxy', () => {
 
       // Check starting balances
       let bonderBalance = await mockErc721.balanceOf(await bonder.getAddress())
-      let contractBalance = await mockErc721.balanceOf(contingentBonderProxy.address)
+      let contractBalance = await mockErc721.balanceOf(validationBridgeProxy.address)
 
       expect(bonderBalance).to.eq(0)
       expect(contractBalance).to.eq(0)
 
       // Mint tokens to the contract
-      await mockErc721.mint(contingentBonderProxy.address, tokenId)
+      await mockErc721.mint(validationBridgeProxy.address, tokenId)
 
       // Check balances
       bonderBalance = await mockErc721.balanceOf(await bonder.getAddress())
-      contractBalance = await mockErc721.balanceOf(contingentBonderProxy.address)
+      contractBalance = await mockErc721.balanceOf(validationBridgeProxy.address)
 
       expect(bonderBalance).to.eq(0)
       expect(contractBalance).to.eq(tokenId)
@@ -334,11 +330,12 @@ describe('Contingent Bonder Proxy', () => {
         [mockErc721.address, encodedErc721Approve, '0x00']
       )
 
-      await contingentBonderProxy.connect(bonder).executeTransactions([encodedApproveTx])
-      await mockErc721.transferFrom(contingentBonderProxy.address, await bonder.getAddress(), tokenId)
+      // TODO
+      await validationBridgeProxy.connect(bonder).executeTransactions([encodedApproveTx])
+      await mockErc721.transferFrom(validationBridgeProxy.address, await bonder.getAddress(), tokenId)
 
       bonderBalance = await mockErc721.balanceOf(await bonder.getAddress())
-      contractBalance = await mockErc721.balanceOf(contingentBonderProxy.address)
+      contractBalance = await mockErc721.balanceOf(validationBridgeProxy.address)
 
       expect(bonderBalance).to.eq(tokenId)
       expect(contractBalance).to.eq(0)
@@ -352,7 +349,7 @@ describe('Contingent Bonder Proxy', () => {
 
   describe('Fallback and receiver', () => {
     it('Should fail each function if called by a non-Bonder', async () => {
-      const expectedErrorMsg = 'BP: Caller is not bonder in modifier'
+      const expectedErrorMsg = 'VBP: Caller is not bonder in modifier'
 
       // executeTransactions
       tx.data = '0xfc6b605200000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000000'
@@ -372,8 +369,8 @@ describe('Contingent Bonder Proxy', () => {
     })
 
     it('Should not allow the bonder EOA to stake on the bridge', async () => {
-      const expectedErrorMsg = 'MCB: Not bonder'
-      await expect(mockContingentBridge.connect(bonder).stake(await bonder.getAddress(), '1')).to.be.revertedWith(expectedErrorMsg)
+      const expectedErrorMsg = 'MVBP: Not bonder'
+      await expect(mockValidationBridgeProxy.connect(bonder).stake(await bonder.getAddress(), '1')).to.be.revertedWith(expectedErrorMsg)
     })
   })
 
