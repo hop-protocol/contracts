@@ -14,7 +14,7 @@ async function main () {
   console.log('signer:', await signer.getAddress())
 
   const BlockHashValidator = await ethers.getContractFactory(
-    'contracts/validator/BlockHashValidator.sol:BlockHashValidator',
+    'contracts/validators/BlockHashValidator.sol:BlockHashValidator',
     { signer }
   )
 

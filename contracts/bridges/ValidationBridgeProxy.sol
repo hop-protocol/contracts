@@ -2,14 +2,16 @@
 pragma solidity 0.8.19;
 
 import "../libraries/ExecutorLib.sol";
+import "../libraries/SafeERC20.sol";
 import "../token/ERC721Receiver.sol";
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "../interfaces/IERC721.sol";
 
 // Hidden calldata should be packed (address,bytes) where the address is the validator and the bytes is
 // arbitrary calldata for use on the validator address.
 
 contract ValidationBridgeProxy is ERC721Receiver {
     using ExecutorLib for address;
+    using SafeERC20 for IERC20;
 
     uint256 public constant ADDRESS_LENGTH_BYTES = 20;
     address public immutable bonderEoa;
@@ -17,7 +19,7 @@ contract ValidationBridgeProxy is ERC721Receiver {
     mapping(bytes4 => uint256) public expectedSelectorDataLength;
 
     event SelectorLengthAdded(bytes4 indexed selector, uint256 indexed selectorDataLength);
-    event FundsTransferred(address indexed recipient, address indexed token, uint256 indexed amount);
+    event FundsTransferred(address indexed recipient, address indexed token, uint256 indexed amountOrTokenId);
 
     modifier onlyBonderEoa {
         require(msg.sender == bonderEoa, "VBP: Caller is not bonder in modifier");
@@ -49,13 +51,19 @@ contract ValidationBridgeProxy is ERC721Receiver {
 
     receive () external payable {}
 
-    function claimFunds(address token, uint256 amount) external {
+    function claimFunds(address token, uint256 amountOrTokenId, uint256 tokenType) external onlyBonderEoa {
         if (token == address(0)) {
-            payable(bonderEoa).transfer(amount);
+            payable(bonderEoa).transfer(amountOrTokenId);
         } else {
-            IERC20(token).transfer(bonderEoa, amount);
+            if (tokenType == uint256(1)) {
+                IERC20(token).safeTransfer(bonderEoa, amountOrTokenId);
+            } else if (tokenType == uint256(2)) {
+                IERC721(token).safeTransferFrom(address(this), bonderEoa, amountOrTokenId);
+            } else {
+                require(false, "VBP: Invalid token type");
+            }
         }
-        emit FundsTransferred((recipient), token, amount);
+        emit FundsTransferred(bonderEoa, token, amountOrTokenId);
     }
 
     function addSelectorDataLength(bytes4 selector, uint256 selectorDataLength) external onlyBonderEoa {

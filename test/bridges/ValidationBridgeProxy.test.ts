@@ -1,7 +1,7 @@
 import '@nomiclabs/hardhat-waffle'
 import { ethers } from 'hardhat'
 import { expect } from 'chai'
-import { Signer, Contract, utils } from 'ethers'
+import { Signer, Contract, constants, utils } from 'ethers'
 
 import { revertSnapshot, takeSnapshot } from '../shared/utils'
 import { parseEther } from 'ethers/lib/utils'
@@ -56,7 +56,7 @@ describe('Validation Bridge Proxy', () => {
       'contracts/test/Mock_ValidationBridgeProxy.sol:Mock_ValidationBridgeProxy'
     )
 
-    validationBridgeProxy = await Mock_ValidationBridgeProxy.deploy()
+    mockValidationBridgeProxy = await Mock_ValidationBridgeProxy.deploy()
 
     // Prepare Bonder proxy
     const ValidationBridgeProxy = await ethers.getContractFactory(
@@ -87,7 +87,7 @@ describe('Validation Bridge Proxy', () => {
 
     // Prepare the blockhash validator
     const BlockHashValidator = await ethers.getContractFactory(
-      'contracts/validator/BlockHashValidator.sol:BlockHashValidator',
+      'contracts/validators/BlockHashValidator.sol:BlockHashValidator',
       bonder
     )
     blockHashValidator = await BlockHashValidator.deploy()
@@ -188,9 +188,9 @@ describe('Validation Bridge Proxy', () => {
     it('Should allow the bonder to add an expected length per selector', async () => {
       const expectedSel = '0x12345678'
       const expectedLen = 123
-      await validationBridgeProxy.connect(bonder).addExpectedLengthPerSelector(expectedSel, expectedLen)
+      await validationBridgeProxy.connect(bonder).addSelectorDataLength(expectedSel, expectedLen)
 
-      const newLen = await validationBridgeProxy.expectedLengthPerSelector(expectedSel)
+      const newLen = await validationBridgeProxy.expectedSelectorDataLength(expectedSel)
       expect(newLen).to.eq(expectedLen)
     })
 
@@ -214,8 +214,9 @@ describe('Validation Bridge Proxy', () => {
       contractBalance = newContractBalance
 
       // Retrieve funds from the contract
-      // TODO
-      await validationBridgeProxy.connect(bonder).executeTransactions()
+      const token = constants.AddressZero
+      const type = 0
+      await validationBridgeProxy.connect(bonder).claimFunds(token, amount, type)
 
       newBonderBalance = await bonder.getBalance()
       newContractBalance = await bonder.provider!.getBalance(validationBridgeProxy.address)
@@ -246,24 +247,9 @@ describe('Validation Bridge Proxy', () => {
       expect(bonderBalance).to.eq(0)
       expect(contractBalance).to.eq(amount.mul(2))
 
-      // Retrieve tokens
-      const abi = [
-        'function approve(address,uint256)',
-        'function transfer(address,uint256)',
-        'function transferFrom(address,address,uint256)'
-      ]
-      const ethersInterface = new utils.Interface(abi)
-      // Via transfer
-      const encodedErc20Transfer = ethersInterface.encodeFunctionData('transfer', [
-        await bonder.getAddress(),
-        amount
-      ])
-      const encodedTransferTx = utils.defaultAbiCoder.encode(
-        ['address', 'bytes', 'uint256'],
-        [mockErc20.address, encodedErc20Transfer, '0x00']
-      )
-      // TODO
-      await validationBridgeProxy.connect(bonder).executeTransactions([encodedTransferTx])
+      const token = mockErc20.address
+      const type = 1
+      await validationBridgeProxy.connect(bonder).claimFunds(token, amount, type)
 
       // Check balances
       bonderBalance = await mockErc20.balanceOf(await bonder.getAddress())
@@ -271,26 +257,6 @@ describe('Validation Bridge Proxy', () => {
 
       expect(bonderBalance).to.eq(amount)
       expect(contractBalance).to.eq(amount)
-
-      // Via transferFrom
-      const encodedErc20Approve = ethersInterface.encodeFunctionData('approve', [
-        await bonder.getAddress(),
-        amount
-      ])
-      const encodedApproveTx = utils.defaultAbiCoder.encode(
-        ['address', 'bytes', 'uint256'],
-        [mockErc20.address, encodedErc20Approve, '0x00']
-      )
-
-      // TODO
-      await validationBridgeProxy.connect(bonder).executeTransactions([encodedApproveTx])
-      await mockErc20.transferFrom(validationBridgeProxy.address, await bonder.getAddress(), amount)
-
-      bonderBalance = await mockErc20.balanceOf(await bonder.getAddress())
-      contractBalance = await mockErc20.balanceOf(validationBridgeProxy.address)
-
-      expect(bonderBalance).to.eq(amount.mul(2))
-      expect(contractBalance).to.eq(0)
     })
 
     it('Should allow the bonder to claim an NFT from the contract', async () => {
@@ -313,26 +279,9 @@ describe('Validation Bridge Proxy', () => {
       expect(bonderBalance).to.eq(0)
       expect(contractBalance).to.eq(tokenId)
 
-      // Retrieve tokens
-      const abi = [
-        'function approve(address,uint256)',
-        'function transferFrom(address,address,uint256)'
-      ]
-      const ethersInterface = new utils.Interface(abi)
-
-      // Via transferFrom
-      const encodedErc721Approve = ethersInterface.encodeFunctionData('approve', [
-        await bonder.getAddress(),
-        tokenId
-      ])
-      const encodedApproveTx = utils.defaultAbiCoder.encode(
-        ['address', 'bytes', 'uint256'],
-        [mockErc721.address, encodedErc721Approve, '0x00']
-      )
-
-      // TODO
-      await validationBridgeProxy.connect(bonder).executeTransactions([encodedApproveTx])
-      await mockErc721.transferFrom(validationBridgeProxy.address, await bonder.getAddress(), tokenId)
+      const token = mockErc721.address
+      const type = 2
+      await validationBridgeProxy.connect(bonder).claimFunds(token, tokenId, type)
 
       bonderBalance = await mockErc721.balanceOf(await bonder.getAddress())
       contractBalance = await mockErc721.balanceOf(validationBridgeProxy.address)
@@ -355,8 +304,8 @@ describe('Validation Bridge Proxy', () => {
       tx.data = '0xfc6b605200000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000000'
       await expect(otherUser.sendTransaction(tx)).to.be.revertedWith(expectedErrorMsg)
 
-      // addExpectedLengthPerSelector
-      tx.data = '0xfbac54d21234567800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000007b'
+      // addSelectorDataLength
+      tx.data = '0xa34e69081234567800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000007b'
       // set value to 0 until snapshot is figured out
       tx.value = 0
       await expect(otherUser.sendTransaction(tx)).to.be.revertedWith(expectedErrorMsg)
@@ -384,7 +333,17 @@ describe('Validation Bridge Proxy', () => {
     const blockNumber = block?.number!
     const blockHash = block?.hash!
 
-    hiddenCalldata = utils.solidityPack(['address','bytes32','uint40'],[blockHashValidator.address, blockHash, blockNumber])
+    const abi = ['function validateBlockHash(bytes32,uint256) external view']
+    const iface = new utils.Interface(abi)
+    const data = iface.encodeFunctionData(
+      'validateBlockHash', [blockHash, blockNumber]
+    )
+  
+    // Format into hidden calldata
+    const hiddenCalldata = utils.solidityPack(
+      ['address', 'bytes'],
+      [blockHashValidator.address, data]
+    )
     return baseCalldata + hiddenCalldata.slice(2)
   }
 })
