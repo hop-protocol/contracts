@@ -321,6 +321,33 @@ describe('Validation Bridge Proxy', () => {
       const expectedErrorMsg = 'MVBP: Not bonder'
       await expect(mockValidationBridgeProxy.connect(bonder).stake(await bonder.getAddress(), '1')).to.be.revertedWith(expectedErrorMsg)
     })
+
+
+    it('Should fail because the validator address is malformed or not a contract', async () => {
+      tx.data = await getTxCalldata(bonder)
+      tx.data = tx.data.slice(0, 266) + '0000000000' + tx.data.slice(276)
+      
+      await expect(bonder.sendTransaction(tx)).to.be.revertedWith('VBP: Validator address is not a contract')
+    })
+
+
+    it('Should fail because the validator contract has neither a fallback nor a function that matches the sig', async () => {
+      tx.data = await getTxCalldata(bonder)
+      tx.data = tx.data.slice(0, 306) + '0000000000' + tx.data.slice(316)
+      
+      // Revert data is random data that is returned when a function is not found
+      const responseToEmptyFunction = '0x00000000000000000000000000000000000000000000000000000000000000dc23c452cd000000000000000000000000bb0f753321e2b5fd29bd1d14b532f5b54959ae63000000000000000000000000000000000000000000000000058b9a1b'
+      await expect(bonder.sendTransaction(tx)).to.be.revertedWith(responseToEmptyFunction)
+    })
+
+    it('Should fail because there is no calldata sent with the validator contract call', async () => {
+      tx.data = await getTxCalldata(bonder)
+      tx.data = tx.data.slice(0, 306)
+      
+      // Revert data is random data that is returned when a function is not found
+      const responseToEmptyFunction = '0x000000000000000000000000000000000000000000000000000000000000009823c452cd000000000000000000000000bb0f753321e2b5fd29bd1d14b532f5b54959ae63000000000000000000000000000000000000000000000000058b9a1b'
+      await expect(bonder.sendTransaction(tx)).to.be.revertedWith(responseToEmptyFunction)
+    })
   })
 
   /**
@@ -338,7 +365,7 @@ describe('Validation Bridge Proxy', () => {
     const data = iface.encodeFunctionData(
       'validateBlockHash', [blockHash, blockNumber]
     )
-  
+
     // Format into hidden calldata
     const hiddenCalldata = utils.solidityPack(
       ['address', 'bytes'],
