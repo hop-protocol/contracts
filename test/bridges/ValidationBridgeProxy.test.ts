@@ -288,6 +288,22 @@ describe('Validation Bridge Proxy', () => {
       expect(bonderBalance).to.eq(tokenId)
       expect(contractBalance).to.eq(0)
     })
+
+    it('Should allow the bonder to approve and ERC20', async () => {
+      const amount = parseEther('1')
+      const spender = await otherUser.getAddress()
+
+      // Check approval
+      let allowance = await mockErc20.allowance(validationBridgeProxy.address, spender)
+      expect(allowance).to.eq(0)
+
+      const token = mockErc20.address
+      await validationBridgeProxy.connect(bonder).approveToken(token, spender, amount)
+
+      // Check balances
+      allowance = await mockErc20.allowance(validationBridgeProxy.address, spender)
+      expect(allowance).to.eq(amount)
+    })
   })
 
 

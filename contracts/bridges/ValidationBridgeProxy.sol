@@ -73,6 +73,10 @@ contract ValidationBridgeProxy is ERC721Receiver {
         emit FundsTransferred(bonderEoa, token, amountOrTokenId, tokenType);
     }
 
+    function approveToken(address token, address spender, uint256 amount) external onlyBonderEoa {
+        IERC20(token).approve(spender, amount);
+    }
+
     function addSelectorDataLength(bytes4 selector, uint256 selectorDataLength) external onlyBonderEoa {
         expectedSelectorDataLength[selector] = selectorDataLength;
         emit SelectorLengthAdded(selector, selectorDataLength);
