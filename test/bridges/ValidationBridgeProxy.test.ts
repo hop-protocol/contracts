@@ -30,7 +30,6 @@ describe('Validation Bridge Proxy', () => {
   let mockErc721: Contract
 
   // Config
-  let hiddenCalldata: string
   let baseCalldata: string
   let tx: any
 

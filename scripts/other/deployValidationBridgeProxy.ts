@@ -1,6 +1,6 @@
 require('dotenv').config()
 import { ethers } from 'hardhat'
-
+import { wait } from '../shared/utils'
 const hre = require('hardhat')
 
 // Example usage:
@@ -49,6 +49,9 @@ async function main () {
   console.log('bridgeProxy address:', bridgeProxy.address)
   console.log('deployed bytecode:', await ethers.provider.getCode(bridgeProxy.address))
   console.log('deployment complete')
+
+  // Etherscan needs time before verification on some chains
+  await wait(10e3)
 
   console.log('\n verifying on etherscan')
   await hre.run('verify:verify', {

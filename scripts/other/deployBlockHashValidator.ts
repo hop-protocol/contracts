@@ -1,6 +1,6 @@
 require('dotenv').config()
 import { ethers } from 'hardhat'
-
+import { wait } from '../shared/utils'
 const hre = require('hardhat')
 
 // Example usage:
@@ -24,6 +24,9 @@ async function main () {
   console.log('blockHashValidator address:', blockHashValidator.address)
   console.log('deployed bytecode:', await ethers.provider.getCode(blockHashValidator.address))
   console.log('complete')
+
+  // Etherscan needs time before verification on some chains
+  await wait(10e3)
 
   console.log('\n verifying on etherscan')
   await hre.run('verify:verify', {})
