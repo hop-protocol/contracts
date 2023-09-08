@@ -51,7 +51,7 @@ async function main () {
   console.log('deployment complete')
 
   // Etherscan needs time before verification on some chains
-  await wait(10e3)
+  await wait(30e3)
 
   console.log('\n verifying on etherscan')
   await hre.run('verify:verify', {
