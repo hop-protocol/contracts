@@ -29,7 +29,9 @@ async function main () {
   await wait(30e3)
 
   console.log('\n verifying on etherscan')
-  await hre.run('verify:verify', {})
+  await hre.run('verify:verify', {
+    address: blockHashValidator.address,
+  })
   console.log('etherscan verification complete')
 }
 
