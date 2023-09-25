@@ -4,7 +4,7 @@ pragma solidity 0.8.19;
 contract BlockHashValidator {
 
     function validateBlockHash(bytes32 blockHash, uint256 blockNumber) external view {
-        require(isBlockHashValid(blockHash, blockNumber), "BHV: Invalid truncated block hash");
+        require(isBlockHashValid(blockHash, blockNumber), "BHV: Invalid block hash");
     }
 
     function isBlockHashValid(bytes32 blockHash, uint256 blockNumber) public view returns (bool) {
