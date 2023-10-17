@@ -62,21 +62,9 @@ describe('Validation Bridge Proxy', () => {
       bonder
     )
 
-    // bondWithdrawal
-    // 0x23c452cd000000000000000000000000817c4749ff5d7738dee0a0be4da03665e1def4d10000000000000000000000000000000000000000000000000000000001dcd119529cfa98570b70f4d23f202e3f8f505af2d7b9e99ff53726230f349df830751000000000000000000000000000000000000000000000000000000000007747a3
-    // bondWithdrawalAndDistribute
-    // 0x3d12a85a0000000000000000000000004fd75b8d11709ac53cf578a4c5ce9e05b451c8830000000000000000000000000000000000000000000000000023320a8381d15404662bbc80b53f63c7719240761b180faad39c641a928c14205292f2be3144fb0000000000000000000000000000000000000000000000000000d02f9502df98000000000000000000000000000000000000000000000000002236efbe488d1a0000000000000000000000000000000000000000000000000000000064e7c14b
     validationBridgeProxy = await ValidationBridgeProxy.deploy(
       await bonder.getAddress(),
-      mockValidationBridgeProxy.address,
-      [
-        '0x23c452cd',
-        '0x3d12a85a',
-      ],
-      [
-        '132',
-        '196',
-      ]
+      mockValidationBridgeProxy.address
     )
 
     // Prepare the blockhash validator
@@ -110,6 +98,10 @@ describe('Validation Bridge Proxy', () => {
   })
 
   beforeEach(async () => {
+    // Reset tx state since snapshot isn't working
+    tx = {
+      to: validationBridgeProxy.address,
+    }
     snapshotId = await takeSnapshot()
   })
 
@@ -259,7 +251,7 @@ describe('Validation Bridge Proxy', () => {
    * Non-happy path
    */
 
-  describe('Fallback and receiver', () => {
+  describe('Non-happy Path', () => {
     it('Should fail each function if called by a non-Bonder', async () => {
       const expectedErrorMsg = 'VBP: Caller is not bonder in modifier'
 
@@ -269,15 +261,12 @@ describe('Validation Bridge Proxy', () => {
 
       // addSelectorDataLength
       tx.data = '0xa34e69081234567800000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000007b'
-      // set value to 0 until snapshot is figured out
-      tx.value = 0
       await expect(otherUser.sendTransaction(tx)).to.be.revertedWith(expectedErrorMsg)
 
       // Fallback
       tx.value = parseEther('1')
       tx.data = '0x01'
       await expect(otherUser.sendTransaction(tx)).to.be.revertedWith(expectedErrorMsg)
-
     })
 
     it('Should not allow the bonder EOA to stake on the bridge', async () => {
@@ -290,7 +279,7 @@ describe('Validation Bridge Proxy', () => {
       tx.data = await getTxCalldata(bonder)
       tx.data = tx.data.slice(0, 266) + '0000000000' + tx.data.slice(276)
       
-      await expect(bonder.sendTransaction(tx)).to.be.revertedWith('VBP: Validator address is not a contract')
+      await expect(bonder.sendTransaction(tx)).to.be.revertedWith('VBP: Validation address is not a contract')
     })
 
 
@@ -307,10 +296,61 @@ describe('Validation Bridge Proxy', () => {
       }
     })
 
-    it('Should fail because the hidden calldata is not the correct length', async () => {
+    it('Should bypass validation if the validation data is missing', async () => {
+      // Missing validation data
+      const data = await getTxCalldata(bonder)
+      tx.data = data.slice(0, -136)
+      await bonder.sendTransaction(tx)
+    })
+
+    it('Should fail when checking the code at the validation contract if the validation address is missing', async () => {
+      // Missing validation address
       tx.data = await getTxCalldata(bonder)
-      tx.data = tx.data.slice(0, 306)
-      await expect(bonder.sendTransaction(tx)).to.be.revertedWith('VBP: Invalid hidden calldata length')
+      tx.data = tx.data.slice(0, -176) + tx.data.slice(-136)
+      await expect(bonder.sendTransaction(tx)).to.be.revertedWith('VBP: Validation address is not a contract')
+    })
+
+    it.only('Should always have a constant encoding length even with leading and trailing 0s', async () => {
+      const expectedLength = 178 // 40 + 138
+      let address = '0x1231231231231231231231231231231231231231'
+      let data = '0x8003405b243c061c944cf4ac591ee874f1985ecef4560cece75b1994aed3c2ea022f9c1d0000000000000000000000000000000000000000000000000000000000000105'
+      let hiddenCalldata = utils.solidityPack(
+        ['address', 'bytes'],
+        [address, data]
+      )
+      expect(hiddenCalldata.length).to.eq(expectedLength)
+
+      address = '0x0000231231231231231231231231231231231231'
+      data = '0x8003405b243c061c944cf4ac591ee874f1985ecef4560cece75b1994aed3c2ea022f9c1d0000000000000000000000000000000000000000000000000000000000000105'
+      hiddenCalldata = utils.solidityPack(
+        ['address', 'bytes'],
+        [address, data]
+      )
+      expect(hiddenCalldata.length).to.eq(expectedLength)
+
+      address = '0x1231231231231231231231231231231231230000'
+      data = '0x8003405b243c061c944cf4ac591ee874f1985ecef4560cece75b1994aed3c2ea022f9c1d0000000000000000000000000000000000000000000000000000000000000105'
+      hiddenCalldata = utils.solidityPack(
+        ['address', 'bytes'],
+        [address, data]
+      )
+      expect(hiddenCalldata.length).to.eq(expectedLength)
+
+      address = '0x1231231231231231231231231231231231231230'
+      data = '0x0003405b243c061c944cf4ac591ee874f1985ecef4560cece75b1994aed3c2ea022f9c1d0000000000000000000000000000000000000000000000000000000000000000'
+      hiddenCalldata = utils.solidityPack(
+        ['address', 'bytes'],
+        [address, data]
+      )
+      expect(hiddenCalldata.length).to.eq(expectedLength)
+
+      address = '0x0000000000000000000000000000000000000000'
+      data = '0x0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000'
+      hiddenCalldata = utils.solidityPack(
+        ['address', 'bytes'],
+        [address, data]
+      )
+      expect(hiddenCalldata.length).to.eq(expectedLength)
     })
   })
 

@@ -3,6 +3,7 @@ pragma solidity 0.8.19;
 
 import "../libraries/ExecutorLib.sol";
 import "../libraries/SafeERC20.sol";
+import "../validators/IBlockHashValidator.sol";
 
 // Hidden calldata should be packed (address,bytes) where the address is the validator and the bytes is
 // arbitrary calldata for use on the validator address.
@@ -11,9 +12,10 @@ contract ValidationBridgeProxy {
     using ExecutorLib for address;
     using SafeERC20 for IERC20;
 
+    uint256 public constant ADDRESS_LENGTH = 20;
+    uint256 public constant VALIDATION_DATA_LENGTH = 68;
     address public immutable bonderEoa;
     address public immutable bridge;
-    mapping(bytes4 => uint256) public selectorDataLength;
 
     event FundsTransferred(
         address indexed recipient,
@@ -26,19 +28,9 @@ contract ValidationBridgeProxy {
         _;
     }
 
-    constructor(
-        address _bonderEoa,
-        address _bridge,
-        bytes4[] memory selectors,
-        uint256[] memory selectorDataLengths
-    ) {
+    constructor(address _bonderEoa, address _bridge) {
         bonderEoa = _bonderEoa;
         bridge = _bridge;
-
-        require(selectors.length == selectorDataLengths.length, "VBP: Lengths do not match");
-        for (uint256 i = 0; i < selectors.length; i++) {
-            selectorDataLength[selectors[i]] = selectorDataLengths[i];
-        }
     }
 
     fallback () external payable onlyBonderEoa {
@@ -65,44 +57,26 @@ contract ValidationBridgeProxy {
 
     /* Internal Functions */
 
-    function _isHiddenCalldata() internal view returns (bool) {
-        uint256 expectedLength = selectorDataLength[msg.sig];
-        if (
-            expectedLength == 0 ||
-            msg.data.length <= expectedLength
-        ) {
+    function _isHiddenCalldata() internal pure returns (bool) {
+        if (msg.data.length < VALIDATION_DATA_LENGTH + ADDRESS_LENGTH) {
             return false;
         }
 
-        return true;
+        // Compare the data at the expected location of the validation selector with the actual selector
+        uint256 hiddenSelectorStart = msg.data.length - VALIDATION_DATA_LENGTH;
+        bytes memory hiddenSelector = msg.data[hiddenSelectorStart:];
+        return IBlockHashValidator.validateBlockHash.selector == bytes4(hiddenSelector);
     }
 
     function _decodeAndValidateCalldata() internal {
-        (address validatorAddress, bytes memory validationData) = _decodeHiddenCalldata();
-        require(validatorAddress.code.length > 0, "VBP: Validator address is not a contract");
-        // This will revert if the function selector does not exist and the validation contract has no fallback
-        validatorAddress.execute(validationData, 0);
-    }
+        uint256 dataStart = msg.data.length - VALIDATION_DATA_LENGTH;
+        uint256 addressStart = dataStart - ADDRESS_LENGTH;
 
-    function _decodeHiddenCalldata()
-        internal
-        view
-        returns (address, bytes memory)
-    {
-        uint256 addressLength = 20;
-        uint256 dataLength = 68; // validateBlockHash(bytes32, uint256)
-        require(msg.data.length == selectorDataLength[msg.sig] + addressLength + dataLength, "VBP: Invalid hidden calldata length");
-
-        // Extract hidden calldata
-        uint256 dataStart = msg.data.length - dataLength;
-        uint256 addressStart = dataStart - addressLength;
-
-        bytes memory validationAddress = msg.data[addressStart:dataStart];
         bytes memory validationData = msg.data[dataStart:];
+        bytes memory validationAddressBytes = msg.data[addressStart:dataStart];
+        address validationAddress = address(uint160(bytes20(validationAddressBytes)));
 
-        return (
-            address(uint160(bytes20(validationAddress))),
-            validationData
-        );
+        require(validationAddress.code.length > 0, "VBP: Validation address is not a contract");
+        validationAddress.execute(validationData, 0);
     }
 }
