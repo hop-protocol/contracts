@@ -310,7 +310,7 @@ describe('Validation Bridge Proxy', () => {
       await expect(bonder.sendTransaction(tx)).to.be.revertedWith('VBP: Validation address is not a contract')
     })
 
-    it.only('Should always have a constant encoding length even with leading and trailing 0s', async () => {
+    it('Should always have a constant encoding length even with leading and trailing 0s', async () => {
       const expectedLength = 178 // 40 + 138
       let address = '0x1231231231231231231231231231231231231231'
       let data = '0x8003405b243c061c944cf4ac591ee874f1985ecef4560cece75b1994aed3c2ea022f9c1d0000000000000000000000000000000000000000000000000000000000000105'

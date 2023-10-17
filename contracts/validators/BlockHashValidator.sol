@@ -15,8 +15,6 @@ contract BlockHashValidator {
         return blockHash == getBlockHash(blockNumber);
     }
 
-    /* Public Getters */
-
     function getBlockHash(uint256 blockNumber) public view returns (bytes32) {
         return blockhash(blockNumber);
     }
