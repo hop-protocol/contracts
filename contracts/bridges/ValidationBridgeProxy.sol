@@ -2,15 +2,14 @@
 pragma solidity 0.8.19;
 
 import "../libraries/ExecutorLib.sol";
-import "../libraries/SafeERC20.sol";
 import "../validators/IBlockHashValidator.sol";
+import "../interfaces/IERC20.sol";
 
 // Hidden calldata should be packed (address,bytes) where the address is the validator and the bytes is
 // arbitrary calldata for use on the validator address.
 
 contract ValidationBridgeProxy {
     using ExecutorLib for address;
-    using SafeERC20 for IERC20;
 
     uint256 public constant ADDRESS_LENGTH = 20;
     uint256 public constant VALIDATION_DATA_LENGTH = 68;
@@ -46,7 +45,7 @@ contract ValidationBridgeProxy {
         if (token == address(0)) {
             payable(bonderEoa).transfer(amount);
         } else {
-            IERC20(token).safeTransfer(bonderEoa, amount);
+            IERC20(token).transfer(bonderEoa, amount);
         }
         emit FundsTransferred(bonderEoa, token, amount);
     }
