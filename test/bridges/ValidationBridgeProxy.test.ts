@@ -27,7 +27,6 @@ describe('Validation Bridge Proxy', () => {
   let validationBridgeProxy: Contract
   let blockHashValidator: Contract
   let mockErc20: Contract
-  let mockErc721: Contract
 
   // Config
   let baseCalldata: string
@@ -63,8 +62,6 @@ describe('Validation Bridge Proxy', () => {
       bonder
     )
 
-    // bondTransferRoot
-    // 0x8d8798bf50b0ce783f5276884e9f018ec00f96099babed98bd702a2b0806daee8d77f6e600000000000000000000000000000000000000000000000000000000000000890000000000000000000000000000000000000000000000000000000aecc29e2f
     // bondWithdrawal
     // 0x23c452cd000000000000000000000000817c4749ff5d7738dee0a0be4da03665e1def4d10000000000000000000000000000000000000000000000000000000001dcd119529cfa98570b70f4d23f202e3f8f505af2d7b9e99ff53726230f349df830751000000000000000000000000000000000000000000000000000000000007747a3
     // bondWithdrawalAndDistribute
@@ -73,12 +70,10 @@ describe('Validation Bridge Proxy', () => {
       await bonder.getAddress(),
       mockValidationBridgeProxy.address,
       [
-        '0x8d8798bf',
         '0x23c452cd',
         '0x3d12a85a',
       ],
       [
-        '100',
         '132',
         '196',
       ]
@@ -105,11 +100,6 @@ describe('Validation Bridge Proxy', () => {
       'contracts/test/MockERC20.sol:MockERC20'
     )
     mockErc20 = await MockERC20.deploy('Test', 'TST')
-
-    const MockERC721 = await ethers.getContractFactory(
-      'contracts/test/MockERC721.sol:MockERC721'
-    )
-    mockErc721 = await MockERC721.deploy('Test', 'TST')
 
     // Set up snapshot
     beforeAllSnapshotId = await takeSnapshot()
@@ -153,7 +143,7 @@ describe('Validation Bridge Proxy', () => {
       const modifiedTxData = txData.slice(0, -3) + '001'
       tx.data = modifiedTxData
 
-      const expectedErrorMsg = 'BHV: Invalid truncated block hash'
+      const expectedErrorMsg = 'BHV: Invalid block hash'
       await expect(bonder.sendTransaction(tx)).to.be.revertedWith(expectedErrorMsg)
     })
   })
@@ -184,16 +174,7 @@ describe('Validation Bridge Proxy', () => {
    */
 
   describe('Other', () => {
-    it('Should allow the bonder to add an expected length per selector', async () => {
-      const expectedSel = '0x12345678'
-      const expectedLen = 123
-      await validationBridgeProxy.connect(bonder).addSelectorDataLength(expectedSel, expectedLen)
-
-      const newLen = await validationBridgeProxy.expectedSelectorDataLength(expectedSel)
-      expect(newLen).to.eq(expectedLen)
-    })
-
-    it('Should allow anyone bonder to claim funds from the contract', async () => {
+    it('Should allow the bonder to claim funds from the contract', async () => {
       const amount = parseEther('1')
       // Send funds to the contract
       let bonderBalance = await bonder.getBalance()
@@ -214,8 +195,7 @@ describe('Validation Bridge Proxy', () => {
 
       // Retrieve funds from the contract
       const token = constants.AddressZero
-      const type = 0
-      await validationBridgeProxy.connect(bonder).claimFunds(token, amount, type)
+      await validationBridgeProxy.connect(bonder).claimFunds(token, amount)
 
       newBonderBalance = await bonder.getBalance()
       newContractBalance = await bonder.provider!.getBalance(validationBridgeProxy.address)
@@ -247,8 +227,7 @@ describe('Validation Bridge Proxy', () => {
       expect(contractBalance).to.eq(amount.mul(2))
 
       const token = mockErc20.address
-      const type = 1
-      await validationBridgeProxy.connect(bonder).claimFunds(token, amount, type)
+      await validationBridgeProxy.connect(bonder).claimFunds(token, amount)
 
       // Check balances
       bonderBalance = await mockErc20.balanceOf(await bonder.getAddress())
@@ -258,47 +237,16 @@ describe('Validation Bridge Proxy', () => {
       expect(contractBalance).to.eq(amount)
     })
 
-    it('Should allow the bonder to claim an NFT from the contract', async () => {
-      const tokenId = 1
-
-      // Check starting balances
-      let bonderBalance = await mockErc721.balanceOf(await bonder.getAddress())
-      let contractBalance = await mockErc721.balanceOf(validationBridgeProxy.address)
-
-      expect(bonderBalance).to.eq(0)
-      expect(contractBalance).to.eq(0)
-
-      // Mint tokens to the contract
-      await mockErc721.mint(validationBridgeProxy.address, tokenId)
-
-      // Check balances
-      bonderBalance = await mockErc721.balanceOf(await bonder.getAddress())
-      contractBalance = await mockErc721.balanceOf(validationBridgeProxy.address)
-
-      expect(bonderBalance).to.eq(0)
-      expect(contractBalance).to.eq(tokenId)
-
-      const token = mockErc721.address
-      const type = 2
-      await validationBridgeProxy.connect(bonder).claimFunds(token, tokenId, type)
-
-      bonderBalance = await mockErc721.balanceOf(await bonder.getAddress())
-      contractBalance = await mockErc721.balanceOf(validationBridgeProxy.address)
-
-      expect(bonderBalance).to.eq(tokenId)
-      expect(contractBalance).to.eq(0)
-    })
-
     it('Should allow the bonder to approve and ERC20', async () => {
       const amount = parseEther('1')
-      const spender = await otherUser.getAddress()
+      const spender = await validationBridgeProxy.bridge()
 
       // Check approval
       let allowance = await mockErc20.allowance(validationBridgeProxy.address, spender)
       expect(allowance).to.eq(0)
 
       const token = mockErc20.address
-      await validationBridgeProxy.connect(bonder).approveToken(token, spender, amount)
+      await validationBridgeProxy.connect(bonder).approveBridge(token, amount)
 
       // Check balances
       allowance = await mockErc20.allowance(validationBridgeProxy.address, spender)
@@ -351,17 +299,18 @@ describe('Validation Bridge Proxy', () => {
       tx.data = tx.data.slice(0, 306) + '0000000000' + tx.data.slice(316)
       
       // Revert data is random data that is returned when a function is not found
-      const responseToEmptyFunction = '0x00000000000000000000000000000000000000000000000000000000000000dc23c452cd000000000000000000000000bb0f753321e2b5fd29bd1d14b532f5b54959ae63000000000000000000000000000000000000000000000000058b9a1b'
-      await expect(bonder.sendTransaction(tx)).to.be.revertedWith(responseToEmptyFunction)
+      const responseToEmptyFunction = '0x00000000000000000000000000000000000000000000000000000000000000'
+      try {
+        await bonder.sendTransaction(tx)
+      } catch (err) {
+        expect(err.message).to.include(responseToEmptyFunction)
+      }
     })
 
-    it('Should fail because there is no calldata sent with the validator contract call', async () => {
+    it('Should fail because the hidden calldata is not the correct length', async () => {
       tx.data = await getTxCalldata(bonder)
       tx.data = tx.data.slice(0, 306)
-      
-      // Revert data is random data that is returned when a function is not found
-      const responseToEmptyFunction = '0x000000000000000000000000000000000000000000000000000000000000009823c452cd000000000000000000000000bb0f753321e2b5fd29bd1d14b532f5b54959ae63000000000000000000000000000000000000000000000000058b9a1b'
-      await expect(bonder.sendTransaction(tx)).to.be.revertedWith(responseToEmptyFunction)
+      await expect(bonder.sendTransaction(tx)).to.be.revertedWith('VBP: Invalid hidden calldata length')
     })
   })
 

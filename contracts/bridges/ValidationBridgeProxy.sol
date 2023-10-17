@@ -3,30 +3,22 @@ pragma solidity 0.8.19;
 
 import "../libraries/ExecutorLib.sol";
 import "../libraries/SafeERC20.sol";
-import "../token/ERC721Receiver.sol";
-import "../interfaces/IERC721.sol";
 
 // Hidden calldata should be packed (address,bytes) where the address is the validator and the bytes is
 // arbitrary calldata for use on the validator address.
 
-contract ValidationBridgeProxy is ERC721Receiver {
+contract ValidationBridgeProxy {
     using ExecutorLib for address;
     using SafeERC20 for IERC20;
 
-    uint256 public constant ADDRESS_LENGTH_BYTES = 20;
     address public immutable bonderEoa;
     address public immutable bridge;
-    mapping(bytes4 => uint256) public expectedSelectorDataLength;
+    mapping(bytes4 => uint256) public selectorDataLength;
 
-    event SelectorLengthAdded(
-        bytes4 indexed selector,
-        uint256 indexed selectorDataLength
-    );
     event FundsTransferred(
         address indexed recipient,
         address indexed token,
-        uint256 indexed amountOrTokenId,
-        uint256 tokenType
+        uint256 indexed amount
     );
 
     modifier onlyBonderEoa {
@@ -38,96 +30,79 @@ contract ValidationBridgeProxy is ERC721Receiver {
         address _bonderEoa,
         address _bridge,
         bytes4[] memory selectors,
-        uint256[] memory selectorDataLength
+        uint256[] memory selectorDataLengths
     ) {
         bonderEoa = _bonderEoa;
         bridge = _bridge;
 
-        require(selectors.length == selectorDataLength.length, "VBP: Lengths do not match");
+        require(selectors.length == selectorDataLengths.length, "VBP: Lengths do not match");
         for (uint256 i = 0; i < selectors.length; i++) {
-            expectedSelectorDataLength[selectors[i]] = selectorDataLength[i];
+            selectorDataLength[selectors[i]] = selectorDataLengths[i];
         }
     }
 
     fallback () external payable onlyBonderEoa {
-        bytes memory messageData = msg.data;
         if (_isHiddenCalldata()) {
-            messageData = _decodeAndValidate();
+            _decodeAndValidateCalldata();
         }
-        bridge.execute(messageData, msg.value);
+        bridge.execute(msg.data, msg.value);
     }
 
     receive () external payable {}
 
-    function claimFunds(address token, uint256 amountOrTokenId, uint256 tokenType) external onlyBonderEoa {
-        if (tokenType == 0) {
-            require(token == address(0), "VBP: Token address must be 0 for ETH transfers");
-            payable(bonderEoa).transfer(amountOrTokenId);
-        } else if (tokenType == 1) {
-            IERC20(token).safeTransfer(bonderEoa, amountOrTokenId);
-        } else if (tokenType == 2) {
-            IERC721(token).safeTransferFrom(address(this), bonderEoa, amountOrTokenId);
+    function claimFunds(address token, uint256 amount) external onlyBonderEoa {
+        if (token == address(0)) {
+            payable(bonderEoa).transfer(amount);
         } else {
-            revert("VBP: Invalid token type");
+            IERC20(token).safeTransfer(bonderEoa, amount);
         }
-        emit FundsTransferred(bonderEoa, token, amountOrTokenId, tokenType);
+        emit FundsTransferred(bonderEoa, token, amount);
     }
 
-    function approveToken(address token, address spender, uint256 amount) external onlyBonderEoa {
-        IERC20(token).approve(spender, amount);
-    }
-
-    function addSelectorDataLength(bytes4 selector, uint256 selectorDataLength) external onlyBonderEoa {
-        expectedSelectorDataLength[selector] = selectorDataLength;
-        emit SelectorLengthAdded(selector, selectorDataLength);
+    function approveBridge(address token, uint256 amount) external onlyBonderEoa {
+        IERC20(token).approve(bridge, amount);
     }
 
     /* Internal Functions */
 
     function _isHiddenCalldata() internal view returns (bool) {
-        uint256 expectedLength = expectedSelectorDataLength[msg.sig];
+        uint256 expectedLength = selectorDataLength[msg.sig];
         if (
-            expectedLength != 0 &&
-            msg.data.length >= expectedLength + ADDRESS_LENGTH_BYTES
+            expectedLength == 0 ||
+            msg.data.length <= expectedLength
         ) {
-            return true;
+            return false;
         }
-        return false;
+
+        return true;
     }
 
-    function _decodeAndValidate() internal returns (bytes memory) {
-        (bytes memory bridgeCalldata, address validatorAddress, bytes memory validationData) = _decodeHiddenCalldata();
+    function _decodeAndValidateCalldata() internal {
+        (address validatorAddress, bytes memory validationData) = _decodeHiddenCalldata();
         require(validatorAddress.code.length > 0, "VBP: Validator address is not a contract");
+        // This will revert if the function selector does not exist and the validation contract has no fallback
         validatorAddress.execute(validationData, 0);
-        return bridgeCalldata;
     }
 
     function _decodeHiddenCalldata()
         internal
         view
-        returns (
-            bytes memory bridgeCalldata,
-            address validatorAddress,
-            bytes memory validationData
-        )
+        returns (address, bytes memory)
     {
-        // The correct length of calldata + address is guaranteed because of the check in _isHiddenCalldata()
-        uint256 bridgeCalldataLength = expectedSelectorDataLength[msg.sig];
-        uint256 bridgeCalldataWithAddressLength = bridgeCalldataLength + ADDRESS_LENGTH_BYTES;
-        uint256 validationDataLength = msg.data.length - bridgeCalldataWithAddressLength;
+        uint256 addressLength = 20;
+        uint256 dataLength = 68; // validateBlockHash(bytes32, uint256)
+        require(msg.data.length == selectorDataLength[msg.sig] + addressLength + dataLength, "VBP: Invalid hidden calldata length");
 
-        bridgeCalldata = new bytes(bridgeCalldataLength);
-        validationData = new bytes(validationDataLength);
+        // Extract hidden calldata
+        uint256 dataStart = msg.data.length - dataLength;
+        uint256 addressStart = dataStart - addressLength;
 
-        assembly {
-            // Assign the unhidden calldata to bridgeCalldata
-            calldatacopy(add(bridgeCalldata, 32), 0, bridgeCalldataLength)
+        bytes memory validationAddress = msg.data[addressStart:dataStart];
+        bytes memory validationData = msg.data[dataStart:];
 
-            // Parse the address from the hidden calldata
-            validatorAddress := shr(96, calldataload(bridgeCalldataLength))
-
-            // Get the validation data from the remaining hidden calldata
-            calldatacopy(add(validationData, 32), bridgeCalldataWithAddressLength, validationDataLength)
-        }
+        return (
+            address(uint160(bytes20(validationAddress))),
+            validationData
+        );
     }
 }
