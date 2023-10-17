@@ -32,14 +32,14 @@ contract ValidationBridgeProxy {
         bridge = _bridge;
     }
 
+    receive () external payable {}
+
     fallback () external payable onlyBonderEoa {
-        if (_isHiddenCalldata()) {
-            _decodeAndValidateCalldata();
+        if (isHiddenCalldata()) {
+            decodeAndValidateCalldata();
         }
         bridge.execute(msg.data, msg.value);
     }
-
-    receive () external payable {}
 
     function claimFunds(address token, uint256 amount) external onlyBonderEoa {
         if (token == address(0)) {
@@ -56,18 +56,18 @@ contract ValidationBridgeProxy {
 
     /* Internal Functions */
 
-    function _isHiddenCalldata() internal pure returns (bool) {
+    function isHiddenCalldata() internal pure returns (bool) {
         if (msg.data.length < VALIDATION_DATA_LENGTH + ADDRESS_LENGTH) {
             return false;
         }
 
         // Compare the data at the expected location of the validation selector with the actual selector
-        uint256 hiddenSelectorStart = msg.data.length - VALIDATION_DATA_LENGTH;
-        bytes memory hiddenSelector = msg.data[hiddenSelectorStart:];
-        return IBlockHashValidator.validateBlockHash.selector == bytes4(hiddenSelector);
+        uint256 validationDataStart = msg.data.length - VALIDATION_DATA_LENGTH;
+        bytes memory validationData = msg.data[validationDataStart:];
+        return IBlockHashValidator.validateBlockHash.selector == bytes4(validationData);
     }
 
-    function _decodeAndValidateCalldata() internal {
+    function decodeAndValidateCalldata() internal {
         uint256 dataStart = msg.data.length - VALIDATION_DATA_LENGTH;
         uint256 addressStart = dataStart - ADDRESS_LENGTH;
 
