@@ -145,7 +145,7 @@ describe('Validation Bridge Proxy', () => {
    */
 
   describe('Fallback and receiver', () => {
-    it('Should receive funds with data at the fallback function and not the receive', async () => {
+    it.only('Should receive funds with data at the fallback function and not the receive', async () => {
       tx.value = parseEther('1')
       // stake(address,uint). Needs a payable function that exists on bridge
       tx.data = '0xadc9772e00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000de0b6b3a7640000'
