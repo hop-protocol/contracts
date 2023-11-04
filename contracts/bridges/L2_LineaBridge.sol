@@ -40,7 +40,7 @@ contract L2_LineaBridge is L2_Bridge {
 
     function _sendCrossDomainMessage(bytes memory message) internal override {
         uint256 fee = lineaMessengerAddress.minimumFee(); 
-        lineaMessengerAddress.dispatchMessage{value: fee}(
+        lineaMessengerAddress.sendMessage{value: fee}(
             l1BridgeAddress,
             fee,
             9999999999, // Unlimited deadline

@@ -192,7 +192,10 @@ export const isChainIdPolygon = (chainId: BigNumber): boolean => {
 }
 
 export const isChainIdLinea = (chainId: BigNumber): boolean => {
-  if (chainId.eq(CHAIN_IDS.LINEA.LINEA_TESTNET)) {
+  if (
+    chainId.eq(CHAIN_IDS.LINEA.LINEA_TESTNET) ||
+    chainId.eq(CHAIN_IDS.LINEA.LINEA_MAINNET)
+  ) {
     return true
   }
 

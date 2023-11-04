@@ -81,7 +81,7 @@ const targetAddresses: Record<string, Record<string, string>> = {
     HOP: '0xc4448b71118c9071Bcb9734A0EAc55D18A153949',
   },
   linea: {
-    ETH: 'TODO' // TODO: linea - for prod deployment
+    ETH: '0xd19d4B5d358258f05D7B411E21A1460D11B0876F'
   },
   zksync: {
     ETH: 'TODO' // TODO: zksync - for prod deployment
@@ -289,16 +289,16 @@ async function main () {
 
   // Polygonzk - TODO
 
-  // // Linea
-  // abi = ['function dispatchMessage(address,uint256,uint256,bytes)']
-  // ethersInterface = new ethersUtils.Interface(abi)
-  // l2BridgeAddress = l2BridgeAddresses?.['linea']?.[token]
-  // fee = LINEA_MESSAGE_FEE
-  // data = !l2BridgeAddress ? null : ethersInterface.encodeFunctionData(
-  //   'dispatchMessage', [l2BridgeAddress, fee, DEFAULT_DEADLINE, calldata]
-  // )
-  // value = 0.012
-  // logData(chains.Linea, abi, token, data, value, timestamp, fee)
+  // Linea
+  abi = ['function sendMessage(address,uint256,uint256,bytes)']
+  ethersInterface = new ethersUtils.Interface(abi)
+  l2BridgeAddress = l2BridgeAddresses?.['linea']?.[token]
+  fee = LINEA_MESSAGE_FEE
+  data = !l2BridgeAddress ? null : ethersInterface.encodeFunctionData(
+    'sendMessage', [l2BridgeAddress, fee, DEFAULT_DEADLINE, calldata]
+  )
+  value = 0.012
+  logData(chains.Linea, abi, token, data, value, timestamp, fee)
 
   // // zkSync
   // abi = ['function requestL2Transaction(address,uint256,bytes,uint256,bytes[])']

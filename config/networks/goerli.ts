@@ -124,9 +124,9 @@ export const networkData: NetworkData = {
     l2NetworkName: 'linea',
     l1ChainId,
     l2ChainId: CHAIN_IDS.LINEA.LINEA_TESTNET.toString(),
-    l1MessengerAddress: '0xE87d317eB8dcc9afE24d9f63D6C760e52Bc18A40',
+    l1MessengerAddress: '0x70BaD09280FD342D02fe64119779BC1f0791BAC2',
     l2TokenBridgeAddress: '0x0000000000000000000000000000000000000000',
-    l2MessengerAddress: '0xA59477f7742Ba7d51bb1E487a8540aB339d6801d',
+    l2MessengerAddress: '0xC499a572640B64eA1C8c194c43Bc3E19940719dC',
     tokens: {
       ETH: {
         l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.GOERLI.ETH,

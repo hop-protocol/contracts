@@ -27,7 +27,8 @@ export const CHAIN_IDS: any = {
     NOVA_MAINNET: BigNumber.from('42170')
   },
   LINEA: {
-    LINEA_TESTNET: BigNumber.from('59140')
+    LINEA_TESTNET: BigNumber.from('59140'),
+    LINEA_MAINNET: BigNumber.from('59144')
   },
   ZKSYNC: {
     ZKSYNC_TESTNET: BigNumber.from('280')
@@ -70,7 +71,10 @@ export const CHAIN_IDS_TO_ACTIVATE: any = {
     },
     POLYGONZK: {
       POLYGONZK_MAINNET: BigNumber.from('1101')
-    }
+    },
+    LINEA: {
+      LINEA_MAINNET: BigNumber.from('59144')
+    },
   },
   TESTNET: {
     ETHEREUM: {
@@ -338,6 +342,10 @@ export const L2_CANONICAL_TOKEN_ADDRESSES: any = {
     ETH: '0x4200000000000000000000000000000000000006',
     USDC: '0xd9aAEc86B65D86f6A7B5B1b0c42FFA531710b6CA',
     HOP: '0xc5102fE9359FD9a28f877a67E36B0F050d81a3CC',
+  },
+  LINEA_MAINNET: {
+    ETH: '0xe5D7C2a44FfDDf6b295A15c148167daaAf5Cf34f', // Canonical deployment
+    HOP: '', // Omnichain
   },
 }
 

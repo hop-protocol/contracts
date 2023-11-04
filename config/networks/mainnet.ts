@@ -310,5 +310,21 @@ export const networkData: NetworkData = {
         ...DEFAULT_NETWORK_DATA.HOP
       },
     }
-  }
+  },
+  linea: {
+    l2NetworkName: 'linea',
+    l1ChainId,
+    l2ChainId: CHAIN_IDS.LINEA.LINEA_MAINNET.toString(),
+    l1MessengerAddress: '0xd19d4B5d358258f05D7B411E21A1460D11B0876F',
+    l2TokenBridgeAddress: '0x0000000000000000000000000000000000000000',
+    l2MessengerAddress: '0x508Ca82Df566dCD1B0DE8296e70a96332cD644ec',
+    tokens: {
+      ETH: {
+        l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.MAINNET.ETH,
+        l2CanonicalTokenAddress:
+          L2_CANONICAL_TOKEN_ADDRESSES.LINEA_MAINNET.ETH,
+        ...DEFAULT_NETWORK_DATA.ETH
+      }
+    }
+  },
 }

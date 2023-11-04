@@ -26,7 +26,6 @@ import {
   isChainIdArbitrum,
   isChainIdNova,
   isChainIdPolygonzk,
-  isChainIdLinea,
   isChainIdBase,
   isChainIdScroll,
   getActiveChainIds,
@@ -196,7 +195,6 @@ export async function setupL1 (config: Config) {
   } else if (
     isChainIdArbitrum(l2ChainId) ||
     isChainIdNova(l2ChainId) ||
-    isChainIdLinea(l2ChainId) ||
     isChainIdScroll(l2ChainId)
   ) {
     logger.log('Sending initial funds to L1_MessengerWrapper')

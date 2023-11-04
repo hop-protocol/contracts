@@ -158,6 +158,12 @@ export default {
       chainId: CHAIN_IDS.BASE.BASE_MAINNET.toNumber(),
       timeout
     },
+    linea_mainnet: {
+      url: process.env.RPC_ENDPOINT_LINEA_MAINNET,
+      accounts: desiredAccounts,
+      chainId: CHAIN_IDS.LINEA.LINEA_MAINNET.toNumber(),
+      timeout
+    },
   },
   zksolc: {
     version: '1.3.1',
@@ -242,6 +248,7 @@ export default {
       polygonzk_mainnet: process.env.POLYGONZK_API_KEY,
       polygonzk_testnet: process.env.POLYGONZK_API_KEY,
       base_mainnet: process.env.BASE_API_KEY,
+      linea_mainnet: process.env.LINEA_API_KEY,
     },
     customChains: [
       {
@@ -322,6 +329,14 @@ export default {
         urls: {
           apiURL: 'https://api.basescan.org/api',
           browserURL: 'https://basescan.org'
+        }
+      },
+      {
+        network: 'linea_mainnet',
+        chainId: 59144,
+        urls: {
+          apiURL: 'https://api.lineascan.build/api',
+          browserURL: 'https://lineascan.build/'
         }
       },
     ]

@@ -93,4 +93,10 @@ contract mockLinea_L1Bridge {
     uint256 _deadline,
     bytes calldata _calldata
   ) external payable {}
+
+  function sendMessage(
+    address _to,
+    uint256 _fee,
+    bytes calldata _calldata
+  ) external payable {}
 }

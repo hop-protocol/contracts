@@ -131,10 +131,10 @@ export const executeCanonicalMessengerSendMessage = async (
       .connect(sender)
       .sendCrossDomainMessage(message, modifiedGasPrice)
   } else if (isChainIdLinea(l2ChainId)) {
+    const fee = 0
     const lineaParams = [
       l2_bridge.address,
-      LINEA_MESSAGE_FEE,
-      DEFAULT_DEADLINE,
+      fee,
       message
     ]
     const value: BigNumber = BigNumber.from(LINEA_MESSAGE_FEE)
@@ -144,7 +144,7 @@ export const executeCanonicalMessengerSendMessage = async (
     }
     tx = await l1_messenger
       .connect(sender)
-      .dispatchMessage(...lineaParams, overrides)
+      .sendMessage(...lineaParams, overrides)
   } else if (isChainIdZkSync(l2ChainId)) {
     const zkSyncParams = [
       l2_bridge.address,

@@ -38,7 +38,7 @@ contract LineaMessengerWrapper is MessengerWrapper, Ownable {
      */
     function sendCrossDomainMessage(bytes memory _calldata) public override onlyL1Bridge {
         uint256 fee = lineaL1Bridge.minimumFee(); 
-        lineaL1Bridge.dispatchMessage{value: fee}(
+        lineaL1Bridge.sendMessage{value: fee}(
             l2BridgeAddress,
             fee,
             9999999999, // Unlimited deadline
