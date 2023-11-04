@@ -5,7 +5,7 @@ import prompt from 'prompt'
 import { getUpdateContractStateMessage } from './getUpdateContractStateMessage'
 import {
   DEFAULT_DEADLINE,
-  CONSENSYS_ZK_EVM_MESSAGE_FEE,
+  LINEA_MESSAGE_FEE,
   ZKSYNC_MESSAGE_FEE,
   DEFAULT_OPTIMISM_MESSENGER_WRAPPER_GAS_LIMIT
 } from '../../config/constants'
@@ -18,7 +18,7 @@ const chains: Record<string, string> = {
   Optimism: 'optimism',
   Arbitrum: 'arbitrum',
   Nova: 'nova',
-  Consensys: 'consensys',
+  Linea: 'linea',
   ZkSync: 'zksync',
   Base: 'base',
   Scroll: 'scroll',
@@ -80,8 +80,8 @@ const targetAddresses: Record<string, Record<string, string>> = {
     MAGIC: '0xc4448b71118c9071Bcb9734A0EAc55D18A153949',
     HOP: '0xc4448b71118c9071Bcb9734A0EAc55D18A153949',
   },
-  consensys: {
-    ETH: 'TODO' // TODO: consensys - for prod deployment
+  linea: {
+    ETH: 'TODO' // TODO: linea - for prod deployment
   },
   zksync: {
     ETH: 'TODO' // TODO: zksync - for prod deployment
@@ -153,8 +153,8 @@ const l2BridgeAddresses: Record<string, Record<string, string>> = {
     MAGIC: '0xE638433e2C1dF5f7a3a21b0a6b5c4b37278e55DC',
     HOP: '0x02D47f76523d2f059b617E4346de67482792eB83'
   },
-  consensys: {
-    ETH: 'TODO' // TODO: consensys - for prod deployment
+  linea: {
+    ETH: 'TODO' // TODO: linea - for prod deployment
   },
   zksync: {
     ETH: 'TODO' // TODO: zksync - for prod deployment
@@ -289,16 +289,16 @@ async function main () {
 
   // Polygonzk - TODO
 
-  // // Consensys
+  // // Linea
   // abi = ['function dispatchMessage(address,uint256,uint256,bytes)']
   // ethersInterface = new ethersUtils.Interface(abi)
-  // l2BridgeAddress = l2BridgeAddresses?.['consensys']?.[token]
-  // fee = CONSENSYS_ZK_EVM_MESSAGE_FEE
+  // l2BridgeAddress = l2BridgeAddresses?.['linea']?.[token]
+  // fee = LINEA_MESSAGE_FEE
   // data = !l2BridgeAddress ? null : ethersInterface.encodeFunctionData(
   //   'dispatchMessage', [l2BridgeAddress, fee, DEFAULT_DEADLINE, calldata]
   // )
   // value = 0.012
-  // logData(chains.Consensys, abi, token, data, value, timestamp, fee)
+  // logData(chains.Linea, abi, token, data, value, timestamp, fee)
 
   // // zkSync
   // abi = ['function requestL2Transaction(address,uint256,bytes,uint256,bytes[])']
@@ -390,7 +390,7 @@ const logData = (
   if (
     chain === chains.Arbitrum ||
     chain === chains.Nova ||
-    chain === chains.Consensys ||
+    chain === chains.Linea ||
     chain === chains.Scroll
   ) {
     console.log(`value to send: ${fee}`)

@@ -31,7 +31,7 @@ async function main () {
     '80001': 'mumbai',
     '420': 'optimism',
     '421613': 'arbitrum',
-    '59140': 'consensys'
+    '59140': 'linea'
   }
 
   const l2BridgeAddresses: Record<string, string> = {

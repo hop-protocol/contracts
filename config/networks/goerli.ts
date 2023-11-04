@@ -120,10 +120,10 @@ export const networkData: NetworkData = {
       },
     }
   },
-  consensys: {
-    l2NetworkName: 'consensys',
+  linea: {
+    l2NetworkName: 'linea',
     l1ChainId,
-    l2ChainId: CHAIN_IDS.CONSENSYS.CONSENSYS_TESTNET.toString(),
+    l2ChainId: CHAIN_IDS.LINEA.LINEA_TESTNET.toString(),
     l1MessengerAddress: '0xE87d317eB8dcc9afE24d9f63D6C760e52Bc18A40',
     l2TokenBridgeAddress: '0x0000000000000000000000000000000000000000',
     l2MessengerAddress: '0xA59477f7742Ba7d51bb1E487a8540aB339d6801d',
@@ -131,32 +131,32 @@ export const networkData: NetworkData = {
       ETH: {
         l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.GOERLI.ETH,
         l2CanonicalTokenAddress:
-          L2_CANONICAL_TOKEN_ADDRESSES.CONSENSYS_TESTNET.ETH,
+          L2_CANONICAL_TOKEN_ADDRESSES.LINEA_TESTNET.ETH,
         ...DEFAULT_NETWORK_DATA.ETH
       },
       HOP: {
         l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.GOERLI.HOP,
-        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.CONSENSYS_TESTNET.HOP,
+        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.LINEA_TESTNET.HOP,
         ...DEFAULT_NETWORK_DATA.HOP
       },
       USDT: {
         l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.GOERLI.USDT,
-        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.CONSENSYS_TESTNET.USDT,
+        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.LINEA_TESTNET.USDT,
         ...DEFAULT_NETWORK_DATA.USDT
       },
       DAI: {
         l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.GOERLI.DAI,
-        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.CONSENSYS_TESTNET.DAI,
+        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.LINEA_TESTNET.DAI,
         ...DEFAULT_NETWORK_DATA.DAI
       },
       UNI: {
         l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.GOERLI.UNI,
-        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.CONSENSYS_TESTNET.UNI,
+        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.LINEA_TESTNET.UNI,
         ...DEFAULT_NETWORK_DATA.UNI
       },
       USDC: {
         l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.GOERLI.USDC,
-        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.CONSENSYS_TESTNET.USDC,
+        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.LINEA_TESTNET.USDC,
         ...DEFAULT_NETWORK_DATA.USDC
       },
     }

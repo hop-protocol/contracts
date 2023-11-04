@@ -38,7 +38,7 @@ import {
   isChainIdNova,
   isChainIdXDai,
   isChainIdPolygon,
-  isChainIdConsensys,
+  isChainIdLinea,
   isChainIdZkSync,
   isChainIdScroll,
   isChainIdBase,
@@ -400,12 +400,12 @@ export const getL2SpecificArtifact = (chainId: BigNumber) => {
       'contracts/test/Mock_L1_Messenger.sol:Mock_L1_Messenger'
     l1_messengerWrapperArtifact =
       'contracts/test/MockPolygonMessengerWrapper.sol:MockPolygonMessengerWrapper'
-  } else if (isChainIdConsensys(chainId)) {
-    l2_bridgeArtifact = 'Mock_L2_ConsensysBridge.sol:Mock_L2_ConsensysBridge'
+  } else if (isChainIdLinea(chainId)) {
+    l2_bridgeArtifact = 'Mock_L2_LineaBridge.sol:Mock_L2_LineaBridge'
     l1_messengerArtifact =
       'contracts/test/Mock_L1_Messenger.sol:Mock_L1_Messenger'
     l1_messengerWrapperArtifact =
-      'contracts/wrappers/ConsensysZkEvmMessengerWrapper.sol:ConsensysZkEvmMessengerWrapper'
+      'contracts/wrappers/LineaMessengerWrapper.sol:LineaMessengerWrapper'
   } else if (isChainIdZkSync(chainId)) {
     l2_bridgeArtifact = 'mockZkSync_L2Bridge.sol:mockZkSync_L2Bridge'
     l1_messengerArtifact =

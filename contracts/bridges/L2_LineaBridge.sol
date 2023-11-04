@@ -3,23 +3,23 @@
 pragma solidity 0.6.12;
 pragma experimental ABIEncoderV2;
 
-import "../interfaces/consensys/messengers/IBridge.sol";
+import "../interfaces/linea/messengers/IBridge.sol";
 import "./L2_Bridge.sol";
 
 /**
- * @dev A MessengerWrapper for the ConsenSys zkEVM - https://consensys.net/docs/zk-evm/en/latest/
+ * @dev A MessengerWrapper for Linea - https://docs.linea.build/
  */
 
-contract L2_ConsensysZkEvmBridge is L2_Bridge {
+contract L2_LineaBridge is L2_Bridge {
 
-    // Consensys needs this to receive funds to pay for L2 to L1 messages.
+    // Linea needs this to receive funds to pay for L2 to L1 messages.
     // TODO: This only applies on testnet and should be removed for production.
     receive() external payable {}
 
-    IBridge public consensysMessengerAddress;
+    IBridge public lineaMessengerAddress;
 
     constructor (
-        IBridge _consensysMessengerAddress,
+        IBridge _lineaMessengerAddress,
         address l1Governance,
         HopBridgeToken hToken,
         address l1BridgeAddress,
@@ -35,12 +35,12 @@ contract L2_ConsensysZkEvmBridge is L2_Bridge {
             bonders
         )
     {
-        consensysMessengerAddress = _consensysMessengerAddress;
+        lineaMessengerAddress = _lineaMessengerAddress;
     }
 
     function _sendCrossDomainMessage(bytes memory message) internal override {
-        uint256 fee = consensysMessengerAddress.minimumFee(); 
-        consensysMessengerAddress.dispatchMessage{value: fee}(
+        uint256 fee = lineaMessengerAddress.minimumFee(); 
+        lineaMessengerAddress.dispatchMessage{value: fee}(
             l1BridgeAddress,
             fee,
             9999999999, // Unlimited deadline
@@ -49,7 +49,7 @@ contract L2_ConsensysZkEvmBridge is L2_Bridge {
     }
 
     function _verifySender(address expectedSender) internal override {
-        require(consensysMessengerAddress.sender() == expectedSender, "L2_CSYS_BRG: Invalid cross-domain sender");
-        require(msg.sender == address(consensysMessengerAddress), "L2_CSYS_BRG: Caller is not the expected sender");
+        require(lineaMessengerAddress.sender() == expectedSender, "L2_LINEA_BRG: Invalid cross-domain sender");
+        require(msg.sender == address(lineaMessengerAddress), "L2_LINEA_BRG: Caller is not the expected sender");
     }
 }

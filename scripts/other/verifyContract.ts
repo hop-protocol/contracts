@@ -133,7 +133,7 @@ const decodeTypes: Record<string, ContractNames> = {
     l2AmmWrapper: ['address', 'address', 'bool', 'address', 'address'],
     l2HopBridgeToken: ['string', 'string', 'uint8']
   },
-  consensys_mainnet: {
+  linea_mainnet: {
     l1MessengerWrapper: ['address', 'address', 'address', 'uint256'],
     l2Bridge: [
       'address',

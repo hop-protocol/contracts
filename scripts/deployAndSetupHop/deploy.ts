@@ -339,7 +339,7 @@ function handleCustomL2NetworkName (
     l2NetworkName === 'base' ||
     l2NetworkName === 'arbitrum' ||
     l2NetworkName === 'nova' ||
-    l2NetworkName === 'consensys' ||
+    l2NetworkName === 'linea' ||
     l2NetworkName === 'zksync' ||
     l2NetworkName === 'scroll' ||
     l2NetworkName === 'polygonzk'

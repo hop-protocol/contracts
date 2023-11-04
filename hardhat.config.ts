@@ -114,10 +114,10 @@ export default {
       chainId: CHAIN_IDS.POLYGON.MUMBAI.toNumber(),
       timeout
     },
-    consensys_testnet: {
-      url: process.env.RPC_ENDPOINT_CONSENSYS_TESTNET,
+    linea_testnet: {
+      url: process.env.RPC_ENDPOINT_LINEA_TESTNET,
       accounts: desiredAccounts,
-      chainId: CHAIN_IDS.CONSENSYS.CONSENSYS_TESTNET.toNumber(),
+      chainId: CHAIN_IDS.LINEA.LINEA_TESTNET.toNumber(),
       timeout
     },
     zksync_testnet: {
@@ -235,7 +235,7 @@ export default {
       polygon: process.env.POLYGONSCAN_API_KEY,
       polygonMumbai: process.env.POLYGONSCAN_API_KEY,
       nova_mainnet: process.env.NOVA_API_KEY,
-      consensys_testnet: process.env.CONSENSYS_API_KEY,
+      linea_testnet: process.env.LINEA_API_KEY,
       zksync_testnet: process.env.ZKSYNC_API_KEY,
       base_testnet: process.env.BASE_API_KEY,
       scroll_testnet: process.env.SCROLL_API_KEY,
@@ -269,11 +269,11 @@ export default {
         }
       },
       {
-        network: 'consensys_testnet',
+        network: 'linea_testnet',
         chainId: 59140,
         urls: {
-          apiURL: 'https://explorer.goerli.zkevm.consensys.net/api',
-          browserURL: 'https://explorer.goerli.zkevm.consensys.net'
+          apiURL: 'https://api-testnet.lineascan.build/api',
+          browserURL: 'https://goerli.lineascan.build/'
         }
       },
       {

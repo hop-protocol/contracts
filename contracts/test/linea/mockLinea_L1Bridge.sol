@@ -2,7 +2,7 @@
 
 pragma solidity 0.6.12;
 
-contract mockConsensysZkEvm_L1Bridge {
+contract mockLinea_L1Bridge {
       /// @notice Emitted on the origin chain when a message is to be sent to the destination chain
   /// @param _from the msg.sender calling the origin bridge
   /// @param _to the destination contract on the destination chain

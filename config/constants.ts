@@ -26,8 +26,8 @@ export const CHAIN_IDS: any = {
   NOVA: {
     NOVA_MAINNET: BigNumber.from('42170')
   },
-  CONSENSYS: {
-    CONSENSYS_TESTNET: BigNumber.from('59140')
+  LINEA: {
+    LINEA_TESTNET: BigNumber.from('59140')
   },
   ZKSYNC: {
     ZKSYNC_TESTNET: BigNumber.from('280')
@@ -85,8 +85,8 @@ export const CHAIN_IDS_TO_ACTIVATE: any = {
     ARBITRUM: {
       ARBITRUM_TESTNET: BigNumber.from('421613')
     },
-    CONSENSYS: {
-      CONSENSYS_TESTNET: BigNumber.from('59140')
+    LINEA: {
+      LINEA_TESTNET: BigNumber.from('59140')
     },
     ZKSYNC: {
       ZKSYNC_TESTNET: BigNumber.from('280')
@@ -307,7 +307,7 @@ export const L2_CANONICAL_TOKEN_ADDRESSES: any = {
     MAGIC: '0xe8936ac97A85d708d5312D52C30c18d4533b8A9c',
     HOP: '0xc5102fE9359FD9a28f877a67E36B0F050d81a3CC'
   },
-  CONSENSYS_TESTNET: {
+  LINEA_TESTNET: {
     ETH: '0x2C1b868d6596a18e32E61B901E4060C872647b6C', // Canonical deployment
     HOP: '0x6F03052743CD99ce1b29265E377e320CD24Eb632', // Omnichain
     USDT: '0x1990BC6dfe2ef605Bfc08f5A23564dB75642Ad73', // Omnichain
@@ -347,7 +347,7 @@ export const GAS_PRICE_MULTIPLIERS: { [key: string]: number } = {
 }
 
 export const HOP_DAO_ADDRESS = '0xeeA8422a08258e73c139Fc32a25e10410c14bd7a'
-export const CONSENSYS_ZK_EVM_MESSAGE_FEE = '10000000000000000'
+export const LINEA_MESSAGE_FEE = '10000000000000000'
 export const ZKSYNC_MESSAGE_FEE = 'TODO' // TODO: zksync
 export const SCROLL_ZK_EVM_MESSAGE_FEE = '2000000000000000' // TODO: Update to be more precise
 

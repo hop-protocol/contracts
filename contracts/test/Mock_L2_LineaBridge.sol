@@ -3,9 +3,9 @@
 pragma solidity 0.6.12;
 pragma experimental ABIEncoderV2;
 
-import "../bridges/L2_ConsensysZkEvmBridge.sol";
+import "../bridges/L2_LineaBridge.sol";
 
-contract Mock_L2_ConsensysBridge is L2_ConsensysZkEvmBridge  {
+contract Mock_L2_LineaBridge is L2_LineaBridge  {
     constructor (
         IBridge messenger,
         address l1Governance,
@@ -15,7 +15,7 @@ contract Mock_L2_ConsensysBridge is L2_ConsensysZkEvmBridge  {
         address[] memory bonders
     )
         public
-        L2_ConsensysZkEvmBridge(
+        L2_LineaBridge(
             messenger,
             l1Governance,
             hToken,
