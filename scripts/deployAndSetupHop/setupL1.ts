@@ -350,7 +350,7 @@ export async function setupL1 (config: Config) {
 
   logger.log('sending token to L2')
   logger.log(
-    `IMPORTANT: if this transaction fails, it may be one of two things. (1) (Arbitrum/Nova/Linea only) The messenger wrapper
+    `IMPORTANT: if this transaction fails, it may be one of two things. (1) (Arbitrum/Nova only) The messenger wrapper
     address does not have funds in it (2) The L1 deployer does not have tokens to send over the bridge.`
   )
   modifiedGasPrice = await getModifiedGasPrice(ethers, l1ChainId)
