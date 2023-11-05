@@ -131,7 +131,7 @@ export const executeCanonicalMessengerSendMessage = async (
       .connect(sender)
       .sendCrossDomainMessage(message, modifiedGasPrice)
   } else if (isChainIdLinea(l2ChainId)) {
-    const fee = 0
+    const fee = LINEA_MESSAGE_FEE
     const lineaParams = [
       l2_bridge.address,
       fee,

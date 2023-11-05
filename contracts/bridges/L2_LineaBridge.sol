@@ -12,10 +12,6 @@ import "./L2_Bridge.sol";
 
 contract L2_LineaBridge is L2_Bridge {
 
-    // Linea needs this to receive funds to pay for L2 to L1 messages.
-    // TODO: This only applies on testnet and should be removed for production.
-    receive() external payable {}
-
     IBridge public lineaMessengerAddress;
 
     constructor (
@@ -38,12 +34,13 @@ contract L2_LineaBridge is L2_Bridge {
         lineaMessengerAddress = _lineaMessengerAddress;
     }
 
+    receive() external payable {}
+
     function _sendCrossDomainMessage(bytes memory message) internal override {
-        uint256 fee = lineaMessengerAddress.minimumFee(); 
+        uint256 fee = lineaMessengerAddress.minimumFeeInWei();
         lineaMessengerAddress.sendMessage{value: fee}(
             l1BridgeAddress,
             fee,
-            9999999999, // Unlimited deadline
             message
         );
     }

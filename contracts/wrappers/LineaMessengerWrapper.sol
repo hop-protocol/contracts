@@ -3,7 +3,6 @@
 pragma solidity 0.6.12;
 pragma experimental ABIEncoderV2;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
 import "../interfaces/linea/messengers/IBridge.sol";
 import "./MessengerWrapper.sol";
 
@@ -12,7 +11,7 @@ import "./MessengerWrapper.sol";
  * @notice Deployed on layer-1
  */
 
-contract LineaMessengerWrapper is MessengerWrapper, Ownable {
+contract LineaMessengerWrapper is MessengerWrapper {
 
     IBridge public lineaL1Bridge;
     address public l2BridgeAddress;
@@ -30,36 +29,22 @@ contract LineaMessengerWrapper is MessengerWrapper, Ownable {
         lineaL1Bridge = _lineaL1Bridge;
     }
 
-    receive() external payable {}
-
     /**
      * @dev Sends a message to the l2BridgeAddress from layer-1
      * @param _calldata The data that l2BridgeAddress will be called with
      */
     function sendCrossDomainMessage(bytes memory _calldata) public override onlyL1Bridge {
-        uint256 fee = lineaL1Bridge.minimumFee(); 
-        lineaL1Bridge.sendMessage{value: fee}(
+        lineaL1Bridge.sendMessage(
             l2BridgeAddress,
-            fee,
-            9999999999, // Unlimited deadline
+            0,
             _calldata
         );
     }
 
-
     function verifySender(address l1BridgeCaller, bytes memory) public override {
         if (isRootConfirmation) return;
 
-        require(lineaL1Bridge.sender() == l2BridgeAddress, "L1_LINEA_MSG_WRP: Invalid cross-domain sender");
-        require(l1BridgeCaller == address(lineaL1Bridge), "L1_LINEA_MSG_WRP: Caller is not the expected sender");
-    }
-
-    /**
-     * @dev Claim excess funds
-     * @param recipient The recipient to send to
-     * @param amount The amount to claim
-     */
-    function claimFunds(address payable recipient, uint256 amount) public onlyOwner {
-        recipient.transfer(amount);
+        require(lineaL1Bridge.sender() == l2BridgeAddress, "LINEA_MSG_WRP: Invalid cross-domain sender");
+        require(l1BridgeCaller == address(lineaL1Bridge), "LINEA_MSG_WRP: Caller is not the expected sender");
     }
 }
