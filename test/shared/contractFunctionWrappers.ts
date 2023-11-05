@@ -21,7 +21,7 @@ import {
   isChainIdNova,
   isChainIdXDai,
   isChainIdPolygon,
-  isChainIdConsensys,
+  isChainIdLinea,
   isChainIdZkSync,
   isChainIdBase,
   isChainIdScroll,
@@ -30,7 +30,7 @@ import {
   generateArbitrumAliasAddress
 } from '../../config/utils'
 import {
-  CONSENSYS_ZK_EVM_MESSAGE_FEE,
+  LINEA_MESSAGE_FEE,
   SCROLL_ZK_EVM_MESSAGE_FEE,
   ZKSYNC_MESSAGE_FEE,
   CHAIN_IDS,
@@ -130,21 +130,21 @@ export const executeCanonicalMessengerSendMessage = async (
     tx = await l1_messengerWrapper
       .connect(sender)
       .sendCrossDomainMessage(message, modifiedGasPrice)
-  } else if (isChainIdConsensys(l2ChainId)) {
-    const consensysZkEvmParams = [
+  } else if (isChainIdLinea(l2ChainId)) {
+    const fee = LINEA_MESSAGE_FEE
+    const lineaParams = [
       l2_bridge.address,
-      CONSENSYS_ZK_EVM_MESSAGE_FEE,
-      DEFAULT_DEADLINE,
+      fee,
       message
     ]
-    const value: BigNumber = BigNumber.from(CONSENSYS_ZK_EVM_MESSAGE_FEE)
+    const value: BigNumber = BigNumber.from(LINEA_MESSAGE_FEE)
     const overrides = {
       value,
       ...modifiedGasPrice
     }
     tx = await l1_messenger
       .connect(sender)
-      .dispatchMessage(...consensysZkEvmParams, overrides)
+      .sendMessage(...lineaParams, overrides)
   } else if (isChainIdZkSync(l2ChainId)) {
     const zkSyncParams = [
       l2_bridge.address,

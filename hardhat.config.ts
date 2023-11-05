@@ -114,10 +114,10 @@ export default {
       chainId: CHAIN_IDS.POLYGON.MUMBAI.toNumber(),
       timeout
     },
-    consensys_testnet: {
-      url: process.env.RPC_ENDPOINT_CONSENSYS_TESTNET,
+    linea_testnet: {
+      url: process.env.RPC_ENDPOINT_LINEA_TESTNET,
       accounts: desiredAccounts,
-      chainId: CHAIN_IDS.CONSENSYS.CONSENSYS_TESTNET.toNumber(),
+      chainId: CHAIN_IDS.LINEA.LINEA_TESTNET.toNumber(),
       timeout
     },
     zksync_testnet: {
@@ -156,6 +156,12 @@ export default {
       url: process.env.RPC_ENDPOINT_BASE_MAINNET,
       accounts: desiredAccounts,
       chainId: CHAIN_IDS.BASE.BASE_MAINNET.toNumber(),
+      timeout
+    },
+    linea_mainnet: {
+      url: process.env.RPC_ENDPOINT_LINEA_MAINNET,
+      accounts: desiredAccounts,
+      chainId: CHAIN_IDS.LINEA.LINEA_MAINNET.toNumber(),
       timeout
     },
   },
@@ -235,13 +241,14 @@ export default {
       polygon: process.env.POLYGONSCAN_API_KEY,
       polygonMumbai: process.env.POLYGONSCAN_API_KEY,
       nova_mainnet: process.env.NOVA_API_KEY,
-      consensys_testnet: process.env.CONSENSYS_API_KEY,
+      linea_testnet: process.env.LINEA_API_KEY,
       zksync_testnet: process.env.ZKSYNC_API_KEY,
       base_testnet: process.env.BASE_API_KEY,
       scroll_testnet: process.env.SCROLL_API_KEY,
       polygonzk_mainnet: process.env.POLYGONZK_API_KEY,
       polygonzk_testnet: process.env.POLYGONZK_API_KEY,
       base_mainnet: process.env.BASE_API_KEY,
+      linea_mainnet: process.env.LINEA_API_KEY,
     },
     customChains: [
       {
@@ -269,11 +276,11 @@ export default {
         }
       },
       {
-        network: 'consensys_testnet',
+        network: 'linea_testnet',
         chainId: 59140,
         urls: {
-          apiURL: 'https://explorer.goerli.zkevm.consensys.net/api',
-          browserURL: 'https://explorer.goerli.zkevm.consensys.net'
+          apiURL: 'https://api-testnet.lineascan.build/api',
+          browserURL: 'https://goerli.lineascan.build/'
         }
       },
       {
@@ -322,6 +329,14 @@ export default {
         urls: {
           apiURL: 'https://api.basescan.org/api',
           browserURL: 'https://basescan.org'
+        }
+      },
+      {
+        network: 'linea_mainnet',
+        chainId: 59144,
+        urls: {
+          apiURL: 'https://api.lineascan.build/api',
+          browserURL: 'https://lineascan.build/'
         }
       },
     ]

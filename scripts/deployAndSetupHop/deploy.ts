@@ -174,11 +174,11 @@ async function getPrompts () {
   const l2NetworkName: string = (res.l2NetworkName as string).toLowerCase()
   const tokenSymbol: string = (res.tokenSymbol as string).toLowerCase()
   const bonderAddress: string = res.bonderAddress as string
-  const isL1BridgeDeploy: boolean = res.isL1BridgeDeploy === 'true' ? true : false
+  const isL1BridgeDeploy: boolean = res.isL1BridgeDeploy as boolean
   const existingL1BridgeAddress: string = res.existingL1BridgeAddress as string
-  const l2CanonicalTokenIsEth: boolean = res.l2CanonicalTokenIsEth === 'true' ? true : false
+  const l2CanonicalTokenIsEth: boolean = res.l2CanonicalTokenIsEth as boolean
   const deploymentStep: number = res.deploymentStep as number
-  const isOmnichainToken: boolean = res.isOmnichainToken === 'true' ? true : false
+  const isOmnichainToken: boolean = res.isOmnichainToken as boolean
 
 
   return {
@@ -339,7 +339,7 @@ function handleCustomL2NetworkName (
     l2NetworkName === 'base' ||
     l2NetworkName === 'arbitrum' ||
     l2NetworkName === 'nova' ||
-    l2NetworkName === 'consensys' ||
+    l2NetworkName === 'linea' ||
     l2NetworkName === 'zksync' ||
     l2NetworkName === 'scroll' ||
     l2NetworkName === 'polygonzk'

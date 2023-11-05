@@ -2,7 +2,7 @@
 
 pragma solidity 0.6.12;
 
-contract mockConsensysZkEvm_L1Bridge {
+contract mockLinea_L1Bridge {
       /// @notice Emitted on the origin chain when a message is to be sent to the destination chain
   /// @param _from the msg.sender calling the origin bridge
   /// @param _to the destination contract on the destination chain
@@ -91,6 +91,12 @@ contract mockConsensysZkEvm_L1Bridge {
     uint256 _fee,
     uint256 _value,
     uint256 _deadline,
+    bytes calldata _calldata
+  ) external payable {}
+
+  function sendMessage(
+    address _to,
+    uint256 _fee,
     bytes calldata _calldata
   ) external payable {}
 }

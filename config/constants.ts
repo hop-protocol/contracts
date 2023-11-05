@@ -26,8 +26,9 @@ export const CHAIN_IDS: any = {
   NOVA: {
     NOVA_MAINNET: BigNumber.from('42170')
   },
-  CONSENSYS: {
-    CONSENSYS_TESTNET: BigNumber.from('59140')
+  LINEA: {
+    LINEA_TESTNET: BigNumber.from('59140'),
+    LINEA_MAINNET: BigNumber.from('59144')
   },
   ZKSYNC: {
     ZKSYNC_TESTNET: BigNumber.from('280')
@@ -70,7 +71,10 @@ export const CHAIN_IDS_TO_ACTIVATE: any = {
     },
     POLYGONZK: {
       POLYGONZK_MAINNET: BigNumber.from('1101')
-    }
+    },
+    LINEA: {
+      LINEA_MAINNET: BigNumber.from('59144')
+    },
   },
   TESTNET: {
     ETHEREUM: {
@@ -85,8 +89,8 @@ export const CHAIN_IDS_TO_ACTIVATE: any = {
     ARBITRUM: {
       ARBITRUM_TESTNET: BigNumber.from('421613')
     },
-    CONSENSYS: {
-      CONSENSYS_TESTNET: BigNumber.from('59140')
+    LINEA: {
+      LINEA_TESTNET: BigNumber.from('59140')
     },
     ZKSYNC: {
       ZKSYNC_TESTNET: BigNumber.from('280')
@@ -307,7 +311,7 @@ export const L2_CANONICAL_TOKEN_ADDRESSES: any = {
     MAGIC: '0xe8936ac97A85d708d5312D52C30c18d4533b8A9c',
     HOP: '0xc5102fE9359FD9a28f877a67E36B0F050d81a3CC'
   },
-  CONSENSYS_TESTNET: {
+  LINEA_TESTNET: {
     ETH: '0x2C1b868d6596a18e32E61B901E4060C872647b6C', // Canonical deployment
     HOP: '0x6F03052743CD99ce1b29265E377e320CD24Eb632', // Omnichain
     USDT: '0x1990BC6dfe2ef605Bfc08f5A23564dB75642Ad73', // Omnichain
@@ -339,6 +343,10 @@ export const L2_CANONICAL_TOKEN_ADDRESSES: any = {
     USDC: '0xd9aAEc86B65D86f6A7B5B1b0c42FFA531710b6CA',
     HOP: '0xc5102fE9359FD9a28f877a67E36B0F050d81a3CC',
   },
+  LINEA_MAINNET: {
+    ETH: '0xe5D7C2a44FfDDf6b295A15c148167daaAf5Cf34f', // Canonical deployment
+    HOP: '', // Omnichain
+  },
 }
 
 export const GAS_PRICE_MULTIPLIERS: { [key: string]: number } = {
@@ -347,7 +355,7 @@ export const GAS_PRICE_MULTIPLIERS: { [key: string]: number } = {
 }
 
 export const HOP_DAO_ADDRESS = '0xeeA8422a08258e73c139Fc32a25e10410c14bd7a'
-export const CONSENSYS_ZK_EVM_MESSAGE_FEE = '10000000000000000'
+export const LINEA_MESSAGE_FEE = '1000000000000000'
 export const ZKSYNC_MESSAGE_FEE = 'TODO' // TODO: zksync
 export const SCROLL_ZK_EVM_MESSAGE_FEE = '2000000000000000' // TODO: Update to be more precise
 

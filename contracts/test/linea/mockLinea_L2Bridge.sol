@@ -2,5 +2,5 @@
 
 pragma solidity 0.6.12;
 
-contract mockConsensysZkEvm_L2Bridge {
+contract mockLinea_L2Bridge {
 }

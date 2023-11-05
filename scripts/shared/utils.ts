@@ -16,7 +16,7 @@ import {
   isChainIdXDai,
   isChainIdPolygon,
   isChainIdMainnet,
-  isChainIdConsensys,
+  isChainIdLinea,
   isChainIdZkSync,
   isChainIdBase,
   isChainIdScroll,
@@ -120,8 +120,8 @@ const getNetworkSpecificFactories = async (
     return getXDaiContractFactories(signer, ethers)
   } else if (isChainIdPolygon(chainId)) {
     return getPolygonContractFactories(signer, ethers)
-  } else if (isChainIdConsensys(chainId)) {
-    return getConsensysContractFactories(signer, ethers)
+  } else if (isChainIdLinea(chainId)) {
+    return getLineaContractFactories(signer, ethers)
   } else if (isChainIdZkSync(chainId)) {
     return getZkSyncContractFactories(signer, ethers)
   } else if (isChainIdBase(chainId)) {
@@ -232,17 +232,17 @@ const getPolygonContractFactories = async (signer: Signer, ethers: any) => {
   }
 }
 
-const getConsensysContractFactories = async (signer: Signer, ethers: any) => {
+const getLineaContractFactories = async (signer: Signer, ethers: any) => {
   const L1_Messenger: ContractFactory = await ethers.getContractFactory(
-    'contracts/test/consensys/mockConsensysZkEvm_L1Bridge.sol:mockConsensysZkEvm_L1Bridge',
+    'contracts/test/linea/mockLinea_L1Bridge.sol:mockLinea_L1Bridge',
     { signer }
   )
   const L1_MessengerWrapper: ContractFactory = await ethers.getContractFactory(
-    'contracts/wrappers/ConsensysZkEvmMessengerWrapper.sol:ConsensysZkEvmMessengerWrapper',
+    'contracts/wrappers/LineaMessengerWrapper.sol:LineaMessengerWrapper',
     { signer }
   )
   const L2_Bridge: ContractFactory = await ethers.getContractFactory(
-    'contracts/bridges/L2_ConsensysZkEvmBridge.sol:L2_ConsensysZkEvmBridge',
+    'contracts/bridges/L2_LineaBridge.sol:L2_LineaBridge',
     { signer }
   )
 
