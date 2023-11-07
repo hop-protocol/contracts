@@ -154,7 +154,7 @@ const l2BridgeAddresses: Record<string, Record<string, string>> = {
     HOP: '0x02D47f76523d2f059b617E4346de67482792eB83'
   },
   linea: {
-    ETH: 'TODO' // TODO: linea - for prod deployment
+    ETH: '0xCbb852A6274e03fA00fb4895dE0463f66dF27a11'
   },
   zksync: {
     ETH: 'TODO' // TODO: zksync - for prod deployment
@@ -290,14 +290,14 @@ async function main () {
   // Polygonzk - TODO
 
   // Linea
-  abi = ['function sendMessage(address,uint256,uint256,bytes)']
+  abi = ['function sendMessage(address,uint256,bytes)']
   ethersInterface = new ethersUtils.Interface(abi)
   l2BridgeAddress = l2BridgeAddresses?.['linea']?.[token]
   fee = LINEA_MESSAGE_FEE
   data = !l2BridgeAddress ? null : ethersInterface.encodeFunctionData(
-    'sendMessage', [l2BridgeAddress, fee, DEFAULT_DEADLINE, calldata]
+    'sendMessage', [l2BridgeAddress, fee, calldata]
   )
-  value = 0.012
+  value = 0.000001
   logData(chains.Linea, abi, token, data, value, timestamp, fee)
 
   // // zkSync
@@ -310,9 +310,6 @@ async function main () {
   // )
   // value = 0
   // logData(chains.ZkSync, abi, token, data, value, timestamp, fee)
-
-  // // base
-  // todo
 }
 
 const getPromptRes = async () => {
