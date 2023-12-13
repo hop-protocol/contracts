@@ -64,9 +64,7 @@ contract PolygonzkMessengerWrapper is MessengerWrapper, PolygonzkBridgeMessageRe
             originNetwork,
             data,
             l1BridgeAddress,
-            address(l1Messenger),
-            l2BridgeAddress,
-            L2_NETWORK
+            address(l1Messenger)
         );
     }
 }

@@ -59,30 +59,13 @@ contract L2_PolygonzkBridge is L2_Bridge, PolygonzkBridgeMessageReceiver {
         uint32 originNetwork,
         bytes memory data
     ) external {
-        address sourceChainSender = getOnMessageReceivedSender(originAddress);
         _onMessageReceived(
             originAddress,
             originNetwork,
             data,
             address(this),
-            address(messenger),
-            sourceChainSender,
-            L1_NETWORK
+            address(messenger)
         );
-    }
-
-    // The sender can be either the l1BridgeCaller or l1Governance.
-    // This is used to ensure that an arbitrary address cannot make a call as the bridge.
-    // NOTE: This is only used for onMessageReceived validation. Bridge validation is
-    // still performed on the bridge tx itself.
-    function getOnMessageReceivedSender(address originAddress) internal returns (address) {
-        if (originAddress == l1BridgeCaller) {
-            return l1BridgeCaller;
-        } else if (originAddress == l1Governance) {
-            return l1Governance;
-        } else {
-            revert("L2_PLY_ZK_BRG: Invalid origin address");
-        }
     }
 }
 

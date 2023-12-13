@@ -21,13 +21,9 @@ abstract contract PolygonzkBridgeMessageReceiver {
         uint32 originNetwork,
         bytes memory data,
         address targetAddress,
-        address messengerAddress,
-        address sourceChainSender,
-        uint256 sourceChainNetwork
+        address messengerAddress
     ) internal {
         require(msg.sender == messengerAddress, "PLY_ZK_BRG_MR: Caller is not the messenger");
-        require(originAddress == sourceChainSender, "PLY_ZK_BRG_MR: Origin address is not the expected sender");
-        require(uint256(originNetwork) == sourceChainNetwork, "PLY_ZK_BRG_MR: Origin network is not expected");
 
         xDomainMessageSender = originAddress;
         xDomainNetwork = uint256(originNetwork);
