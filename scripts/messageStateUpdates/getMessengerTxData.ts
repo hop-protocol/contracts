@@ -287,7 +287,19 @@ async function main () {
       ])
   logData(chains.Base, abi, token, data, defaultValue, timestamp)
 
-  // Polygonzk - TODO
+  // Polygonzk
+  abi = ['function bridgeMessage(uint32,address,bool,bytes)']
+  ethersInterface = new ethersUtils.Interface(abi)
+  l2BridgeAddress = l2BridgeAddresses?.['polygonzk']?.[token]
+  data = !l2BridgeAddress ? null : ethersInterface.encodeFunctionData(
+    'bridgeMessage', [
+      1, // l2Network
+      l2BridgeAddress,
+      false, // forceUpdateGlobalExitRoot
+      calldata
+    ]
+  )
+  logData(chains.Polygonzk, abi, token, data, value, timestamp, fee)
 
   // Linea
   abi = ['function sendMessage(address,uint256,bytes)']

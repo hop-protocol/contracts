@@ -14,9 +14,9 @@ import "../interfaces/polygonzk/messengers/IPolygonZkEVMBridge.sol";
 
 contract L2_PolygonzkBridge is L2_Bridge, PolygonzkBridgeMessageReceiver {
 
-    IPolygonZkEVMBridge public messenger;
-    uint256 public constant l1Network = 0;
-    bool public forceUpdateGlobalExitRoot = false;
+    IPolygonZkEVMBridge public immutable messenger;
+    uint256 public constant L1_NETWORK = 0;
+    bool public constant FORCE_UPDATE_GLOBAL_EXIT_ROOT = false;
 
     constructor (
         IPolygonZkEVMBridge _messenger,
@@ -41,9 +41,9 @@ contract L2_PolygonzkBridge is L2_Bridge, PolygonzkBridgeMessageReceiver {
 
     function _sendCrossDomainMessage(bytes memory message) internal override {
         messenger.bridgeMessage(
-            uint32(l1Network),
+            uint32(L1_NETWORK),
             l1BridgeCaller,
-            forceUpdateGlobalExitRoot,
+            FORCE_UPDATE_GLOBAL_EXIT_ROOT,
             message
         );
     }
@@ -51,7 +51,7 @@ contract L2_PolygonzkBridge is L2_Bridge, PolygonzkBridgeMessageReceiver {
     function _verifySender(address expectedSender) internal override {
         require(msg.sender == address(this), "L2_PLY_ZK_BRG: Caller is not the expected sender");
         require(xDomainMessageSender == expectedSender, "L2_PLY_ZK_BRG: Invalid cross-domain sender");
-        require(xDomainNetwork == l1Network, "L2_PLY_ZK_BRG: Invalid cross-domain network");
+        require(xDomainNetwork == L1_NETWORK, "L2_PLY_ZK_BRG: Invalid cross-domain network");
     }
 
     function onMessageReceived(
@@ -59,22 +59,30 @@ contract L2_PolygonzkBridge is L2_Bridge, PolygonzkBridgeMessageReceiver {
         uint32 originNetwork,
         bytes memory data
     ) external {
+        address sourceChainSender = getOnMessageReceivedSender(originAddress);
         _onMessageReceived(
             originAddress,
             originNetwork,
             data,
+            address(this),
             address(messenger),
-            l1Network,
-            address(this)
+            sourceChainSender,
+            L1_NETWORK
         );
     }
 
-    function setMessenger(IPolygonZkEVMBridge _messenger) external onlyGovernance {
-        messenger = _messenger;
-    }
-
-    function setForceUpdateGlobalExitRoot(bool _forceUpdateGlobalExitRoot) external onlyGovernance {
-        forceUpdateGlobalExitRoot = _forceUpdateGlobalExitRoot;
+    // The sender can be either the l1BridgeCaller or l1Governance.
+    // This is used to ensure that an arbitrary address cannot make a call as the bridge.
+    // NOTE: This is only used for onMessageReceived validation. Bridge validation is
+    // still performed on the bridge tx itself.
+    function getOnMessageReceivedSender(address originAddress) internal returns (address) {
+        if (originAddress == l1BridgeCaller) {
+            return l1BridgeCaller;
+        } else if (originAddress == l1Governance) {
+            return l1Governance;
+        } else {
+            revert("L2_PLY_ZK_BRG: Invalid origin address");
+        }
     }
 }
 

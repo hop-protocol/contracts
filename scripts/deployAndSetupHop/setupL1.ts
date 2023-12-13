@@ -213,8 +213,7 @@ export async function setupL1 (config: Config) {
     isChainIdOptimism(l2ChainId) ||
     isChainIdNova(l2ChainId) ||
     isChainIdBase(l2ChainId) ||
-    isChainIdScroll(l2ChainId) ||
-    isChainIdPolygonzk(l2ChainId)
+    isChainIdScroll(l2ChainId)
   ) {
     // Transfer ownership of the messenger wrapper to governance
     logger.log('transferring ownership of L1 messenger wrapper')

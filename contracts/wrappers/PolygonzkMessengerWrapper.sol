@@ -3,7 +3,6 @@
 pragma solidity 0.6.12;
 pragma experimental ABIEncoderV2;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
 import "../polygonzk/PolygonzkBridgeMessageReceiver.sol";
 import "../interfaces/polygonzk/messengers/IPolygonZkEVMBridge.sol";
 import "./MessengerWrapper.sol";
@@ -13,13 +12,12 @@ import "./MessengerWrapper.sol";
  * @notice Deployed on layer-1
  */
 
-// TODO: Not ownable if it doesn't need to be
-contract PolygonzkMessengerWrapper is MessengerWrapper, Ownable, PolygonzkBridgeMessageReceiver {
+contract PolygonzkMessengerWrapper is MessengerWrapper, PolygonzkBridgeMessageReceiver {
 
     IPolygonZkEVMBridge public immutable l1Messenger;
-    address public l2BridgeAddress;
-    uint256 public constant l2Network = 1;
-    bool public forceUpdateGlobalExitRoot = false;
+    address public immutable l2BridgeAddress;
+    uint256 public constant L2_NETWORK = 1;
+    bool public constant FORCE_UPDATE_GLOBAL_EXIT_ROOT = false;
 
     constructor(
         address _l1BridgeAddress,
@@ -41,9 +39,9 @@ contract PolygonzkMessengerWrapper is MessengerWrapper, Ownable, PolygonzkBridge
      */
     function sendCrossDomainMessage(bytes memory _calldata) public override onlyL1Bridge {
         l1Messenger.bridgeMessage(
-            uint32(l2Network),
+            uint32(L2_NETWORK),
             l2BridgeAddress,
-            forceUpdateGlobalExitRoot,
+            FORCE_UPDATE_GLOBAL_EXIT_ROOT,
             _calldata
         );
     }
@@ -53,7 +51,7 @@ contract PolygonzkMessengerWrapper is MessengerWrapper, Ownable, PolygonzkBridge
 
         require(l1BridgeCaller == address(this), "L1_PLGN_ZK_WPR: Caller must be this address");
         require(xDomainMessageSender == l2BridgeAddress, "L1_PLGN_ZK_WPR: Invalid cross-domain sender");
-        require(xDomainNetwork == l2Network, "L1_PLGN_ZK_WPR: Invalid cross-domain network");
+        require(xDomainNetwork == L2_NETWORK, "L1_PLGN_ZK_WPR: Invalid cross-domain network");
     }
 
     function onMessageReceived(
@@ -65,13 +63,10 @@ contract PolygonzkMessengerWrapper is MessengerWrapper, Ownable, PolygonzkBridge
             originAddress,
             originNetwork,
             data,
+            l1BridgeAddress,
             address(l1Messenger),
-            l2Network,
-            l1BridgeAddress
+            l2BridgeAddress,
+            L2_NETWORK
         );
-    }
-
-    function setForceUpdateGlobalExitRoot(bool _forceUpdateGlobalExitRoot) external onlyOwner {
-        forceUpdateGlobalExitRoot = _forceUpdateGlobalExitRoot;
     }
 }
