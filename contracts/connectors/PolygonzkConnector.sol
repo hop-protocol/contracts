@@ -4,31 +4,23 @@ pragma solidity 0.6.12;
 pragma experimental ABIEncoderV2;
 
 import "../interfaces/polygonzk/messengers/IPolygonZkEVMBridge.sol";
-import "../shared/Initializable.sol";
+import "./Connector.sol";
 
-contract PolygonzkConnector is Initializable {
+contract PolygonzkConnector is Connector {
 
-    address public target;
-    address public counterpart;
     uint32 public counterpartNetwork;
     address public messengerAddress;
 
-    bool public constant FORCE_UPDATE_GLOBAL_EXIT_ROOT = false;
-
     function initialize(
-        address _target,
-        address _counterpart,
+        address target,
+        address counterpart,
         uint32 _counterpartNetwork,
         address _messengerAddress
-    ) public initializer {
-        target = _target;
-        counterpart = _counterpart;
+    ) external {
+        initialize(target, counterpart);
+
         counterpartNetwork = _counterpartNetwork;
         messengerAddress = _messengerAddress;
-    }
-
-    function dispatchCrossDomainMessage(bytes memory message) external {
-        _dispatchCrossDomainMessage(message);
     }
 
     function onMessageReceived(
@@ -40,20 +32,30 @@ contract PolygonzkConnector is Initializable {
         require(originNetwork == counterpartNetwork, "PLY_ZK_CNR: Origin network does not match counterpart network");
         require(msg.sender == messengerAddress, "PLY_ZK_CNR: Caller is not the messenger");
 
-        (bool success,) = target.call(data);
-        require(success, "PLY_ZK_CNR: Call to targetReceiver failed");
+        uint256 value = 0;
+        target.execute(data, value);
     }
 
     /* ========== Internal functions ========== */
 
-    function _dispatchCrossDomainMessage (bytes memory message) internal {
+    function _forwardCrossDomainMessage () internal override {
+        _forwardCrossDomainMessage(msg.data);
+    }
+
+    function _forwardCrossDomainMessage (bytes memory data) internal {
         require(msg.sender == target, "PLY_ZK_CNR: Caller is not the expected sender");
+
+        bool forceUpdateGlobalExitRoot = false;
         IPolygonZkEVMBridge(messengerAddress).bridgeMessage(
             counterpartNetwork,
             counterpart,
-            FORCE_UPDATE_GLOBAL_EXIT_ROOT,
-            message
+            forceUpdateGlobalExitRoot,
+            data
         );
+    }
+
+    function _verifyCrossDomainSender() internal override {
+        revert("BASE_PLY_ZK_CNR: _verifyCrossDomainSender() is handled by onMessageReceived");
     }
 }
 

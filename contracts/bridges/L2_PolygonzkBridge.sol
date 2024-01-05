@@ -4,7 +4,6 @@ pragma solidity 0.6.12;
 pragma experimental ABIEncoderV2;
 
 import "./L2_Bridge.sol";
-import "../interfaces/IConnector.sol";
 
 contract L2_PolygonzkBridge is L2_Bridge {
 
@@ -32,7 +31,8 @@ contract L2_PolygonzkBridge is L2_Bridge {
     }
 
     function _sendCrossDomainMessage(bytes memory message) internal override {
-        IConnector(messenger).dispatchCrossDomainMessage(message);
+        (bool success,) = messenger.call(message);
+        require(success, "L2_PLY_ZK_BRG: Call to messenger failed");
     }
 
     function _verifySender(address expectedSender) internal override {
