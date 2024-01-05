@@ -146,6 +146,10 @@ export async function deployL2 (config: Config) {
    * Deployments
    */
 
+  if (isChainIdPolygonzk(l2ChainId)) {
+    logPolygonzkNote()
+  }
+
   let l2MessengerProxyAddress: string = ''
   let polygonzkL2GovAddress: string = ''
   if (isChainIdPolygon(l2ChainId)) {
@@ -424,6 +428,19 @@ const deployBridge = async (
     l2_bridge,
     l2_ammWrapper
   }
+}
+
+function logPolygonzkNote () {
+  console.log(`
+\n\n\n\n\n
+Polygonzk requires some custom operation for deployment.
+1. Run \`npm run deploy:connectors\` to deploy the Polygonzk connectors on L1 and L2.
+2. Run \`npm run init:connector-l1\` to initialize the L1 connector.
+3. Run \`npm run deploy\` to deploy the required contracts.
+4. After the L2 bridge is deployed, add the address to initConnector.sol and run \`npm run init:connector-l2\` to initialize the L2 connector.
+5. For mainnet, deploy another pair of connectors for SAFE gov.
+\n\n\n\n\n
+  `)
 }
 
 if (require.main === module) {
