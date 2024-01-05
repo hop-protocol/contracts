@@ -38,11 +38,11 @@ contract PolygonzkConnector is Connector {
 
     /* ========== Internal functions ========== */
 
-    function _forwardCrossDomainMessage () internal override {
+    function _forwardCrossDomainMessage() internal override {
         _forwardCrossDomainMessage(msg.data);
     }
 
-    function _forwardCrossDomainMessage (bytes memory data) internal {
+    function _forwardCrossDomainMessage(bytes memory data) internal {
         require(msg.sender == target, "PLY_ZK_CNR: Caller is not the expected sender");
 
         bool forceUpdateGlobalExitRoot = false;
