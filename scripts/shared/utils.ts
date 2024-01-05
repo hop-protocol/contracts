@@ -333,12 +333,16 @@ const getPolygonzkContractFactories = async (signer: Signer, ethers: any) => {
     'contracts/bridges/L2_PolygonzkBridge.sol:L2_PolygonzkBridge',
     { signer }
   )
+  const L2_MessengerProxy: ContractFactory = await ethers.getContractFactory(
+    'contracts/connectors/PolygonzkConnector.sol:PolygonzkConnector',
+    { signer }
+  )
 
   return {
     L1_Messenger,
     L1_MessengerWrapper,
     L2_Bridge,
-    L2_MessengerProxy: null
+    L2_MessengerProxy
   }
 }
 

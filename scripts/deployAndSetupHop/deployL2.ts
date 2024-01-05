@@ -13,6 +13,7 @@ import {
 
 import {
   isChainIdPolygon,
+  isChainIdPolygonzk,
   getPolygonFxChildAddress,
   getTxOverridesPerChain,
   getL2BridgeDefaults
@@ -146,6 +147,7 @@ export async function deployL2 (config: Config) {
    */
 
   let l2MessengerProxyAddress: string = ''
+  let polygonzkL2GovAddress: string = ''
   if (isChainIdPolygon(l2ChainId)) {
     logger.log('deploying Polygon messenger proxy')
     const fxChild: string = getPolygonFxChildAddress(l1ChainId)
@@ -154,6 +156,20 @@ export async function deployL2 (config: Config) {
 
     l2MessengerAddress = l2_messengerProxy.address
     l2MessengerProxyAddress = l2_messengerProxy.address
+  } else if (isChainIdPolygonzk(l2ChainId)) {
+    logger.log('deploying Polygonzk messenger proxy')
+    // Deploy bridge connector on L2
+    l2_messengerProxy = await L2_MessengerProxy.deploy(overrides)
+    await waitAfterTransaction(l2_messengerProxy, ethers)
+
+    // Set connector address appropriately
+    l2MessengerAddress = l2_messengerProxy.address
+    l2MessengerProxyAddress = l2_messengerProxy.address
+
+    polygonzkL2GovAddress = ''
+    if (!polygonzkL2GovAddress) {
+      throw new Error('Manually deploy the governance connector with the l2BridgeAddress')
+    }
   }
 
   if (!isOmnichainToken) {
@@ -181,13 +197,14 @@ export async function deployL2 (config: Config) {
     l2_hopBridgeToken = L2_HopBridgeToken.attach(l2CanonicalTokenAddress)
   }
 
+  const governanceAddress: string = polygonzkL2GovAddress || await governance.getAddress()
   logger.log('deploying L2 bridge and L2 amm wrapper')
   ;({ l2_bridge, l2_ammWrapper } = await deployBridge(
     l2ChainId,
     l1ChainId,
     ethers,
     deployer,
-    governance,
+    governanceAddress,
     bonderAddress,
     L2_Bridge,
     L2_AmmWrapper,
@@ -349,7 +366,7 @@ const deployBridge = async (
   l1ChainId: BigNumber,
   ethers: any,
   deployer: Signer,
-  governance: Signer,
+  governanceAddress: string,
   bonderAddress: string,
   L2_Bridge: ContractFactory,
   L2_AmmWrapper: ContractFactory,
@@ -371,7 +388,7 @@ const deployBridge = async (
     chainId,
     l2MessengerAddress,
     l2MessengerProxyAddress,
-    await governance.getAddress(),
+    governanceAddress,
     l2_hopBridgeToken.address,
     l1_bridge.address,
     [CHAIN_IDS.ETHEREUM.MAINNET.toString()],

@@ -179,13 +179,23 @@ export const DEFAULT_SWAP_DECIMALS: string[] = ['18', '18']
 export const DEFAULT_SWAP_LP_TOKEN_NAME: string = 'Hop DAI LP Token'
 export const DEFAULT_SWAP_LP_TOKEN_SYMBOL: string = 'HOP-LP-DAI'
 export const DEFAULT_SWAP_A: string = '200'
-export const DEFAULT_SWAP_FEE: string = '4000000'
+export const DEFAULT_SWAP_FEE: string = '1000000'
 export const DEFAULT_SWAP_ADMIN_FEE: string = '0'
 export const DEFAULT_SWAP_WITHDRAWAL_FEE: string = '0'
 
 export const POLYGON_RPC_ENDPOINTS: any = {
   MAINNET: process.env.RPC_ENDPOINT_POLYGON,
   GOERLI: process.env.RPC_ENDPOINT_MUMBAI
+}
+
+export const POLYGONZK_RPC_ENDPOINTS: any = {
+  MAINNET: process.env.RPC_ENDPOINT_POLYGONZK_MAINNET,
+  GOERLI: process.env.RPC_ENDPOINT_POLYGONZK_TESTNET
+}
+
+export const ETHEREUM_RPC_ENDPOINTS: any = {
+  MAINNET: process.env.RPC_ENDPOINT_MAINNET,
+  GOERLI: process.env.RPC_ENDPOINT_GOERLI
 }
 
 export const FX_ROOT_ADDRESSES: any = {
@@ -360,3 +370,8 @@ export const ZKSYNC_MESSAGE_FEE = 'TODO' // TODO: zksync
 export const SCROLL_ZK_EVM_MESSAGE_FEE = '2000000000000000' // TODO: Update to be more precise
 
 export const DefaultChallengePeriod: string = '86400'
+
+export const POLYGONZK_NETWORK_IDS: Record<string, number> = {
+  MAINNET: 0,
+  POLYGONZK: 1
+}
