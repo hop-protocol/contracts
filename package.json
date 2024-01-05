@@ -25,7 +25,10 @@
     "check-l2-bridge-bytecode-size": "cat artifacts/contracts/bridges/L2_OptimismBridge.sol/L2_OptimismBridge.ovm.json | jq -r '.deployedBytecode' | wc -c",
     "get-messenger-tx-data": "hardhat run scripts/messageStateUpdates/getMessengerTxData.ts",
     "deploy:staking-rewards": "hardhat run scripts/other/deployStakingRewards.ts --network arbitrum_mainnet",
-    "deploy:erc20": "hardhat run scripts/erc20/deploy.ts"
+    "deploy:erc20": "hardhat run scripts/erc20/deploy.ts",
+    "deploy:connectors": "hardhat run scripts/other/deployConnector.ts --network goerli && hardhat run scripts/other/deployConnector.ts --network polygonzk_testnet",
+    "init:connectors-l1": "hardhat run scripts/other/initConnector.ts --network goerli",
+    "init:connectors-l2": "hardhat run scripts/other/initConnector.ts --network polygonzk_testnet"
   },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "2.2.3",
