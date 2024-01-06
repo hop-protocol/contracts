@@ -23,6 +23,7 @@ async function main () {
   )
 
   const l2BridgeAddress = ''
+  const govAddress = '0xF56e305024B195383245A075737d16dBdb8487Fb'
   const connectorAddresses: Record<string, string> = {
     'L1': '',
     'L2': ''
@@ -37,7 +38,6 @@ async function main () {
   let counterpartNetwork: BigNumber
   let messengerAddress
   if (network.chainId === 1 || network.chainId === 5) {
-    const govAddress = '0xF56e305024B195383245A075737d16dBdb8487Fb'
 
     connectorAddress = connectorAddresses['L1']
     target = govAddress
@@ -45,7 +45,6 @@ async function main () {
     counterpartNetwork = BigNumber.from(1)
     messengerAddress = networkData['polygonzk'].l1MessengerAddress
   } else {
-    const govAddress = '0x22e3F828b3f47dAcFACd875D20bd5cc0879C96e7'
 
     connectorAddress = connectorAddresses['L2']
     target = l2BridgeAddress

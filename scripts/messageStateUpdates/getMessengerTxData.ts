@@ -154,7 +154,8 @@ const l2BridgeAddresses: Record<string, Record<string, string>> = {
     HOP: '0x02D47f76523d2f059b617E4346de67482792eB83'
   },
   linea: {
-    ETH: '0xCbb852A6274e03fA00fb4895dE0463f66dF27a11'
+    ETH: '0xCbb852A6274e03fA00fb4895dE0463f66dF27a11',
+    HOP: '0x0a6b1904369fE59E002ad0713ae89d4E3dF5A7Cf'
   },
   zksync: {
     ETH: 'TODO' // TODO: zksync - for prod deployment
@@ -168,7 +169,8 @@ const l2BridgeAddresses: Record<string, Record<string, string>> = {
     ETH: 'TODO' // TODO: scroll - for prod deployment
   },
   polygonzk: {
-    ETH: 'TODO',
+    ETH: '0x0ce6c85cF43553DE10FC56cecA0aef6Ff0DD444d',
+    HOP: '0x9ec9551d4A1a1593b0ee8124D98590CC71b3B09D'
   },
 }
 

@@ -283,6 +283,11 @@ export const networkData: NetworkData = {
         l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.MAINNET.ETH,
         l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.POLYGONZK_MAINNET.ETH,
         ...DEFAULT_NETWORK_DATA.ETH
+      },
+      HOP: {
+        l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.MAINNET.HOP,
+        l2CanonicalTokenAddress: L2_CANONICAL_TOKEN_ADDRESSES.POLYGONZK_MAINNET.HOP,
+        ...DEFAULT_NETWORK_DATA.HOP
       }
     }
   },
@@ -324,6 +329,12 @@ export const networkData: NetworkData = {
         l2CanonicalTokenAddress:
           L2_CANONICAL_TOKEN_ADDRESSES.LINEA_MAINNET.ETH,
         ...DEFAULT_NETWORK_DATA.ETH
+      },
+      HOP: {
+        l1CanonicalTokenAddress: L1_CANONICAL_TOKEN_ADDRESSES.MAINNET.HOP,
+        l2CanonicalTokenAddress:
+          L2_CANONICAL_TOKEN_ADDRESSES.LINEA_MAINNET.HOP,
+        ...DEFAULT_NETWORK_DATA.HOP
       }
     }
   },

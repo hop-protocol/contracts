@@ -204,7 +204,8 @@ export async function setupL1 (config: Config) {
     l1_messenger = L1_MessengerWrapper.attach(l1_messenger.address)
     l2_messengerProxy = L2_MessengerProxy.attach(l2MessengerProxyAddress)
 
-    polygonzkL1GovAddress = '0x194191c80842e6ABaf52620Fea7168Aacd4B80B6'
+    // TODO: This is a bad way to do this. Should no longer be used until v2, so this is fine for now.
+    polygonzkL1GovAddress = ''
     if (!polygonzkL1GovAddress) {
       throw new Error('Manually deploy the governance connector with the l2BridgeAddress')
     }
@@ -260,17 +261,18 @@ export async function setupL1 (config: Config) {
 
   logger.log('setting cross domain messenger wrapper on L1 bridge')
   // Set up the L1 bridge
-  // TODO: RM FOR MAINNET
   modifiedGasPrice = await getModifiedGasPrice(ethers, l1ChainId)
-  tx = await l1_bridge
-    .connect(governance)
-    .setCrossDomainMessengerWrapper(
-      l2ChainId,
-      l1_messengerWrapper.address,
-      modifiedGasPrice
-    )
-  await tx.wait()
-  await waitAfterTransaction()
+  if (!isChainIdMainnet(l1ChainId)) {
+    tx = await l1_bridge
+      .connect(governance)
+      .setCrossDomainMessengerWrapper(
+        l2ChainId,
+        l1_messengerWrapper.address,
+        modifiedGasPrice
+      )
+    await tx.wait()
+    await waitAfterTransaction()
+  }
 
   // Set up L2 Bridge state (through the L1 Canonical Messenger)
   let setL1BridgeCallerParams: string
@@ -400,20 +402,22 @@ export async function setupL1 (config: Config) {
     }
   }
 
-  tx = await l1_bridge
-    .connect(deployer)
-    .sendToL2(
-      l2ChainId,
-      await deployer.getAddress(),
-      liquidityProviderSendAmount,
-      amountOutMin,
-      deadline,
-      ZERO_ADDRESS,
-      relayerFee,
-      modifiedSendValues
-    )
-  await tx.wait()
-  await waitAfterTransaction()
+  if (!isChainIdMainnet(l1ChainId)) {
+    tx = await l1_bridge
+      .connect(deployer)
+      .sendToL2(
+        l2ChainId,
+        await deployer.getAddress(),
+        liquidityProviderSendAmount,
+        amountOutMin,
+        deadline,
+        ZERO_ADDRESS,
+        relayerFee,
+        modifiedSendValues
+      )
+    await tx.wait()
+    await waitAfterTransaction()
+  }
 
   updateConfigFile({
     l1MessengerWrapperAddress: l1_messengerWrapper.address

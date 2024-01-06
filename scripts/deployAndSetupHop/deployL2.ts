@@ -170,6 +170,7 @@ export async function deployL2 (config: Config) {
     l2MessengerAddress = l2_messengerProxy.address
     l2MessengerProxyAddress = l2_messengerProxy.address
 
+    // TODO: This is a bad way to do this. Should no longer be used until v2, so this is fine for now.
     polygonzkL2GovAddress = ''
     if (!polygonzkL2GovAddress) {
       throw new Error('Manually deploy the governance connector with the l2BridgeAddress')
@@ -436,6 +437,7 @@ function logPolygonzkNote () {
 Polygonzk requires some custom operation for deployment.
 1. Run \`npm run deploy:connectors\` to deploy the Polygonzk connectors on L1 and L2.
 2. Run \`npm run init:connector-l1\` to initialize the L1 connector.
+3. Update deployL2::polygonzkL2GovAddress and setupL1::polygonzkL1GovAddress with the addresses.
 3. Run \`npm run deploy\` to deploy the required contracts.
 4. After the L2 bridge is deployed, add the address to initConnector.sol and run \`npm run init:connector-l2\` to initialize the L2 connector.
 5. For mainnet, deploy another pair of connectors for SAFE gov.
