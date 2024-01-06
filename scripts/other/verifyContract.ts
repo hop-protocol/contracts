@@ -203,7 +203,7 @@ const decodeTypes: Record<string, ContractNames> = {
     l2HopBridgeToken: ['string', 'string', 'uint8']
   },
   polygonzk_mainnet: {
-    l1MessengerWrapper: ['address', 'address', 'address', 'uint256'],
+    l1MessengerWrapper: ['address', 'uint256', 'address'],
     l2Bridge: [
       'address',
       'address',

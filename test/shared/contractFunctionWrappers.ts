@@ -81,6 +81,7 @@ export const executeCanonicalMessengerSendMessage = async (
   sender: Signer,
   message: string,
   l2ChainId: BigNumber,
+  polygonzkGovAddr: string,
   modifiedGasPrice: { [key: string]: BigNumber } | undefined = undefined
 ) => {
   let tx: providers.TransactionResponse
@@ -182,15 +183,12 @@ export const executeCanonicalMessengerSendMessage = async (
       .connect(sender)
       .sendMessage(...optimismParams, modifiedGasPrice)
   } else if (isChainIdPolygonzk(l2ChainId)) {
-    const l2Network = 1
-    const forceUpdateGlobalExitRoot = false
-    const polygonzkParams = [
-      l2Network,
-      l2_bridge.address,
-      forceUpdateGlobalExitRoot,
-      message
-    ]
-    tx = await l1_messenger.connect(sender).bridgeMessage(...polygonzkParams)
+    const gasLimit = '1000000'
+    tx = await sender.sendTransaction({
+      to: polygonzkGovAddr,
+      data: message,
+      gasLimit
+    })
   } else {
     tx = await l1_messenger
       .connect(sender)
@@ -1428,6 +1426,22 @@ export const getSetFxRootTunnelMessage = (
   const ABI = ['function setFxRootTunnel(address _fxRootTunnel)']
   const ethersInterface = new ethersUtils.Interface(ABI)
   return ethersInterface.encodeFunctionData('setFxRootTunnel', [address])
+}
+
+export const getInitPolygonzkConnectorMessage = (
+  target: string,
+  counterpart: string,
+  counterpartNetwork: number,
+  messengerAddress: string
+) => {
+  const ABI = ['function initialize(address,address,uint32,address)']
+  const ethersInterface = new ethersUtils.Interface(ABI)
+  return ethersInterface.encodeFunctionData('initialize', [
+    target,
+    counterpart,
+    counterpartNetwork,
+    messengerAddress
+  ])
 }
 
 const getAddressFromContractOrString = (input: Contract | string): string => {

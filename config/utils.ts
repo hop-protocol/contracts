@@ -6,9 +6,11 @@ import {
   DEFAULT_MESSENGER_WRAPPER_GAS_LIMIT,
   DEFAULT_L2_BRIDGE_GAS_LIMIT,
   CHECKPOINT_MANAGER_ADDRESSES,
+  ETHEREUM_RPC_ENDPOINTS,
   FX_ROOT_ADDRESSES,
   FX_CHILD_ADDRESSES,
   POLYGON_RPC_ENDPOINTS,
+  POLYGONZK_RPC_ENDPOINTS,
   AMB_PROXY_ADDRESSES,
   DEFAULT_MAX_GAS,
   DEFAULT_GAS_PRICE_BID
@@ -74,7 +76,11 @@ export const getMessengerWrapperDefaults = (
   } else if (isChainIdScroll(l2ChainId)) {
     data.push(...defaults)
   } else if (isChainIdPolygonzk(l2ChainId)) {
-    data.push(...defaults)
+    data.push(
+      l1BridgeAddress,
+      l2ChainId.toString(),
+      l1MessengerAddress,
+    )
   }
 
   return data
@@ -112,7 +118,7 @@ export const getL2BridgeDefaults = (
   } else if (isChainIdScroll(chainId)) {
     // no additional data
   } else if (isChainIdPolygonzk(chainId)) {
-    // no additional data
+    actualL2MessengerAddress = l2MessengerProxyAddress
   }
 
   defaults.push(
@@ -293,6 +299,26 @@ export const getPolygonRpcEndpoint = (l1ChainId: BigNumber): string => {
     return POLYGON_RPC_ENDPOINTS.MAINNET
   } else if (isChainIdGoerli(l1ChainId)) {
     return POLYGON_RPC_ENDPOINTS.GOERLI
+  } else {
+    throw new Error('Invalid Chain ID')
+  }
+}
+
+export const getPolygonZkRpcEndpoint = (l1ChainId: BigNumber): string => {
+  if (isChainIdMainnet(l1ChainId)) {
+    return POLYGONZK_RPC_ENDPOINTS.MAINNET
+  } else if (isChainIdGoerli(l1ChainId)) {
+    return POLYGONZK_RPC_ENDPOINTS.GOERLI
+  } else {
+    throw new Error('Invalid Chain ID')
+  }
+}
+
+export const getEthereumRpcEndpoint = (l1ChainId: BigNumber): string => {
+  if (isChainIdMainnet(l1ChainId)) {
+    return ETHEREUM_RPC_ENDPOINTS.MAINNET
+  } else if (isChainIdGoerli(l1ChainId)) {
+    return ETHEREUM_RPC_ENDPOINTS.GOERLI
   } else {
     throw new Error('Invalid Chain ID')
   }

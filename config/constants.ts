@@ -179,13 +179,23 @@ export const DEFAULT_SWAP_DECIMALS: string[] = ['18', '18']
 export const DEFAULT_SWAP_LP_TOKEN_NAME: string = 'Hop DAI LP Token'
 export const DEFAULT_SWAP_LP_TOKEN_SYMBOL: string = 'HOP-LP-DAI'
 export const DEFAULT_SWAP_A: string = '200'
-export const DEFAULT_SWAP_FEE: string = '4000000'
+export const DEFAULT_SWAP_FEE: string = '1000000'
 export const DEFAULT_SWAP_ADMIN_FEE: string = '0'
 export const DEFAULT_SWAP_WITHDRAWAL_FEE: string = '0'
 
 export const POLYGON_RPC_ENDPOINTS: any = {
   MAINNET: process.env.RPC_ENDPOINT_POLYGON,
   GOERLI: process.env.RPC_ENDPOINT_MUMBAI
+}
+
+export const POLYGONZK_RPC_ENDPOINTS: any = {
+  MAINNET: process.env.RPC_ENDPOINT_POLYGONZK_MAINNET,
+  GOERLI: process.env.RPC_ENDPOINT_POLYGONZK_TESTNET
+}
+
+export const ETHEREUM_RPC_ENDPOINTS: any = {
+  MAINNET: process.env.RPC_ENDPOINT_MAINNET,
+  GOERLI: process.env.RPC_ENDPOINT_GOERLI
 }
 
 export const FX_ROOT_ADDRESSES: any = {
@@ -333,7 +343,8 @@ export const L2_CANONICAL_TOKEN_ADDRESSES: any = {
     ETH: '0xa1EA0B2354F5A344110af2b6AD68e75545009a03' // Canonical deployment
   },
   POLYGONZK_MAINNET: {
-    ETH: '0x4F9A0e7FD2Bf6067db6994CF12E4495Df938E6e9'
+    ETH: '0x4F9A0e7FD2Bf6067db6994CF12E4495Df938E6e9',
+    HOP: '0xc5102fE9359FD9a28f877a67E36B0F050d81a3CC'
   },
   POLYGONZK_TESTNET: {
     ETH: '0x0EEFEe679a77dC411579e520ef7535d526cED1d6' // Our deployment
@@ -345,7 +356,7 @@ export const L2_CANONICAL_TOKEN_ADDRESSES: any = {
   },
   LINEA_MAINNET: {
     ETH: '0xe5D7C2a44FfDDf6b295A15c148167daaAf5Cf34f', // Canonical deployment
-    HOP: '', // Omnichain
+    HOP: '0xc5102fE9359FD9a28f877a67E36B0F050d81a3CC'
   },
 }
 
@@ -360,3 +371,8 @@ export const ZKSYNC_MESSAGE_FEE = 'TODO' // TODO: zksync
 export const SCROLL_ZK_EVM_MESSAGE_FEE = '2000000000000000' // TODO: Update to be more precise
 
 export const DefaultChallengePeriod: string = '86400'
+
+export const POLYGONZK_NETWORK_IDS: Record<string, number> = {
+  MAINNET: 0,
+  POLYGONZK: 1
+}

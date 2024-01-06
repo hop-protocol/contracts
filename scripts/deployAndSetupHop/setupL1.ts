@@ -13,12 +13,14 @@ import {
   Logger
 } from '../shared/utils'
 import {
+  getEthereumRpcEndpoint,
   getMessengerWrapperDefaults,
   getPolygonRpcEndpoint,
+  getPolygonZkRpcEndpoint,
   generateArbitrumAliasAddress,
   getTxOverridesPerChain
 } from '../../config/utils'
-import { ALL_SUPPORTED_CHAIN_IDS, ZERO_ADDRESS } from '../../config/constants'
+import { ALL_SUPPORTED_CHAIN_IDS, POLYGONZK_NETWORK_IDS, ZERO_ADDRESS } from '../../config/constants'
 import {
   isChainIdMainnet,
   isChainIdPolygon,
@@ -30,11 +32,15 @@ import {
   isChainIdScroll,
   getActiveChainIds,
 } from '../../config/utils'
-
+import {
+  mainnetNetworkData,
+  goerliNetworkData
+} from '../../config/networks/index'
 import {
   getSetL1BridgeCallerMessage,
   executeCanonicalMessengerSendMessage,
   getAddActiveChainIdsMessage,
+  getInitPolygonzkConnectorMessage,
   getSetFxRootTunnelMessage,
   getSetAmmWrapperMessage,
   getSetMinimumForceCommitDelayMessage
@@ -177,6 +183,7 @@ export async function setupL1 (config: Config) {
   )
   await waitAfterTransaction(l1_messengerWrapper)
 
+  let polygonzkL1GovAddress: string = ''
   if (isChainIdPolygon(l2ChainId)) {
     logger.log('making polygon specific changes')
     l1_messenger = L1_MessengerWrapper.attach(l1_messenger.address)
@@ -191,6 +198,27 @@ export async function setupL1 (config: Config) {
       l2ChainId,
       l1_messengerWrapper,
       l2_messengerProxy
+    )
+  } else if (isChainIdPolygonzk(l2ChainId)) {
+    logger.log('making polygonzk specific changes')
+    l1_messenger = L1_MessengerWrapper.attach(l1_messenger.address)
+    l2_messengerProxy = L2_MessengerProxy.attach(l2MessengerProxyAddress)
+
+    // TODO: This is a bad way to do this. Should no longer be used until v2, so this is fine for now.
+    polygonzkL1GovAddress = ''
+    if (!polygonzkL1GovAddress) {
+      throw new Error('Manually deploy the governance connector with the l2BridgeAddress')
+    }
+
+    // Bridge Proxy
+    await initPolygonzkConnectors(
+      l1ChainId,
+      l2ChainId,
+      l1_messengerWrapper.address,
+      l2_messengerProxy.address,
+      l1_bridge.address,
+      l2_bridge.address,
+      l2MessengerProxyAddress
     )
   } else if (
     isChainIdArbitrum(l2ChainId) ||
@@ -213,8 +241,7 @@ export async function setupL1 (config: Config) {
     isChainIdOptimism(l2ChainId) ||
     isChainIdNova(l2ChainId) ||
     isChainIdBase(l2ChainId) ||
-    isChainIdScroll(l2ChainId) ||
-    isChainIdPolygonzk(l2ChainId)
+    isChainIdScroll(l2ChainId)
   ) {
     // Transfer ownership of the messenger wrapper to governance
     logger.log('transferring ownership of L1 messenger wrapper')
@@ -235,15 +262,17 @@ export async function setupL1 (config: Config) {
   logger.log('setting cross domain messenger wrapper on L1 bridge')
   // Set up the L1 bridge
   modifiedGasPrice = await getModifiedGasPrice(ethers, l1ChainId)
-  tx = await l1_bridge
-    .connect(governance)
-    .setCrossDomainMessengerWrapper(
-      l2ChainId,
-      l1_messengerWrapper.address,
-      modifiedGasPrice
-    )
-  await tx.wait()
-  await waitAfterTransaction()
+  if (!isChainIdMainnet(l1ChainId)) {
+    tx = await l1_bridge
+      .connect(governance)
+      .setCrossDomainMessengerWrapper(
+        l2ChainId,
+        l1_messengerWrapper.address,
+        modifiedGasPrice
+      )
+    await tx.wait()
+    await waitAfterTransaction()
+  }
 
   // Set up L2 Bridge state (through the L1 Canonical Messenger)
   let setL1BridgeCallerParams: string
@@ -253,6 +282,8 @@ export async function setupL1 (config: Config) {
     setL1BridgeCallerParams = generateArbitrumAliasAddress(
       l1_messengerWrapper.address
     )
+  } else if (isChainIdPolygonzk(l2ChainId)) {
+    setL1BridgeCallerParams = l2MessengerProxyAddress
   } else {
     setL1BridgeCallerParams = l1_messengerWrapper.address
   }
@@ -268,6 +299,7 @@ export async function setupL1 (config: Config) {
     governance,
     message,
     l2ChainId,
+    polygonzkL1GovAddress,
     modifiedGasPrice
   )
   await tx.wait()
@@ -290,6 +322,7 @@ export async function setupL1 (config: Config) {
     governance,
     message,
     l2ChainId,
+    polygonzkL1GovAddress,
     modifiedGasPrice
   )
   await tx.wait()
@@ -308,6 +341,7 @@ export async function setupL1 (config: Config) {
       governance,
       message,
       l2ChainId,
+      polygonzkL1GovAddress,
       modifiedGasPrice
     )
     await tx.wait()
@@ -328,6 +362,7 @@ export async function setupL1 (config: Config) {
       governance,
       message,
       l2ChainId,
+      polygonzkL1GovAddress,
       modifiedGasPrice
     )
     await tx.wait()
@@ -367,20 +402,22 @@ export async function setupL1 (config: Config) {
     }
   }
 
-  tx = await l1_bridge
-    .connect(deployer)
-    .sendToL2(
-      l2ChainId,
-      await deployer.getAddress(),
-      liquidityProviderSendAmount,
-      amountOutMin,
-      deadline,
-      ZERO_ADDRESS,
-      relayerFee,
-      modifiedSendValues
-    )
-  await tx.wait()
-  await waitAfterTransaction()
+  if (!isChainIdMainnet(l1ChainId)) {
+    tx = await l1_bridge
+      .connect(deployer)
+      .sendToL2(
+        l2ChainId,
+        await deployer.getAddress(),
+        liquidityProviderSendAmount,
+        amountOutMin,
+        deadline,
+        ZERO_ADDRESS,
+        relayerFee,
+        modifiedSendValues
+      )
+    await tx.wait()
+    await waitAfterTransaction()
+  }
 
   updateConfigFile({
     l1MessengerWrapperAddress: l1_messengerWrapper.address
@@ -420,6 +457,78 @@ const updatePolygonState = async (
     setFxRootTunnelTransaction
   )
   return transaction.wait()
+}
+
+const initPolygonzkConnectors = async (
+  l1ChainId: BigNumber,
+  l2ChainId: BigNumber,
+  l1ConnectorAddress: string,
+  l2ConnectorAddress: string,
+  l1BridgeAddress: string,
+  l2BridgeAddress: string,
+  l2MessengerProxyAddress: string
+) => {
+  const networkData = isChainIdMainnet(l1ChainId) ? mainnetNetworkData : goerliNetworkData
+
+  await _initPolygonzkConnector(
+    true, // isL1
+    l1ChainId,
+    l2ChainId,
+    l1ConnectorAddress,
+    l1BridgeAddress,
+    l2MessengerProxyAddress,
+    POLYGONZK_NETWORK_IDS.POLYGONZK,
+    networkData['polygonzk'].l1MessengerAddress
+  )
+
+  await _initPolygonzkConnector(
+    false, // isL1
+    l1ChainId,
+    l2ChainId,
+    l2ConnectorAddress,
+    l2BridgeAddress,
+    l1ConnectorAddress,
+    POLYGONZK_NETWORK_IDS.MAINNET,
+    networkData['polygonzk'].l2MessengerAddress
+  )
+}
+
+const _initPolygonzkConnector = async (
+  isL1: boolean,
+  l1ChainId: BigNumber,
+  l2ChainId: BigNumber,
+  connectorAddress: string,
+  target: string,
+  counterpart: string,
+  counterpartNetwork: number,
+  messengerAddress: string
+) => {
+  let wallet
+  let overrides
+  if (isL1) {
+    const rpcEndpoint = getEthereumRpcEndpoint(l1ChainId)
+    const provider = new ethers.providers.JsonRpcProvider(rpcEndpoint)
+    wallet = new ethers.Wallet(process.env.DEPLOYER_PRIVATE_KEY, provider)
+    overrides = {}
+  } else {
+    const rpcEndpoint = getPolygonZkRpcEndpoint(l1ChainId)
+    const provider = new l2Ethers.providers.JsonRpcProvider(rpcEndpoint)
+    wallet = new l2Ethers.Wallet(process.env.DEPLOYER_PRIVATE_KEY, provider)
+    overrides = getTxOverridesPerChain(l2ChainId)
+  }
+  const data: string = getInitPolygonzkConnectorMessage(
+    target,
+    counterpart,
+    counterpartNetwork,
+    messengerAddress
+  )
+
+  const tx = await wallet.sendTransaction({
+    to: connectorAddress,
+    data,
+    ...overrides
+  })
+  return tx.wait()
 }
 
 if (require.main === module) {
