@@ -290,18 +290,7 @@ async function main () {
   logData(chains.Base, abi, token, data, defaultValue, timestamp)
 
   // Polygonzk
-  abi = ['function bridgeMessage(uint32,address,bool,bytes)']
-  ethersInterface = new ethersUtils.Interface(abi)
-  l2BridgeAddress = l2BridgeAddresses?.['polygonzk']?.[token]
-  data = !l2BridgeAddress ? null : ethersInterface.encodeFunctionData(
-    'bridgeMessage', [
-      1, // l2Network
-      l2BridgeAddress,
-      false, // forceUpdateGlobalExitRoot
-      calldata
-    ]
-  )
-  logData(chains.Polygonzk, abi, token, data, value, timestamp, fee)
+  console.log('Polygonzk uses connectors. Send the calldata to the connector manually.')
 
   // Linea
   abi = ['function sendMessage(address,uint256,bytes)']
