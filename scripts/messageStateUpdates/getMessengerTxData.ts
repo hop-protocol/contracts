@@ -81,7 +81,8 @@ const targetAddresses: Record<string, Record<string, string>> = {
     HOP: '0xc4448b71118c9071Bcb9734A0EAc55D18A153949',
   },
   linea: {
-    ETH: '0xd19d4B5d358258f05D7B411E21A1460D11B0876F'
+    ETH: '0xd19d4B5d358258f05D7B411E21A1460D11B0876F',
+    HOP: '0xd19d4B5d358258f05D7B411E21A1460D11B0876F'
   },
   zksync: {
     ETH: 'TODO' // TODO: zksync - for prod deployment
@@ -95,7 +96,8 @@ const targetAddresses: Record<string, Record<string, string>> = {
     ETH: 'TODO' // TODO: scroll - for prod deployment
   },
   polygonzk: {
-    ETH: '0x2a3DD3EB832aF982ec71669E178424b10Dca2EDe' 
+    ETH: '0x508d6E0f0Df43c794D7015485980A54f4851fAfa',
+    HOP: '0xB8e061647ef68eAE2bbAae8c46C0d0c0824a7711'
   }
 }
 
@@ -300,7 +302,7 @@ async function main () {
   data = !l2BridgeAddress ? null : ethersInterface.encodeFunctionData(
     'sendMessage', [l2BridgeAddress, fee, calldata]
   )
-  value = 0.000001
+  value = 0.001
   logData(chains.Linea, abi, token, data, value, timestamp, fee)
 
   // // zkSync
