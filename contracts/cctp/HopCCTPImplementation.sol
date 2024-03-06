@@ -12,7 +12,7 @@ interface IAMM {
         uint256 amountIn;
         uint256 amountOutMinimum;
     }
-    
+
     function exactInput(
         ExactInputParams memory params
     ) external returns (uint256 amountOut);
@@ -101,7 +101,7 @@ contract HopCCTPImplementation {
         require(address(nativeToken) == lastTokenAddressInPath, "HOP_CCTP: Path must end with the native token address");
         require(address(this) == swapParams.recipient, "HOP_CCTP: Send recipient must be this contract");
         require(amount == swapParams.amountIn, "HOP_CCTP: Send amount does not match swap amount");
-        
+
         uint256 swapAmount = amm.exactInput(swapParams);
         _send(chainId, recipient, swapAmount, bonderFee);
     }
