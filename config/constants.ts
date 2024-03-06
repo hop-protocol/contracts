@@ -6,15 +6,18 @@ import { parseEther } from 'ethers/lib/utils'
 export const CHAIN_IDS: any = {
   ETHEREUM: {
     MAINNET: BigNumber.from('1'),
-    GOERLI: BigNumber.from('5')
+    GOERLI: BigNumber.from('5'),
+    SEPOLIA_MAINNET: BigNumber.from('11155111'),
   },
   OPTIMISM: {
     OPTIMISM_TESTNET: BigNumber.from('420'),
-    OPTIMISM_MAINNET: BigNumber.from('10')
+    OPTIMISM_MAINNET: BigNumber.from('10'),
+    SEPOLIA_OPTIMISM: BigNumber.from('11155420')
   },
   ARBITRUM: {
     ARBITRUM_TESTNET: BigNumber.from('421613'),
-    ARBITRUM_MAINNET: BigNumber.from('42161')
+    ARBITRUM_MAINNET: BigNumber.from('42161'),
+    SEPOLIA_ARBITRUM: BigNumber.from('421614')
   },
   XDAI: {
     XDAI: BigNumber.from('100')
@@ -35,7 +38,8 @@ export const CHAIN_IDS: any = {
   },
   BASE: {
     BASE_MAINNET: BigNumber.from('8453'),
-    BASE_TESTNET: BigNumber.from('84531')
+    BASE_TESTNET: BigNumber.from('84531'),
+    SEPOLIA_BASE: BigNumber.from('84532')
   },
   SCROLL: {
     SCROLL_TESTNET: BigNumber.from('534353')
