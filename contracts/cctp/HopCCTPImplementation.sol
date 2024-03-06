@@ -79,7 +79,7 @@ abstract contract HopCCTPImplementation {
         require(activeChainIds[chainId], "HOP_CCTP: Cannot send to unsupported chainId");
         require(chainId != block.chainid, "HOP_CCTP: Cannot send to the same chain");
 
-        nativeToken.safeTransferFrom(address(this), feeCollectorAddress, bonderFee);
+        nativeToken.safeTransfer(feeCollectorAddress, bonderFee);
 
         uint256 amountAfterFee = amount - bonderFee;
         uint64 cctpNonce = cctp.depositForBurn(
