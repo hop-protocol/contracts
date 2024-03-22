@@ -164,6 +164,30 @@ export default {
       chainId: CHAIN_IDS.LINEA.LINEA_MAINNET.toNumber(),
       timeout
     },
+    sepolia_mainnet: {
+      url: process.env.RPC_ENDPOINT_SEPOLIA_MAINNET,
+      accounts: desiredAccounts,
+      chainId: CHAIN_IDS.ETHEREUM.SEPOLIA_MAINNET.toNumber(),
+      timeout
+    },
+    sepolia_optimism: {
+      url: process.env.RPC_ENDPOINT_SEPOLIA_OPTIMISM,
+      accounts: desiredAccounts,
+      chainId: CHAIN_IDS.OPTIMISM.SEPOLIA_OPTIMISM.toNumber(),
+      timeout
+    },
+    sepolia_arbitrum: {
+      url: process.env.RPC_ENDPOINT_SEPOLIA_ARBITRUM,
+      accounts: desiredAccounts,
+      chainId: CHAIN_IDS.ARBITRUM.SEPOLIA_ARBITRUM.toNumber(),
+      timeout
+    },
+    sepolia_base: {
+      url: process.env.RPC_ENDPOINT_SEPOLIA_BASE,
+      accounts: desiredAccounts,
+      chainId: CHAIN_IDS.BASE.SEPOLIA_BASE.toNumber(),
+      timeout
+    }
   },
   zksolc: {
     version: '1.3.1',
@@ -172,6 +196,9 @@ export default {
   },
   solidity: {
     compilers: [
+      {
+        version: '0.8.24'
+      },
       {
         settings: {
           optimizer: {
@@ -249,6 +276,10 @@ export default {
       polygonzk_testnet: process.env.POLYGONZK_API_KEY,
       base_mainnet: process.env.BASE_API_KEY,
       linea_mainnet: process.env.LINEA_API_KEY,
+      sepolia_mainnet: process.env.SEPOLIA_MAINNET_API_KEY,
+      sepolia_optimism: process.env.SEPOLIA_OPTIMISM_API_KEY,
+      sepolia_arbitrum: process.env.SEPOLIA_ARBITRUM_API_KEY,
+      sepolia_base: process.env.SEPOLIA_BASE_API_KEY,
     },
     customChains: [
       {
@@ -337,6 +368,38 @@ export default {
         urls: {
           apiURL: 'https://api.lineascan.build/api',
           browserURL: 'https://lineascan.build/'
+        }
+      },
+      {
+        network: 'sepolia_mainnet',
+        chainId: 11155111,
+        urls: {
+          apiURL: 'https://api-sepolia.etherscan.io/api',
+          browserURL: 'https://sepolia.etherscan.io'
+        }
+      },
+      {
+        network: 'sepolia_optimism',
+        chainId: 11155420,
+        urls: {
+          apiURL: 'https://api-sepolia-optimism.etherscan.io/api',
+          browserURL: 'https://sepolia-optimism.etherscan.io'
+        }
+      },
+      {
+        network: 'sepolia_arbitrum',
+        chainId: 421614,
+        urls: {
+          apiURL: 'https://api-sepolia.arbiscan.io/api',
+          browserURL: 'https://sepolia.arbiscan.io/'
+        }
+      },
+      {
+        network: 'sepolia_base',
+        chainId: 84532,
+        urls: {
+          apiURL: 'https://api-sepolia.basescan.org/api',
+          browserURL: 'https://sepolia.basescan.org'
         }
       },
     ]
