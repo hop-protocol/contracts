@@ -4,6 +4,10 @@ import { ethers } from 'hardhat'
 // Example usage:
 // $ npm run deploy:cctp sepolia_mainnet
 
+// You must update OZ to use this version and clear out all older contracts
+// prior to deployment:
+// "@openzeppelin/contracts": "=4.9.6",
+
 type USDCType = 'native' | 'bridged'
 type NetworkType = 'mainnet' | 'sepolia'
 type HopNetworkData = {
@@ -16,11 +20,11 @@ const MIN_BONDER_FEE = '10000'
 
 const AMM_ADDRESS_MAP: Record<NetworkType, Record<number, string>> = {
   ['mainnet']: {
-    1: '0xE592427A0AEce92De3Edee1F18E0157C05861564', // Ethereum
-    10: '0xE592427A0AEce92De3Edee1F18E0157C05861564', // Optimism
-    42161: '0xE592427A0AEce92De3Edee1F18E0157C05861564', // Arbitrum
+    1: '0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45', // Ethereum
+    10: '0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45', // Optimism
+    42161: '0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45', // Arbitrum
     8453: '0x2626664c2603336E57B271c5C0b26F421741e481', // Base
-    137: '0xE592427A0AEce92De3Edee1F18E0157C05861564', // Polygon PoS
+    137: '0x68b3465833fb72A70ecDF485E0e4C7bD8665Fc45', // Polygon PoS
   },
   ['sepolia']: {
     11155111: '0x3bFA4769FB09eefC5a80d6E87c3B9C650f7Ae48E', // Ethereum
@@ -47,7 +51,7 @@ const CCTP_DOMAIN_MAP: Record<NetworkType, Record<number, number>> = {
 
 const CCTP_ADDRESS_MAP: Record<NetworkType, Record<number, string>> = {
   ['mainnet']: {
-    1: '0x9f3B8679c73C2Fef8b59B4f3444d4e156fb70AA5', // Ethereum
+    1: '0xBd3fa81B58Ba92a82136038B25aDec7066af3155', // Ethereum
     10: '0x2B4069517957735bE00ceE0fadAE88a26365528f', // Optimism
     42161: '0x19330d10D9Cc8751218eaf51E8885D058642E08A', // Arbitrum
     8453: '0x1682Ae6375C4E4A97e4B583BC394c861A46D8962', // Base
@@ -97,11 +101,11 @@ const USDC_ADDRESS_MAP: Record<USDCType, Record<NetworkType, Record<number, stri
 /**
  * Addresses
  * * Mainnet
- * eth: 
- * opt: 
- * arb: 
- * bas: 
- * pol: 
+ * eth: 0x3cdc4bf5FC09E18a0A3b6F85A785448ACA3B42A8
+ * opt: 0x469147af8Bde580232BE9DC84Bb4EC84d348De24
+ * arb: 0x6504BFcaB789c35325cA4329f1f41FaC340bf982
+ * bas: 0xe7F40BF16AB09f4a6906Ac2CAA4094aD2dA48Cc2
+ * pol: 0x1CD391bd1D915D189dE162F0F1963C07E60E4CD6
  * 
  * * Sepolia
  * eth: 0xB87aC009F61Fa214f196e232fD14A6f8AE422FA1
@@ -128,11 +132,8 @@ async function main () {
     opts.gasPrice = 5000000000
   }
 
-  console.log('aaa', contractArtifact)
   const params = await getConstructorParams(network.chainId)
-  console.log('bbb', params)
   const hopCCTPImplementation= await HopCCTPImplementation.deploy(...params, opts)
-  console.log('ccc')
   await hopCCTPImplementation.deployed()
 
   console.log('hopCCTPImplementation address:', hopCCTPImplementation.address)
