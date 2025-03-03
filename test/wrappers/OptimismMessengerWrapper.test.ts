@@ -38,17 +38,17 @@ describe('Optimism Messenger Wrapper', () => {
 
   it('Should set the correct values in the constructor ', async () => {
     const expectedL1BridgeAddress: string = l1_bridge.address
-    const expectedXDomainAddress: string = l2_bridgeConnector.address
+    const expectedxDomainConnector: string = l2_bridgeConnector.address
     const expectedDefaultGasLimit: number = DEFAULT_MESSENGER_WRAPPER_GAS_LIMIT
     const expectedL1MessengerAddress: string = l1_messenger.address
 
-    const l1BridgeAddress: string = await l1_messengerWrapper.owner()
-    const xDomainAddress: string = await l1_messengerWrapper.xDomainAddress()
+    const l1BridgeAddress: string = await l1_messengerWrapper.localAddress()
+    const xDomainConnector: string = await l1_messengerWrapper.xDomainConnector()
     const defaultGasLimit: string = await l1_messengerWrapper.defaultGasLimit()
     const l1MessengerAddress: string = await l1_messengerWrapper.l1MessengerAddress()
 
     expect(expectedL1BridgeAddress).to.eq(l1BridgeAddress)
-    expect(expectedXDomainAddress).to.eq(xDomainAddress)
+    expect(expectedxDomainConnector).to.eq(xDomainConnector)
     expect(expectedDefaultGasLimit).to.eq(defaultGasLimit)
     expect(expectedL1MessengerAddress).to.eq(l1MessengerAddress)
   })

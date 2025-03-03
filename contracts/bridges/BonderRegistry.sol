@@ -19,6 +19,7 @@ contract BonderRegistry is IBonderRegistry, Ownable {
 
     constructor(address[] memory bonders) public {
         for (uint256 i = 0; i < bonders.length; i++) {
+            require(bonders[i] != address(0), "BR: Cannot add zero address bonder");
             isBonder[bonders[i]] = true;
         }
     }
@@ -37,6 +38,7 @@ contract BonderRegistry is IBonderRegistry, Ownable {
      * @param bonder The address being added as a Bonder
      */
     function addBonder(address bonder) external onlyOwner {
+        require(bonder != address(0), "BR: Cannot add zero address bonder");
         require(isBonder[bonder] == false, "BR: Address is already bonder");
         isBonder[bonder] = true;
 

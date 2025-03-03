@@ -8,6 +8,20 @@ import "@openzeppelin/contracts/token/ERC20/SafeERC20.sol";
 import "./Bridge.sol";
 import "./L2_Bridge.sol";
 
+contract IL2_Bridge is SwapDataConsumer {
+    // Redeclare distribute as payable allow value to be forwarded to xDomainConnector
+    function distribute(
+        address recipient,
+        uint256 amount,
+        SwapData calldata swapData,
+        address relayer,
+        uint256 relayerFee
+    )
+        external 
+        payable
+    {}
+}
+
 /**
  * @dev L1_Bridge is responsible for the bonding and challenging of TransferRoots. All TransferRoots
  * originate in the L1_Bridge through `bondTransferRoot` and are propagated up to destination L2s.
@@ -100,6 +114,7 @@ abstract contract L1_Bridge is Bridge {
         public
         Bridge(_registry)
     {
+        require(_token != address(0), "L1_BRG: Cannot set token to zero address");
         token = _token;
     }
 
@@ -145,7 +160,7 @@ abstract contract L1_Bridge is Bridge {
             forwardedValue = msg.value;
         }
 
-        L2_Bridge(xDomainConnector).distribute(
+        IL2_Bridge(xDomainConnector).distribute{value: forwardedValue}(
             recipient,
             amount,
             swapData,
@@ -328,7 +343,7 @@ abstract contract L1_Bridge is Bridge {
         address bonder = transferBond.bonder;
         timeSlotToAmountBonded[timeSlot][bonder] = timeSlotToAmountBonded[timeSlot][bonder].sub(bondAmount);
 
-        _addDebit(transferBond.bonder, bondAmount);
+        _addDebit(bonder, bondAmount);
 
         // Get stake for challenge
         uint256 challengeStakeAmount = getChallengeAmountForTransferAmount(originalAmount);

@@ -1306,11 +1306,11 @@ export const getSetL1GovernanceMessage = (l1_governanceAddress: string) => {
   return ethersInterface.encodeFunctionData('setL1Governance', [l1_governanceAddress])
 }
 
-export const getSetL1BridgeConnectorMessage = (l1_bridge: Contract | string) => {
+export const getSetBridgeConnectorMessage = (l1_bridge: Contract | string) => {
   const address = getAddressFromContractOrString(l1_bridge)
-  const ABI = ['function setL1BridgeConnector(address _l1BridgeAddress)']
+  const ABI = ['function setBridgeConnector(address _l1BridgeAddress)']
   const ethersInterface = new ethersUtils.Interface(ABI)
-  return ethersInterface.encodeFunctionData('setL1BridgeConnector', [address])
+  return ethersInterface.encodeFunctionData('setBridgeConnector', [address])
 }
 
 export const getSetL1CallerMessage = (

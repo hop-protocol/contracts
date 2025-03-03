@@ -211,8 +211,8 @@ export async function fixture (
   )
 
   if (!isChainIdPolygon(l2ChainId)) {
-    await l1_messengerWrapper.setXDomainAddress(l2_bridgeConnector.address)
-    await l2_bridgeConnector.setXDomainAddress(l1_messengerWrapper.address)
+    await l1_messengerWrapper.setxDomainConnector(l2_bridgeConnector.address)
+    await l2_bridgeConnector.setxDomainConnector(l1_messengerWrapper.address)
   }
 
   // Deploy AMM contracts
